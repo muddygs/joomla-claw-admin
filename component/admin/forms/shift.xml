@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+  <field
+    name="id"
+    type="hidden"
+    label="JGLOBAL_FIELD_ID_LABEL"
+    class="readonly"
+    default="0"
+    readonly="true"
+  />
+
+  <field
+    name="title"
+    type="text"
+    label="Shift Title"
+    required="true"
+    maxLength="30"
+  />
+
+  <field
+    name="description"
+    type="text"
+    label="Shift Description"
+    required="true"
+    maxLength="30"
+  />
+
+  <field
+    name="location"
+    type="sql"
+    default="1"
+    label="Primary Location"
+    required="true"
+    query="SELECT id,value FROM #__claw_locations WHERE catid=0"
+    key_field="id"
+    value_field="value"
+  />
+
+  <field
+    name="requirements"
+    type="text"
+    label="Shift Requirements/Restrictions"
+    required="true"
+    maxLength="30"
+  />
+
+<!-- https://joomla.stackexchange.com/questions/2406/filtering-list-of-users-in-user-form-field-type -->
+  <field
+    name="coordinators"
+    type="list"
+    label="Coordinators"
+    description="Select as least one coordinator"
+    multiple="true"
+    layout="joomla.form.field.list-fancy-select"
+    default=""
+    required="true"
+  >
+  </field>
+
+  <field
+    name="grid"
+    type="subform"
+    label="Grid"
+    multiple="true"
+    min="1"
+    required="true"
+    formsource="/administrator/components/com_claw/forms/shiftgridrow.xml"
+    layout="shiftgridrow"
+  >
+
+  </field>
+
+  <field
+    name="published"
+    type="list"
+    label="JSTATUS"
+    class="form-select-color-state"
+    default="1"
+    validate="options"
+    >
+    <option value="1">JPUBLISHED</option>
+    <option value="0">JUNPUBLISHED</option>
+    <option value="2">JARCHIVED</option>
+    <option value="-2">JTRASHED</option>
+  </field>
+</form>

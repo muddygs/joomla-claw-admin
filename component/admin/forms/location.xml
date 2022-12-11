@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+    <field
+      name="id"
+      type="hidden"
+      label="JGLOBAL_FIELD_ID_LABEL"
+      class="readonly"
+      default="0"
+      readonly="true"
+    />
+
+    <field
+      name="catid"
+      type="list"
+      client="administrator"
+      label="Parent Location"
+      description="Select parent location"
+      multiple="false"
+      layout="joomla.form.field.list-fancy-select"
+      default="0"
+    >
+      <option value="0">None</option>
+    </field>
+
+    <field
+      name="ordering"
+      type="ordering"
+      label="Ordering"
+      content_type="com_claw.location"
+      title="Ordering"
+    />
+
+    <field
+      name="value"
+      type="text"
+      label="Location"
+      required="true"
+      maxLength="255"
+    />
+
+    <field
+      name="alias"
+      type="text"
+      label="Alias"
+      required="false"
+      maxLength="255"
+      pattern="^[a-z0-9_-]+$"
+    />
+</form>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" method="upgrade">
+
+	<name>CLAW</name>
+	<creationDate>2022-DEC-09</creationDate>
+	<author>CLAW Corp.</author>
+	<authorUrl>https://www.clawinfo.org/</authorUrl>
+	<copyright>(c) 2022 CLAW Corp.</copyright>
+	<license>GNU/GPLv2</license>
+	<version>0.0.8</version>
+	<description>CLAW Data Administration</description>
+
+	<namespace path="src/">ClawCorp\Component\Claw</namespace>
+
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/install.mysql.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+	</uninstall>
+	<update>
+	</update>
+	
+	<scriptfile>script.php</scriptfile>
+
+	<administration>
+		<!-- Administration Menu Section -->
+		<menu img="class:bookmark">CLAW</menu>
+
+		<submenu>
+				<menu
+					link="option=com_claw"
+					view="claw"
+					img="class:banners"
+					alt="CLAW/CLAW"
+					>
+						Dashboard
+				</menu>
+				<menu
+					link="option=com_claw&amp;view=currentitems"
+					view="currentitems"
+					img="class:banners"
+					alt="CLAW/CLAW"
+					>
+						Config
+				</menu>
+				<menu
+					link="option=com_claw&amp;view=locations"
+					view="locations"
+					img="class:banners"
+					alt="CLAW/CLAW"
+					>
+						Locations
+				</menu>
+				<menu
+					link="option=com_claw&amp;view=sponsors"
+					view="sponsors"
+					img="class:banners"
+					alt="CLAW/CLAW"
+					>
+						Sponsors
+				</menu>
+				<menu
+					link="option=com_claw&amp;view=events"
+					view="events"
+					img="class:banners"
+					alt="CLAW/CLAW"
+					>
+						Events
+				</menu>
+				<menu
+					link="option=com_claw&amp;view=shifts"
+					view="shifts"
+					img="class:banners"
+					alt="CLAW/CLAW"
+					>
+						Shifts
+				</menu>
+
+		</submenu>
+		<!-- Administration Main File Copy Section -->
+		<!-- Note the folder attribute: This attribute describes the folder
+			to copy FROM in the package to install therefore files copied
+			in this section are copied from /admin/ in the package -->
+		<files folder="admin/">
+				<folder>forms</folder>
+				<folder>language</folder>
+				<folder>layouts</folder>
+				<folder>libraries</folder>
+				<folder>services</folder>
+				<folder>sql</folder>
+				<folder>src</folder>
+				<folder>tmpl</folder>
+                <file>LICENSE.txt</file>
+                <file>readme.md</file>
+		</files>
+		
+		<languages>
+            <language tag="en-GB">admin/language/en-GB/en-GB.com_claw.ini</language>
+            <language tag="en-GB">admin/language/en-GB/en-GB.com_claw.sys.ini</language>
+        </languages>
+	</administration>
+
+</extension>
+

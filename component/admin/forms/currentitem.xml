@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+  <field
+    name="id"
+    type="hidden"
+    label="JGLOBAL_FIELD_ID_LABEL"
+    class="readonly"
+    default="0"
+    readonly="true"
+  />
+
+  <field
+    name="name"
+    type="text"
+    label="Key Name"
+    required="true"
+    maxLength="50"
+    pattern="^\S+$"
+  />
+
+  <field
+    name="type"
+    type="list"
+    label="Value Type"
+    required="true"
+    default="string"
+    validate="options"
+    >
+    <option value="string">String</option>
+    <option value="number">Numeric</option>
+    <option value="stringarray">String Array</option>
+    <option value="numberarray">Numeric Array</option>
+    <option value="bool">Boolean</option>
+  </field>
+
+  <field
+    name="value"
+    type="subform"
+    label="Values"
+  	description="Enter values as needed; use [KEYNAME] to merge with another key/value(s)"
+	  multiple="true"
+	  min="1"
+    required="true"
+    layout="joomla.form.field.subform.repeatable-table"
+  >
+    <form>
+      <field
+        name="subvalue"
+        type="text"
+        pattern="^\S+$"
+        required="true"
+        maxLength="50"
+        label="Value"
+      />
+    </form>
+  </field>
+</form>

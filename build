@@ -1,0 +1,10 @@
+#!/bin/bash
+
+rm pkg_claw.zip
+
+cd component && zip -r ../package/packages/com_claw.zip . && cd -
+cd library   && zip -r ../package/packages/lib_claw.zip . && cd -
+#cd plugin    && zip -r ../package/packages/plg_claw.zip . && cd -
+
+cd package   && zip -r ../pkg_claw.zip . && cd -
+

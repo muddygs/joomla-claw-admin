@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="library" method="upgrade">
+    <name>CLAW Support Libraries</name>
+    <author>CLAW Corp.</author>
+    <creationDate>2022-DEC-09</creationDate>
+    <copyright>Copyright 2022 CLAW Corp. - All Rights Reserved</copyright>
+    <license>GNU/GPLv2</license>
+    <authorEmail>webmaster@clawinfo.org</authorEmail>
+    <authorUrl>www.clawinfo.org</authorUrl>
+    <version>0.0.8</version>
+    <description>CLAW Support Libraries</description>
+
+    <libraryname>claw</libraryname>
+    <files>
+        <folder>Shifts</folder>
+        <folder>Helpers</folder>
+        <file>init.php</file>
+		<file>claw.xml</file>
+    </files>
+</extension>

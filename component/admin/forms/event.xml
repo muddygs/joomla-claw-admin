@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+    <field
+      name="id"
+      type="hidden"
+      label="JGLOBAL_FIELD_ID_LABEL"
+      class="readonly"
+      default="0"
+      readonly="true"
+    />
+
+    <field
+      name="catid"
+      type="list"
+      client="administrator"
+      label="Event Day"
+      description="Select day"
+      multiple="false"
+      layout="joomla.form.field.list-fancy-select"
+      default="0"
+    >
+      <option value="0">None</option>
+    </field>
+
+    <field
+      name="timestart"
+      type="time"
+      label="Start Time"
+      description="Start time of event"
+      required="true"
+      min="0"
+      max="2359"
+      step="15"
+      default="0"
+    />
+    <field
+      name="timeend"
+      type="time"
+      label="Ending Time"
+      description="Start time of event"
+      required="true"
+      min="0"
+      max="2359"
+      step="15"
+      default="0"
+    />
+
+    <field
+      name="sponsors"
+      type="list"
+      label="Sponsors"
+      description="Select sponsors"
+      multiple="true"
+      layout="joomla.form.field.list-fancy-select"
+      default=""
+      required="false"
+    >
+    </field>
+
+    <field
+      name="ordering"
+      type="ordering"
+      label="Ordering"
+      content_type="com_claw.location"
+      title="Ordering"
+    />
+
+    <field
+      name="value"
+      type="text"
+      label="Event Title"
+      required="true"
+      maxLength="255"
+    />
+
+    <field
+      name="description"
+      type="editor"
+      label="Event Description"
+      buttons="false"
+    />
+
+    <field
+      name="locationid"
+      type="list"
+      label="Location"
+      description="Select location"
+      multiple="true"
+      default=""
+      required="true"
+    >
+    </field>
+
+</form>
