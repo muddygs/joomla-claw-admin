@@ -11,8 +11,6 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
-use ClawHelpers;
-use ClawShiftGrids;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
@@ -20,7 +18,7 @@ use Joomla\CMS\Date\Date;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\View\GenericDataException;
 
-use ClawCorpLib\Grids\Grids;
+use ClawCorpLib\Grid\Grids;
 use ClawCorpLib\Helpers\Helpers;
 
 

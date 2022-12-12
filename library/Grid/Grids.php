@@ -1,13 +1,12 @@
 <?php
 
-namespace ClawCorpLib\Grids;
+namespace ClawCorpLib\Grid;
 
 // This class enforces data format for received form data
 
 use ClawCorp\Component\Claw\Administrator\Model\ShiftModel;
 use Joomla\CMS\Factory;
 use ClawCorpLib\Grid\Grid;
-use Joomla\CMS\Form\Form;
 
 class Grids extends ShiftModel
 {
