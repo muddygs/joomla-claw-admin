@@ -44,8 +44,8 @@
   </field>
 
   <field
-    type="media"
     name="logo_small"
+    type="media"
     label="Small Logo"
     descript="Should be 100x100 pixels"
     preview="tooltip"

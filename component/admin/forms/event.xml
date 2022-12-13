@@ -1,94 +1,146 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form>
-    <field
-      name="id"
-      type="hidden"
-      label="JGLOBAL_FIELD_ID_LABEL"
-      class="readonly"
-      default="0"
-      readonly="true"
-    />
+  <field
+    name="id"
+    type="hidden"
+    label="JGLOBAL_FIELD_ID_LABEL"
+    class="readonly"
+    default="0"
+    readonly="true"
+  />
 
-    <field
-      name="catid"
-      type="list"
-      client="administrator"
-      label="Event Day"
-      description="Select day"
-      multiple="false"
-      layout="joomla.form.field.list-fancy-select"
-      default="0"
-    >
-      <option value="0">None</option>
-    </field>
+  <field
+    name="day"
+    type="list"
+    client="administrator"
+    label="Event Day"
+    description="Select day"
+    multiple="false"
+    default="0"
+  >
+    <option value="0">None</option>
+  </field>
 
-    <field
-      name="timestart"
-      type="time"
-      label="Start Time"
-      description="Start time of event"
-      required="true"
-      min="0"
-      max="2359"
-      step="15"
-      default="0"
-    />
-    <field
-      name="timeend"
-      type="time"
-      label="Ending Time"
-      description="Start time of event"
-      required="true"
-      min="0"
-      max="2359"
-      step="15"
-      default="0"
-    />
+  <field
+    name="start_time"
+    type="time"
+    label="Start Time"
+    description="Start time of event"
+    required="true"
+    min="0"
+    max="2359"
+    step="15"
+    default="0"
+  />
+  <field
+    name="end_time"
+    type="time"
+    label="Ending Time"
+    description="Start time of event"
+    required="true"
+    min="0"
+    max="2359"
+    step="15"
+    default="0"
+  />
 
-    <field
-      name="sponsors"
-      type="list"
-      label="Sponsors"
-      description="Select sponsors"
-      multiple="true"
-      layout="joomla.form.field.list-fancy-select"
-      default=""
-      required="false"
-    >
-    </field>
+  <field
+    name="featured"
+    type="checkbox"
+    label="Featured Event"
+    description="Featured events always appear first in the frontend layout"
+    value="1"
+  />
 
-    <field
-      name="ordering"
-      type="ordering"
-      label="Ordering"
-      content_type="com_claw.location"
-      title="Ordering"
-    />
+  <field
+    name="event_title"
+    type="text"
+    lable="Event Title"
+    filter="safehtml"
+    required="true"
+  />
 
-    <field
-      name="value"
-      type="text"
-      label="Event Title"
-      required="true"
-      maxLength="255"
-    />
+  <field
+    name="fee_event"
+    type="checkboxes"
+    default="0"
+    required="true"
+  >
+    <option value="0">Included</option>
+    <option value="1">Preorder Required</option>
+    <option value="2">Door Purchase Available</option>
+    <option vable="4">At Door Only</option>
+  </field>
 
-    <field
-      name="description"
-      type="editor"
-      label="Event Description"
-      buttons="false"
-    />
+  <field
+    name="event_id"
+    type="list"
+    client="administrator"
+    label="Event Booking Event"
+    description="Select Event"
+    multiple="false"
+    default="0"
+  >
+    <option value="0">None</option>
+  </field>
 
-    <field
-      name="locationid"
-      type="list"
-      label="Location"
-      description="Select location"
-      multiple="true"
-      default=""
-      required="true"
-    >
-    </field>
+  <field 
+    name="event_description"
+    type="editor"
+    label="Description"
+    filter="safehtml"
+    required="true"
+  />
 
+  <field 
+    name="onsite_description"
+    type="editor"
+    label="Onsite Description"
+    filter="safehtml"
+  />
+
+  <field
+    name="location"
+    type="list"
+    label="Location"
+    description="Location"
+    multiple="false"
+    layout="joomla.form.field.list-fancy-select"
+    default=""
+    required="true"
+  >
+  </field>
+
+  <field
+    name="sponsors"
+    type="list"
+    label="Sponsors"
+    description="Select sponsors"
+    multiple="true"
+    layout="joomla.form.field.list-fancy-select"
+    default=""
+    required="false"
+  >
+  </field>
+
+  <field
+    name="poster"
+    type="media"
+    label="Event Poster"
+    descript="Should be 600 pixels wide"
+    preview="tooltip"
+    preview_width="200"
+    preview_height="100"
+  />
+
+  <field
+    name="sort_order"
+    type="hidden"
+    label="Sort Order"
+  />
+  <field
+    name="modification_time"
+    type="hidden"
+    label="Modification Time"
+  />
 </form>

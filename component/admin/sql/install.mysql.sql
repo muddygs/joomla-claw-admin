@@ -90,3 +90,31 @@ ALTER TABLE `#__claw_shifts_grids`
 
 ALTER TABLE `#__claw_shifts_grids`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `#__claw_events` (
+  `id` int(11) NOT NULL,
+  `published` text DEFAULT NULL,
+  `day` text DEFAULT NULL,
+  `start_time` time DEFAULT NULL,
+  `end_time` time DEFAULT NULL,
+  `featured` text DEFAULT NULL,
+  `event_title` varchar(255) DEFAULT NULL,
+  `fee_event` text DEFAULT NULL,
+  `event_description` text DEFAULT NULL,
+  `onsite_description` text DEFAULT NULL,
+  `location` text DEFAULT NULL,
+  `sponsors` int(11) DEFAULT NULL,
+  `poster` text DEFAULT NULL,
+  `photo_size` varchar(255) DEFAULT NULL,
+  `event_id` int(4) DEFAULT NULL,
+  `sort_order` varchar(255) DEFAULT NULL,
+  `modification_time` datetime DEFAULT NULL
+) ENGINE = InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `#__claw_events`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fb_groupby_day_INDEX` (`day`(10)),
+  ADD KEY `fb_groupbyorder_sort_order_INDEX` (`sort_order`(10));
+
+ALTER TABLE `#__claw_events`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

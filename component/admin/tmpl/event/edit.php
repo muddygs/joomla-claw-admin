@@ -21,7 +21,7 @@ HTMLHelper::_('behavior.keepalive');
 $ordering = $this->item->ordering ?? -1;
 $currentParent = $this->item->catid;
 
-$view = 'location';
+$view = 'event';
 
 // deal with ordering on new records in the model (put last in parent group)
 //			<?php echo $this->form->renderField('ordering');
