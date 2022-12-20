@@ -10,6 +10,20 @@
   />
 
   <field
+    name="published"
+    type="list"
+    label="JSTATUS"
+    class="form-select-color-state"
+    default="1"
+    validate="options"
+    >
+    <option value="1">JPUBLISHED</option>
+    <option value="0">JUNPUBLISHED</option>
+    <option value="2">JARCHIVED</option>
+    <option value="-2">JTRASHED</option>
+  </field>
+
+  <field
     name="day"
     type="list"
     client="administrator"
@@ -18,7 +32,6 @@
     multiple="false"
     default="0"
   >
-    <option value="0">None</option>
   </field>
 
   <field
@@ -36,7 +49,7 @@
     name="end_time"
     type="time"
     label="Ending Time"
-    description="Start time of event"
+    description="End time of event"
     required="true"
     min="0"
     max="2359"
@@ -55,7 +68,7 @@
   <field
     name="event_title"
     type="text"
-    lable="Event Title"
+    label="Event Title"
     filter="safehtml"
     required="true"
   />
@@ -63,13 +76,14 @@
   <field
     name="fee_event"
     type="checkboxes"
+    label="Purchase Options"
     default="0"
     required="true"
   >
-    <option value="0">Included</option>
+    <option value="0" checked="1">Included</option>
     <option value="1">Preorder Required</option>
     <option value="2">Door Purchase Available</option>
-    <option vable="4">At Door Only</option>
+    <option value="4">At Door Only</option>
   </field>
 
   <field

@@ -142,7 +142,7 @@ class LocationsModel extends ListModel
 	public function getItems()
 	{
 		$result = [];
-		$db = $this->getDbo();
+		$db = $this->getDatabase();
 		$query = $this->getListQuery();
 
 		$db->setQuery($query);
@@ -187,7 +187,7 @@ class LocationsModel extends ListModel
 	protected function getListQuery()
 	{
 		// Create a new query object.
-		$db    = $this->getDbo();
+		$db    = $this->getDatabase();
 		$query = $db->getQuery(true);
 
 		// Select the required fields from the table.
@@ -224,9 +224,9 @@ class LocationsModel extends ListModel
 
 	public function delete(array $cid): bool
 	{
-		$db = $this->getDbo();
+		$db = $this->getDatabase();
 		$query = $db->getQuery(true);
-		$query->delete($db->quoteName('#__claw_locations'))->where($db->qn('id') . ' IN (' . implode(',', $cid) . ')');
+		$query->delete($db->quoteName('#__claw_locations'))->where($db->quoteName('id') . ' IN (' . implode(',', $cid) . ')');
 		$db->setQuery($query);
 		$db->execute();
 		return true;

@@ -26,7 +26,7 @@ return new class implements ServiceProviderInterface {
 		{
 			throw new RuntimeException('CLAW library is not installed', 500);
 		}
-		
+
         $container->registerServiceProvider(new MVCFactory('\\ClawCorp\\Component\\Claw'));
         $container->registerServiceProvider(new ComponentDispatcherFactory('\\ClawCorp\\Component\\Claw'));
         $container->set(

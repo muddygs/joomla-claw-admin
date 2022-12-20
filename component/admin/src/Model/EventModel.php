@@ -14,11 +14,10 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Form\Field\FormField;
-use Joomla\CMS\Form\Field\ListField;
-use ClawCorp\Component\Claw\Administrator\Helper\EventHelper;
 use Joomla\CMS\Application\AdministratorApplication;
-use Joomla\CMS\Application\CMSApplication;
+
+use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\ClawEvents;
 
 /**
  * Methods to handle a list of records.
@@ -84,15 +83,20 @@ class EventModel extends AdminModel
 		// Get the form.
 		$form = $this->loadForm('com_claw.event', 'event', array('control' => 'jform', 'load_data' => $loadData));
 
-		//$s = $this->getState('event.id');
-		$parentField = $this->castListField($form->getField('catid'));
+		$s = $this->getState('event.id');
 
-		$parentEvents = []; // EventHelper::getCandidateParents($this->getDatabase());
-		
-		foreach ( $parentEvents AS $p )
-		{
-			$parentField->addOption($p->value, ['value' => $p->id]);
-		}
+		$e = new ClawEvents("l1122");
+		$info = $e->getClawEventInfo();
+
+		$parentField = Helpers::castListField($form->getField('day'));
+		$current = $info->start_date;
+
+		$days = Helpers::getDateArray($info->start_date);
+		$parentField->addOption('Wed', ['value' => $days['Wed']]);
+		$parentField->addOption('Thu', ['value' => $days['Thu']]);
+		$parentField->addOption('Fri', ['value' => $days['Fri']]);
+		$parentField->addOption('Sat', ['value' => $days['Sat']]);
+		$parentField->addOption('Sun', ['value' => $days['Sun']]);
 
 		if (empty($form))
 		{
@@ -102,15 +106,7 @@ class EventModel extends AdminModel
 		return $form;
 	}
 
-	/**
-	 * Hack for Intelliphense
-	 * @param mixed $p 
-	 * @return ListField 
-	 */
-	private function castListField($p): ListField
-	{
-		return $p;
-	}
+
 
 	/**
 	 * Hack for Intelliphense
@@ -140,7 +136,7 @@ class EventModel extends AdminModel
 			$data = $this->getItem();
 		}
 
-		$app->setUserState("com_claw.event.old", $data->catid);
+		//$app->setUserState("com_claw.event.old", $data->catid);
 
 		return $data;
 	}

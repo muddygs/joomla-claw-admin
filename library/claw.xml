@@ -16,5 +16,6 @@
         <folder>Helpers</folder>
         <file>init.php</file>
         <file>claw.xml</file>
+        <file>LICENSE.txt</file>
     </files>
 </extension>

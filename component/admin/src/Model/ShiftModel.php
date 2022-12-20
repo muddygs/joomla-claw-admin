@@ -96,7 +96,7 @@ class ShiftModel extends AdminModel
 
 		$p = Helpers::castListField($form->getField('coordinators'));
 
-		$coordinators = Helpers::getUsersByGroupName($this->getDbo(), 'VolunteerCoord');
+		$coordinators = Helpers::getUsersByGroupName($this->getDatabase(), 'VolunteerCoord');
 
 		foreach ( $coordinators AS $c )
 		{

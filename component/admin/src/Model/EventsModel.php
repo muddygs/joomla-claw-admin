@@ -22,6 +22,9 @@ use Joomla\CMS\MVC\Model\ListModel;
  */
 class EventsModel extends ListModel
 {
+
+	private array $fields = [ 'id', 'published', 'day', 'event_title', 'location' ];
+
 	/**
 	 * Constructor.
 	 *
@@ -33,14 +36,13 @@ class EventsModel extends ListModel
 	public function __construct($config = array())
 	{
 		if (empty($config['filter_fields'])) {
-			$config['filter_fields'] = array(
-				'id', 'a.id',
-				'published', 'a.published',
-				'ordering', 'a.ordering',
-				'catid', 'a.catid',
-				'value', 'a.value',
-				'alias', 'a.alias',
-			);
+			$config['filter_fields'] = [];
+			
+			foreach( $this->fields AS $f )
+			{
+				$config['filter_fields'][] = $f;
+				$config['filter_fields'][] = 'a'.$f;
+			}
 		}
 
 		parent::__construct($config);
@@ -62,7 +64,7 @@ class EventsModel extends ListModel
 	 *
 	 * @since   3.0.1
 	 */
-	protected function populateState($ordering = 'value', $direction = 'ASC')
+	protected function populateState($ordering = 'start_time', $direction = 'ASC')
 	{
 		$app = Factory::getApplication();
 
@@ -177,7 +179,7 @@ class EventsModel extends ListModel
 	}
 
 	/**
-	 * Get the master query for retrieving a list of countries subject to the model state.
+	 * Get the master query for retrieving a list of events in the model state.
 	 *
 	 * @return  \Joomla\Database\DatabaseQuery
 	 *
@@ -192,15 +194,7 @@ class EventsModel extends ListModel
 		// Select the required fields from the table.
 		$query->select(
 			$this->getState(
-				'list.select',
-				[
-					$db->quoteName('a.id'),
-					$db->quoteName('a.published'),
-					$db->quoteName('a.ordering'),
-					$db->quoteName('a.catid'),
-					$db->quoteName('a.value'),
-					$db->quoteName('a.alias'),
-				]
+				'list.select', array_map( function($a) use($db) { return $db->quoteName('a.'.$a); }, $this->fields)
 			)
 		)
 			->from($db->quoteName('#__claw_events', 'a'));
@@ -210,11 +204,11 @@ class EventsModel extends ListModel
 
 		if (!empty($search)) {
 			$search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
-			$query->where('(a.value LIKE ' . $search . ')');
+			$query->where('(a.event_title LIKE ' . $search . ')');
 		}
 
 		// Add the list ordering clause.
-		$orderCol  = $this->state->get('list.ordering', 'a.value');
+		$orderCol  = $this->state->get('list.ordering', 'a.start_time');
 		$orderDirn = $this->state->get('list.direction', 'ASC');
 
 		$query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
@@ -224,8 +218,11 @@ class EventsModel extends ListModel
 	public function delete(array $cid): bool
 	{
 		$db = $this->getDatabase();
+
+		$cid = $db->quote($cid);
+
 		$query = $db->getQuery(true);
-		$query->delete($db->quoteName('#__claw_events'))->where($db->quoteName('id') . ' IN (' . implode(',', $cid) . ')');
+		$query->delete($db->quoteName('#__claw_events'))->where($db->quoteName('id') . ' IN (' . implode(',', (array)$cid) . ')');
 		$db->setQuery($query);
 		$db->execute();
 		return true;

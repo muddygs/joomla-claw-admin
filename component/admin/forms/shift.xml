@@ -31,7 +31,7 @@
     default="1"
     label="Primary Location"
     required="true"
-    query="SELECT id,value FROM #__claw_locations WHERE catid=0"
+    query="SELECT id,value FROM #__claw_locations WHERE catid=0 AND published=1"
     key_field="id"
     value_field="value"
   />

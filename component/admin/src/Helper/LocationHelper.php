@@ -9,7 +9,7 @@
 
 namespace ClawCorp\Component\Claw\Administrator\Helper;
 
-use Joomla\Database\DatabaseInterface;
+use Joomla\Database\DatabaseDriver;
 use RuntimeException;
 
 /***
@@ -18,7 +18,7 @@ use RuntimeException;
 
 class LocationHelper
 {
-  public static function nextOrdering(DatabaseInterface $db, int $catid): int
+  public static function nextOrdering(DatabaseDriver $db, int $catid): int
   {
     $query = 'SELECT MAX(ordering) FROM #__claw_locations WHERE `catid`='.$db->q($catid);
     $db->setQuery($query);
@@ -28,11 +28,11 @@ class LocationHelper
 
   /**
    * Currently, returns list of top-level only locations (i.e., no sub-parents)
-   * @param DatabaseInterface $db Database object
+   * @param DatabaseDriver $db Database object
    * @return object Result columns: id, value
    * @throws RuntimeException 
    */
-  public static function getCandidateParents(DatabaseInterface $db): array
+  public static function getCandidateParents(DatabaseDriver $db): array
   {
     $query = <<<SQL
     SELECT id,value

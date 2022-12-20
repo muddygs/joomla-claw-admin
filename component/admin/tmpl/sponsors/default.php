@@ -16,6 +16,8 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Button\PublishedButton;
 
+use ClawCorpLib\Helpers\Helpers;
+
 $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn  = $this->escape($this->state->get('list.direction'));
 
@@ -70,9 +72,9 @@ $user = $app->getIdentity();
           </td>
           <td>
             <?php 
-              if ( array_key_exists($item->type, ClawHelpers::sponsorshipTypes) )
+              if ( array_key_exists($item->type, Helpers::sponsorshipTypes) )
               {
-                echo ClawHelpers::sponsorshipTypes[$item->type];
+                echo Helpers::sponsorshipTypes[$item->type];
               }
               else
               {

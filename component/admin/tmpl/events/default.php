@@ -16,26 +16,11 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Session\Session;
 
-// Ideas on making a drag-n-drop list
-// https://joomla.stackexchange.com/questions/14374/adding-drag-n-drop-ordering-in-component
-// Newer?
-// https://blog.astrid-guenther.de/en/joomla-filtern-sortieren-suchen/
-// https://docs.joomla.org/J3.x:Developing_an_MVC_Component/Adding_Ordering
-
 $wa = $this->document->getWebAssetManager();
 $wa->useScript('table.columns');
 
 $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn  = $this->escape($this->state->get('list.direction'));
-
-$saveOrder = $listOrder == 'a.ordering';
-$canChange = true;
-
-if ($saveOrder && !empty($this->items))
-{
-    $saveOrderingUrl = 'index.php?option=com_claw&task=locations.saveOrderAjax&tmpl=component&' . Session::getFormToken() . '=1';
-    HTMLHelper::_('draggablelist.draggable');
-  }
 
 $app = Factory::getApplication();
 $user = $app->getIdentity();
@@ -49,22 +34,21 @@ $user = $app->getIdentity();
     <table class="table table-striped table-bordered" id="locationsList">
     <thead>
       <tr>
-        <th scope="col" style="width:1%" class="text-center d-none d-md-table-cell">
-          <?php echo HTMLHelper::_('searchtools.sort', '', 'a.ordering', $listDirn, $listOrder, null, 'asc', 'JGRID_HEADING_ORDERING', 'icon-menu-2'); ?>
-        </th>
         <th class="w-1 text-center">
 			    <?php echo HTMLHelper::_('grid.checkall'); ?>
 		    </th>
 		    <th scope="col">
-			    <?php echo HTMLHelper::_('searchtools.sort', 'Value', 'a.value', $listDirn, $listOrder); ?>
+			    <?php echo HTMLHelper::_('searchtools.sort', 'Day', 'a.day', $listDirn, $listOrder); ?>
 		    </th>
-		    <th scope="col">Alias</th>
+		    <th scope="col">
+			    <?php echo HTMLHelper::_('searchtools.sort', 'Start Time', 'a.start_time', $listDirn, $listOrder); ?>
+		    </th>
+		    <th scope="col">Title</th>
+        <th scole="col">Sponsors</th>
         <th scope="col">ID</th>
       </tr>
     </thead>
-    <tbody <?php if ($saveOrder):
-      ?> class="js-draggable" data-url="<?php echo $saveOrderingUrl; ?>" data-direction="<?php echo strtolower($listDirn); ?>" data-nested="true"<?php
-      endif; ?>>
+    <tbody>
       <?php foreach ( $this->items AS $i => $item ): 
         // Get the parent of item for sorting
         if ($item->parent_id > 0) {
@@ -76,39 +60,30 @@ $user = $app->getIdentity();
         }
     
       ?>
-        <tr class="row<?php echo $i % 2; ?>" data-draggable-group="<?php echo $item->parent_id; ?>"
-          data-item-id="<?php echo $item->id; ?>" data-parents="<?php echo $parentsStr; ?>"
-          data-level="<?php echo $itemLevel ?>">
-          <td class="order text-center d-none d-md-table-cell">
-            <?php
-              $iconClass = '';
-              if (!$canChange) {
-                $iconClass = ' inactive';
-              } else if (!$saveOrder) {
-                $iconClass = ' inactive tip-top hasTooltip" title="' . HTMLHelper::_('tooltipText', 'JORDERINGDISABLED');
-              }
-            ?>
-
-            <span class="sortable-handler<?php echo $iconClass; ?>">
-              <span class="icon-menu" aria-hidden="true"></span>
-            </span>
-
-            <?php if ($canChange && $saveOrder) : ?>
-              <input type="text" style="display:none" name="order[]" size="5"
-                value="<?php echo $item->ordering; ?>" class="width-20 text-area-order">
-            <?php endif; ?>
-          </td>
+        <tr class="row<?php echo $i % 2; ?>">
           <td class="text-center">
             <?php echo HTMLHelper::_('grid.id', $i, $item->id, false, 'cid', 'cb', $item->value); ?>
           </td>
           <td>
             <a href="<?php echo Route::_('index.php?option=com_claw&task=location.edit&id=' . $item->id); ?>"
-      			  title="Edit <?php echo $this->escape($item->value); ?>">
-              <?php echo $item->treename ?>
+      			  title="Edit Event">
+              <?php echo $item->day ?>
             </a>
           </td>
           <td>
-            <?php echo $item->alias ?>
+            <a href="<?php echo Route::_('index.php?option=com_claw&task=location.edit&id=' . $item->id); ?>"
+      			  title="Edit Event">
+              <?php echo $item->start_time ?>
+            </a>
+          </td>
+          <td>
+            <a href="<?php echo Route::_('index.php?option=com_claw&task=location.edit&id=' . $item->id); ?>"
+      			  title="Edit Event">
+              <?php echo $item->event_title ?>
+            </a>
+          </td>
+          <td>
+            TODO: Sponsor list
           </td>
           <td>
             <?php echo $item->id ?>
