@@ -131,28 +131,40 @@ class HtmlView extends BaseHtmlView
 		Factory::getApplication()->input->set('hidemainmenu', true);
 		$isNew      = ($this->item->id == 0);
 
-		// $canDo = ContentHelper::getActions('com_countrybase');
-
-		$toolbar = Toolbar::getInstance();
-
 		ToolbarHelper::title(
 			'CLAW Event ' . ($isNew ? 'Add' : 'Edit')
 		);
 
-		if (true /*$canDo->get('core.create')*/)
-		{
-			if ($isNew)
-			{
-				$toolbar->apply('event.save');
-			}
-			else
-			{
-				$toolbar->apply('event.apply');
-			}
-			$toolbar->save('event.save');
+		$toolbarButtons = [];
 
+		// If not checked out, can save the item.
+		if (true /*!$checkedOut && ($canDo->get('core.edit') || \count($user->getAuthorisedCategories('com_claw', 'core.create')) > 0)*/) {
+				ToolbarHelper::apply('event.apply');
+				$toolbarButtons[] = ['save', 'event.save'];
+
+				if (true /*$canDo->get('core.create')*/) {
+						$toolbarButtons[] = ['save2new', 'event.save2new'];
+				}
 		}
-		$toolbar->cancel('event.cancel', 'JTOOLBAR_CLOSE');
+
+		// If an existing item, can save to a copy.
+		if (!$isNew /*&& $canDo->get('core.create')*/) {
+				$toolbarButtons[] = ['save2copy', 'event.save2copy'];
+		}
+
+		ToolbarHelper::saveGroup(
+				$toolbarButtons,
+				'btn-success'
+		);
+
+
+		if ($isNew) {
+			ToolbarHelper::cancel('event.cancel');
+		} else {
+			ToolbarHelper::cancel('event.cancel', 'JTOOLBAR_CLOSE');
+		}
+
+		ToolbarHelper::divider();
 	}
 
 }

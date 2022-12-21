@@ -17,7 +17,9 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Application\AdministratorApplication;
 
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Helpers\EventBooking;
 
 /**
  * Methods to handle a list of records.
@@ -38,32 +40,13 @@ class EventModel extends AdminModel
 	{
 		// deprecate $input = Factory::getApplication()->input;
 
-		// $input = Factory::getApplication()->getInput();
-		// $app = Factory::getApplication();
-		// $app = $this::castAdministratorApplication($app); // 
-		// $oldcatid = $app->getUserState('com_claw.event.old', array());
+		$input = Factory::getApplication()->getInput();
 
-		// if ( 0 == $data['id'] || -1 == $input->data['ordering'] || $oldcatid != $data['catid'] )
-		// {
-		// 	$data['ordering'] = EventHelper::nextOrdering($this->getDatabase(), (int)$data['catid'])+1;
-		// }
+		// Handle array merges
+		// https://github.com/muddygs/joomla-claw-admin/wiki/Joomla-Form-Load-Save-of-Checkboxes-and-Multi-Select-Lists
 
-		// // Basic replacement to avoid database uniqueness error (aliasindex)
-		// if ( $data['alias'] == '' )
-		// {
-		// 	$patterns = [
-		// 		'/\s/',
-		// 		'/[^a-z0-9_]/'
-		// 	];
-
-		// 	$replacements = [
-		// 		'_',
-		// 		''
-		// 	];
-
-		// 	$data['alias'] = preg_replace($patterns, $replacements, strtolower($data['value']));
-		// }
-		// TODO: further validation for uniqueness
+		$data['sponsors'] = json_encode($data['sponsors']);
+		$data['fee_event'] = implode(',',$data['fee_event']);
 
 		return parent::save($data);
 	}
@@ -80,16 +63,20 @@ class EventModel extends AdminModel
 	 */
 	public function getForm($data = array(), $loadData = true)
 	{
-		// Get the form.
+		// Get the form and add dynamic values
+
 		$form = $this->loadForm('com_claw.event', 'event', array('control' => 'jform', 'load_data' => $loadData));
+		if (empty($form))
+		{
+			return false;
+		}
 
 		$s = $this->getState('event.id');
 
-		$e = new ClawEvents("l1122");
+		$e = new ClawEvents(Aliases::current);
 		$info = $e->getClawEventInfo();
 
 		$parentField = Helpers::castListField($form->getField('day'));
-		$current = $info->start_date;
 
 		$days = Helpers::getDateArray($info->start_date);
 		$parentField->addOption('Wed', ['value' => $days['Wed']]);
@@ -98,9 +85,28 @@ class EventModel extends AdminModel
 		$parentField->addOption('Sat', ['value' => $days['Sat']]);
 		$parentField->addOption('Sun', ['value' => $days['Sun']]);
 
-		if (empty($form))
+		$locations = Helpers::getLocations($this->getDatabase(), $info->locationAlias);
+		$parentField = Helpers::castListField($form->getField('location'));
+
+		foreach ( $locations AS $l )
 		{
-			return false;
+			$parentField->addOption($l->value, ['value' => $l->id]);
+		}
+
+		$sponsors = Helpers::getSponsorsList($this->getDatabase());
+		$parentField = Helpers::castListField($form->getField('sponsors'));
+
+		foreach ( $sponsors AS $s )
+		{
+			$parentField->addOption($s->name, ['value' => $s->id]);
+		}
+
+		$events = EventBooking::LoadTicketedEvents($e);
+		$parentField = Helpers::castListField($form->getField('event_id'));
+
+		foreach ( $events AS $id => $title )
+		{
+			$parentField->addOption($title, ['value' => $id]);
 		}
 
 		return $form;
@@ -136,7 +142,7 @@ class EventModel extends AdminModel
 			$data = $this->getItem();
 		}
 
-		//$app->setUserState("com_claw.event.old", $data->catid);
+		// Expand checkboxes
 
 		return $data;
 	}

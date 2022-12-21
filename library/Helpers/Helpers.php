@@ -59,9 +59,21 @@ SQL;
     $query->order('name ASC');
 
     $db->setQuery($query);
-    $sponsors = $db->loadObjectList();
+    return $db->loadObjectList();
+  }
 
-    return $sponsors != null ? $sponsors : [];
+  static function getLocations(\Joomla\Database\DatabaseDriver $db, string $baseAlias = ""): array
+  {
+    $query = $db->getQuery(true);
+    $query->select(['l.id','l.value'])
+    ->from($db->qn('#__claw_locations', 'l'))
+    ->join('LEFT OUTER', $db->qn('#__claw_locations', 't') . ' ON ' . $db->qn('t.alias') . ' = ' . $db->q($baseAlias))
+    ->where($db->qn('t.published') . '= 1')
+    ->where($db->qn('l.published') . '= 1')
+    ->where($db->qn('l.catid') . '=' . $db->qn('t.id'));
+
+    $db->setQuery($query);
+    return $db->loadObjectList();
 
   }
 
@@ -100,6 +112,37 @@ SQL;
     }
 
     return $result;
+  }
+
+  /**
+   * Sets a CLAW-specific Joomla session variable. See code comments for example usage.
+   * @param string $key Key to variable
+   * @param string $value Key's value
+   */
+  static function sessionSet(string $key, string $value): void
+  {
+    $app = Factory::getApplication();
+    $session = $app->getSession();
+    if ($session->isActive()) {
+      $session->set($key, $value, 'claw');
+    }
+  }
+
+  /**
+   * Gets a CLAW-specific Joomla session variable
+   * @param string Key to the variable
+   * @param string Default value if not already set
+   * @return string Value of key (or null on error)
+   */
+  static function sessionGet(string $key, string $default = ''): ?string
+  {
+    $app = Factory::getApplication();
+    $session = $app->getSession();
+    if ($session->isActive()) {
+      return $session->get($key, $default, 'claw');
+    }
+
+    return null;
   }
 
   /*

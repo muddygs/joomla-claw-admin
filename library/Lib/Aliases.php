@@ -60,6 +60,13 @@ class Aliases {
   // Categories that require main events (other than shifts)
   const categoriesRequiringMainEvent = ['speed-dating', 'dinner', 'buffet-breakfast', 'buffet','meal-combos','equipment-rentals'];
 
+  const categoriesTicketedEvents = [
+    'dinner',
+    'buffet',
+    'parties',
+    'buffet-breakfast'
+  ];
+
   // Events listing sponsor icons
   const imagedir = 'images/0_static_graphics/sponsors/100';
 

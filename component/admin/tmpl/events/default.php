@@ -27,11 +27,11 @@ $user = $app->getIdentity();
 
 ?>
 <div class="container">
-<form action="<?php echo Route::_('index.php?option=com_claw&view=locations'); ?>" method="post" name="adminForm" id="adminForm">
+<form action="<?php echo Route::_('index.php?option=com_claw&view=events'); ?>" method="post" name="adminForm" id="adminForm">
   <?php echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
 
   <div class="table-responsive">
-    <table class="table table-striped table-bordered" id="locationsList">
+    <table class="table table-striped table-bordered" id="eventsList">
     <thead>
       <tr>
         <th class="w-1 text-center">
@@ -44,43 +44,31 @@ $user = $app->getIdentity();
 			    <?php echo HTMLHelper::_('searchtools.sort', 'Start Time', 'a.start_time', $listDirn, $listOrder); ?>
 		    </th>
 		    <th scope="col">Title</th>
+        <th scope="col">Location</th>
         <th scole="col">Sponsors</th>
         <th scope="col">ID</th>
       </tr>
     </thead>
     <tbody>
-      <?php foreach ( $this->items AS $i => $item ): 
-        // Get the parent of item for sorting
-        if ($item->parent_id > 0) {
-          $parentsStr       = ' ' . $item->parent_id;
-          $itemLevel = 1;
-        } else {
-            $parentsStr = '';
-            $itemLevel = 0;
-        }
-    
-      ?>
+      <?php foreach ( $this->items AS $i => $item ): ?>
         <tr class="row<?php echo $i % 2; ?>">
           <td class="text-center">
-            <?php echo HTMLHelper::_('grid.id', $i, $item->id, false, 'cid', 'cb', $item->value); ?>
+            <?php echo HTMLHelper::_('grid.id', $i, $item->id, false, 'cid', 'cb', $item->event_title); ?>
           </td>
           <td>
-            <a href="<?php echo Route::_('index.php?option=com_claw&task=location.edit&id=' . $item->id); ?>"
-      			  title="Edit Event">
-              <?php echo $item->day ?>
-            </a>
+            <?php echo $item->day_text ?>
           </td>
           <td>
-            <a href="<?php echo Route::_('index.php?option=com_claw&task=location.edit&id=' . $item->id); ?>"
-      			  title="Edit Event">
-              <?php echo $item->start_time ?>
-            </a>
+            <?php echo $item->start_time_text ?>
           </td>
           <td>
-            <a href="<?php echo Route::_('index.php?option=com_claw&task=location.edit&id=' . $item->id); ?>"
+            <a href="<?php echo Route::_('index.php?option=com_claw&task=event.edit&id=' . $item->id); ?>"
       			  title="Edit Event">
               <?php echo $item->event_title ?>
             </a>
+          </td>
+          <td>
+              <?php echo $item->location_text ?>
           </td>
           <td>
             TODO: Sponsor list

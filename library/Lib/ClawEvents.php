@@ -228,7 +228,7 @@ class ClawEvents
     /** Returns list of event raw rows AND "total_registrants" for each event
      * @param array $categoryIds Array of category ids
      * @param string $orderBy Any valid database column for eb_events, default "title"
-     * @return array Array of objects for "id" and "title" of all events sorted by title
+     * @return array Array of objects of database event rows
      */
     public static function getEventsByCategoryId(array $categoryIds, EventInfo $clawEventInfo, string $orderBy = 'title' ): array
     {
@@ -438,7 +438,7 @@ SQL;
 
         $db = Factory::getContainer()->get('DatabaseDriver');
 
-        $query = 'SELECT alias,id FROM #__eb_events ORDER BY id';
+        $query = 'SELECT alias,id FROM #__eb_events WHERE published=1 ORDER BY id';
         $db->setQuery($query);
         self::$eventIds = $db->loadObjectList('alias');
 
@@ -450,7 +450,7 @@ SQL;
         if ( self::$categoryIds != null ) return;
         $db = Factory::getContainer()->get('DatabaseDriver');
 
-        $query = 'SELECT alias,id FROM #__eb_categories ORDER BY id';
+        $query = 'SELECT alias,id FROM #__eb_categories WHERE published=1 ORDER BY id';
         $db->setQuery($query);
         self::$categoryIds = $db->loadObjectList('alias');
 
@@ -462,7 +462,7 @@ SQL;
         if (self::$fieldIds != null) return;
         $db = Factory::getContainer()->get('DatabaseDriver');
 
-        $query = 'SELECT `name`,`id` FROM #__eb_fields ORDER BY id';
+        $query = 'SELECT `name`,`id` FROM #__eb_fields WHERE published=1 ORDER BY id';
         $db->setQuery($query);
         self::$fieldIds = $db->loadObjectList('name');
 
@@ -503,6 +503,6 @@ SQL;
         foreach ( self::$eventIds as $x ) {
             echo $x->alias.',',$x->id."\n";
         }
-        echo '<pre>';
+        echo '</pre>';
     }
 }

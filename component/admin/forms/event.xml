@@ -59,11 +59,17 @@
 
   <field
     name="featured"
-    type="checkbox"
     label="Featured Event"
     description="Featured events always appear first in the frontend layout"
     value="1"
-  />
+    type="radio"
+    layout="joomla.form.field.radio.switcher"
+    default="0"
+    >
+    <option value="0">JNO</option>
+    <option value="1">JYES</option>
+  </field>
+
 
   <field
     name="event_title"
@@ -139,9 +145,9 @@
 
   <field
     name="poster"
-    type="media"
+    type="accessiblemedia"
     label="Event Poster"
-    descript="Should be 600 pixels wide"
+    description="Should be 600 pixels wide"
     preview="tooltip"
     preview_width="200"
     preview_height="100"

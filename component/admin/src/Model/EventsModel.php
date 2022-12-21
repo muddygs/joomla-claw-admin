@@ -23,7 +23,7 @@ use Joomla\CMS\MVC\Model\ListModel;
 class EventsModel extends ListModel
 {
 
-	private array $fields = [ 'id', 'published', 'day', 'event_title', 'location' ];
+	private array $list_fields = [ 'id', 'published', 'day', 'start_time', 'event_title', 'location' ];
 
 	/**
 	 * Constructor.
@@ -38,10 +38,10 @@ class EventsModel extends ListModel
 		if (empty($config['filter_fields'])) {
 			$config['filter_fields'] = [];
 			
-			foreach( $this->fields AS $f )
+			foreach( $this->list_fields AS $f )
 			{
-				$config['filter_fields'][] = $f;
-				$config['filter_fields'][] = 'a'.$f;
+				//$config['filter_fields'][] = $f;
+				$config['filter_fields'][] = 'a.'.$f;
 			}
 		}
 
@@ -64,7 +64,7 @@ class EventsModel extends ListModel
 	 *
 	 * @since   3.0.1
 	 */
-	protected function populateState($ordering = 'start_time', $direction = 'ASC')
+	protected function populateState($ordering = 'day', $direction = 'ASC')
 	{
 		$app = Factory::getApplication();
 
@@ -109,37 +109,6 @@ class EventsModel extends ListModel
 		return parent::getStoreId($id);
 	}
 
-	public function saveorder($pks = array(), $order = null)
-	{
-		try {
-			$query = $this->_db->getQuery(true);
-
-			// Validate arguments
-			if (is_array($pks) && is_array($order) && count($pks) == count($order)) {
-					for ($i = 0, $count = count($pks); $i < $count; $i++) {
-							// Do an update to change the lft values in the table for each id
-							$query->clear()
-									->update('#__claw_events')
-									->where('id = ' . (int) $pks[$i])
-									->set('ordering = ' . (int) $order[$i]);
-
-							$this->_db->setQuery($query)->execute();
-					}
-
-					// Clean the cache
-					$this->cleanCache();
-					return true;
-			} else {
-					return false;
-			}
-		} catch (\Exception $e) {
-			throw $e;
-		}
-	
-		return true;
-	}
-
-
 	public function getItems()
 	{
 		$result = [];
@@ -149,37 +118,17 @@ class EventsModel extends ListModel
 		$db->setQuery($query);
 		$rows = $db->loadObjectList();
 
-		$parent = 0; // Root level is start on all events
-		$children = [];
-		// first pass - collect children
-		if (count($rows))
-		{
-			foreach ($rows as $v)
-			{
-				$pt   = $v->catid;
-
-				// Copy important values for treerecurse
-				$v->parent_id = $pt;
-				$v->title = $v->value;
-
-				$list = @$children[$pt] ? $children[$pt] : [];
-				array_push($list, $v);
-				$children[$pt] = $list;
-			}
-		}
-
-		$list             = HTMLHelper::_('menu.treerecurse', $parent, '', [], $children, 9999);
-
 		// Get a storage key.
 		$store = $this->getStoreId();
 
 		// The cache is for other things, like paging, that need data counts, but the view wants the list directly
-		$this->cache[$store] = $list;
-		return $list;
+		$this->cache[$store] = $rows;
+		return $rows;
 	}
 
 	/**
 	 * Get the master query for retrieving a list of events in the model state.
+	 * Create alt version of data for display in the template
 	 *
 	 * @return  \Joomla\Database\DatabaseQuery
 	 *
@@ -194,10 +143,17 @@ class EventsModel extends ListModel
 		// Select the required fields from the table.
 		$query->select(
 			$this->getState(
-				'list.select', array_map( function($a) use($db) { return $db->quoteName('a.'.$a); }, $this->fields)
+				'list.select', array_map( function($a) use($db) { return $db->quoteName('a.'.$a); }, $this->list_fields)
 			)
 		)
 			->from($db->quoteName('#__claw_events', 'a'));
+
+
+		$query->join('LEFT OUTER', $db->qn('#__claw_locations', 'l') . ' ON ' . $db->qn('l.id') . ' = ' . $db->qn('a.location'));
+		$query->select($db->qn('l.value','location_text'));
+
+		$query->select('SUBSTRING(DAYNAME(a.day),1,3) AS day_text');
+		$query->select('TIME_FORMAT(a.start_time, "%h:%i %p") AS start_time_text');
 
 		// Filter by search in title.
 		$search = $this->getState('filter.search');
@@ -208,7 +164,7 @@ class EventsModel extends ListModel
 		}
 
 		// Add the list ordering clause.
-		$orderCol  = $this->state->get('list.ordering', 'a.start_time');
+		$orderCol  = $this->state->get('list.ordering', 'a.day');
 		$orderDirn = $this->state->get('list.direction', 'ASC');
 
 		$query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));

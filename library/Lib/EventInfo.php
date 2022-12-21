@@ -5,6 +5,7 @@ namespace ClawCorpLib\Lib;
 class EventInfo {
     var $description;
     var $location;
+    var $locationAlias;
     var $start_date;
     var $end_date;
     var $prefix;

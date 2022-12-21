@@ -3,33 +3,9 @@
 namespace ClawCorpLib\Lib;
 
 defined('_JEXEC') or die('Restricted access');
+
 use Joomla\CMS\Factory;
-use UnexpectedValueException;
-
 use ClawCorpLib\Lib\PackageTypes AS ClawPackageTypes;
-
-// abstract class clawEventType
-// {
-//     const none = 0;
-//     const main = 1;
-//     const hotel = 2;
-//     const vc = 3;
-//     const refunds = 4;
-// }
-
-
-
-// class ClawEventInfo {
-//     var $description;
-//     var $location;
-//     var $start_date;
-//     var $end_date;
-//     var $prefix;
-//     var $shiftPrefix;
-//     var $mainAllowed;
-//     var $cancelBy;
-//     var $eventType;
-// }
 
 class ClawEvent
 {

@@ -10,6 +10,7 @@ use ClawCorpLib\Lib\PackageTypes AS ClawPackageTypes;
 
 $info->description = 'Leather Getaway 22';
 $info->location = 'Los Angeles, CA';
+$info->locationAlias = 'main_1';
 $info->start_date = '2022-11-21 00:00:00'; // Monday
 $info->end_date = '2022-11-29 00:00:00'; // Following Tuesday
 $info->prefix = 'L22';
