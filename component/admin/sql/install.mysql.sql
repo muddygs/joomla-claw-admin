@@ -108,7 +108,7 @@ CREATE TABLE `#__claw_events` (
   `photo_size` varchar(255) DEFAULT NULL,
   `event_id` int(4) DEFAULT NULL,
   `sort_order` varchar(255) DEFAULT NULL,
-  `modification_time` datetime DEFAULT NULL
+  `mtime` datetime DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `#__claw_events`
@@ -117,4 +117,57 @@ ALTER TABLE `#__claw_events`
   ADD KEY `fb_groupbyorder_sort_order_INDEX` (`sort_order`(10));
 
 ALTER TABLE `#__claw_events`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `#__claw_presenters` (
+  `id` int(11) NOT NULL,
+  `uid` int(11) NOT NULL,
+  `published` text DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `legal_name` varchar(255) DEFAULT NULL,
+  `event` varchar(10) DEFAULT NULL,
+  `social_media` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `phone` varchar(30) DEFAULT NULL,
+  `phone_info` varchar(10) DEFAULT NULL,
+  `arrival` varchar(10) DEFAULT NULL,
+  `copresenter` boolean DEFAULT 0,
+  `copresenting` varchar(255) DEFAULT NULL,
+  `comments` text DEFAULT NULL,
+  `bio` text DEFAULT NULL,
+  `photo` text DEFAULT NULL,
+  `mtime` datetime DEFAULT NULL
+) ENGINE = InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `#__claw_presenters`
+  ADD PRIMARY KEY (`id`),
+
+ALTER TABLE `#__claw_presenters`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `#__claw_classes` (
+  `id` int(11) NOT NULL,
+  `published` text DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `event` varchar(10) DEFAULT NULL,
+  `day` date DEFAULT NULL,
+  `start_time` time DEFAULT NULL,
+  `length` int(4) DEFAULT 60,
+  `presenters` text DEFAULT NULL,
+  `track` varchar(10) DEFAULT NULL,
+  `audience` varchar(10) DEFAULT NULL,
+  `category` varchar(10) DEFAULT NULL,
+  `arrival` varchar(10) DEFAULT NULL,
+  `location` INT(11) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `photo` text DEFAULT NULL,
+  `copresenter` varchar(255) DEFAULT NULL,
+  `comments` text DEFAULT NULL,
+  `mtime` datetime DEFAULT NULL
+) ENGINE = InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `#__claw_classes`
+  ADD PRIMARY KEY (`id`),
+
+ALTER TABLE `#__claw_classes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

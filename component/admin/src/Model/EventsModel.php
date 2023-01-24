@@ -15,6 +15,10 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Model\ListModel;
 
+use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\ClawEvents;
+
 /**
  * Methods to handle a list of records.
  *
@@ -23,7 +27,7 @@ use Joomla\CMS\MVC\Model\ListModel;
 class EventsModel extends ListModel
 {
 
-	private array $list_fields = [ 'id', 'published', 'day', 'start_time', 'event_title', 'location' ];
+	private array $list_fields = [ 'id', 'published', 'day', 'start_time', 'event_title', 'location', 'sponsors' ];
 
 	/**
 	 * Constructor.
@@ -118,6 +122,24 @@ class EventsModel extends ListModel
 		$db->setQuery($query);
 		$rows = $db->loadObjectList();
 
+		// Very hacky here; probably can process the JSON in SQL, but that might not be any better
+
+		// Load cache of all published sponsors
+		$sponsorsQuery = $db->getQuery(true);
+		$sponsorsQuery->select($db->qn(['id','name']))
+			->from($db->qn('#__claw_sponsors'))
+			->where($db->qn('published') . '=1');
+		$db->setQuery($sponsorsQuery);
+		$sponsors = $db->loadAssocList('id','name');
+
+		// Replace JSON encoded sponsor array with names
+		foreach( $rows AS $row )
+		{
+			$sponsorIds = json_decode($row->sponsors);
+			$names = array_intersect_key($sponsors, array_flip($sponsorIds));
+			$row->sponsorsText = implode('<br/>', $names);
+		}
+
 		// Get a storage key.
 		$store = $this->getStoreId();
 
@@ -157,6 +179,21 @@ class EventsModel extends ListModel
 
 		// Filter by search in title.
 		$search = $this->getState('filter.search');
+		$daylist = $this->getState('filter.dayfilter');
+
+		if ( $daylist != null )
+		{
+			$e = new ClawEvents(Aliases::current);
+			$info = $e->getClawEventInfo();
+			$days = Helpers::getDateArray($info->start_date);
+			if ( array_key_exists($daylist, $days))
+			{
+				$query->where('a.day =' . $db->q($days[$daylist]));
+			}
+	
+		}
+		
+		
 
 		if (!empty($search)) {
 			$search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));

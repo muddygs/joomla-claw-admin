@@ -35,12 +35,6 @@
     validate="options"
     >
     <option value="">Select Sponsor Type</option>
-    <!-- <option value="1">Sponsor</option>
-    <option value="2">Sustaining</option>
-    <option value="6">Legacy Sustaining</option>
-    <option value="3">Master</option>
-    <option value="5">Legacy Master</option>
-    <option value="4">Media</option> -->
   </field>
 
   <field

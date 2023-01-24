@@ -16,6 +16,8 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Session\Session;
 
+use ClawCorpLib\Helpers\Helpers;
+
 $wa = $this->document->getWebAssetManager();
 $wa->useScript('table.columns');
 
@@ -71,7 +73,7 @@ $user = $app->getIdentity();
               <?php echo $item->location_text ?>
           </td>
           <td>
-            TODO: Sponsor list
+            <?php echo $item->sponsorsText ?>
           </td>
           <td>
             <?php echo $item->id ?>

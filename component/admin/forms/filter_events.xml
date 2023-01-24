@@ -10,6 +10,28 @@
 			description="Value search"
 			hint="JSEARCH_FILTER"
 		/>
+		<field
+			name="published"
+			type="status"
+			label="JSTATUS"
+			onchange="this.form.submit();"
+			>
+			<option value="">JOPTION_SELECT_PUBLISHED</option>
+		</field>
+
+		<field
+		  name="dayfilter"
+			type="list"
+			label="Day"
+			onchange="this.form.submit();"
+			>
+			<option value="">Select Day</option>
+			<option value="Wed">Wed</option>
+			<option value="Thu">Thu</option>
+			<option value="Fri">Fri</option>
+			<option value="Sat">Sat</option>
+			<option value="Sun">Sun</option>
+		</field>
 	</fields>
 
 	<fields name="list">
