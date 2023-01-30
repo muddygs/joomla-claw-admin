@@ -93,7 +93,7 @@ ALTER TABLE `#__claw_shifts_grids`
 
 CREATE TABLE `#__claw_events` (
   `id` int(11) NOT NULL,
-  `published` text DEFAULT NULL,
+  `published` TINYINT(4) DEFAULT NULL,
   `day` text DEFAULT NULL,
   `start_time` time DEFAULT NULL,
   `end_time` time DEFAULT NULL,
@@ -122,7 +122,7 @@ ALTER TABLE `#__claw_events`
 CREATE TABLE `#__claw_presenters` (
   `id` int(11) NOT NULL,
   `uid` int(11) NOT NULL,
-  `published` text DEFAULT NULL,
+  `published` TINYINT(4) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `legal_name` varchar(255) DEFAULT NULL,
   `event` varchar(10) DEFAULT NULL,
@@ -140,14 +140,14 @@ CREATE TABLE `#__claw_presenters` (
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `#__claw_presenters`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `#__claw_presenters`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 CREATE TABLE `#__claw_classes` (
   `id` int(11) NOT NULL,
-  `published` text DEFAULT NULL,
+  `published` TINYINT(4) DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
   `event` varchar(10) DEFAULT NULL,
   `day` date DEFAULT NULL,
@@ -167,7 +167,7 @@ CREATE TABLE `#__claw_classes` (
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `#__claw_classes`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `#__claw_classes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
