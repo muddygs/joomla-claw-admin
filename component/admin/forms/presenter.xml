@@ -46,19 +46,10 @@
   />
 
   <field
-    name="email"
-    type="text"
-    label="Social Media Tags"
-    description="TO DO: Make Read Only From Account Info"
-    required="true"
-    maxLength="255"
-  />
-
-  <field
     name="phone"
     type="text"
     label="Phone Number"
-    required="true"
+    required="false"
     maxLength="255"
   />
 
@@ -77,16 +68,28 @@
     type="editor"
     label="Biography"
     filter="safehtml"
+    editor="alternative"
     maxLength="1000"
+    required="true"
   />
 
   <field
     name="photo"
-    type="file"
+    type="media"
     label="Bio Photo"
-    description="A representative picture to go with your biography"
+    description="A representative picture; use upload for new a image"
+    directory="skills/presenters"
+    preview="true"
+  />
+
+  <field
+    name="photo_upload"
+    type="file"
+    label="Photo Upload"
+    description="Upload here; do not use media upload in Bio Photo"
     accept="image/png, image/jpeg"
   />
+
 
   <field
     name="arrival"
@@ -97,7 +100,6 @@
     <option value="Fri">Friday</option>
     <option value="Sat">Saturday</option>
     <option value="Sun">Sunday</option>
-    <option value="xxx">Need manual checkbox handling</option>
   </field>
 
   <field
@@ -111,7 +113,7 @@
     type="text"
     label="Class title and presenter name"
     description="Please provide class and presenter information with whom you are presenting."
-    required="true"
+    required="false"
     maxLength="255"
     showon="copresenter:1"
   />
@@ -122,6 +124,32 @@
     label="Comments"
     required="false"
     maxLength="255"
+  />
+
+  <field
+    name="uid"
+    type="user"
+    label="Account"
+    required="true"
+    readonly="false"
+  />
+
+  <field
+    name="submission_date"
+    type="text"
+    label="Submission Date"
+    required="false"
+    maxLength="255"
+    readonly="true"
+  />
+
+  <field
+    name="mtime"
+    type="text"
+    label="Last Modified"
+    required="false"
+    maxLength="255"
+    readonly="true"
   />
 
   <field

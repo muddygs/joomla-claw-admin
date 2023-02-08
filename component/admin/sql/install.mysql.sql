@@ -13,6 +13,20 @@ ALTER TABLE `#__claw_events_current`
 ALTER TABLE `#__claw_events_current`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+DROP TABLE IF EXISTS `#__claw_configuration`;
+CREATE TABLE `#__claw_configuration` (
+  `id` int(11) NOT NULL,
+  `key` varchar(50) NOT NULL,
+  `input` text NOT NULL,
+  `value` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `#__claw_configuration`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `key` (`key`);
+
+ALTER TABLE `#__claw_configuration`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 DROP TABLE IF EXISTS `#__claw_locations`;
 CREATE TABLE `#__claw_locations`(
@@ -94,17 +108,17 @@ ALTER TABLE `#__claw_shifts_grids`
 CREATE TABLE `#__claw_events` (
   `id` int(11) NOT NULL,
   `published` TINYINT(4) DEFAULT NULL,
-  `day` text DEFAULT NULL,
+  `day` TEXT DEFAULT NULL,
   `start_time` time DEFAULT NULL,
   `end_time` time DEFAULT NULL,
   `featured` boolean NOT NULL DEFAULT 0,
   `event_title` varchar(255) DEFAULT NULL,
-  `fee_event` text DEFAULT NULL,
-  `event_description` text DEFAULT NULL,
-  `onsite_description` text DEFAULT NULL,
+  `fee_event` TEXT DEFAULT NULL,
+  `event_description` TEXT DEFAULT NULL,
+  `onsite_description` TEXT DEFAULT NULL,
   `location` int(11) DEFAULT NULL,
-  `sponsors` text DEFAULT NULL,
-  `poster` text DEFAULT NULL,
+  `sponsors` TEXT DEFAULT NULL,
+  `poster` TEXT DEFAULT NULL,
   `photo_size` varchar(255) DEFAULT NULL,
   `event_id` int(4) DEFAULT NULL,
   `sort_order` varchar(255) DEFAULT NULL,
@@ -130,12 +144,13 @@ CREATE TABLE `#__claw_presenters` (
   `email` varchar(255) DEFAULT NULL,
   `phone` varchar(30) DEFAULT NULL,
   `phone_info` varchar(10) DEFAULT NULL,
-  `arrival` varchar(10) DEFAULT NULL,
+  `arrival` varchar(255) DEFAULT NULL,
   `copresenter` boolean DEFAULT 0,
   `copresenting` varchar(255) DEFAULT NULL,
-  `comments` text DEFAULT NULL,
-  `bio` text DEFAULT NULL,
-  `photo` text DEFAULT NULL,
+  `comments` TEXT DEFAULT NULL,
+  `bio` TEXT DEFAULT NULL,
+  `photo` TEXT DEFAULT NULL,
+  `submission_date` date DEFAULT NULL,
   `mtime` datetime DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
@@ -145,29 +160,46 @@ ALTER TABLE `#__claw_presenters`
 ALTER TABLE `#__claw_presenters`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
-CREATE TABLE `#__claw_classes` (
+CREATE TABLE `#__claw_skills` (
   `id` int(11) NOT NULL,
   `published` TINYINT(4) DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
-  `event` varchar(10) DEFAULT NULL,
+  `event` TEXT DEFAULT NULL,
   `day` date DEFAULT NULL,
   `start_time` time DEFAULT NULL,
   `length` int(4) DEFAULT 60,
-  `presenters` text DEFAULT NULL,
+  `presenters` TEXT DEFAULT NULL,
   `track` varchar(10) DEFAULT NULL,
   `audience` varchar(10) DEFAULT NULL,
   `category` varchar(10) DEFAULT NULL,
-  `arrival` varchar(10) DEFAULT NULL,
   `location` INT(11) DEFAULT NULL,
-  `description` text DEFAULT NULL,
-  `photo` text DEFAULT NULL,
+  `description` TEXT DEFAULT NULL,
+  `photo` TEXT DEFAULT NULL,
+  `handout_id` INT(11) DEFAULT NULL,
   `copresenter` varchar(255) DEFAULT NULL,
-  `comments` text DEFAULT NULL,
+  `comments` TEXT DEFAULT NULL,
+  `submission_date` date DEFAULT NULL,
   `mtime` datetime DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_classes`
+ALTER TABLE `#__claw_skills`
   ADD PRIMARY KEY (`id`);
 
-ALTER TABLE `#__claw_classes`
+ALTER TABLE `#__claw_skills`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `#__claw_skills_handouts` (
+  `id` int(11) NOT NULL,
+  `name` text  DEFAULT NULL,
+  `alias` VARCHAR(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `filename` TEXT DEFAULT NULL,
+  `skill_id` INT(11) DEFAULT NULL,
+  `mtime` datetime DEFAULT NULL
+) ENGINE = InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `#__claw_skills_handouts`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `#__claw_skills_handouts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
