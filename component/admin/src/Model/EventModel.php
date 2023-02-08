@@ -38,15 +38,12 @@ class EventModel extends AdminModel
 
 	public function save($data)
 	{
-		// deprecate $input = Factory::getApplication()->input;
-
-		$input = Factory::getApplication()->getInput();
-
 		// Handle array merges
 		// https://github.com/muddygs/joomla-claw-admin/wiki/Joomla-Form-Load-Save-of-Checkboxes-and-Multi-Select-Lists
 
 		$data['sponsors'] = json_encode($data['sponsors']);
 		$data['fee_event'] = implode(',',$data['fee_event']);
+		$data['mtime'] = date("Y-m-d H:i:s");
 
 		return parent::save($data);
 	}
@@ -71,19 +68,16 @@ class EventModel extends AdminModel
 			return false;
 		}
 
-		$s = $this->getState('event.id');
-
 		$e = new ClawEvents(Aliases::current);
 		$info = $e->getClawEventInfo();
 
 		$parentField = Helpers::castListField($form->getField('day'));
 
 		$days = Helpers::getDateArray($info->start_date);
-		$parentField->addOption('Wed', ['value' => $days['Wed']]);
-		$parentField->addOption('Thu', ['value' => $days['Thu']]);
-		$parentField->addOption('Fri', ['value' => $days['Fri']]);
-		$parentField->addOption('Sat', ['value' => $days['Sat']]);
-		$parentField->addOption('Sun', ['value' => $days['Sun']]);
+		foreach(['Wed','Thu','Fri','Sat','Sun'] AS $day) {
+			$parentField->addOption($day, ['value' => $days[$day]]);
+
+		}
 
 		$locations = Helpers::getLocations($this->getDatabase(), $info->locationAlias);
 		$parentField = Helpers::castListField($form->getField('location'));
