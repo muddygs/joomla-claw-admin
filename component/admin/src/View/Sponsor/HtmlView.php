@@ -116,7 +116,6 @@ class HtmlView extends BaseHtmlView
 		$toolbar = Toolbar::getInstance();
 
 		ToolbarHelper::title(
-			// Text::_('COM_COUNTRYBASE_COUNTRY_PAGE_TITLE_' . ($isNew ? 'ADD' : 'EDIT'))
 			'CLAW Sponsor ' . ($isNew ? 'Add' : 'Edit')
 		);
 

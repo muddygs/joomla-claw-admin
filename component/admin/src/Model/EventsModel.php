@@ -115,7 +115,6 @@ class EventsModel extends ListModel
 
 	public function getItems()
 	{
-		$result = [];
 		$db = $this->getDatabase();
 		$query = $this->getListQuery();
 
@@ -126,9 +125,9 @@ class EventsModel extends ListModel
 
 		// Load cache of all published sponsors
 		$sponsorsQuery = $db->getQuery(true);
-		$sponsorsQuery->select($db->qn(['id','name']))
-			->from($db->qn('#__claw_sponsors'))
-			->where($db->qn('published') . '=1');
+		$sponsorsQuery->select($db->quoteName(['id','name']))
+			->from($db->quoteName('#__claw_sponsors'))
+			->where($db->quoteName('published') . '=1');
 		$db->setQuery($sponsorsQuery);
 		$sponsors = $db->loadAssocList('id','name');
 
@@ -171,8 +170,9 @@ class EventsModel extends ListModel
 			->from($db->quoteName('#__claw_events', 'a'));
 
 
-		$query->join('LEFT OUTER', $db->qn('#__claw_locations', 'l') . ' ON ' . $db->qn('l.id') . ' = ' . $db->qn('a.location'));
-		$query->select($db->qn('l.value','location_text'));
+		$query->join('LEFT OUTER', $db->quoteName('#__claw_locations', 'l') . ' ON ' . 
+			$db->quoteName('l.id') . ' = ' . $db->quoteName('a.location'));
+		$query->select($db->quoteName('l.value','location_text'));
 
 		$query->select('SUBSTRING(DAYNAME(a.day),1,3) AS day_text');
 		$query->select('TIME_FORMAT(a.start_time, "%h:%i %p") AS start_time_text');
@@ -188,7 +188,7 @@ class EventsModel extends ListModel
 			$days = Helpers::getDateArray($info->start_date);
 			if ( array_key_exists($daylist, $days))
 			{
-				$query->where('a.day =' . $db->q($days[$daylist]));
+				$query->where('a.day =' . $db->quote($days[$daylist]));
 			}
 	
 		}

@@ -64,7 +64,6 @@ $view = 'event';
 	
 	<input type="hidden" name="id" value="<?php echo $this->item->id ?>"/>
 	<input type="hidden" name="sort_order" value="<?php echo $this->item->sort_order ?>"/>
-	<input type="hidden" name="modification_time" value="<?php echo $this->item->modification_time ?>"/>
 	<input type="hidden" name="task" value=""/>
 	<?php echo HTMLHelper::_('form.token'); ?>
 </form>

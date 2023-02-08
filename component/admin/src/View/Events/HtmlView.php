@@ -26,7 +26,7 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
  */
 
 /**
- * Main "Hello World" Admin View
+ * Main Admin View
  */
 class HtmlView extends BaseHtmlView
 {

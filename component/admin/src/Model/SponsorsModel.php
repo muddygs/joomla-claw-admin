@@ -124,7 +124,7 @@ class SponsorsModel extends ListModel
 								$db->quoteName('a.published'),
 								$db->quoteName('a.ordering'),
 								$db->quoteName('a.name'),
-								$db->qn('a.type'),
+								$db->quoteName('a.type'),
 						]
 						)
 				)

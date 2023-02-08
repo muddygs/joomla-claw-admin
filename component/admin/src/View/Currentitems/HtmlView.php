@@ -115,7 +115,7 @@ class HtmlView extends BaseHtmlView
 		// {
 		$toolbar->addNew('currentitem.add');
 		// }
-
+		$toolbar->preferences('com_claw');
 		// if ($user->authorise('core.edit.state', 'com_countrybase'))
 		// {
 		// 	$dropdown = $toolbar->dropdownButton('status-group')

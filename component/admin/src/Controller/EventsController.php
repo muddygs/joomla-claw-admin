@@ -19,7 +19,7 @@ use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
 
 /**
- * Countries list controller class.
+ * Events list controller class.
  *
  * @since  1.6
  */
