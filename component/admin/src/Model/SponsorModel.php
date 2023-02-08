@@ -14,11 +14,10 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Form\Field\FormField;
-use Joomla\CMS\Form\Field\ListField;
 use Joomla\CMS\Date\Date;
 
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Helpers\SponsorshipType;;
 
 /**
  * Methods to handle a list of records.
@@ -59,9 +58,9 @@ class SponsorModel extends AdminModel
 		$form = $this->loadForm('com_claw.sponsor', 'sponsor', array('control' => 'jform', 'load_data' => $loadData));
 
 		$p = Helpers::castListField($form->getField('type'));
-		foreach ( Helpers::sponsorshipTypes AS $value => $name )
+		foreach ( SponsorshipType::cases() AS $type )
 		{
-			$p->addOption($name, ['value' => $value ]);
+			$p->addOption($type->toString(), ['value' => $type->value ]);
 		}
 
 		if (empty($form))
