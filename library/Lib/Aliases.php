@@ -3,7 +3,7 @@
 namespace ClawCorpLib\Lib;
 
 class Aliases {
-  const current='l1122';
+  const current='c0423';
   const active = [\ClawCorpLib\Lib\Aliases::current, 'l1122_hotels', 'virtualclaw', 'refunds'];
   const location = 'westin-bonaventure';
 
@@ -18,14 +18,6 @@ class Aliases {
   // Day, night, etc passes
   const passesAliases = [];
 
-  // For checking volunteers who are in good standing, define the events for which
-  // we check to offer an automatic coupon applicable for the current volunteer-2
-  // registration
-
-  const goodStandingEvents = [ 'c21-volunteer', 'c21-volunteer-2', 'c21-volunteer-1',
-    'c22-volunteer-super', 'c22-volunteer-3', 'c22-volunteer', 'c22-volunteer-1',
-  ];
-
   // For event info display
   #const timezone = 'America/New_York';
   const timezone = 'America/Los_Angeles';
@@ -38,14 +30,14 @@ class Aliases {
   
   const shiftCategories = [
     'shifts-guestservices','shifts-facilities','shifts-badgecheck',/*'shifts-transportation',*/
-    'shifts-hospitality','shifts-se', 'shifts-store', 'shifts-silentauction','shifts-float',
+    'shifts-hospitality','shifts-se', 'shifts-silentauction','shifts-float',
     'shifts-specialty'
   ];
 
   const overlapCategories = 
   [
-    'shifts-guestservices','shifts-facilities','shifts-badgecheck','shifts-transportation',
-    'shifts-hospitality','shifts-se', 'shifts-store', 'shifts-silentauction','shifts-float',
+    'shifts-guestservices','shifts-facilities','shifts-badgecheck',
+    'shifts-hospitality','shifts-se', 'shifts-silentauction','shifts-float',
     'speed-dating','dinner','buffet','buffet-breakfast',
   ];
 
@@ -63,7 +55,7 @@ class Aliases {
   const categoriesTicketedEvents = [
     'dinner',
     'buffet',
-    'parties',
+    // 'parties',
     'buffet-breakfast'
   ];
 
@@ -78,9 +70,7 @@ class Aliases {
 
   const eventTitleMapping = [
     'c1121' => 'CLAW 21',
-    '2021-11' => 'CLAW 21', // RSForm
     'c0422' => 'CLAW 22',
-    '2022-04' => 'CLAW 22', // RSForm
     'l1122' => 'Leather Getaway 22',
     'c0423' => 'CLAW 23'
   ];
