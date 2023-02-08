@@ -3,13 +3,13 @@
 
 	<name>CLAW</name>
 	<!-- The following elements are optional and free of formatting constraints -->
-	<creationDate>July 2022</creationDate>
+	<creationDate>February 2023</creationDate>
 	<author>CLAW Corp.</author>
 	<authorUrl>https://www.clawinfo.org/</authorUrl>
-	<copyright>(c) 2022 CLAW Corp.</copyright>
-	<license>Free</license>
+	<copyright>(c) 2023 CLAW Corp.</copyright>
+	<license>GPLv2</license>
 	<!--  The version string is recorded in the components table -->
-	<version>0.0.5</version>
+	<version>0.0.6</version>
 	<!-- The description is optional and defaults to the name -->
 	<description>CLAW Data Administration</description>
 
@@ -24,7 +24,7 @@
 	</uninstall>
 	<update>
 	</update>
-	
+
 	<scriptfile>script.php</scriptfile>
 
 	<administration>
@@ -32,76 +32,55 @@
 		<menu img="class:bookmark">CLAW</menu>
 
 		<submenu>
-				<menu
-					link="option=com_claw"
-					view="claw"
-					img="class:banners"
-					alt="CLAW/CLAW"
-					>
+			<menu link="option=com_claw" view="claw" img="class:banners" alt="CLAW/CLAW">
 						Dashboard
-				</menu>
-				<menu
-					link="option=com_claw&amp;view=currentitems"
-					view="currentitems"
-					img="class:banners"
-					alt="CLAW/CLAW"
-					>
+			</menu>
+			<menu link="option=com_claw&amp;view=configuration" view="configuration" img="class:banners" alt="CLAW/CLAW">
 						Config
-				</menu>
-				<menu
-					link="option=com_claw&amp;view=locations"
-					view="locations"
-					img="class:banners"
-					alt="CLAW/CLAW"
-					>
+			</menu>
+			<menu link="option=com_claw&amp;view=locations" view="locations" img="class:banners" alt="CLAW/CLAW">
 						Locations
-				</menu>
-				<menu
-					link="option=com_claw&amp;view=sponsors"
-					view="sponsors"
-					img="class:banners"
-					alt="CLAW/CLAW"
-					>
+			</menu>
+			<menu link="option=com_claw&amp;view=sponsors" view="sponsors" img="class:banners" alt="CLAW/CLAW">
 						Sponsors
-				</menu>
-				<menu
-					link="option=com_claw&amp;view=events"
-					view="events"
-					img="class:banners"
-					alt="CLAW/CLAW"
-					>
+			</menu>
+			<menu link="option=com_claw&amp;view=events" view="events" img="class:banners" alt="CLAW/CLAW">
 						Events
-				</menu>
-				<menu
-					link="option=com_claw&amp;view=shifts"
-					view="shifts"
-					img="class:banners"
-					alt="CLAW/CLAW"
-					>
+			</menu>
+			<menu link="option=com_claw&amp;view=shifts" view="shifts" img="class:banners" alt="CLAW/CLAW">
 						Shifts
-				</menu>
-
+			</menu>
+			<menu link="option=com_claw&amp;view=presenters" view="presenters" img="class:banners" alt="CLAW/CLAW">
+						Skills Presenters
+			</menu>
+			<menu link="option=com_claw&amp;view=skills" view="skills" img="class:banners" alt="CLAW/CLAW">
+						Skills Classes
+			</menu>
 		</submenu>
+
 		<!-- Administration Main File Copy Section -->
 		<!-- Note the folder attribute: This attribute describes the folder
 			to copy FROM in the package to install therefore files copied
 			in this section are copied from /admin/ in the package -->
+
 		<files folder="admin/">
-				<folder>forms</folder>
-				<folder>language</folder>
-				<folder>layouts</folder>
-				<folder>services</folder>
-				<folder>sql</folder>
-				<folder>src</folder>
-				<folder>tmpl</folder>
-                <file>LICENSE.txt</file>
+			<folder>forms</folder>
+			<folder>language</folder>
+			<folder>layouts</folder>
+			<folder>services</folder>
+			<folder>sql</folder>
+			<folder>src</folder>
+			<folder>tmpl</folder>
+			<file>LICENSE.txt</file>
+			<file>access.xml</file>
+			<file>config.xml</file>
 		</files>
-		
+
+		<!-- Have not done much with these yet -->
 		<languages>
-            <language tag="en-GB">admin/language/en-GB/en-GB.com_claw.ini</language>
-            <language tag="en-GB">admin/language/en-GB/en-GB.com_claw.sys.ini</language>
-        </languages>
+			<language tag="en-GB">admin/language/en-GB/com_claw.ini</language>
+			<language tag="en-GB">admin/language/en-GB/com_claw.sys.ini</language>
+		</languages>
 	</administration>
 
 </extension>
-
