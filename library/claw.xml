@@ -2,8 +2,8 @@
 <extension type="library" method="upgrade">
     <name>CLAW Support Libraries</name>
     <author>CLAW Corp.</author>
-    <creationDate>2022-DEC-13</creationDate>
-    <copyright>Copyright 2022 CLAW Corp. - All Rights Reserved</copyright>
+    <creationDate>2023-FEB-01</creationDate>
+    <copyright>Copyright 2023 CLAW Corp. - All Rights Reserved</copyright>
     <license>GNU/GPLv2</license>
     <authorEmail>webmaster@clawinfo.org</authorEmail>
     <authorUrl>www.clawinfo.org</authorUrl>
@@ -14,6 +14,7 @@
     <files>
         <folder>Grid</folder>
         <folder>Helpers</folder>
+        <folder>Lib</folder>
         <file>init.php</file>
         <file>claw.xml</file>
         <file>LICENSE.txt</file>
