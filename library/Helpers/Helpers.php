@@ -8,15 +8,6 @@ use Joomla\CMS\Form\Field\SubformField;
 
 class Helpers
 {
-  const sponsorshipTypes = [
-    "1" => 'Sponsor',
-    "2" => 'Sustaining',
-    "6" => 'Legacy Sustaining',
-    "3" => 'Master',
-    "5" => 'Legacy Master',
-    "4" => 'Media',
-  ];
-
   static function ClawHelpersLoaded(): bool
   {
       return true;
@@ -121,6 +112,7 @@ SQL;
    */
   static function sessionSet(string $key, string $value): void
   {
+    /** @var $app \Joomla\CMS\Application\CMSApplicationInterface */
     $app = Factory::getApplication();
     $session = $app->getSession();
     if ($session->isActive()) {
@@ -136,6 +128,7 @@ SQL;
    */
   static function sessionGet(string $key, string $default = ''): ?string
   {
+    /** @var $app \Joomla\CMS\Application\CMSApplicationInterface */
     $app = Factory::getApplication();
     $session = $app->getSession();
     if ($session->isActive()) {
