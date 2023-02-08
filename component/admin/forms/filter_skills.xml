@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+
+	<fields name="filter">
+
+		<field
+			name="search"
+			type="text"
+			label="Search"
+			description="Title search"
+			hint="JSEARCH_FILTER"
+		/>
+
+		<field
+		  name="presenter"
+			type="list"
+			default=""
+			label="Presenter Filter">
+			<option value="">Select Presenter</option>
+		</field>
+
+		<field
+		  name="day"
+			type="list"
+			default=""
+			label="Day Filter">
+			<option value="">Select Day</option>
+		</field>
+
+		<field
+		  name="event"
+			type="list"
+			default=""
+			label="Event Filter">
+			<option value="">Select Event</option>
+		</field>
+
+	</fields>
+
+	<fields name="list">
+
+		<field
+			name="fullordering"
+			type="list"
+			label="JGLOBAL_SORT_BY"
+			default="a.title ASC"
+			onchange="this.form.submit();"
+			>
+			<option value="">JGLOBAL_SORT_BY</option>
+			<option value="a.title ASC">Title Ascending</option>
+			<option value="a.title DESC">Title Descending</option>
+			<option value="a.start_time ASC">Time Ascending</option>
+			<option value="a.start_time DESC">Time Descending</option>
+			<option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
+			<option value="a.id DESC">JGRID_HEADING_ID_DESC</option>
+		</field>
+
+		<field
+			name="limit"
+			type="limitbox"
+			label="JGLOBAL_LIST_LIMIT"
+			default="All"
+			onchange="this.form.submit();"
+		/>
+	</fields>
+</form>
