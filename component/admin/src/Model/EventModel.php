@@ -80,24 +80,27 @@ class EventModel extends AdminModel
 		}
 
 		$locations = Helpers::getLocations($this->getDatabase(), $info->locationAlias);
-		$parentField = Helpers::castListField($form->getField('location'));
 
+		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
+		$parentField = $form->getField('location');
 		foreach ( $locations AS $l )
 		{
 			$parentField->addOption($l->value, ['value' => $l->id]);
 		}
 
 		$sponsors = Helpers::getSponsorsList($this->getDatabase());
-		$parentField = Helpers::castListField($form->getField('sponsors'));
 
+		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
+		$parentField = $form->getField('sponsors');
 		foreach ( $sponsors AS $s )
 		{
 			$parentField->addOption($s->name, ['value' => $s->id]);
 		}
 
 		$events = EventBooking::LoadTicketedEvents($e);
-		$parentField = Helpers::castListField($form->getField('event_id'));
 
+		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
+		$parentField = $form->getField('event_id');
 		foreach ( $events AS $id => $title )
 		{
 			$parentField->addOption($title, ['value' => $id]);
