@@ -54,10 +54,6 @@ class SkillsModel extends ListModel
 			}
 		}
 
-	#region Customize form filters
-	#endregion
-	
-
 		parent::__construct($config);
 
 		$this->SetFilterForm();
@@ -168,12 +164,19 @@ class SkillsModel extends ListModel
 
 		// Filter by search in title.
 		$search = $this->getState('filter.search');
+		$day = $this->getState('filter.day');
+		$event = $this->getState('filter.event') ?? Aliases::current;
 
 		if (!empty($search))
 		{
 			$search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
-			$query->where('(a.title LIKE ' . $search . ')');
+			$query->where( 'a.title LIKE ' . $search );
 		}
+
+		$query->where('a.event LIKE ' . $db->quote($event));
+
+		if ( $day )
+			$query->where('a.day LIKE ' . $db->quote($day));
 
 		// Add the list ordering clause.
 		$orderCol  = $this->state->get('list.ordering', 'a.title');

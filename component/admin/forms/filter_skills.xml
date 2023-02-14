@@ -15,7 +15,9 @@
 		  name="presenter"
 			type="list"
 			default=""
-			label="Presenter Filter">
+			label="Presenter Filter"
+			onchange="this.form.submit();"
+		>
 			<option value="">Select Presenter</option>
 		</field>
 
@@ -23,7 +25,9 @@
 		  name="day"
 			type="list"
 			default=""
-			label="Day Filter">
+			label="Day Filter"
+			onchange="this.form.submit();"
+		>
 			<option value="">Select Day</option>
 		</field>
 
@@ -31,7 +35,9 @@
 		  name="event"
 			type="list"
 			default=""
-			label="Event Filter">
+			label="Event Filter"
+			onchange="this.form.submit();"
+		>
 			<option value="">Select Event</option>
 		</field>
 

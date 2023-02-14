@@ -166,7 +166,7 @@ CREATE TABLE `#__claw_skills` (
   `title` varchar(255) DEFAULT NULL,
   `event` TEXT DEFAULT NULL,
   `day` date DEFAULT NULL,
-  `start_time` time DEFAULT NULL,
+  `start_time` int(4) DEFAULT NULL,
   `length` int(4) DEFAULT 60,
   `presenters` TEXT DEFAULT NULL,
   `track` varchar(10) DEFAULT NULL,

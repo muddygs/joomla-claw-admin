@@ -29,7 +29,7 @@ $view = 'skill';
         <?php echo $this->form->renderField('title'); ?>
     </div>
     <div class="col-12 col-md-6">
-        <?php echo $this->form->renderField('legal_name'); ?>
+        <?php echo $this->form->renderField('presenters'); ?>
     </div>
 	</div>
 	<div class="row form-vertical mb-3">
@@ -47,18 +47,20 @@ $view = 'skill';
 		<?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'general', 'General'); ?>
 
 		<div class="row">
-			<?php echo $this->form->renderField('uid'); ?>
-			<?php echo $this->form->renderField('phone'); ?>
-			<?php echo $this->form->renderField('bio'); ?>
-			<?php echo $this->form->renderField('photo_upload'); ?>
-			<?php echo $this->form->renderField('photo'); ?>
+			<?php echo $this->form->renderField('day'); ?>
+			<?php echo $this->form->renderField('start_time'); ?>
+			<?php echo $this->form->renderField('length'); ?>
+			<?php echo $this->form->renderField('audience'); ?>
+			<?php echo $this->form->renderField('category'); ?>
+			<?php echo $this->form->renderField('track'); ?>
+			<?php echo $this->form->renderField('description'); ?>
 		</div>
 
 		<?php echo HTMLHelper::_('uitab.endTab'); ?>
 
 		<?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'special', 'Special'); ?>
 		<div class="row">
-			<?php echo $this->form->renderField('social_media'); ?>
+			<?php echo $this->form->renderField('photo'); ?>
 			<?php echo $this->form->renderField('arrival'); ?>
 		</div>
 

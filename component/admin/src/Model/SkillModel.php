@@ -15,8 +15,13 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 
-use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Skills;
+use ClawCorpLib\Enums\SkillsAudiences;
+use ClawCorpLib\Enums\SkillsCategories;
+use ClawCorpLib\Enums\SkillsStartTimes;
+use ClawCorpLib\Enums\SkillsTracks;
+
+use ClawCorpLib\Lib\Aliases;
 
 /**
  * Methods to handle a list of records.
@@ -36,6 +41,7 @@ class SkillModel extends AdminModel
 	public function save($data)
 	{
 		$data['mtime'] = date("Y-m-d H:i:s");
+		$data['event'] = json_encode($data['event']);
 
 		return parent::save($data);
 	}
@@ -50,8 +56,11 @@ class SkillModel extends AdminModel
 	 *
 	 * @since   1.6
 	 */
-	public function getForm($data = array(), $loadData = true)
+	public function getForm($data = [], $loadData = true)
 	{
+		$input = Factory::getApplication()->getInput();
+		$post = file_get_contents("php://input");
+
 		// Get the form.
 		$form = $this->loadForm('com_claw.skill', 'skill', array('control' => 'jform', 'load_data' => $loadData));
 
@@ -60,25 +69,73 @@ class SkillModel extends AdminModel
 			return false;
 		}
 
-		$parentField = Helpers::castListField($form->getField('day'));
-
-		//$days = Helpers::getDateArray($info->start_date);
+		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
+		$parentField = $form->getField('day');
 		foreach(['Fri','Sat','Sun'] AS $day) {
 			$parentField->addOption( $day, ['value' => $day] );
 		}
-		
-		$parentField = Helpers::castListField($form->getField('presenters'));
+
+		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
+		$parentField = $form->getField('presenters');
 		foreach(Skills::GetPresentersList($this->getDatabase()) AS $p) {
 			$parentField->addOption( $p->name, ['value' => $p->id]);
 		}
 
-		$locations = Helpers::getLocations($this->getDatabase(), $info->locationAlias);
-		$parentField = Helpers::castListField($form->getField('location'));
+		/** @var $filter \Joomla\CMS\Form\FormField */
+		$filter = $form->getField('event');
+		foreach(Aliases::eventTitleMapping AS $alias => $title ) {
+			$filter->addOption($title, ['value' => $alias]);
+		}
 
+		/** @var $filter \Joomla\CMS\Form\FormField */
+		$audience = $form->getField('audience');
+		foreach(SkillsAudiences::cases() AS $c )
+		{
+			if ( $c->name == 'Open' ) continue;
+			$audience->addOption( $c->value, [ 'value' => $c->name]);
+		}
+
+		/** @var $filter \Joomla\CMS\Form\FormField */
+		$audience = $form->getField('start_time');
+		foreach(SkillsStartTimes::cases() AS $c )
+		{
+			$audience->addOption( $c->ToString(), [ 'value' => $c->name]);
+		}
+
+		/** @var $filter \Joomla\CMS\Form\FormField */
+		$audience = $form->getField('category');
+		foreach(SkillsCategories::cases() AS $c )
+		{
+			if ( $c->name == 'TBD' ) continue;
+			$audience->addOption( $c->value, [ 'value' => $c->name]);
+		}
+
+		/** @var $filter \Joomla\CMS\Form\FormField */
+		$audience = $form->getField('track');
+		foreach(SkillsTracks::cases() AS $c )
+		{
+			if ( $c->name == 'None' ) continue;
+			$audience->addOption( $c->value, [ 'value' => $c->name]);
+		}
+
+		$locations = Helpers::getLocations($this->getDatabase(), $info->locationAlias);
+
+		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
+		$parentField = $form->getField('location');
 		foreach ( $locations AS $l )
 		{
 			$parentField->addOption($l->value, ['value' => $l->id]);
 		}
+
+
+		// $locations = Helpers::getLocations($this->getDatabase(), $info->locationAlias);
+
+		// /** @var $parentField \Joomla\CMS\Form\Field\ListField */
+		// $parentField = $form->getField('location');
+		// foreach ( $locations AS $l )
+		// {
+		// 	$parentField->addOption($l->value, ['value' => $l->id]);
+		// }
 
 		// 
 

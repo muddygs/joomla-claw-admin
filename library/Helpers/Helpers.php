@@ -138,6 +138,25 @@ SQL;
     return null;
   }
 
+  /**
+   * Converts hh:mm:ss to hh:mm XM, 00:00 -> Midnight, 12:00 -> Noon
+   * @param string Time string (hh:mm:ss)
+   * @return string Formatted time
+   */
+  static function formatTime(string $time): string
+  {
+    if (0 === strpos($time, '00:00')) {
+      $time = "Midnight";
+    } else if (0 === strpos($time, '12:00')) {
+      $time = "Noon";
+    } else {
+      date_default_timezone_set('etc/UTC');
+      $time = date('g:iA', strtotime(substr($time, 0, 5)));
+    }
+
+    return $time;
+  }
+
   /*
   * Coding helpers for lookup by Intelliphense
   */
