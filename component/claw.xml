@@ -27,6 +27,11 @@
 
 	<scriptfile>script.php</scriptfile>
 
+	<media destination="com_claw" folder="media">
+		<file>joomla.asset.json</file>
+		<folder>js</folder>
+	</media>
+
 	<administration>
 		<!-- Administration Menu Section -->
 		<menu img="class:bookmark">CLAW</menu>

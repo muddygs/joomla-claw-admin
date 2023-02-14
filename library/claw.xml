@@ -12,6 +12,7 @@
 
     <libraryname>claw</libraryname>
     <files>
+        <folder>Enums</folder>
         <folder>Grid</folder>
         <folder>Helpers</folder>
         <folder>Lib</folder>

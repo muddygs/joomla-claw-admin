@@ -4,6 +4,10 @@ rm pkg_claw.zip
 rm package/packages/*.zip
 
 cd component && zip -r ../package/packages/com_claw.zip . && cd -
+
+# Directories to append to main component package once admin is added
+zip -r package/packages/com_claw.zip media
+
 cd library   && zip -r ../package/packages/lib_claw.zip . && cd -
 #cd plugin    && zip -dr ../package/packages/plg_claw.zip . && cd -
 
