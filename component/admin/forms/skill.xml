@@ -23,7 +23,7 @@
     label="Event Selection"
     required="true"
     layout="joomla.form.field.list-fancy-select"
-    multiple="true"
+    multiple="false"
     default=""
     validate="options"
     >
