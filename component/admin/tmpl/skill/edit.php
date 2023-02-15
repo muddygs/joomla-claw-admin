@@ -33,10 +33,13 @@ $view = 'skill';
     </div>
 	</div>
 	<div class="row form-vertical mb-3">
-		<div class="col-12 col-md-6">
+		<div class="col-12 col-md-4">
         <?php echo $this->form->renderField('event'); ?>
     </div>
-    <div class="col-12 col-md-6">
+		<div class="col-12 col-md-4">
+        <?php echo $this->form->renderField('location'); ?>
+    </div>
+    <div class="col-12 col-md-4">
         <?php echo $this->form->renderField('published'); ?>
     </div>
 	</div>
