@@ -15,6 +15,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 
+use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Enums\SkillsAudiences;
 use ClawCorpLib\Enums\SkillsCategories;
@@ -22,6 +23,7 @@ use ClawCorpLib\Enums\SkillsStartTimes;
 use ClawCorpLib\Enums\SkillsTracks;
 
 use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\ClawEvents;
 
 /**
  * Methods to handle a list of records.
@@ -41,7 +43,9 @@ class SkillModel extends AdminModel
 	public function save($data)
 	{
 		$data['mtime'] = date("Y-m-d H:i:s");
-		$data['event'] = json_encode($data['event']);
+		//$data['event'] = json_encode($data['event']);
+		$e = new ClawEvents($data['event']);
+		$info = $e->getEvent()->getInfo();
 
 		return parent::save($data);
 	}
@@ -118,7 +122,7 @@ class SkillModel extends AdminModel
 			$audience->addOption( $c->value, [ 'value' => $c->name]);
 		}
 
-		$locations = Helpers::getLocations($this->getDatabase(), $info->locationAlias);
+		$locations = Helpers::getLocations($this->getDatabase());
 
 		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
 		$parentField = $form->getField('location');
