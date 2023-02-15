@@ -14,7 +14,7 @@ class EventBooking
   {
     $result = [];
 
-    $info = $e->getClawEventInfo();
+    $info = $e->getEvent()->getInfo();
     $events = ClawEvents::getEventsByCategoryId(ClawEvents::getCategoryIds(Aliases::categoriesTicketedEvents), $info);
 
     foreach ($events as $e) {

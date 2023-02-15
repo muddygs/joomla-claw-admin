@@ -5,6 +5,7 @@ namespace ClawCorpLib\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Field\ListField;
 use Joomla\CMS\Form\Field\SubformField;
+use Joomla\Database\DatabaseDriver;
 
 class Helpers
 {
@@ -13,7 +14,7 @@ class Helpers
       return true;
   }
   
-  static function getUsersByGroupName(\Joomla\Database\DatabaseDriver $db, string $groupname): array
+  static function getUsersByGroupName(DatabaseDriver $db, string $groupname): array
   {
     $groupId = Helpers::getGroupId($db, $groupname);
 
@@ -34,7 +35,7 @@ SQL;
 
   }
 
-  static function getSponsorsList(\Joomla\Database\DatabaseDriver $db, array $filter = []): array
+  static function getSponsorsList(DatabaseDriver $db, array $filter = []): array
   {
     $query = $db->getQuery(true);
     $query->select($db->qn(['id','name']))
@@ -53,22 +54,25 @@ SQL;
     return $db->loadObjectList();
   }
 
-  static function getLocations(\Joomla\Database\DatabaseDriver $db, string $baseAlias = ""): array
+  static function getLocations(DatabaseDriver $db, string $baseAlias = ''): array
   {
     $query = $db->getQuery(true);
     $query->select(['l.id','l.value'])
-    ->from($db->qn('#__claw_locations', 'l'))
-    ->join('LEFT OUTER', $db->qn('#__claw_locations', 't') . ' ON ' . $db->qn('t.alias') . ' = ' . $db->q($baseAlias))
-    ->where($db->qn('t.published') . '= 1')
-    ->where($db->qn('l.published') . '= 1')
-    ->where($db->qn('l.catid') . '=' . $db->qn('t.id'));
+    ->from($db->qn('#__claw_locations', 'l'));
+
+    if ( $baseAlias != '' ) {
+      $query->join('LEFT OUTER', $db->qn('#__claw_locations', 't') . ' ON ' . $db->qn('t.alias') . ' = ' . $db->q($baseAlias))
+      ->where($db->qn('t.published') . '= 1')
+      ->where($db->qn('l.catid') . '=' . $db->qn('t.id'));
+    }
+
+    $query->where($db->qn('l.published') . '= 1');
 
     $db->setQuery($query);
     return $db->loadObjectList();
-
   }
 
-  static public function getGroupId(\Joomla\Database\DatabaseDriver $db, $groupName): int
+  static public function getGroupId(DatabaseDriver $db, $groupName): int
   {
     $query = $db->getQuery(true);
     $query->select($db->qn(['id']))
@@ -156,17 +160,4 @@ SQL;
 
     return $time;
   }
-
-  /*
-  * Coding helpers for lookup by Intelliphense
-  */
-  static public function castListField($p): ListField
-	{
-		return $p;
-	}
-  static public function castSubFormField($p): SubformField
-	{
-		return $p;
-	}
-
 }

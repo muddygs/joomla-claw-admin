@@ -3,24 +3,27 @@
 namespace ClawCorpLib\Lib;
 
 use Joomla\CMS\Factory;
+use \Joomla\CMS\Autoload\ClassLoader;
 
-use ClawCorpLib\Lib;
+
+use ClawCorpLib\Events\AbstractEvent;
+use ClawCorpLib\Enums\EventTypes;
+use ClawCorpLib\Lib\EventInfo;;
 use ClawCorpLib\Lib\Aliases as CLAWALIASES;
-// use ClawCorpLib\Lib\ClawEvent;
-// use ClawCorpLib\Lib\ClawEventInfo;
-// use ClawCorpLib\Lib\ClawEventTypes;
 use UnexpectedValueException;
 
 class ClawEvents
 {
-    private $events = [];
+    // private $events = [];
     var $mainEventIds = [];
     var $couponRequired = [];
     var $overlapEventCategories = [];
     var $shiftCategories = [];
-    private string $clawEventAlias = '';
+    // private string $clawEventAlias = '';
 
-    private EventInfo $clawEventInfo;
+    // private EventInfo $clawEventInfo;
+
+    private AbstractEvent $event;
 
     private static $eventIds = null;
     private static $categoryIds = null;
@@ -39,16 +42,17 @@ class ClawEvents
         self::mapCategoryAliases();
         self::mapFieldIds();
 
-        $this->clawEventAlias = $clawEventAlias;
+        // $this->clawEventAlias = $clawEventAlias;
 
         if ( $clawEventAlias != 'refunds' ) {
-            $this->defineEventMapping();
+            $this->LoadEventClass($clawEventAlias);
         } else {
-            $this->defineHistoricEventMapping();
+            die("Refund not implemented");
+            //$this->defineHistoricEventMapping();
         }
         
-        if ( $this->clawEventInfo->eventType == ClawEventTypes::main ) {
-            foreach ( $this->events AS $o ) {
+        if ( $this->event->getInfo()->eventType == EventTypes::main ) {
+            foreach ( $this->event->getEvents() AS $o ) {
                 if ( $o->isMainEvent ) $this->mainEventIds[] = $o->eventId;
                 if ( $o->requiresCoupon ) $this->couponRequired[] = $o->eventId;
             }
@@ -68,16 +72,8 @@ class ClawEvents
         }
     }
 
-    /**
-     * Based on event alias, returns all defined events
-     * @return array Array of clawEvent
-     */
-    public function getClawEvents(): array {
-        return $this->events;
-    }
-
-    public function castEvent(object $e): ClawEvent {
-        return $e;
+    public function getEvent() {
+        return $this->event;
     }
 
     /**
@@ -90,7 +86,7 @@ class ClawEvents
     {
         $result = null;
         $found = 0;
-        foreach ($this->events as $e) {
+        foreach ($this->event->getEvents() as $e) {
             if ( !property_exists($e, $key)) die(__FILE__.': Unknown key requested: ' . $key);
 
             if ( get_class($e) == 'clawEvent' && $mainOnly && !$e->isMainEvent) continue;
@@ -114,7 +110,7 @@ class ClawEvents
     public function getEventByCouponCode(string $couponCode): ?clawEvent {
         $result = null;
         $found = 0;
-        foreach($this->events AS $e )
+        foreach($this->event->getEvents() AS $e )
         {
             if ( $e->couponKey == $couponCode ) {
                 $result = $e;
@@ -132,7 +128,7 @@ class ClawEvents
     {
         $result = null;
         $found = 0;
-        foreach ($this->events as $e) {
+        foreach ($this->event->getEvents() as $e) {
             if ($e->clawPackageType == $packageType && $e->isMainEvent) {
                 $result = $e;
                 $found++;
@@ -145,21 +141,6 @@ class ClawEvents
         return $result;
     }
 
-    /**
-     * Returns an array of all the enrolled events in this class when initialized
-     * @return array List of event IDs
-     */
-    public function getEventIds(): array {
-        $ids = [];
-        foreach ( $this->events AS $e ) {
-            $ids[] = $e->eventId;
-        }
-        return $ids;
-    }
-
-    public function getClawEventInfo(): EventInfo {
-        return $this->clawEventInfo;
-    }
 
     /**
      * Provides mapping of event alias to event id
@@ -381,24 +362,31 @@ SQL;
         die('Could not determine CLAW event alias: '. $eventId);
     }
 
-    private function defineEventMapping(): void
+    private function LoadEventClass(string $alias): void
     {
-        $events = [];
-        $info = (object)[];
-        include(JPATH_LIBRARIES.'/claw/Lib/events_'.$this->clawEventAlias.'.php');
+        // $loader = new \Composer\Autoload\ClassLoader();
 
-        $clawEventInfo = new EventInfo();
+        // $loader->loadClass("\\ClawCorpLib\\Events\\$alias");
 
-        foreach ( array_keys(get_class_vars("ClawCorpLib\Lib\EventInfo")) AS $k ) {
-            if ( !property_exists($info, $k )) {
-                var_dump($info);
-                die("Event description lacks: $k\n");
-            }
-            $clawEventInfo->$k = $info->$k;
-        }
+        $classname = "\\ClawCorpLib\\Events\\$alias";
+        $this->event = new $classname($alias);
 
-        $this->events = $events;
-        $this->clawEventInfo = $clawEventInfo;
+        // $events = [];
+        // $info = (object)[];
+        // include(JPATH_LIBRARIES.'/claw/Lib/events_'.$this->clawEventAlias.'.php');
+
+        // $clawEventInfo = new EventInfo();
+
+        // foreach ( array_keys(get_class_vars("ClawCorpLib\Lib\EventInfo")) AS $k ) {
+        //     if ( !property_exists($info, $k )) {
+        //         var_dump($info);
+        //         die("Event description lacks: $k\n");
+        //     }
+        //     $clawEventInfo->$k = $info->$k;
+        // }
+
+        // $this->event->events = $events;
+        // $this->clawEventInfo = $clawEventInfo;
     }
 
     /**
@@ -407,29 +395,29 @@ SQL;
      */
     private function defineHistoricEventMapping(): void
     {
-        if ( $this->clawEventAlias != 'refunds' ) die('This function can only be used for refunds.');
+        if ( $this->event->alias != 'refunds' ) die('This function can only be used for refunds.');
 
-        $events = [];
-        $info = (object)[];
-        include(JPATH_ROOT.'/php/lib/events_'.$this->clawEventAlias.'.php');
+        // $events = [];
+        // $info = (object)[];
+        // include(JPATH_ROOT.'/php/lib/events_'.$this->event->alias.'.php');
 
-        $clawEventInfo = new EventInfo();
+        // $clawEventInfo = new EventInfo();
 
-        foreach ( array_keys(get_class_vars("clawEventInfo")) AS $k ) {
-            if ( !property_exists($info, $k )) {
-                var_dump($info);
-                die("Event description lacks: $k\n");
-            }
-            $clawEventInfo->$k = $info->$k;
-        }
+        // foreach ( array_keys(get_class_vars("clawEventInfo")) AS $k ) {
+        //     if ( !property_exists($info, $k )) {
+        //         var_dump($info);
+        //         die("Event description lacks: $k\n");
+        //     }
+        //     $clawEventInfo->$k = $info->$k;
+        // }
 
-        $events = [];
-        foreach(array_merge(CLAWALIASES::active, CLAWALIASES::past) AS $alias ) {
-            include(JPATH_ROOT.'/php/lib/events_'.$alias.'.php');
-        }
+        // $events = [];
+        // foreach(array_merge(CLAWALIASES::active, CLAWALIASES::past) AS $alias ) {
+        //     include(JPATH_ROOT.'/php/lib/events_'.$alias.'.php');
+        // }
 
-        $this->events = $events;
-        $this->clawEventInfo = $clawEventInfo;
+        // $this->event->events = $events;
+        // $this->clawEventInfo = $clawEventInfo;
     }
 
     private static function mapEventAliases(): void

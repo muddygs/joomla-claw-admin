@@ -5,12 +5,12 @@ namespace ClawCorpLib\Lib;
 defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
-use ClawCorpLib\Lib\PackageTypes AS ClawPackageTypes;
+use ClawCorpLib\Enums\EventPackageTypes;
 
 class ClawEvent
 {
     var string $description = '';
-    var int $clawPackageType = ClawPackageTypes::none;
+    var EventPackageTypes $clawPackageType = EventPackageTypes::none;
     var bool $isMainEvent = false;
     var string $couponKey = '';
     var int $couponValue = 0;
