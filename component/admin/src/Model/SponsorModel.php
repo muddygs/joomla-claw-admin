@@ -57,15 +57,16 @@ class SponsorModel extends AdminModel
 		// Get the form.
 		$form = $this->loadForm('com_claw.sponsor', 'sponsor', array('control' => 'jform', 'load_data' => $loadData));
 
-		$p = Helpers::castListField($form->getField('type'));
-		foreach ( SponsorshipType::cases() AS $type )
-		{
-			$p->addOption($type->toString(), ['value' => $type->value ]);
-		}
-
 		if (empty($form))
 		{
 			return false;
+		}
+
+		/** @var $p \Joomla\CMS\FormField */
+		$p = $form->getField('type');
+		foreach ( SponsorshipType::cases() AS $type )
+		{
+			$p->addOption($type->toString(), ['value' => $type->value ]);
 		}
 
 		return $form;

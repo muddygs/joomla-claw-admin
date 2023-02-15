@@ -40,8 +40,8 @@ class LocationModel extends AdminModel
 		// deprecate $input = Factory::getApplication()->input;
 
 		$input = Factory::getApplication()->getInput();
+		/** @var $app AdministratorApplication */
 		$app = Factory::getApplication();
-		$app = $this::castAdministratorApplication($app); // 
 		$oldcatid = $app->getUserState('com_claw.location.old', array());
 
 		if ( 0 == $data['id'] || -1 == $input->data['ordering'] || $oldcatid != $data['catid'] )
@@ -85,9 +85,10 @@ class LocationModel extends AdminModel
 		$form = $this->loadForm('com_claw.location', 'location', array('control' => 'jform', 'load_data' => $loadData));
 
 		//$s = $this->getState('location.id');
-		$parentField = $this->castListField($form->getField('catid'));
+		/** @var $filter \Joomla\CMS\Form\FormField */
+		$parentField = $form->getField('catid');
 
-		$parentLocations = LocationHelper::getCandidateParents($this->getDbo());
+		$parentLocations = LocationHelper::getCandidateParents($this->getDatabase());
 		
 		foreach ( $parentLocations AS $p )
 		{
@@ -103,25 +104,6 @@ class LocationModel extends AdminModel
 	}
 
 	/**
-	 * Hack for Intelliphense
-	 * @param mixed $p 
-	 * @return ListField 
-	 */
-	private function castListField($p): ListField
-	{
-		return $p;
-	}
-
-	/**
-	 * Hack for Intelliphense
-	 * @param mixed $x 
-	 * @return AdministratorApplication 
-	 */
-	public static function castAdministratorApplication($x): AdministratorApplication
-	{
-		return $x;
-	}
-	/**
 	 * Method to get the data that should be injected in the form.
 	 *
 	 * @return  mixed  The data for the form.
@@ -131,8 +113,8 @@ class LocationModel extends AdminModel
 	protected function loadFormData()
 	{
 		// Check the session for previously entered form data.
+		/** @var $app AdministratorApplication */
 		$app = Factory::getApplication();
-		$app = $this::castAdministratorApplication($app);
 		$data = $app->getUserState('com_claw.edit.location.data', array());
 
 		if (empty($data))

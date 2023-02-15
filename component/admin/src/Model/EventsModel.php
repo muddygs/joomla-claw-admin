@@ -184,7 +184,7 @@ class EventsModel extends ListModel
 		if ( $daylist != null )
 		{
 			$e = new ClawEvents(Aliases::current);
-			$info = $e->getClawEventInfo();
+			$info = $e->getEvent()->getInfo();
 			$days = Helpers::getDateArray($info->start_date);
 			if ( array_key_exists($daylist, $days))
 			{

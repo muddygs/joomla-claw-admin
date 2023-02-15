@@ -94,18 +94,18 @@ class ShiftModel extends AdminModel
 		// Get the form.
 		$form = $this->loadForm('com_claw.shift', 'shift', array('control' => 'jform', 'load_data' => $loadData));
 
-		$p = Helpers::castListField($form->getField('coordinators'));
-
-		$coordinators = Helpers::getUsersByGroupName($this->getDatabase(), 'VolunteerCoord');
-
-		foreach ( $coordinators AS $c )
-		{
-			$p->addOption($c->name, ['value' => $c->user_id ]);
-		}
-
 		if (empty($form))
 		{
 			return false;
+		}
+
+		$coordinators = Helpers::getUsersByGroupName($this->getDatabase(), 'VolunteerCoord');
+
+		/** @var $coodinators \Joomla\CMS\Form\FormField */
+		$p = $form->getField('coordinators');
+		foreach ( $coordinators AS $c )
+		{
+			$p->addOption($c->name, ['value' => $c->user_id ]);
 		}
 
 		return $form;

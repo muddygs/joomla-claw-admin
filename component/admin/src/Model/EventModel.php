@@ -69,10 +69,10 @@ class EventModel extends AdminModel
 		}
 
 		$e = new ClawEvents(Aliases::current);
-		$info = $e->getClawEventInfo();
+		$info = $e->getEvent()->getInfo();
 
-		$parentField = Helpers::castListField($form->getField('day'));
-
+		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
+		$parentField = $form->getField('day');
 		$days = Helpers::getDateArray($info->start_date);
 		foreach(['Wed','Thu','Fri','Sat','Sun'] AS $day) {
 			$parentField->addOption($day, ['value' => $days[$day]]);
@@ -80,7 +80,6 @@ class EventModel extends AdminModel
 		}
 
 		$locations = Helpers::getLocations($this->getDatabase(), $info->locationAlias);
-
 		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
 		$parentField = $form->getField('location');
 		foreach ( $locations AS $l )
