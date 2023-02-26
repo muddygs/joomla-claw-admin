@@ -30,8 +30,9 @@ While probably not in final form, these are functional:
 | Sponsors  | We have multiple levels of sponsorship. This allows managing sponsors by level and include logos, links, etc. for each |
 | Shifts    | This is allows creation of shift "grids" that eventually get deployed within Event Booking |
 | Current Items | Global configuration parameters, especially affecting how Event Booking processes registrations |
-
-**TODO: UI for presenters and classes (still in Fabrik)**
+| Schedules | Supports event listing in frontend |
+| Skills | Class listing |
+| Presenters | Presenter definitions used for each item in Skills |
 
 ---
 ## Links
