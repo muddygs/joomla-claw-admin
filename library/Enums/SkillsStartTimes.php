@@ -18,7 +18,20 @@ enum SkillsStartTimes: string {
   public function ToString(): string {
     if ( SkillsStartTimes::TBD == $this ) return "TBD";
 
-    date_default_timezone_set('etc/UTC');
     return Helpers::formatTime($this->value);
+  }
+
+  public function ToSql(): string {
+    date_default_timezone_set('etc/UTC');
+    return date('H:i:s', strtotime($this->value));
+  }
+
+  public static function Find(string $key): ?SkillsStartTimes {
+    foreach (SkillsStartTimes::cases() as $c )
+    {
+      if ( $c->name == $key ) return $c;
+    }
+
+    return null;
   }
 }

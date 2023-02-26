@@ -43,9 +43,16 @@ class SkillModel extends AdminModel
 	public function save($data)
 	{
 		$data['mtime'] = date("Y-m-d H:i:s");
-		//$data['event'] = json_encode($data['event']);
 		$e = new ClawEvents($data['event']);
 		$info = $e->getEvent()->getInfo();
+
+		$data['day'] = $info->modify($data['day']);
+
+		$data['audience'] = implode(',',$data['audience']);
+		$data['presenters'] = implode(',',$data['presenters']);
+
+		//$data['start_time'] = 
+		$data['start_time'] = SkillsStartTimes::Find($data['start_time'])->ToSql();
 
 		return parent::save($data);
 	}
@@ -62,9 +69,6 @@ class SkillModel extends AdminModel
 	 */
 	public function getForm($data = [], $loadData = true)
 	{
-		$input = Factory::getApplication()->getInput();
-		$post = file_get_contents("php://input");
-
 		// Get the form.
 		$form = $this->loadForm('com_claw.skill', 'skill', array('control' => 'jform', 'load_data' => $loadData));
 
@@ -73,23 +77,7 @@ class SkillModel extends AdminModel
 			return false;
 		}
 
-		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
-		$parentField = $form->getField('day');
-		foreach(['Fri','Sat','Sun'] AS $day) {
-			$parentField->addOption( $day, ['value' => $day] );
-		}
-
-		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
-		$parentField = $form->getField('presenters');
-		foreach(Skills::GetPresentersList($this->getDatabase()) AS $p) {
-			$parentField->addOption( $p->name, ['value' => $p->id]);
-		}
-
-		/** @var $filter \Joomla\CMS\Form\FormField */
-		$filter = $form->getField('event');
-		foreach(Aliases::eventTitleMapping AS $alias => $title ) {
-			$filter->addOption($title, ['value' => $alias]);
-		}
+		// For cases, see libraries/claw/Enums
 
 		/** @var $filter \Joomla\CMS\Form\FormField */
 		$audience = $form->getField('audience');

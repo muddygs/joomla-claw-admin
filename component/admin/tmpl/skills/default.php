@@ -19,6 +19,9 @@ use Joomla\CMS\Session\Session;
 
 use ClawCorpLib\Helpers\Helpers;
 
+/** @var \Joomla\Component\Banners\Administrator\View\Banners\HtmlView $this */
+
+/** @var \Joomla\CMS\WebAsset\WebAssetManager $wa */
 $wa = $this->document->getWebAssetManager();
 $wa->useScript('table.columns');
 
@@ -31,7 +34,7 @@ $user = $app->getIdentity();
 ?>
 <div class="container">
 <form action="<?php echo Route::_('index.php?option=com_claw&view=skills'); ?>" method="post" name="adminForm" id="adminForm">
-  <?php echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
+  <?php echo LayoutHelper::render('joomla.searchtools.default', ['view' => $this]); ?>
 
   <div class="table-responsive">
     <table class="table table-striped table-bordered" id="skillsList">
@@ -56,7 +59,18 @@ $user = $app->getIdentity();
       <?php foreach ( $this->items AS $i => $item ): ?>
         <tr class="row<?php echo $i % 2; ?>">
           <td class="text-center">
-            <?php echo HTMLHelper::_('skill.id', $i, $item->id, false, 'cid', 'cb', $item->title); ?>
+            <?php echo HTMLHelper::_('grid.id', $i, $item->id, false, 'cid', 'cb', $item->title); ?>
+          </td>
+          <td class="article-status text-center">
+            <?php
+              $options = [
+                'task_prefix' => 'skills.',
+                //'disabled' => $workflow_state || !$canChange,
+                'id' => 'state-' . $item->id
+              ];
+
+              echo (new PublishedButton)->render((int) $item->published, $i, $options);
+            ?>
           </td>
 
           <td>
@@ -66,13 +80,13 @@ $user = $app->getIdentity();
             </a>
           </td>
           <td>
-            <?php echo $item->day_time_text ?>
+            <?php echo $item->day ?>
           </td>
           <td>
             <?php echo $item->track ?>
           </td>
           <td>
-              <?php echo $item->presenters_text ?>
+              <?php echo $item->presenters ?>
           </td>
           <td>
             <?php echo $item->id ?>
@@ -81,6 +95,10 @@ $user = $app->getIdentity();
       <?php endforeach; ?>
     </tbody>
     </table>
+  </div>
+
+  <div class="row">
+    <?php echo $this->pagination->getListFooter(); ?>
   </div>
 
   <input type="hidden" name="task" value="">

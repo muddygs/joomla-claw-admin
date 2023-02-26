@@ -49,8 +49,8 @@
 			<menu link="option=com_claw&amp;view=sponsors" view="sponsors" img="class:banners" alt="CLAW/CLAW">
 						Sponsors
 			</menu>
-			<menu link="option=com_claw&amp;view=events" view="events" img="class:banners" alt="CLAW/CLAW">
-						Events
+			<menu link="option=com_claw&amp;view=schedules" view="schedules" img="class:banners" alt="CLAW/CLAW">
+						Schedules
 			</menu>
 			<menu link="option=com_claw&amp;view=shifts" view="shifts" img="class:banners" alt="CLAW/CLAW">
 						Shifts

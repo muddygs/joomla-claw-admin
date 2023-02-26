@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form>
-
+<!-- Use addfieldprefix to set the namespace of the field, similar to model -->
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
 	<fields name="filter">
-
 		<field
 			name="search"
 			type="text"
+			inputmode="search"
 			label="Search"
 			description="Title search"
 			hint="JSEARCH_FILTER"
@@ -13,8 +13,7 @@
 
 		<field
 		  name="presenter"
-			type="list"
-			default=""
+			type="PresentersList"
 			label="Presenter Filter"
 			onchange="this.form.submit();"
 		>
@@ -23,9 +22,9 @@
 
 		<field
 		  name="day"
-			type="list"
-			default=""
+			type="ClawDaysList"
 			label="Day Filter"
+			dayfilter="FRI,SAT,SUN"
 			onchange="this.form.submit();"
 		>
 			<option value="">Select Day</option>
@@ -33,14 +32,14 @@
 
 		<field
 		  name="event"
-			type="list"
-			default=""
+			type="ClawEventsList"
 			label="Event Filter"
+			default="_current_"
 			onchange="this.form.submit();"
 		>
-			<option value="">Select Event</option>
+			<option value="_all_">All Events</option>
+			<option value="_current_">Current Event</option>
 		</field>
-
 	</fields>
 
 	<fields name="list">
@@ -65,7 +64,7 @@
 			name="limit"
 			type="limitbox"
 			label="JGLOBAL_LIST_LIMIT"
-			default="All"
+			default="25"
 			onchange="this.form.submit();"
 		/>
 	</fields>

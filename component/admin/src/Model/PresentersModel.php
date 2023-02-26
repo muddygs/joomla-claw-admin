@@ -49,7 +49,7 @@ class PresentersModel extends ListModel
 			
 			foreach( $this->list_fields AS $f )
 			{
-				//$config['filter_fields'][] = $f;
+				$config['filter_fields'][] = $f;
 				$config['filter_fields'][] = 'a.'.$f;
 			}
 		}

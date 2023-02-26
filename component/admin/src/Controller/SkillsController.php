@@ -25,6 +25,14 @@ use Joomla\Input\Input;
  */
 class SkillsController extends AdminController
 {
+		/**
+     * The prefix to use with controller messages.
+     *
+     * @var    string
+     * @since  1.6
+     */
+    protected $text_prefix = 'COM_CLAW_SKILLS';
+
 	/**
 	 * Standard Joomla Constructor
 	 *

@@ -22,15 +22,8 @@ use ClawCorpLib\Lib\Aliases;
 use Symfony\Component\DependencyInjection\Alias;
 
 /**
- * @package     Joomla.Administrator
- * @subpackage  com_claw
+ * View class for CLAW Skills & Education listing
  *
- * @copyright   Copyright (C) 2020 John Smith. All rights reserved.
- * @license     GNU General Public License version 3; see LICENSE
- */
-
-/**
- * Main Admin View
  */
 class HtmlView extends BaseHtmlView
 {
@@ -88,11 +81,16 @@ class HtmlView extends BaseHtmlView
 	 */
 	function display($tpl = null)
 	{
-		$this->state      = $this->get('State');
-		$this->items      = $this->get('Items');
-		$this->pagination = $this->get('Pagination');
-		$this->filterForm    = $this->get('FilterForm');
-		$this->activeFilters = $this->get('ActiveFilters');
+		/** @var BannersModel $model */
+		$model               = $this->getModel();
+		$this->items         = $model->getItems();
+		$this->pagination    = $model->getPagination();
+		$this->state         = $model->getState();
+		$this->filterForm    = $model->getFilterForm();
+		$this->activeFilters = $model->getActiveFilters();
+
+		// Flag indicates to not add limitstart=0 to URL
+		$this->pagination->hideEmptyLimitstart = true;
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors'))) {

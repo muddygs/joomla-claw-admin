@@ -16,6 +16,8 @@ use Joomla\CMS\MVC\Model\ListModel;
 
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Skills;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\Database\ParameterType;
 
 /**
  * Methods to handle a list of records.
@@ -34,6 +36,7 @@ class SkillsModel extends ListModel
 		'start_time',
 		'length',
 		'location',
+		'track',
 		'presenters'
 	];	
 
@@ -43,43 +46,19 @@ class SkillsModel extends ListModel
 	 * @param   array  $config  An optional associative array of configuration settings.
 	 *
 	 */
-	public function __construct($config = array())
+	public function __construct($config = [])
 	{
 		if (empty($config['filter_fields'])) {
 			$config['filter_fields'] = [];
 			
 			foreach( $this->list_fields AS $f )
 			{
+				$config['filter_fields'][] = $f;
 				$config['filter_fields'][] = 'a.'.$f;
 			}
 		}
 
 		parent::__construct($config);
-
-		$this->SetFilterForm();
-	}
-
-	private function SetFilterForm()
-	{
-		$f = $this->getFilterForm();
-
-		/** @var $filter \Joomla\CMS\Form\FormField */
-		$filter = $f->getGroup('filter')['filter_day'];
-		foreach(['Fri','Sat','Sun'] AS $day) {
-			$filter->addOption($day, ['value' => $day]);
-		}
-
-		/** @var $filter \Joomla\CMS\Form\FormField */
-		$filter = $f->getGroup('filter')['filter_event'];
-		foreach(Aliases::eventTitleMapping AS $alias => $title ) {
-			$filter->addOption($title, ['value' => $alias]);
-		}
-
-		/** @var $filter \Joomla\CMS\Form\FormField */
-		$filter = $f->getGroup('filter')['filter_presenter'];
-		foreach(Skills::GetPresentersList($this->getDatabase()) AS $p ) {
-			$filter->addOption($p->name, ['value' => $p->id]);
-		}
 	}
 
 	/**
@@ -98,19 +77,22 @@ class SkillsModel extends ListModel
 	 *
 	 * @since   3.0.1
 	 */
-	protected function populateState($ordering = 'title', $direction = 'ASC')
+	protected function populateState($ordering = 'a.title', $direction = 'ASC')
 	{
 		$app = Factory::getApplication();
 
-		// List state information
-		$value = $app->input->get('limit', $app->get('list_limit', 0), 'uint');
-		$this->setState('list.limit', $value);
+		// Load the parameters.
+		$this->setState('params', ComponentHelper::getParams('com_claw'));
 
-		$value = $app->input->get('limitstart', 0, 'uint');
-		$this->setState('list.start', $value);
+		// // List state information
+		// $value = $app->input->get('limit', $app->get('list_limit', 0), 'uint');
+		// $this->setState('list.limit', $value);
 
-		$search = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
-		$this->setState('filter.search', $search);
+		// $value = $app->input->get('limitstart', 0, 'uint');
+		// $this->setState('list.start', $value);
+
+		// $search = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
+		// $this->setState('filter.search', $search);
 
 
 		// List state information.
@@ -135,10 +117,19 @@ class SkillsModel extends ListModel
 		// Compile the store id.
 		$id .= ':' . serialize($this->getState('filter.title'));
 		$id .= ':' . $this->getState('filter.search');
-		$id .= ':' . $this->getState('filter.state');
+
+		// Include all Filter Options parameters
+		$id .= ':' . $this->getState('filter.presenter');
+		$id .= ':' . $this->getState('filter.day');
+		$id .= ':' . $this->getState('filter.event');
 		//$id .= ':' . serialize($this->getState('filter.tag'));
 
 		return parent::getStoreId($id);
+	}
+
+	public function getTable($type = 'Skill', $prefix = 'Administrator', $config = [])
+	{
+		return parent::getTable($type, $prefix, $config);
 	}
 
 	/**
@@ -164,19 +155,42 @@ class SkillsModel extends ListModel
 
 		// Filter by search in title.
 		$search = $this->getState('filter.search');
-		$day = $this->getState('filter.day');
-		$event = $this->getState('filter.event') ?? Aliases::current;
-
+		
 		if (!empty($search))
 		{
 			$search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
 			$query->where( 'a.title LIKE ' . $search );
 		}
+		
+		$event = $this->getState('filter.event');
 
-		$query->where('a.event LIKE ' . $db->quote($event));
+		switch ($event) {
+			case '':
+			case '_current_':
+				$event = Aliases::current;
+				break;
+			case '_all_':
+				$event = '';
+		}
+		
+		if ( $event != '' )
+		{
+			$query->where('a.event = :event')
+			->bind(':event', $event);
+		}
+		
+		$day = $this->getState('filter.day');
+		
+		if ( $day ) {
+			date_default_timezone_set('etc/UTC');
+			$dayInt = date('w', strtotime($day)); 
 
-		if ( $day )
-			$query->where('a.day LIKE ' . $db->quote($day));
+			if ( $dayInt !== false ) {
+				$dayInt++; // PHP to MariaDB conversion
+				$query->where('DAYOFWEEK(a.day) = :dayint');
+				$query->bind(':dayint', $dayInt, ParameterType::INTEGER);
+			}
+		}
 
 		// Add the list ordering clause.
 		$orderCol  = $this->state->get('list.ordering', 'a.title');
