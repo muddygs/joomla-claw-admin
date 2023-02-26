@@ -105,7 +105,7 @@ ALTER TABLE `#__claw_shifts_grids`
 ALTER TABLE `#__claw_shifts_grids`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
-CREATE TABLE `#__claw_events` (
+CREATE TABLE `#__claw_schedule` (
   `id` int(11) NOT NULL,
   `published` TINYINT(4) DEFAULT NULL,
   `day` TEXT DEFAULT NULL,
@@ -125,12 +125,12 @@ CREATE TABLE `#__claw_events` (
   `mtime` datetime DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_events`
+ALTER TABLE `#__claw_schedule`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fb_groupby_day_INDEX` (`day`(10)),
   ADD KEY `fb_groupbyorder_sort_order_INDEX` (`sort_order`(10));
 
-ALTER TABLE `#__claw_events`
+ALTER TABLE `#__claw_schedule`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 CREATE TABLE `#__claw_presenters` (
