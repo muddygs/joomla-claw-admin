@@ -14,7 +14,8 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Date\Date;
+use Joomla\CMS\Filesystem\File;
+use Joomla\CMS\Image\Image;
 
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
@@ -34,12 +35,54 @@ class PresenterModel extends AdminModel
 	 */
 	protected $text_prefix = 'COM_CLAW_PRESENTER';
 
+	public function delete(&$pks)
+	{
+		// TODO: Delete presenter image files
+		parent::delete($pks);
+	}
+
 	public function save($data)
 	{
-		$data['mtime'] = date("Y-m-d H:i:s");
+		//TODO: Check that record does not already exist (if new)
+		//$this->setError('nope');
+		//return false;
+
+		$data['mtime'] = Helpers::mtime();
 		if ( !$data['submission_date'] ) $data['submission_date'] = date("Y-m-d");
 
 		if ( array_key_exists('arrival', $data)) $data['arrival'] = implode(',',$data['arrival']);
+
+		$input = Factory::getApplication()->input;
+		$files = $input->files->get('jform');
+		$tmp_name = $files['photo_upload']['tmp_name'];
+		$mime = $files['photo_upload']['type'];
+		$error = $files['photo_upload']['error'];
+	
+		if ( 0 == $error ) {
+			$upload = implode(DIRECTORY_SEPARATOR, ['..', Aliases::presentersdir, 'orig', $data['uid']]);
+			switch ($mime) {
+				case 'image/jpeg':
+					$upload .= '.jpg';
+					break;
+				
+				default:
+					$upload .= '.png';
+					break;
+			}
+
+			if ( File::upload($tmp_name, $upload))
+			{
+				$output = implode(DIRECTORY_SEPARATOR, ['..', Aliases::presentersdir, 'web', $data['uid'].'.jpg']);
+				$image = new Image();
+				$image->loadFile($upload);
+				$image->resize(300, 300, false);
+				$image->toFile($output, IMAGETYPE_JPEG, ['quality' => 80]);
+
+				// Success
+			} else {
+				// Failure
+			}
+		}
 
 		return parent::save($data);
 	}
