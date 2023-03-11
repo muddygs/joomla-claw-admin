@@ -24,51 +24,6 @@ class ClawEventsListField extends ListField
      */
     protected $type = 'ClawEventsList';
 
-    /**
-     * Method to get certain otherwise inaccessible properties from the form field object.
-     *
-     * @param   string  $name  The property name for which to get the value.
-     *
-     * @return  mixed  The property value or null.
-     *
-     * @since   3.8.0
-     */
-    // public function __get($name)
-    // {
-    //     switch ($name) {
-    //         case 'menuType':
-    //         case 'language':
-    //         case 'published':
-    //         case 'disable':
-    //             return $this->$name;
-    //     }
-
-    //     return parent::__get($name);
-    // }
-
-    /**
-     * Method to attach a JForm object to the field.
-     *
-     * @param   \SimpleXMLElement  $element  The SimpleXMLElement object representing the `<field>` tag for the form field object.
-     * @param   mixed              $value    The form field value to validate.
-     * @param   string             $group    The field name group control value. This acts as an array container for the field.
-     *                                       For example if the field has name="foo" and the group value is set to "bar" then the
-     *                                       full field name would end up being "bar[foo]".
-     *
-     * @return  boolean  True on success.
-     *
-     * @see     \Joomla\CMS\Form\FormField::setup()
-     * @since   3.8.0
-     */
-    public function setup(\SimpleXMLElement $element, $value, $group = null)
-    {
-        $result = parent::setup($element, $value, $group);
-
-        if ($result == true) {
-        }
-
-        return $result;
-    }
 
     /**
      * Method to get the field input markup for a generic list.
@@ -93,7 +48,7 @@ class ClawEventsListField extends ListField
         return $this->getRenderer($this->layout)->render($data);
     }
 
-        /**
+    /**
      * Method to get the field options.
      *
      * @return  array  The field option objects.
@@ -105,7 +60,7 @@ class ClawEventsListField extends ListField
         $options = parent::getOptions();
 
         foreach(Aliases::eventTitleMapping AS $alias => $title ) {
-            $tmp = [
+            $options[] = (object)[
                 'value'    => $alias,
                 'text'     => $title,
                 'disable'  => false,
@@ -115,8 +70,6 @@ class ClawEventsListField extends ListField
                 'onclick'  => '',
                 'onchange' => ''
             ];
-
-            $options[] = (object)$tmp;
 		}
 
         // Because this is what ListField (parent) does; I do not know if necessary
