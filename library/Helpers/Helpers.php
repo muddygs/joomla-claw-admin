@@ -2,23 +2,39 @@
 
 namespace ClawCorpLib\Helpers;
 
+use InvalidArgumentException;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Field\ListField;
 use Joomla\CMS\Form\Field\SubformField;
 use Joomla\Database\DatabaseDriver;
+use Joomla\Database\Exception\UnsupportedAdapterException;
+use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
+use RuntimeException;
 
 class Helpers
 {
   static function ClawHelpersLoaded(): bool
   {
-      return true;
+    return true;
   }
-  
+
+  /**
+   * Quicky that produces a mostly correct SQL time
+   * TODO: set time zone
+   * @return string
+   */
+  static function mtime(): string
+  {
+    $date = new Date('now');
+    return $date->toSQL(true);
+  }
+
   static function getUsersByGroupName(DatabaseDriver $db, string $groupname): array
   {
     $groupId = Helpers::getGroupId($db, $groupname);
 
-    if ( !$groupId ) return [];
+    if (!$groupId) return [];
 
     $query = <<< SQL
     SELECT m.user_id, u.name
@@ -32,20 +48,18 @@ SQL;
     $users = $db->loadObjectList();
 
     return $users != null ? $users : [];
-
   }
 
   static function getSponsorsList(DatabaseDriver $db, array $filter = []): array
   {
     $query = $db->getQuery(true);
-    $query->select($db->qn(['id','name']))
-    ->from($db->qn('#__claw_sponsors'))
-    ->where($db->qn('published') . '=1');
+    $query->select($db->qn(['id', 'name']))
+      ->from($db->qn('#__claw_sponsors'))
+      ->where($db->qn('published') . '=1');
 
-    if ( sizeof($filter) > 0 )
-    {
+    if (sizeof($filter) > 0) {
       $filter = (array)($db->q($filter));
-      $query->where($db->qn('type'). ' IN ('.implode(',',$filter).')');
+      $query->where($db->qn('type') . ' IN (' . implode(',', $filter) . ')');
     }
 
     $query->order('name ASC');
@@ -54,19 +68,30 @@ SQL;
     return $db->loadObjectList();
   }
 
+  /**
+   * Returns array of locations ordered by catid (parental depth) and ordering (logical order)
+   * @param DatabaseDriver $db 
+   * @param string $baseAlias 
+   * @return array 
+   * @throws UnsupportedAdapterException 
+   * @throws QueryTypeAlreadyDefinedException 
+   * @throws RuntimeException 
+   * @throws InvalidArgumentException 
+   */
   static function getLocations(DatabaseDriver $db, string $baseAlias = ''): array
   {
     $query = $db->getQuery(true);
-    $query->select(['l.id','l.value'])
-    ->from($db->qn('#__claw_locations', 'l'));
+    $query->select(['l.id', 'l.value', 'l.catid'])
+      ->from($db->qn('#__claw_locations', 'l'));
 
-    if ( $baseAlias != '' ) {
+    if ($baseAlias != '') {
       $query->join('LEFT OUTER', $db->qn('#__claw_locations', 't') . ' ON ' . $db->qn('t.alias') . ' = ' . $db->q($baseAlias))
-      ->where($db->qn('t.published') . '= 1')
-      ->where($db->qn('l.catid') . '=' . $db->qn('t.id'));
+        ->where($db->qn('t.published') . '= 1')
+        ->where($db->qn('l.catid') . '=' . $db->qn('t.id'));
     }
 
     $query->where($db->qn('l.published') . '= 1');
+    $query->order('l.catid ASC, l.ordering ASC');
 
     $db->setQuery($query);
     return $db->loadObjectList();
@@ -76,8 +101,8 @@ SQL;
   {
     $query = $db->getQuery(true);
     $query->select($db->qn(['id']))
-    ->from($db->qn('#__usergroups'))
-    ->where($db->qn('title') . '='. $db->q($groupName));
+      ->from($db->qn('#__usergroups'))
+      ->where($db->qn('title') . '=' . $db->q($groupName));
 
     $db->setQuery($query);
     $groupId = $db->loadResult();
@@ -94,14 +119,13 @@ SQL;
 
     $date = Factory::getDate($startDate);
 
-    if ( $date->dayofweek != 1 ) // 0 is Sunday
+    if ($date->dayofweek != 1) // 0 is Sunday
     {
       die('Starting date must be a Monday');
     }
 
-    $date->setTime(0,0);
-    for ( $i = 0; $i < 7; $i++)
-    {
+    $date->setTime(0, 0);
+    for ($i = 0; $i < 7; $i++) {
       $date->modify(('+1 day'));
       $result[$date->format('D')] = $date->toSql();
     }
