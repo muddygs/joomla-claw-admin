@@ -43,7 +43,7 @@ class ScheduleModel extends AdminModel
 
 		$data['sponsors'] = json_encode($data['sponsors']);
 		$data['fee_event'] = implode(',',$data['fee_event']);
-		$data['mtime'] = date("Y-m-d H:i:s");
+		$data['mtime'] = Helpers::mtime();
 
 		return parent::save($data);
 	}

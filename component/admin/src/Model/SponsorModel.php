@@ -36,8 +36,7 @@ class SponsorModel extends AdminModel
 
 	public function save($data)
 	{
-		$date = new Date('now');
-		$data['mtime'] = $date->toSQL();
+		$data['mtime'] = Helpers::mtime();
 
 		return parent::save($data);
 	}

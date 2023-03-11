@@ -42,7 +42,7 @@ class SkillModel extends AdminModel
 
 	public function save($data)
 	{
-		$data['mtime'] = date("Y-m-d H:i:s");
+		$data['mtime'] = Helpers::mtime();
 		$e = new ClawEvents($data['event']);
 		$info = $e->getEvent()->getInfo();
 
@@ -112,12 +112,12 @@ class SkillModel extends AdminModel
 
 		$locations = Helpers::getLocations($this->getDatabase());
 
-		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
-		$parentField = $form->getField('location');
-		foreach ( $locations AS $l )
-		{
-			$parentField->addOption($l->value, ['value' => $l->id]);
-		}
+		// /** @var $parentField \Joomla\CMS\Form\Field\ListField */
+		// $parentField = $form->getField('location');
+		// foreach ( $locations AS $l )
+		// {
+		// 	$parentField->addOption($l->value, ['value' => $l->id]);
+		// }
 
 
 		// $locations = Helpers::getLocations($this->getDatabase(), $info->locationAlias);
