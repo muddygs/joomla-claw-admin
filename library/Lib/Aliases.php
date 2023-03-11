@@ -68,6 +68,9 @@ class Aliases {
   // VendorMart icons
   const vendordir = 'images/0_static_graphics/vendors';
 
+  // S&E Presenter Images
+  const presentersdir = 'images/skills/presenters';
+
   const eventTitleMapping = [
     'c1121' => 'CLAW 21',
     'c0422' => 'CLAW 22',
