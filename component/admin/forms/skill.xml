@@ -115,10 +115,9 @@
     name="location"
     type="groupedlist"
     label="Location"
-    multiple="false"
-    layout="joomla.form.field.list-fancy-select"
     required="true"
   >
+  <option value="">Select Location</option>
   </field>
 
   <field 
