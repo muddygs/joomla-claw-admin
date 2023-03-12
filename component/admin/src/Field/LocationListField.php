@@ -7,69 +7,68 @@ use ClawCorpLib\Helpers\Helpers;
 
 defined('_JEXEC') or die;
 
-class LocationListField extends ListField {
+class LocationListField extends ListField
+{
   protected $type = "LocationList";
 
-    /**
-     * Customized method to populate the field option groups.
-     *
-     * @return  array  The field option objects as a nested array in groups.
-     */
-    protected function getOptions()
-    {
-      $options = parent::getOptions();
+  private $listItems = [];
 
-      /*
+  /**
+   * Customized method to populate the field option groups.
+   *
+   * @return  array  The field option objects as a nested array in groups.
+   */
+  protected function getOptions()
+  {
+    $this->listItems = parent::getOptions();
 
-      */
+    $locations = Helpers::getLocations($this->getDatabase());
+    $index = array_column($locations, 'catid', 'id');
+    $titles = array_column($locations, 'value', 'id');
 
-      $groups = [];
+    foreach ($locations as $l) {
+      if ($l->catid == 0) {
+        $this->listItems[] = (object)[
+          'value'    => $l->id,
+          'text'     => $titles[$l->id],
+          'disable'  => false,
+          'class'    => '',
+          'selected' => false,
+          'checked'  => false,
+          'onclick'  => '',
+          'onchange' => ''
+        ];
 
-      $locations = Helpers::getLocations($this->getDatabase());
-      $index = array_column($locations, 'catid', 'id');
-      $titles = array_column($locations, 'value', 'id');
+        $this->addChildren($index, $titles, $l->id, 1);
 
-      foreach ( $locations AS $l ) {
-        if ( $l->catid == 0 ) {
-          $groups[$l->value] = $this->addChildren($index, $titles, $l->id, 1);
-
-          // If nothing, set as option
-          continue;
-        }
-
-        break; // Once non zero reached, base locations have been exhausted per locations query
+        // If nothing, set as option
+        continue;
       }
 
-      return $groups;
+      break; // Once non zero reached, base locations have been exhausted per locations query
     }
 
-    private function addChildren(&$index, &$titles, int $parent_id, int $level ) {
-      // Are there children? If not, return option
-      $children = array_search($parent_id, $index);
+    return $this->listItems;
+  }
 
-      if ( in_array($parent_id, $index ) )
-      {
-        foreach ( $index AS $k => $v ) {
-          if ( $v == $parent_id ) {
-            
-          }
-        }
+  private function addChildren(&$index, &$titles, int $parent_id, int $level)
+  {
+    // Are there children? If not, return option
+    $children_keys = array_keys($index, $parent_id, true);
 
-      }
-      else
-      {
-        // return option tag
-      }
+    foreach ($children_keys as $childIndex) {
+      $this->listItems[] = (object)[
+        'value'    => ucfirst($childIndex),
+        'text'     => str_repeat('&emsp;', $level - 1). '|&mdash; '.$titles[$childIndex],
+        'disable'  => false,
+        'class'    => '',
+        'selected' => false,
+        'checked'  => false,
+        'onclick'  => '',
+        'onchange' => ''
+      ];
 
-
-      //$levelPrefix = str_repeat('- ', max(0, $link->level - 1));
-      $groups = [];
-
-      // foreach ( $locations AS $l ) {
-      //   if ( $l->catid == $parent_id ) {
-      //     $p[$l->value] = $this->addChildren($locations, $l->catid, $level+1);
-      //   }
-      // }
-
+      $this->addChildren($index, $titles, $childIndex, $level + 1);
     }
+  }
 }
