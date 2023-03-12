@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
     <field
       name="id"
       type="hidden"
@@ -11,7 +11,7 @@
 
     <field
       name="catid"
-      type="list"
+      type="LocationList"
       client="administrator"
       label="Parent Location"
       description="Select parent location"

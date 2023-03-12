@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
   <field
     name="id"
     type="hidden"
@@ -27,14 +27,13 @@
 
   <field
     name="event"
-    type="list"
+    type="ClawEventsList"
     label="Event Selection"
     required="true"
-    default=""
+    multiple="false"
+    default="_current_"
     validate="options"
-    >
-    <option value="">Select Primary Event</option>
-  </field>
+  />
 
   <field
     name="social_media"
@@ -75,9 +74,9 @@
 
   <field
     name="photo"
-    type="media"
+    type="accessiblemedia"
     label="Bio Photo"
-    description="A representative picture; use upload for new a image"
+    description="A representative picture; use photo upload for new a image"
     directory="skills/presenters"
     preview="true"
   />

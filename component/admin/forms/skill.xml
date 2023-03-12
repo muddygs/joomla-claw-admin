@@ -25,8 +25,7 @@
     multiple="false"
     default="_current_"
     validate="options"
-    >
-  </field>
+  />
 
   <field
     name="day"
@@ -113,11 +112,12 @@
 
   <field
     name="location"
-    type="groupedlist"
+    type="LocationList"
     label="Location"
     required="true"
+    layout="joomla.form.field.list-fancy-select"
   >
-  <option value="">Select Location</option>
+    <option value="">Select Location</option>
   </field>
 
   <field 
