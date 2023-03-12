@@ -110,27 +110,6 @@ class SkillModel extends AdminModel
 			$audience->addOption( $c->value, [ 'value' => $c->name]);
 		}
 
-		$locations = Helpers::getLocations($this->getDatabase());
-
-		// /** @var $parentField \Joomla\CMS\Form\Field\ListField */
-		// $parentField = $form->getField('location');
-		// foreach ( $locations AS $l )
-		// {
-		// 	$parentField->addOption($l->value, ['value' => $l->id]);
-		// }
-
-
-		// $locations = Helpers::getLocations($this->getDatabase(), $info->locationAlias);
-
-		// /** @var $parentField \Joomla\CMS\Form\Field\ListField */
-		// $parentField = $form->getField('location');
-		// foreach ( $locations AS $l )
-		// {
-		// 	$parentField->addOption($l->value, ['value' => $l->id]);
-		// }
-
-		// 
-
 		return $form;
 	}
 

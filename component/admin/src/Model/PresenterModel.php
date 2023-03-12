@@ -107,12 +107,6 @@ class PresenterModel extends AdminModel
 			return false;
 		}
 
-		/** @var $parentField \Joomla\CMS\FormField */
-		$parentField = $form->getField('event');
-		foreach( Aliases::eventTitleMapping AS $alias => $title ) {
-			$parentField->addOption($title, ['value' => $alias]);
-		}
-
 		return $form;
 	}
 

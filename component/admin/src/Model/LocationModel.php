@@ -84,17 +84,6 @@ class LocationModel extends AdminModel
 		// Get the form.
 		$form = $this->loadForm('com_claw.location', 'location', array('control' => 'jform', 'load_data' => $loadData));
 
-		//$s = $this->getState('location.id');
-		/** @var $filter \Joomla\CMS\Form\FormField */
-		$parentField = $form->getField('catid');
-
-		$parentLocations = LocationHelper::getCandidateParents($this->getDatabase());
-		
-		foreach ( $parentLocations AS $p )
-		{
-			$parentField->addOption($p->value, ['value' => $p->id]);
-		}
-
 		if (empty($form))
 		{
 			return false;
