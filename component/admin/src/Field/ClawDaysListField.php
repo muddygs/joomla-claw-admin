@@ -139,7 +139,7 @@ class ClawDaysListField extends ListField
 
         foreach( $days AS $day ) {
             if ( !count($this->dayfilter) || in_array($day, $this->dayfilter)) {
-                $tmp = [
+                $options[] = (object)[
                     'value'    => ucfirst($day),
                     'text'     => ucfirst($day),
                     'disable'  => false,
@@ -149,8 +149,6 @@ class ClawDaysListField extends ListField
                     'onclick'  => '',
                     'onchange' => ''
                 ];
-                
-                $options[] = (object)$tmp;
             }
 		}
 
