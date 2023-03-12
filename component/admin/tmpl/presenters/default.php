@@ -84,7 +84,7 @@ $user = $app->getIdentity();
               </td>
 
               <td>
-                <?php echo $item->photo ?>
+                <img src="/<?php echo $item->photo ?>" style="max-width:100px; height:auto;"/>
               </td>
 
               <td>
