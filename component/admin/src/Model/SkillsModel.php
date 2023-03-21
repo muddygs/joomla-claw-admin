@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -135,9 +135,8 @@ class SkillsModel extends ListModel
 	/**
 	 * Get the master query for retrieving a list of countries subject to the model state.
 	 *
-	 * @return  \Joomla\Database\DatabaseQuery
+	 * @return  \Joomla\Database\QueryInterface
 	 *
-	 * @since   1.6
 	 */
 	protected function getListQuery()
 	{
