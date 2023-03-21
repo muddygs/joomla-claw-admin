@@ -33,6 +33,7 @@ While probably not in final form, these are functional:
 | Schedules | Supports event listing in frontend |
 | Skills | Class listing |
 | Presenters | Presenter definitions used for each item in Skills |
+| Vendors | List of event vendors |
 
 ---
 ## Links
@@ -62,15 +63,14 @@ Information used during development as guides to understanding Joomla 4 Content 
 
    Old CMS 3, ended up utilizing bootstrap method in `provider.php`. I'm now using the PSR-4 methodology/autoloader.
 
-### Resourses
+### Example repositories and development resources
 
 * [Joomla Code](https://joomla-code.com/)
-
-### Example repositories
 
 * [astrid/j4examplecode](https://codeberg.org/astrid/j4examplecode/src/branch/t42)
 
    **Note**: View by specific tag
+* [Astrid Gunther](https://blog.astrid-guenther.de/)
 
 * [ceford/j4xdemos-com-countrybase](https://github.com/ceford/j4xdemos-com-countrybase)
 ---
