@@ -17,4 +17,36 @@
 			section="component"
 		 />
 	</fieldset>
+	<fieldset
+		name="skills"
+		label="S&amp;E"
+		description="Settings for Skills and Education"
+		>
+			<field
+				name="se_group"
+				type="UserGroupList"
+				label="Submission Group"
+				description="Select group allowed to submit"
+				layout="joomla.form.field.list-fancy-select"
+				checksuperusergroup="1"
+				default=""
+				multiple="0"
+				>
+				<option value="0">Select group</option>
+			</field>
+
+			<field 
+				name="se_submissions_open"
+				type="radio"
+				default="0"
+				label="Submissions Open"
+				description=""
+				class="btn-group btn-group-yesno"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+
+	</fieldset>
+
 </config>
