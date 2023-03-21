@@ -77,10 +77,10 @@ class PresenterModel extends AdminModel
 				$image->loadFile($upload);
 				$image->resize(300, 300, false);
 				$image->toFile($output, IMAGETYPE_JPEG, ['quality' => 80]);
-
-				// Success
 			} else {
-				// Failure
+				$app = Factory::getApplication();
+				$app->enqueueMessage('Unable to save photo file.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+				return false;
 			}
 		}
 
