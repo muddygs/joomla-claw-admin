@@ -168,6 +168,7 @@ CREATE TABLE `#__claw_skills` (
   `day` date DEFAULT NULL,
   `start_time` time DEFAULT NULL,
   `length` int(4) DEFAULT 60,
+  `owner` INT(11) DEFAULT NULL,
   `presenters` TEXT DEFAULT NULL,
   `track` varchar(10) DEFAULT NULL,
   `audience` varchar(10) DEFAULT NULL,
@@ -203,3 +204,25 @@ ALTER TABLE `#__claw_skills_handouts`
 
 ALTER TABLE `#__claw_skills_handouts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DROP TABLE IF EXISTS `#__claw_profile_charge_log`;
+CREATE TABLE `#__claw_profile_charge_log`(
+    `id` INT(11) NOT NULL,
+    `description` VARCHAR(255) NOT NULL,
+    `eventbooking_event_id` INT(11) NOT NULL,
+    `fname` VARCHAR(255) NOT NULL,
+    `lname` VARCHAR(255) NOT NULL,
+    `invoice_id` VARCHAR(255) NOT NULL,
+    `profile_id` VARCHAR(255) NOT NULL,
+    `payment_profile_id` VARCHAR(255) NOT NULL,
+    `charge_date` DATE NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+    `charge_amount` DECIMAL(10,2) DEFAULT 0.0,
+    `transaction_id` VARCHAR(50) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `#__claw_profile_charge_log`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `#__claw_profile_charge_log`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
