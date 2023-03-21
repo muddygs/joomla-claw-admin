@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
+  <field
+    name="id"
+    type="hidden"
+    label="JGLOBAL_FIELD_ID_LABEL"
+    class="readonly"
+    default="0"
+    readonly="true"
+  />
+
+  <fieldset name="userinput">
+    <field
+      name="name"
+      type="text"
+      label="Public Name"
+      required="true"
+      maxLength="30"
+    />
+
+    <field
+      name="legal_name"
+      type="text"
+      label="Legal Name"
+      required="true"
+      maxLength="30"
+    />
+
+    <field
+      name="social_media"
+      type="text"
+      label="Social Media Tags"
+      description="@twitter, @instagram, etc."
+      required="false"
+      maxLength="255"
+    />
+
+    <field
+      name="phone"
+      type="text"
+      label="Phone Number"
+      required="false"
+      maxLength="255"
+    />
+
+    <field
+      name="phone_info"
+      type="checkboxes"
+      label="Phone Info"
+      >
+      <option value="Cell">This is a cell phone number</option>
+      <option value="SMS">It is OK to SMS (text) this number</option>
+      <option value="xxx">Need manual checkbox handling</option>
+    </field>
+
+    <field 
+      name="bio"
+      type="editor"
+      label="Biography"
+      filter="safehtml"
+      editor="desired"
+      maxLength="1000"
+      required="true"
+    />
+
+    <field
+      name="photo_upload"
+      type="file"
+      label="Photo Upload"
+      description="Your photo or representative image; must be JPG or PNG image format."
+      accept="image/png, image/jpeg"
+    />
+
+
+    <field
+      name="arrival"
+      type="checkboxes"
+      label="Availability (Pick best options for you)"
+      >
+      <option value="Any">Any (Fri-Sun)</option>
+      <option value="Fri">Friday</option>
+      <option value="Sat">Saturday</option>
+      <option value="Sun">Sunday</option>
+    </field>
+
+    <field
+      name="copresenter"
+      type="checkbox"
+      label="I am a co-presenter; class descriptions will be submitted by someone else"
+    />
+
+    <field
+      name="copresenting"
+      type="text"
+      label="Class title and presenter name"
+      description="Please provide class and presenter information with whom you are presenting."
+      required="false"
+      maxLength="255"
+      showon="copresenter:1"
+    />
+
+    <field
+      name="comments"
+      type="text"
+      label="Comments"
+      required="false"
+      maxLength="255"
+    />
+  </fieldset>
+
+  <field
+    name="submission_date"
+    type="hidden"
+    label="Submission Date"
+    required="false"
+    maxLength="255"
+    readonly="true"
+  />
+</form>
