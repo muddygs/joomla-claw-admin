@@ -32,6 +32,14 @@
 		<folder>js</folder>
 	</media>
 
+	<files folder="site">
+		<folder>forms</folder>
+		<folder>language</folder>
+		<folder>src</folder>
+		<folder>tmpl</folder>
+	</files>
+
+
 	<administration>
 		<!-- Administration Menu Section -->
 		<menu img="class:bookmark">CLAW</menu>
