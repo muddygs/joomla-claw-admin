@@ -60,16 +60,16 @@ class Aliases {
   ];
 
   // Events listing sponsor icons
-  const imagedir = 'images/0_static_graphics/sponsors/100';
+  const imagedir = '/images/0_static_graphics/sponsors/100';
 
   // Events listing ad base (ads/thumbs use for preview)
-  const adsdir = 'images/0_static_graphics/ads';
+  const adsdir = '/images/0_static_graphics/ads';
 
   // VendorMart icons
-  const vendordir = 'images/0_static_graphics/vendors';
+  const vendordir = '/images/0_static_graphics/vendors';
 
   // S&E Presenter Images
-  const presentersdir = 'images/skills/presenters';
+  const presentersdir = '/images/skills/presenters';
 
   const eventTitleMapping = [
     'c1121' => 'CLAW 21',
