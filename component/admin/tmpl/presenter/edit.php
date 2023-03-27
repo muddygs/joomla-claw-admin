@@ -50,8 +50,26 @@ $view = 'presenter';
 			<?php echo $this->form->renderField('uid'); ?>
 			<?php echo $this->form->renderField('phone'); ?>
 			<?php echo $this->form->renderField('bio'); ?>
-			<?php echo $this->form->renderField('photo_upload'); ?>
-			<?php echo $this->form->renderField('photo'); ?>
+		</div>
+		
+		<div class="row">
+			<div class="col-6">
+				<?php echo $this->form->renderField('photo_upload'); ?>
+			</div>
+			<div class="col-6">
+				<?php echo $this->form->renderField('photo'); ?>
+				<?php
+					if ( $this->item->photo !== '') {
+						if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $this->item->photo]))) {
+							$ts = time();
+							?>
+							<img src="<?php echo $this->item->photo ?>?ts=<?php echo $ts ?>" />
+							<?php
+						}
+					}
+				?>
+				
+			</div>
 		</div>
 
 		<?php echo HTMLHelper::_('uitab.endTab'); ?>

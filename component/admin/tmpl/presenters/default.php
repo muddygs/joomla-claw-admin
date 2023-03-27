@@ -50,6 +50,8 @@ $user = $app->getIdentity();
             <th scope="col">Event</th>
             <th scope="col">Photo</th>
             <th scope="col">Classes</th>
+            <th scope="col">Mod Time</th>
+            <th scope="col">Sub Date</th>
             <th scope="col">ID</th>
           </tr>
         </thead>
@@ -80,15 +82,35 @@ $user = $app->getIdentity();
               </td>
 
               <td>
-                <?php echo Aliases::eventTitleMapping[$item->event] ?>
+                <?php echo Aliases::eventTitleMapping[$item->event] ?? 'TBD' ?>
               </td>
 
               <td>
-                <img src="/<?php echo $item->photo ?>" style="max-width:100px; height:auto;"/>
+                <?php
+                  if ( $item->photo !== '') {
+                    if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $item->photo]))) {
+                      ?>
+                      <img src="<?php echo $item->photo ?>" style="max-width:100px; height:auto;" />
+                      <?php
+                    } else {
+                      echo 'No image';
+                    }
+                  } else {
+                    echo 'No image';
+                  }
+                ?>
               </td>
 
               <td>
                 <?php echo 'classes...' ?>
+              </td>
+
+              <td>
+                <?php echo $item->mtime ?>
+              </td>
+              
+              <td>
+                <?php echo $item->submission_date ?>
               </td>
 
               <td>
