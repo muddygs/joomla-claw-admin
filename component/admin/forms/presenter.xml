@@ -74,18 +74,15 @@
 
   <field
     name="photo"
-    type="accessiblemedia"
-    label="Bio Photo"
-    description="A representative picture; use photo upload for new a image"
-    directory="skills/presenters"
-    preview="true"
+    type="hidden"
+    default=""
   />
 
   <field
     name="photo_upload"
     type="file"
     label="Photo Upload"
-    description="Upload here; do not use media upload in Bio Photo"
+    description="Upload new (or replace existing) representative photo; online version automatically resized"
     accept="image/png, image/jpeg"
   />
 
@@ -163,6 +160,7 @@
     <option value="0">JUNPUBLISHED</option>
     <option value="2">JARCHIVED</option>
     <option value="-2">JTRASHED</option>
+    <option value="3">New Submission</option>
   </field>
 
 
