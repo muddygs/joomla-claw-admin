@@ -60,6 +60,11 @@ class PresentersubmissionController extends FormController
 
     // Setup items not included in site model
     $data['uid'] = $app->getIdentity()->id;
+    $data['id'] = $input->get('id',0,'int');
+
+    if ( $data['id'] == 0 ) {
+      $data['published'] = 3; // New submission
+    }
     
     $result = $adminModel->save($data);
     
