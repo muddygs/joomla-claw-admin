@@ -71,6 +71,11 @@
       accept="image/png, image/jpeg"
     />
 
+    <field
+      name="photo"
+      type="hidden"
+      default=""
+    />
 
     <field
       name="arrival"
