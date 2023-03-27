@@ -33,6 +33,10 @@
 			<option value="a.name DESC">Name Descending</option>
 			<option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
 			<option value="a.id DESC">JGRID_HEADING_ID_DESC</option>
+			<option value="a.mtime ASC">Mod Time Ascending</option>
+			<option value="a.mtime DESC">Mod Time Descending</option>
+			<option value="a.submission_date ASC">Submission Date Ascending</option>
+			<option value="a.submission_date DESC">Submission Date Descending</option>
 		</field>
 
 		<field
