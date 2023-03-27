@@ -48,16 +48,7 @@ class PresentersubmissionModel extends AdminModel
 	 */
 	public function __construct($config = [])
 	{
-		if (empty($config['filter_fields'])) {
-			$config['filter_fields'] = [];
-			
-			foreach( $this->list_fields AS $f )
-			{
-				$config['filter_fields'][] = $f;
-				$config['filter_fields'][] = 'a.'.$f;
-			}
-		}
-
+		$config['filter_fields'] = [];
 		parent::__construct($config);
 	}
 
@@ -98,14 +89,20 @@ class PresentersubmissionModel extends AdminModel
 		$result = $db->loadResult();
 
 		if ( $result ) {
-			$data = $this->getItem($result);
-		} else {
-			$data = $this->getItem();
+			// $this->getState($this->getName() . '.id'); // Init state if new
+			$this->setState($this->getName() . '.id', $result);
 		}
+
+		$data = $this->getItem();
 
 		return $data;
 	}
 
+	// public function getItem($pk = null ) {
+	// 	$pk = (int) $this->getState($this->getName() . '.id', 0);
+
+	// 	return parent::getItem($pk);
+	// }
 
 	public function getTable($name = '', $prefix = '', $options = array())
 	{
