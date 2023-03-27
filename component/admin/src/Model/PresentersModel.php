@@ -31,7 +31,9 @@ class PresentersModel extends ListModel
 		'email',
 		'phone',
 		'arrival',
-		'photo'
+		'photo',
+		'mtime',
+		'submission_date'
 	];	
 
 	/**
@@ -110,7 +112,6 @@ class PresentersModel extends ListModel
 		$id .= ':' . serialize($this->getState('filter.name'));
 		$id .= ':' . $this->getState('filter.search');
 		$id .= ':' . $this->getState('filter.state');
-		//$id .= ':' . serialize($this->getState('filter.tag'));
 
 		return parent::getStoreId($id);
 	}
