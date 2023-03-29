@@ -39,20 +39,43 @@ class PresenterModel extends AdminModel
   public function delete(&$pks)
   {
     // TODO: Delete presenter image files
+    // $db = $this->getDatabase();
+    // $query = $db->getQuery(true);
+    // $query->select($db->quoteName('uid'))
+    //   ->from($db->quoteName('#__claw_presenters'))
+    //   ->where('id IN (:uid)')
+    //   ->bind(':uid', implode(',', ));
+    // $db->setQuery($query);
+    // $result = $db->loadResult();
+
     parent::delete($pks);
   }
 
   public function save($data)
   {
-    //TODO: Check that record does not already exist (if new)
-    //$this->setError('nope');
-    //return false;
+    $app = Factory::getApplication();
 
     $data['mtime'] = Helpers::mtime();
 
+    // New record handling
     if ( $data['id'] == 0 )
     {
       $data['submission_date'] = date("Y-m-d");
+
+      // Check UID record is unique
+      $db = $this->getDatabase();
+      $query = $db->getQuery(true);
+      $query->select($db->quoteName('id'))
+        ->from($db->quoteName('#__claw_presenters'))
+        ->where('uid = :uid')
+        ->bind(':uid', $data['uid']);
+      $db->setQuery($query);
+      $result = $db->loadResult();
+
+      if ( $result ) {
+        $app->enqueueMessage('Record for this user already exists.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+        return false;
+      }
     }
 
     if ( array_key_exists('arrival', $data)) $data['arrival'] = implode(',',$data['arrival']);
@@ -86,12 +109,10 @@ class PresenterModel extends AdminModel
           $data['photo'] = implode(DIRECTORY_SEPARATOR, [Aliases::presentersdir, 'web', $data['uid'].'.jpg']);
         } catch(LogicException $ex)
         {
-          $app = Factory::getApplication();
           $app->enqueueMessage('Unable to save photo file.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
           return false;
         }
       } else {
-        $app = Factory::getApplication();
         $app->enqueueMessage('Unable to save photo file.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
         return false;
       }
