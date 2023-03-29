@@ -152,9 +152,9 @@ SQL;
    * Gets a CLAW-specific Joomla session variable
    * @param string Key to the variable
    * @param string Default value if not already set
-   * @return string Value of key (or null on error)
+   * @return string|null Value of key (or null on error)
    */
-  static function sessionGet(string $key, string $default = ''): ?string
+  static function sessionGet(string $key, string $default = ''): string|null
   {
     /** @var $app \Joomla\CMS\Application\CMSApplicationInterface */
     $app = Factory::getApplication();
