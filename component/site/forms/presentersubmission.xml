@@ -59,6 +59,8 @@
       label="Biography"
       filter="safehtml"
       editor="desired"
+      buttons="false"
+      hide="article,image,pagebreak,readmore"
       maxLength="1000"
       required="true"
     />
@@ -81,6 +83,7 @@
       name="arrival"
       type="checkboxes"
       label="Availability (Pick best options for you)"
+      default="Any"
       >
       <option value="Any">Any (Fri-Sun)</option>
       <option value="Fri">Friday</option>
