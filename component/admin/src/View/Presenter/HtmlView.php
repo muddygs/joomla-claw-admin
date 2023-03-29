@@ -103,9 +103,9 @@ class HtmlView extends BaseHtmlView
 	 */
 	function display($tpl = null)
 	{
+		$this->state = $this->get('State');
 		$this->form  = $this->get('Form');
 		$this->item  = $this->get('Item');
-		$this->state = $this->get('State');
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors'))) {
@@ -113,6 +113,12 @@ class HtmlView extends BaseHtmlView
 		}
 
 		$this->addToolbar();
+
+		// If user is already defined, it cannot be changed
+		$field = $this->form->getField('uid');
+		if ( $field->value ) {
+			$this->form->setFieldAttribute($field->getAttribute('name'), 'readonly', 'true');
+		}
 
 		parent::display($tpl);
 	}
