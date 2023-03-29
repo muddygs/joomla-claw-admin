@@ -12,6 +12,7 @@ namespace ClawCorp\Component\Claw\Site\Controller;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Form\FormFactoryInterface;
 use Joomla\CMS\Helper\ContentHelper;
@@ -33,7 +34,7 @@ class DisplayController extends BaseController
 
 	protected $app;
 
-	// TODO: temp for debugging
+	// // TODO: temp for debugging
 	public function __construct(
     $config = [],
     MVCFactoryInterface $factory = null,
@@ -41,11 +42,14 @@ class DisplayController extends BaseController
     ?Input $input = null,
     FormFactoryInterface $formFactory = null
   ) {
+		Helpers::sessionSet('formdata','');
+		Helpers::sessionSet('photo','');
+
     parent::__construct($config, $factory, $app, $input, $formFactory);
 	}
 
-	public function display($cachable = false, $urlparams = array())
-	{
-		return parent::display($cachable, $urlparams);
-	}
+	// public function display($cachable = false, $urlparams = array())
+	// {
+	// 	return parent::display($cachable, $urlparams);
+	// }
 }

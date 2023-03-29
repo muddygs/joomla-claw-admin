@@ -44,10 +44,10 @@ endif;
   </div>
 
   <div class="row">
-    <div class="col-6">
+    <div class="col-12 col-md-6">
       <?php echo $this->form->renderField('photo_upload'); ?>
     </div>
-    <div class="col-6">
+    <div class="col-12 col-md-6">
       <?php echo $this->form->renderField('photo'); ?>
       <?php
         $field = $this->form->getField('photo');
@@ -55,7 +55,7 @@ endif;
           if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $field->value]))) {
             $ts = time();
             ?>
-            <p class="form-label">Preview</p>
+            <p class="form-label"><strong>Preview</strong></p>
             <img src="<?php echo $field->value ?>?ts=<?php echo $ts ?>" />
             <?php
           }

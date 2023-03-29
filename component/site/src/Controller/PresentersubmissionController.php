@@ -20,7 +20,7 @@ use Joomla\Input\Input;
 use Joomla\CMS\MVC\Controller\FormController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 
-use ClawCorp\Component\Claw\Administrator\Model\PresenterModel;
+use ClawCorpLib\Helpers\Helpers;
 
 /**
  * Controller for a single sponsor record
@@ -51,23 +51,51 @@ class PresentersubmissionController extends FormController
     // Check for request forgeries.
     $this->checkToken();
 
-    /** @var ClawCorp\Component\Claw\Administrator\Model\PresenterModel */    
-    $adminModel = $this->getModel('Presenter','Administrator');
-    
+    /** @var Joomla\CMS\MVC\Model\AdminModel */
+    $siteModel = $this->getModel();
+    $form = $siteModel->getForm();
     $app = Factory::getApplication();
-    $input = $app->input;
-    $data = $input->get('jform', array(), 'array');
 
+    $input = $app->input;
+    $data = $input->get('jform', [], 'array');
+    $validation = $siteModel->validate($form, $data);
+    
+    if ( $validation === false ) {
+      Helpers::sessionSet('formdata', json_encode($data));
+      $errors = $form->getErrors();
+
+      foreach ( $errors AS $e ) {
+        $app->enqueueMessage($e->getMessage(), \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      }
+
+      return false;
+    }
+
+    if ( !$data['photo'] )
+    {
+      $photo = Helpers::sessionGet('photo');
+      if ( !$photo ) {
+        $app->enqueueMessage('A representative photo is required', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      }
+      return false;
+      
+    }
+    
     // Setup items not included in site model
     $data['uid'] = $app->getIdentity()->id;
     $data['id'] = $input->get('id',0,'int');
-
+    
     if ( $data['id'] == 0 ) {
       $data['published'] = 3; // New submission
     }
     
+    /** @var ClawCorp\Component\Claw\Administrator\Model\PresenterModel */    
+    $adminModel = $this->getModel('Presenter','Administrator');
     $result = $adminModel->save($data);
-    
+
+    if ( $result ) {
+      $app->enqueueMessage('Biography save successful.');
+    }
     return $result;
   }
 }

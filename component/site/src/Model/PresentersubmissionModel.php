@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -13,52 +14,20 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
-
 use Joomla\CMS\Language\Text;
+use ClawCorpLib\Helpers\Helpers;
 
 /**
- * Methods to handle a list of records.
- *
- * @since  1.6
+ * Get a single presenter submission from an authenticated user
  */
 class PresentersubmissionModel extends AdminModel
 {
-
-	private array $list_fields = [
-		'id',
-		'uid',
-		'published',
-		'name',
-		'legal_name',
-		'social_media',
-		'phone',
-		'phone_info',
-		'arrival',
-		'copresenting',
-		'comments',
-		'bio',
-		'photo'
-	];	
-
-	/**
-	 * Constructor.
-	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
-	 *
-	 */
-	public function __construct($config = [])
-	{
-		$config['filter_fields'] = [];
-		parent::__construct($config);
-	}
-
-	public function getForm($data = array(), $loadData = true)
+	public function getForm($data = [], $loadData = true)
 	{
 		// Get the form.
 		$form = $this->loadForm('com_claw.presentersubmission', 'presentersubmission', array('control' => 'jform', 'load_data' => $loadData));
 
-		if (empty($form))
-		{
+		if (empty($form)) {
 			return false;
 		}
 
@@ -67,16 +36,18 @@ class PresentersubmissionModel extends AdminModel
 
 	protected function loadFormData()
 	{
+		$mergeData = null;
+		$submittedFormData = Helpers::sessionGet('formdata');
+		if ( $submittedFormData ) {
+			$mergeData = json_decode($submittedFormData, true);
+		}
+
+
 		// Check if a record for this presenter exists
 		$app = Factory::getApplication();
 		$uid = $app->getIdentity()->id;
 
-		// if ( !$uid ) {
-		// 	$app->enqueueMessage('You must be signed in to submit a presenter biography.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-		// 	$app->set
-
-		// }
-
+		/** @var Joomla\Database\Mysqli\MysqliDriver */
 		$db = $this->getDatabase();
 		$query = $db->getQuery(true);
 
@@ -88,33 +59,34 @@ class PresentersubmissionModel extends AdminModel
 		$db->setQuery($query);
 		$result = $db->loadResult();
 
-		if ( $result ) {
-			// $this->getState($this->getName() . '.id'); // Init state if new
+		if ($result) {
 			$this->setState($this->getName() . '.id', $result);
 		}
 
 		$data = $this->getItem();
 
-		return $data;
+		if ( $mergeData ) {
+			foreach ( $mergeData AS $key => $value ) {
+				$data->$key = $value;
+			}
+		}
+
+		if ( $data->photo ) {
+			Helpers::sessionSet('photo', $data->photo);
+		}
+
+ 		return $data;
 	}
-
-	// public function getItem($pk = null ) {
-	// 	$pk = (int) $this->getState($this->getName() . '.id', 0);
-
-	// 	return parent::getItem($pk);
-	// }
 
 	public function getTable($name = '', $prefix = '', $options = array())
 	{
 		$name = 'Presenters';
 		$prefix = 'Table';
 
-		if ($table = $this->_createTable($name, $prefix, $options))
-		{
+		if ($table = $this->_createTable($name, $prefix, $options)) {
 			return $table;
 		}
 
 		throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
 	}
-	
 }
