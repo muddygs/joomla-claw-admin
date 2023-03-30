@@ -15,6 +15,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
+use ClawCorpLib\Helpers\Helpers;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
@@ -57,7 +58,13 @@ class HtmlView extends BaseHtmlView
     $app = Factory::getApplication();
     $groups= $app->getIdentity()->getAuthorisedGroups();
 
+    $controllerMenuId = (int)Helpers::sessionGet('menuid');
     $menu = $app->getMenu()->getActive();
+    if ( $controllerMenuId != $menu->id ) {
+      $sitemenu = $app->getMenu();
+      $sitemenu->setActive($controllerMenuId);
+      $menu = $app->getMenu()->getActive();
+    }
     $paramsMenu = $menu->getParams();
     $temp->merge($paramsMenu);
 

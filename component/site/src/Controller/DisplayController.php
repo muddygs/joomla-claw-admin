@@ -14,6 +14,7 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormFactoryInterface;
 use Joomla\CMS\Helper\ContentHelper;
 use Joomla\CMS\MVC\Controller\BaseController;
@@ -44,6 +45,12 @@ class DisplayController extends BaseController
   ) {
 		Helpers::sessionSet('formdata','');
 		Helpers::sessionSet('photo','');
+		
+		/** @var \Joomla\CMS\Application\SiteApplication */
+		$app = Factory::getApplication();
+		$menu = $app->getMenu()->getActive();
+		Helpers::sessionSet('menuid',$menu->id);
+		
 
     parent::__construct($config, $factory, $app, $input, $formFactory);
 	}
