@@ -26,6 +26,17 @@ class ClawDaysListField extends ListField
 
     protected $dayfilter;
 
+    private $days = [
+        'tue',
+        'wed',
+        'thu',
+        'fri',
+        'sat',
+        'sun',
+        'mon',
+    ];
+
+
     /**
      * Method to get certain otherwise inaccessible properties from the form field object.
      *
@@ -104,14 +115,19 @@ class ClawDaysListField extends ListField
     protected function getInput()
     {
         $data = $this->getLayoutData();
+        $currentValue = $this->__get('value');
+
+        if ( $currentValue != '' && !in_array($currentValue, $this->days))
+        {
+            $datetime = date_create($currentValue);
+            if ( $datetime !== false ) {
+                $currentValue = strtolower(date_format($datetime, 'D'));
+                $this->__set('value', $currentValue);
+                $data['value'] = $currentValue;
+            }
+        }
 
         $data['options'] = (array) $this->getOptions();
-
-        // VALID for other menus -- future reference $db = $this->getDatabase();
-        $currentValue = $this->__get('value');
-        if ( $currentValue === '' ) {
-            $this->__set('value', Aliases::current);
-        }
 
         return $this->getRenderer($this->layout)->render($data);
     }
@@ -127,25 +143,17 @@ class ClawDaysListField extends ListField
     {
         $options = parent::getOptions();
 
-        $days = [
-            'tue',
-            'wed',
-            'thu',
-            'fri',
-            'sat',
-            'sun',
-            'mon',
-        ];
+        $currentValue = $this->__get('value') ?? '';
 
-        foreach( $days AS $day ) {
+        foreach( $this->days AS $day ) {
             if ( !count($this->dayfilter) || in_array($day, $this->dayfilter)) {
                 $options[] = (object)[
-                    'value'    => ucfirst($day),
+                    'value'    => $day,
                     'text'     => ucfirst($day),
                     'disable'  => false,
                     'class'    => '',
-                    'selected' => false,
-                    'checked'  => false,
+                    'selected' => $day == $currentValue ? true: false,
+                    'checked'  => $day == $currentValue ? true: false,
                     'onclick'  => '',
                     'onchange' => ''
                 ];
