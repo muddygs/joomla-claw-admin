@@ -31,7 +31,7 @@
     label="Event Selection"
     required="true"
     multiple="false"
-    default="_current_"
+    default=""
     validate="options"
   />
 

@@ -23,7 +23,7 @@
     label="Event Selection"
     required="true"
     multiple="false"
-    default="_current_"
+    default=""
     validate="options"
   />
 
@@ -42,7 +42,7 @@
     name="start_time"
     type="list"
     label="Start Time"
-    required="true"
+    required="false"
     default="">
       <option value="">Select a start time</option>
   </field>
@@ -138,10 +138,13 @@
 
   <field
     name="comments"
-    type="text"
+    type="textarea"
     label="Comments"
     required="false"
     maxLength="255"
+    filter="raw"
+    rows="3"
+    columns="00"
   />
 
   <field
@@ -156,6 +159,7 @@
     <option value="0">JUNPUBLISHED</option>
     <option value="2">JARCHIVED</option>
     <option value="-2">JTRASHED</option>
+    <option value="3">New</option>
   </field>
 
 
