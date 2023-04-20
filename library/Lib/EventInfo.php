@@ -53,9 +53,14 @@ class EventInfo {
      * Mimics Date object functionality, returning SQL-formatted result relative to event start date
      * @return string Modified date in SQL format
      */
-    public function modify(string $m): string {
+    public function modify(string $m, bool $validate = true): string|bool {
         $date = Factory::getDate($this->start_date);
-        return $date->modify($m)->toSql();
+        $m = $date->modify($m);
+
+        if ( !is_bool($m))
+            return $date->modify($m)->toSql();
+
+        if ( $validate == false ) return false;
     }
 
     /**
