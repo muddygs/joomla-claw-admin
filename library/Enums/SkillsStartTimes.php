@@ -2,8 +2,10 @@
 namespace ClawCorpLib\Enums;
 
 use ClawCorpLib\Helpers\Helpers;
+use Joomla\CMS\Factory;
 
 enum SkillsStartTimes: string {
+  case TBD = 'TBD';
   case A0930 = '9:30';
   case A1000 = '10:00';
   case A1100 = '11:00';
@@ -13,7 +15,6 @@ enum SkillsStartTimes: string {
   case P0330 = '15:30';
   case P0430 = '16:30';
   case P0700 = '19:00';
-  case TBD = '';
 
   public function ToString(): string {
     if ( SkillsStartTimes::TBD == $this ) return "TBD";
@@ -21,17 +22,21 @@ enum SkillsStartTimes: string {
     return Helpers::formatTime($this->value);
   }
 
-  public function ToSql(): string {
+  public function ToSql(): string|null {
     date_default_timezone_set('etc/UTC');
+    if ( 'TBD' == $this->value || null == $this->value ) {
+      return null;
+    }
+    
     return date('H:i:s', strtotime($this->value));
   }
 
-  public static function Find(string $key): ?SkillsStartTimes {
+  public static function Find(string $key): SkillsStartTimes {
     foreach (SkillsStartTimes::cases() as $c )
     {
       if ( $c->name == $key ) return $c;
     }
 
-    return null;
+    return SkillsStartTimes::TBD;
   }
 }
