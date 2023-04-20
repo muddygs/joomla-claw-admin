@@ -81,11 +81,11 @@ class HtmlView extends BaseHtmlView
 	 */
 	function display($tpl = null)
 	{
-		/** @var BannersModel $model */
+		/** @var SkillsModel $model */
 		$model               = $this->getModel();
+		$this->state         = $model->getState();
 		$this->items         = $model->getItems();
 		$this->pagination    = $model->getPagination();
-		$this->state         = $model->getState();
 		$this->filterForm    = $model->getFilterForm();
 		$this->activeFilters = $model->getActiveFilters();
 
@@ -106,21 +106,20 @@ class HtmlView extends BaseHtmlView
 	{
 		$app = Factory::getApplication();
 
-		ToolbarHelper::title('CLAW S&E Classes');
+		ToolbarHelper::title('CLAW Skills Classes');
 
 		// Get the toolbar object instance
 		$toolbar = Toolbar::getInstance('toolbar');
 
-		//$user  = $app->getIdentity();
+		$user  = $app->getIdentity();
 
-		// if ($user->authorise('core.admin', 'com_countrybase'))
-		// {
-		$toolbar->addNew('skill.add');
+		if ($user->authorise('core.admin', 'com_claw')) {
+			$toolbar->addNew('skill.add');
 
-		$toolbar->delete('skills.delete')
-		->text('Delete')
-		->listCheck(true);
-		// }
+			$toolbar->delete('skills.delete')
+			->text('Delete')
+			->listCheck(true);
+		}
 
 		// if ($user->authorise('core.edit.state', 'com_countrybase'))
 		// {
