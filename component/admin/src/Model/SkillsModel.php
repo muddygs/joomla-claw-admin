@@ -16,6 +16,7 @@ use Joomla\CMS\MVC\Model\ListModel;
 
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Skills;
+use ClawCorpLib\Helpers\Locations;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\Database\ParameterType;
 
@@ -84,15 +85,15 @@ class SkillsModel extends ListModel
 		// Load the parameters.
 		$this->setState('params', ComponentHelper::getParams('com_claw'));
 
-		// // List state information
-		// $value = $app->input->get('limit', $app->get('list_limit', 0), 'uint');
-		// $this->setState('list.limit', $value);
+		// List state information
+		$value = $app->input->get('limit', $app->get('list_limit', 0), 'uint');
+		$this->setState('list.limit', $value);
 
-		// $value = $app->input->get('limitstart', 0, 'uint');
-		// $this->setState('list.start', $value);
+		$value = $app->input->get('limitstart', 0, 'uint');
+		$this->setState('list.start', $value);
 
-		// $search = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
-		// $this->setState('filter.search', $search);
+		$search = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
+		$this->setState('filter.search', $search);
 
 
 		// List state information.
@@ -122,7 +123,6 @@ class SkillsModel extends ListModel
 		$id .= ':' . $this->getState('filter.presenter');
 		$id .= ':' . $this->getState('filter.day');
 		$id .= ':' . $this->getState('filter.event');
-		//$id .= ':' . serialize($this->getState('filter.tag'));
 
 		return parent::getStoreId($id);
 	}
@@ -132,6 +132,41 @@ class SkillsModel extends ListModel
 		return parent::getTable($type, $prefix, $config);
 	}
 
+	public function getItems()
+	{
+		$items = parent::getItems();
+
+		$locations = Locations::GetLocationsList($this->getDatabase());
+		$presenters = Skills::GetPresentersList($this->getDatabase());
+
+		foreach ( $items AS $item ) {
+			$item->day_text = '<i class="fa fa-question"></i>';
+			if ( $item->day != null ) {
+				$datetime = date_create($item->day);
+				if ( $datetime !== false ) {
+					$item->day_text = date_format($datetime, 'D');
+				}
+			}
+
+			$item->presenter_names = [];
+			foreach ( explode(',',$item->presenters) AS $p ) {
+				if ( array_key_exists($p, $presenters)) {
+					$item->presenter_names[] = $presenters[$p]->name;
+				} else {
+					$item->presenter_names = ['<span class="text-danger">ERROR: Deleted presenter</span>'];
+					break;
+				}
+			}
+
+			if ( !count($item->presenter_names)) {
+				$item->presenter_names = ['<span class="text-danger">ERROR: No presenter</span>'];
+			}
+
+			$item->location_text = array_key_exists($item->location, $locations) ? $locations[$item->location]->value : '<i class="fa fa-question"></i>';
+		}
+
+		return $items;
+	}
 	/**
 	 * Get the master query for retrieving a list of countries subject to the model state.
 	 *
@@ -140,9 +175,12 @@ class SkillsModel extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		// Create a new query object.
 		$db    = $this->getDatabase();
 		$query = $db->getQuery(true);
+
+		// Cache Locations
+
+		// Cache Presenter Public Names
 
 		// Select the required fields from the table.
 		$query->select(
