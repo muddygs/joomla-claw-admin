@@ -15,9 +15,8 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Button\PublishedButton;
-use Joomla\CMS\Session\Session;
 
-use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\Aliases;
 
 /** @var \Joomla\Component\Banners\Administrator\View\Banners\HtmlView $this */
 
@@ -46,10 +45,12 @@ $user = $app->getIdentity();
         <th scope="col" class="w-1 text-center">
           <?php echo HTMLHelper::_('searchtools.sort', 'JSTATUS', 'a.published', $listDirn, $listOrder); ?>
         </th>
+        <th scole="col">Event</th>
 		    <th scope="col">
 			    <?php echo HTMLHelper::_('searchtools.sort', 'Title', 'a.title', $listDirn, $listOrder); ?>
 		    </th>
 		    <th scope="col">Day/Time</th>
+		    <th scope="col">Location</th>
         <th scope="col">Track</th>
         <th scope="col">Presenter(s)</th>
         <th scope="col">ID</th>
@@ -74,19 +75,26 @@ $user = $app->getIdentity();
           </td>
 
           <td>
+            <?php echo Aliases::eventTitleMapping[$item->event] ?>
+          </td>
+
+          <td>
             <a href="<?php echo Route::_('index.php?option=com_claw&task=skill.edit&id=' . $item->id); ?>"
       			  title="Edit S&amp; Skill Class">
               <?php echo $item->title ?>
             </a>
           </td>
           <td>
-            <?php echo $item->day ?>
+            <?php echo $item->day_text ?>
+          </td>
+          <td>
+            <?php echo $item->location_text ?>
           </td>
           <td>
             <?php echo $item->track ?>
           </td>
           <td>
-              <?php echo $item->presenters ?>
+              <?php echo implode('<br/>', $item->presenter_names) ?>
           </td>
           <td>
             <?php echo $item->id ?>
