@@ -42,7 +42,7 @@ class ClawEventsListField extends ListField
         // VALID for other menus -- future reference $db = $this->getDatabase();
         $currentValue = $this->__get('value');
         if ( $currentValue === '' ) {
-            $this->__set('value', Aliases::current);
+            $data['value'] = Aliases::current;
         }
 
         return $this->getRenderer($this->layout)->render($data);
