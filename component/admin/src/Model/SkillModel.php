@@ -45,19 +45,14 @@ class SkillModel extends AdminModel
     $e = new ClawEvents($data['event']);
     $info = $e->getEvent()->getInfo();
     
-    $day = $info->modify($data['day'], false);
+    $day = $info->modify($data['day'] ?? '', false);
     if ( $day !== false ) {
       $data['day'] = $day;
     } else {
-      // $db = $this->getDatabase();
       $data['day'] = null;
     }
 
-    $data['audience'] = implode(',', $data['audience']);
-    $data['presenters'] = implode(',', $data['presenters']);
-
-    //$data['start_time'] = 
-    $data['start_time'] = SkillsStartTimes::Find($data['start_time'])->ToSql();
+    $data['presenters'] = implode(',', $data['presenters'] ?? []);
 
     return parent::save($data);
   }
@@ -84,17 +79,10 @@ class SkillModel extends AdminModel
     // For cases, see libraries/claw/Enums
 
     /** @var $filter \Joomla\CMS\Form\FormField */
-    $audience = $form->getField('audience');
-    foreach (SkillsAudiences::cases() as $c) {
-      if ($c->name == 'Open') continue;
-      $audience->addOption($c->value, ['value' => $c->name]);
-    }
-
-    /** @var $filter \Joomla\CMS\Form\FormField */
-    $audience = $form->getField('start_time');
-    foreach (SkillsStartTimes::cases() as $c) {
-      $audience->addOption($c->ToString(), ['value' => $c->name]);
-    }
+    // $audience = $form->getField('start_time');
+    // foreach (SkillsStartTimes::cases() as $c) {
+    //   $audience->addOption($c->ToString(), ['value' => $c->name]);
+    // }
 
     /** @var $filter \Joomla\CMS\Form\FormField */
     $audience = $form->getField('category');

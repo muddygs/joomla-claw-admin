@@ -21,6 +21,7 @@ use Joomla\CMS\MVC\Controller\FormController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\Aliases;
 
 /**
  * Controller for a single skill record
@@ -71,9 +72,11 @@ class SkillsubmissionController extends FormController
 
     // Setup items not included in site model
     $data['uid'] = $app->getIdentity()->id;
+    $data['owner'] = $data['uid'];
     $data['id'] = $input->get('id',0,'int');
+    $data['event'] = Aliases::current;
     
-    if ( $data['id'] == 0 ) {
+    if ( ($data['id'] ?? 0) == 0 || !is_int($data['id'])) {
       $data['published'] = 3; // New submission
     }
     

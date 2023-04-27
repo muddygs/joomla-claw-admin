@@ -33,11 +33,13 @@ class SkillssubmissionsModel extends ListModel
 		'title',
 		'event',
 		'day',
-		'start_time',
-		'length',
+		'time_slot',
 		'location',
 		'track',
-		'presenters'
+		'presenters',
+		'equipment_info',
+		'copresenter_info',
+		'requirements_info',
 	];	
 
 	/**

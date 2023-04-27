@@ -33,7 +33,7 @@
   <field 
     name="description"
     type="editor"
-    label="Class Description"
+    label="Class Description (please exclude information from above)"
     filter="safehtml"
     maxLength="1000"
   />
@@ -42,6 +42,53 @@
     name="comments"
     type="textarea"
     label="Comments"
+    required="false"
+    maxLength="255"
+    filter="raw"
+    rows="3"
+    columns="00"
+  />
+
+  <field
+    name="equipment_info"
+    type="textarea"
+    label="Equipment"
+    description="List needed equipment (e.g., sling, rigging)"
+    required="false"
+    maxLength="255"
+    filter="raw"
+    rows="3"
+    columns="00"
+  />
+
+  <field
+    name="copresenter_info"
+    type="textarea"
+    label="Copresenters"
+    description="Contact information on any copresenters"
+    required="false"
+    maxLength="255"
+    filter="raw"
+    rows="3"
+    columns="00"
+  />
+
+  <field
+    name="requirements_info"
+    type="textarea"
+    label="Requirements"
+    description="Describe class prerequisites and/or equipment/gear attendees should bring to class"
+    required="false"
+    maxLength="255"
+    filter="raw"
+    rows="3"
+    columns="00"
+  />
+
+  <field
+    name="comments"
+    type="textarea"
+    label="Other Comments"
     required="false"
     maxLength="255"
     filter="raw"

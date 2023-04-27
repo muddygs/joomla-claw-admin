@@ -10,9 +10,7 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Form\Form;
 
 HTMLHelper::_('behavior.formvalidator');
 HTMLHelper::_('behavior.keepalive');
@@ -25,8 +23,11 @@ $view = 'skill';
 	method="post" name="adminForm" id="<?php echo $view ?>-form" class="form-validate" enctype="multipart/form-data">
 
 	<div class="row form-vertical mb-3">
-    <div class="col-12 col-md-6">
+    <div class="col-12">
         <?php echo $this->form->renderField('title'); ?>
+    </div>
+    <div class="col-12 col-md-6">
+        <?php echo $this->form->renderField('owner'); ?>
     </div>
     <div class="col-12 col-md-6">
         <?php echo $this->form->renderField('presenters'); ?>
@@ -50,13 +51,29 @@ $view = 'skill';
 		<?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'general', 'General'); ?>
 
 		<div class="row">
+			<?php echo $this->form->renderField('class_type'); ?>
 			<?php echo $this->form->renderField('day'); ?>
-			<?php echo $this->form->renderField('start_time'); ?>
-			<?php echo $this->form->renderField('length'); ?>
-			<?php echo $this->form->renderField('audience'); ?>
+			<div class="col-6">
+				<?php echo $this->form->renderField('time_slot'); ?>
+			</div>
+			<div class="col-6">
+				<?php echo $this->form->renderField('length_info'); ?>
+			</div>
 			<?php echo $this->form->renderField('category'); ?>
 			<?php echo $this->form->renderField('track'); ?>
 			<?php echo $this->form->renderField('description'); ?>
+		</div>
+
+		<?php echo HTMLHelper::_('uitab.endTab'); ?>
+
+		<?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'notes', 'Notes'); ?>
+
+		<div class="row">
+			<?php echo $this->form->renderField('equipment_info'); ?>
+			<?php echo $this->form->renderField('copresenter_info'); ?>
+			<?php echo $this->form->renderField('requirements_info'); ?>
+			<?php echo $this->form->renderField('comments'); ?>
+		
 		</div>
 
 		<?php echo HTMLHelper::_('uitab.endTab'); ?>

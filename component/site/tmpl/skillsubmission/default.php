@@ -44,8 +44,17 @@ endif;
   </div>
 
   <div class="row">
+    <?php echo $this->form->renderField('equipment_info'); ?>
+    <?php echo $this->form->renderField('copresenter_info'); ?>
+    <?php echo $this->form->renderField('requirements_info'); ?>
     <?php echo $this->form->renderField('description'); ?>
     <?php echo $this->form->renderField('comments'); ?>
+  </div>
+
+  <hr/>
+
+  <div class="row">
+    <h3>
   </div>
 
   <?php if ($this->params->get('se_submissions_open') != 0) : ?>
