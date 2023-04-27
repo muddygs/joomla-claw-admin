@@ -66,6 +66,26 @@ ALTER TABLE `#__claw_sponsors`
 ALTER TABLE `#__claw_sponsors`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+DROP TABLE IF EXISTS `#__claw_vendors`;
+CREATE TABLE `#__claw_vendors`(
+    `id` INT(11) NOT NULL,
+    `published` TINYINT(4) NOT NULL DEFAULT '1',
+    `name` VARCHAR(255) NOT NULL,
+    `description` VARCHAR(255) NOT NULL,
+    `logo` TEXT NOT NULL,
+    `location` INT(11) DEFAULT NULL,
+    `catid` INT(11) NULL DEFAULT NULL,
+    `expires` DATE DEFAULT '0000-00-00 00:00:00',
+    `mtime` DATE NOT NULL DEFAULT CURRENT_TIMESTAMP()
+) ENGINE = InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `#__claw_vendors`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `#__claw_vendors`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
 DROP TABLE IF EXISTS `#__claw_shifts`;
 CREATE TABLE `#__claw_shifts`(
     `id` INT(11) NOT NULL,
@@ -166,8 +186,8 @@ CREATE TABLE `#__claw_skills` (
   `title` varchar(255) DEFAULT NULL,
   `event` TEXT DEFAULT NULL,
   `day` date DEFAULT NULL,
-  `start_time` time DEFAULT NULL,
-  `length` int(4) DEFAULT 60,
+  `time_slot` varchar(8) DEFAULT NULL,
+  `type` varchar(8) DEFAULT NULL,
   `owner` INT(11) DEFAULT NULL,
   `presenters` TEXT DEFAULT NULL,
   `track` varchar(10) DEFAULT NULL,
@@ -177,7 +197,10 @@ CREATE TABLE `#__claw_skills` (
   `description` TEXT DEFAULT NULL,
   `photo` TEXT DEFAULT NULL,
   `handout_id` INT(11) DEFAULT NULL,
-  `copresenter` varchar(255) DEFAULT NULL,
+  `copresenter_info` varchar(255) DEFAULT NULL,
+  `equipment_info` varchar(255) DEFAULT NULL,
+  `requirements_info` varchar(255) DEFAULT NULL,
+  `length_info` int(4) DEFAULT 60,
   `comments` TEXT DEFAULT NULL,
   `submission_date` date DEFAULT NULL,
   `mtime` datetime DEFAULT NULL
@@ -226,3 +249,27 @@ ALTER TABLE `#__claw_profile_charge_log`
 ALTER TABLE `#__claw_profile_charge_log`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+DROP TABLE IF EXISTS `#__claw_field_values`;
+CREATE TABLE `#__claw_field_values` (
+  `id` int(11) NOT NULL,
+  `fieldname` varchar(255) DEFAULT NULL,
+  `value` varchar(255) DEFAULT NULL,
+  `text` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `#__claw_field_values` (`id`, `fieldname`, `value`, `text`) VALUES
+(1, 'skill_time_slot', '0930:060', '9:30AM - 60 minutes'),
+(2, 'skill_time_slot', '1100:090', '11:00AM - 90 minutes'),
+(3, 'skill_time_slot', '1400:090', '2:00PM - 90 minutes (Sun)'),
+(4, 'skill_time_slot', '1400:120', '2:00PM - 120 minutes'),
+(5, 'skill_time_slot', '1630:060', '4:30PM - 60 minutes'),
+(6, 'skill_class_type', 'demo', 'Demo'),
+(7, 'skill_class_type', 'lecture', 'Lecture'),
+(8, 'skill_class_type', 'round', 'Round Table'),
+(9, 'skill_class_type', 'panel', 'Panel');
+
+ALTER TABLE `#__claw_field_values`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `#__claw_field_values`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
