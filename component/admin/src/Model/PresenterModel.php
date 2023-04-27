@@ -51,6 +51,14 @@ class PresenterModel extends AdminModel
     parent::delete($pks);
   }
 
+  public function validate($form, $data, $group = null)
+  {
+    // Handle readonly account data 
+    if ( $data['uid_readonly_uid'] != 0 ) $data['uid'] = $data['uid_readonly_uid'];
+
+    return parent::validate($form, $data, $group);
+  }
+
   public function save($data)
   {
     $app = Factory::getApplication();
@@ -68,19 +76,21 @@ class PresenterModel extends AdminModel
       $query->select($db->quoteName('id'))
         ->from($db->quoteName('#__claw_presenters'))
         ->where('uid = :uid')
-        ->bind(':uid', $data['uid']);
+        ->where('event = :event')
+        ->bind(':uid', $data['uid'])
+        ->bind(':event', $data['event']);
       $db->setQuery($query);
       $result = $db->loadResult();
 
       if ( $result ) {
-        $app->enqueueMessage('Record for this user already exists.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+        $app->enqueueMessage('Record for this presenter already exists for this event.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
         return false;
       }
     }
 
     if ( array_key_exists('arrival', $data)) $data['arrival'] = implode(',',$data['arrival']);
 
-    $input = Factory::getApplication()->input;
+    $input = $app->input;
     $files = $input->files->get('jform');
     $tmp_name = $files['photo_upload']['tmp_name'];
     $mime = $files['photo_upload']['type'];
@@ -156,11 +166,16 @@ class PresenterModel extends AdminModel
     // Check the session for previously entered form data.
     /** @var Joomla\CMS\Application\AdministratorApplication */
     $app = Factory::getApplication();
-    $data = $app->getUserState('com_claw.edit.presenter.data', array());
+    $data = $app->getUserState('com_claw.edit.presenter.data', []);
 
     if (empty($data))
     {
       $data = $this->getItem();
+    } else {
+      // Handle readonly account data 
+      if ( !array_key_exists('uid', $data) && $data['uid_readonly_uid'] ?? 0 != 0) {
+        $data['uid'] = $data['uid_readonly_uid'];
+      }
     }
 
     return $data;

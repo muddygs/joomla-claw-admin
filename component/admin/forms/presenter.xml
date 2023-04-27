@@ -129,6 +129,19 @@
     required="true"
     readonly="false"
   />
+  
+  <field
+    name="uid_readonly_name"
+    label="Account"
+    type="text"
+    readonly="true"
+    default="0"
+  />
+  <field
+    name="uid_readonly_uid"
+    type="hidden"
+    default="0"
+  />
 
   <field
     name="submission_date"
