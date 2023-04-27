@@ -25,7 +25,7 @@ class Aliases {
   // For database, based on service provider
   const timezonedb = 'American/Chicago';
   
-  const defaultPrefix = 'L22'; // Use C for CLAW, L for Leather Getaway, V for Virtual CLAW
+  const defaultPrefix = 'C23'; // Use C for CLAW, L for Leather Getaway, V for Virtual CLAW
   const onsiteActive = false;
   
   const shiftCategories = [
