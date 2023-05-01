@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -39,8 +39,7 @@ class SkillsubmissionController extends FormController
 
     $task = $input->getCmd('task');
 
-    if ( $task == 'submit' && $input != null )
-    {
+    if ($task == 'submit' && $input != null) {
       $this->save();
     }
   }
@@ -58,12 +57,12 @@ class SkillsubmissionController extends FormController
     $input = $app->input;
     $data = $input->get('jform', [], 'array');
     $validation = $siteModel->validate($form, $data);
-    
-    if ( $validation === false ) {
+
+    if ($validation === false) {
       Helpers::sessionSet('formdata', json_encode($data));
       $errors = $form->getErrors();
 
-      foreach ( $errors AS $e ) {
+      foreach ($errors as $e) {
         $app->enqueueMessage($e->getMessage(), \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       }
 
@@ -73,18 +72,19 @@ class SkillsubmissionController extends FormController
     // Setup items not included in site model
     $data['uid'] = $app->getIdentity()->id;
     $data['owner'] = $data['uid'];
-    $data['id'] = $input->get('id',0,'int');
+    $data['id'] = $input->get('id', 0, 'int');
     $data['event'] = Aliases::current;
-    
-    if ( ($data['id'] ?? 0) == 0 || !is_int($data['id'])) {
+    $data['length_info'] = $input->get('length', 60, 'int');
+
+    if (($data['id'] ?? 0) == 0 || !is_int($data['id'])) {
       $data['published'] = 3; // New submission
     }
-    
-    /** @var ClawCorp\Component\Claw\Administrator\Model\PresenterModel */    
-    $adminModel = $this->getModel('Skill','Administrator');
+
+    /** @var ClawCorp\Component\Claw\Administrator\Model\PresenterModel */
+    $adminModel = $this->getModel('Skill', 'Administrator');
     $result = $adminModel->save($data);
 
-    if ( $result ) {
+    if ($result) {
       $app->enqueueMessage('Class submission save successful.');
     }
     return $result;
