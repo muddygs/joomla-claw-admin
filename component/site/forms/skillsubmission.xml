@@ -39,17 +39,6 @@
   />
 
   <field
-    name="comments"
-    type="textarea"
-    label="Comments"
-    required="false"
-    maxLength="255"
-    filter="raw"
-    rows="3"
-    columns="00"
-  />
-
-  <field
     name="equipment_info"
     type="textarea"
     label="Equipment"
