@@ -12,7 +12,6 @@ namespace ClawCorp\Component\Claw\Site\Model;
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 use ClawCorpLib\Helpers\Helpers;
@@ -41,27 +40,6 @@ class SkillsubmissionModel extends AdminModel
 		if ( $submittedFormData ) {
 			$mergeData = json_decode($submittedFormData, true);
 		}
-
-
-		// Check if a record for this presenter exists
-		$app = Factory::getApplication();
-		$uid = $app->getIdentity()->id;
-
-		/** @var Joomla\Database\Mysqli\MysqliDriver */
-		// $db = $this->getDatabase();
-		// $query = $db->getQuery(true);
-
-		// $query->select($db->qn(['id']))
-		// 	->from($db->qn('#__claw_presenters'))
-		// 	->where($db->qn('uid') . '=' . $uid)
-		// 	->where($db->qn('published') . '= 1');
-
-		// $db->setQuery($query);
-		// $result = $db->loadResult();
-
-		// if ($result) {
-		// 	$this->setState($this->getName() . '.id', $result);
-		// }
 
 		$data = $this->getItem();
 
