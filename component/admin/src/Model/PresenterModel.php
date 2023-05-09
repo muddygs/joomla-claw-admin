@@ -97,7 +97,15 @@ class PresenterModel extends AdminModel
     $error = $files['photo_upload']['error'];
   
     if ( 0 == $error ) {
-      $upload = implode(DIRECTORY_SEPARATOR, ['..', Aliases::presentersdir, 'orig', $data['uid']]);
+      // Copy original out of tmp
+      $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, Aliases::presentersdir, 'orig', $data['uid'].'.jpg']);
+      $result = copy($tmp_name, $orig);
+      if ( !$result ) {
+        $app->enqueueMessage('Unable to save original photo file.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+        return false;
+      }
+      
+        $upload = implode(DIRECTORY_SEPARATOR, ['..', Aliases::presentersdir, 'orig', $data['uid']]);
       switch ($mime) {
         case 'image/jpeg':
           $upload .= '.jpg';
@@ -113,9 +121,10 @@ class PresenterModel extends AdminModel
         try {
           $output = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, Aliases::presentersdir, 'web', $data['uid'].'.jpg']);
           $image = new Image();
-          $image->loadFile($upload);
+          $image->loadFile($orig);
           $image->resize(300, 300, false);
           $image->toFile($output, IMAGETYPE_JPEG, ['quality' => 80]);
+
           $data['photo'] = implode(DIRECTORY_SEPARATOR, [Aliases::presentersdir, 'web', $data['uid'].'.jpg']);
         } catch(LogicException $ex)
         {
