@@ -30,6 +30,16 @@ $view = 'presenter';
         <?php echo $this->form->renderField('legal_name'); ?>
     </div>
   </div>
+
+  <div class="row form-vertical mb-3">
+    <div class="col-12 col-md-6">
+        <?php echo $this->form->renderField('copresenter'); ?>
+    </div>
+    <div class="col-12 col-md-6">
+        <?php echo $this->form->renderField('copresenting'); ?>
+    </div>
+  </div>
+
   <div class="row form-vertical mb-3">
     <div class="col-12 col-md-6">
         <?php echo $this->form->renderField('event'); ?>
@@ -81,6 +91,7 @@ $view = 'presenter';
     <div class="row">
       <?php echo $this->form->renderField('social_media'); ?>
       <?php echo $this->form->renderField('arrival'); ?>
+      <?php echo $this->form->renderField('comments'); ?>
     </div>
 
     <?php echo HTMLHelper::_('uitab.endTab'); ?>
