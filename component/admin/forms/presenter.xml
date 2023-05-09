@@ -90,7 +90,7 @@
   <field
     name="arrival"
     type="checkboxes"
-    label="Availability (Pick best options for you)"
+    label="Availability"
     >
     <option value="Any">Any (Fri-Sun)</option>
     <option value="Fri">Friday</option>
@@ -101,14 +101,13 @@
   <field
     name="copresenter"
     type="checkbox"
-    label="I am a co-presenter; class descriptions will be submitted by someone else"
+    label="Co-Presenter"
   />
 
   <field
     name="copresenting"
     type="text"
-    label="Class title and presenter name"
-    description="Please provide class and presenter information with whom you are presenting."
+    label="Co-Presenting Info"
     required="false"
     maxLength="255"
     showon="copresenter:1"
