@@ -17,11 +17,9 @@ use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Enums\SkillsAudiences;
 use ClawCorpLib\Enums\SkillsCategories;
-use ClawCorpLib\Enums\SkillsStartTimes;
 use ClawCorpLib\Enums\SkillsTracks;
-
+use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\ClawEvents;
 
 /**
@@ -39,11 +37,43 @@ class SkillModel extends AdminModel
    */
   protected $text_prefix = 'COM_CLAW_SKILL';
 
+  public function validate($form, $data, $group = null)
+  {
+    // Check that all presenters are published if this class is going to be
+    // published
+
+    $presenters = Skills::GetPresentersList($this->getDatabase());
+
+    $okToPublish = true;
+    if ( 1 == $data['published']) {
+      if ( !array_key_exists($data['owner'], $presenters) || $presenters[$data['owner']]->published != 1) {
+        $okToPublish = false;
+      }
+
+      if ( array_key_exists('presenters', $data)) {
+      foreach ( $data['presenters'] AS $copresenter ) {
+          if ( !array_key_exists($copresenter, $presenters) || $presenters[$copresenter]->published != 1) {
+            $okToPublish = false;
+            break;
+          }
+        }
+      }
+    }
+    
+    if ( !$okToPublish ) {
+      $app = Factory::getApplication();
+      $app->enqueueMessage('Class cannot be published until all presenters are published.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
+    }
+
+    return parent::validate($form, $data, $group);
+  }
+ 
   public function save($data)
   {
     $data['mtime'] = Helpers::mtime();
     $e = new ClawEvents($data['event']);
-    $info = $e->getEvent()->getInfo();
+    $info = $e->getClawEventInfo();
     
     $day = $info->modify($data['day'] ?? '', false);
     if ( $day !== false ) {
@@ -79,12 +109,6 @@ class SkillModel extends AdminModel
     // For cases, see libraries/claw/Enums
 
     /** @var $filter \Joomla\CMS\Form\FormField */
-    // $audience = $form->getField('start_time');
-    // foreach (SkillsStartTimes::cases() as $c) {
-    //   $audience->addOption($c->ToString(), ['value' => $c->name]);
-    // }
-
-    /** @var $filter \Joomla\CMS\Form\FormField */
     $audience = $form->getField('category');
     foreach (SkillsCategories::cases() as $c) {
       if ($c->name == 'TBD') continue;
@@ -113,7 +137,7 @@ class SkillModel extends AdminModel
     // Check the session for previously entered form data.
     /** @var Joomla\CMS\Application\AdministratorApplication */
     $app = Factory::getApplication();
-    $data = $app->getUserState('com_claw.edit.skill.data', array());
+    $data = $app->getUserState('com_claw.edit.skill.data', []);
 
     if (empty($data)) {
       $data = $this->getItem();
