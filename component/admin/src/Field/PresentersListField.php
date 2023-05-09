@@ -83,7 +83,7 @@ class PresentersListField extends ListField
 
         foreach(Skills::GetPresentersList($this->getDatabase()) AS $p ) {
             $tmp = [
-                'value'    => $p->id,
+                'value'    => $p->uid,
                 'text'     => $p->name,
                 'disable'  => false,
                 'class'    => '',
