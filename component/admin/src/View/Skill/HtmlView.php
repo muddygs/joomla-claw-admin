@@ -52,7 +52,7 @@ class HtmlView extends BaseHtmlView
 	protected $state;
 
 	/**
-	 * The actions the user is authorised to perform
+	 * The actions the user is authorized to perform
 	 *
 	 * @var  \JObject
 	 */
@@ -104,9 +104,9 @@ class HtmlView extends BaseHtmlView
 	 */
 	function display($tpl = null)
 	{
+		$this->state = $this->get('State');
 		$this->form  = $this->get('Form');
 		$this->item  = $this->get('Item');
-		$this->state = $this->get('State');
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors'))) {
