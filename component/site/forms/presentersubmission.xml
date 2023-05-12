@@ -27,6 +27,12 @@
     />
 
     <field
+      name="event"
+      type="hidden"
+      default=""
+    />
+
+    <field
       name="social_media"
       type="text"
       label="Social Media Tags"
@@ -69,7 +75,7 @@
       name="photo_upload"
       type="file"
       label="Photo Upload"
-      description="Your photo or representative image; must be JPG or PNG image format."
+      description="REQUIRED: Your photo or representative image; must be JPG or PNG image format."
       accept="image/png, image/jpeg"
     />
 
