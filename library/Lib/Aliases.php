@@ -4,16 +4,12 @@ namespace ClawCorpLib\Lib;
 
 class Aliases {
   const current='c0423';
-  const active = [\ClawCorpLib\Lib\Aliases::current, 'l1122_hotels', 'virtualclaw', 'refunds'];
+  const active = [\ClawCorpLib\Lib\Aliases::current, 'l1122', 'virtualclaw', 'refunds'];
   const location = 'westin-bonaventure';
-
-  // Used in override/registration.php to calculate hotel fees specifically
-  // Put current first (needed specifically by lib/profiles.php)
-  const hotels = ['l1122_hotels'];
 
   // For refunds, allow past events to be identified
   // Also used for checking if volunteer is in good starting in registrationsurvey.php
-  const past = ['c1121','c0422'];
+  const past = ['l1122', 'c1121', 'c0422'];
 
   // Day, night, etc passes
   const passesAliases = [];
@@ -71,6 +67,7 @@ class Aliases {
   // S&E Presenter Images
   const presentersdir = '/images/skills/presenters';
 
+  // TODO: Pull from event data directly
   const eventTitleMapping = [
     'c1121' => 'CLAW 21',
     'c0422' => 'CLAW 22',
