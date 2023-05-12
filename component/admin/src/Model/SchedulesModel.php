@@ -134,6 +134,8 @@ class SchedulesModel extends ListModel
 		// Replace JSON encoded sponsor array with names
 		foreach( $rows AS $row )
 		{
+			if ( $row->sponsors ?? 0 == 0 ) continue;
+			
 			$sponsorIds = json_decode($row->sponsors);
 			$names = array_intersect_key($sponsors, array_flip($sponsorIds));
 			$row->sponsorsText = implode('<br/>', $names);
