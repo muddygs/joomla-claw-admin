@@ -16,77 +16,78 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Helpers\Skills;
+use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\ClawEvents;
 
 /**
  * Get a single presenter submission from an authenticated user
  */
 class PresentersubmissionModel extends AdminModel
 {
-	public function getForm($data = [], $loadData = true)
-	{
-		// Get the form.
-		$form = $this->loadForm('com_claw.presentersubmission', 'presentersubmission', array('control' => 'jform', 'load_data' => $loadData));
+  public function getForm($data = [], $loadData = true)
+  {
+    // Get the form.
+    $form = $this->loadForm('com_claw.presentersubmission', 'presentersubmission', array('control' => 'jform', 'load_data' => $loadData));
 
-		if (empty($form)) {
-			return false;
-		}
+    if (empty($form)) {
+      return false;
+    }
 
-		return $form;
-	}
+    return $form;
+  }
 
-	protected function loadFormData()
-	{
-		$mergeData = null;
-		$submittedFormData = Helpers::sessionGet('formdata');
-		if ( $submittedFormData ) {
-			$mergeData = json_decode($submittedFormData, true);
-		}
+  protected function loadFormData()
+  {
+    $mergeData = null;
+    $submittedFormData = Helpers::sessionGet('formdata');
+    if ($submittedFormData) {
+      $mergeData = json_decode($submittedFormData, true);
+    }
 
 
-		// Check if a record for this presenter exists
-		$app = Factory::getApplication();
-		$uid = $app->getIdentity()->id;
+    // Check if a record for this presenter exists
+    $app = Factory::getApplication();
+    $uid = $app->getIdentity()->id;
 
-		/** @var Joomla\Database\Mysqli\MysqliDriver */
-		$db = $this->getDatabase();
-		$query = $db->getQuery(true);
+    $result = Skills::GetPresenterBios($this->getDatabase(), $uid, Aliases::current);
 
-		$query->select($db->qn(['id']))
-			->from($db->qn('#__claw_presenters'))
-			->where($db->qn('uid') . '=' . $uid)
-			->where($db->qn('published') . '= 1');
+    if ($result) {
+      $this->setState($this->getName() . '.id', $result[0]->id);
+    }
 
-		$db->setQuery($query);
-		$result = $db->loadResult();
+    $data = $this->getItem();
 
-		if ($result) {
-			$this->setState($this->getName() . '.id', $result);
-		}
+    if ($mergeData) {
+      foreach ($mergeData as $key => $value) {
+        $data->$key = $value;
+      }
+    }
 
-		$data = $this->getItem();
+    if ($data->photo) {
+      Helpers::sessionSet('photo', $data->photo);
+    }
 
-		if ( $mergeData ) {
-			foreach ( $mergeData AS $key => $value ) {
-				$data->$key = $value;
-			}
-		}
+    return $data;
+  }
 
-		if ( $data->photo ) {
-			Helpers::sessionSet('photo', $data->photo);
-		}
+  public function getTable($name = '', $prefix = '', $options = array())
+  {
+    $name = 'Presenters';
+    $prefix = 'Table';
 
- 		return $data;
-	}
+    if ($table = $this->_createTable($name, $prefix, $options)) {
+      return $table;
+    }
 
-	public function getTable($name = '', $prefix = '', $options = array())
-	{
-		$name = 'Presenters';
-		$prefix = 'Table';
+    throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
+  }
 
-		if ($table = $this->_createTable($name, $prefix, $options)) {
-			return $table;
-		}
+  public function GetEventInfo(): \ClawCorpLib\Lib\EventInfo
+  {
+    $events = new ClawEvents(Aliases::current);
 
-		throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
-	}
+    $info = $events->getClawEventInfo();
+    return $info;
+  }
 }
