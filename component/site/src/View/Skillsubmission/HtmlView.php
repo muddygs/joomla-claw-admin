@@ -25,7 +25,7 @@ class HtmlView extends BaseHtmlView
     $this->state = $this->get('State');
     $this->form  = $this->get('Form');
     $this->item  = $this->get('Item');
-    
+
     // Check for errors.
     $errors = $this->get('Errors');
     if ($errors != null && count($errors)) {
@@ -33,16 +33,16 @@ class HtmlView extends BaseHtmlView
     }
 
     $params = $this->params = $this->state->get('params');
-    $temp = clone($params);
+    $temp = clone ($params);
 
     // Check that user is in the submission group
     /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
-    $groups= $app->getIdentity()->getAuthorisedGroups();
+    $groups = $app->getIdentity()->getAuthorisedGroups();
 
     $controllerMenuId = (int)Helpers::sessionGet('menuid');
     $menu = $app->getMenu()->getActive();
-    if ( $controllerMenuId != $menu->id ) {
+    if ($controllerMenuId != $menu->id) {
       $sitemenu = $app->getMenu();
       $sitemenu->setActive($controllerMenuId);
       $menu = $app->getMenu()->getActive();
@@ -52,19 +52,23 @@ class HtmlView extends BaseHtmlView
 
     $this->params = $temp;
 
-    if ( $this->params->get('se_group',0) == 0 || !in_array( $this->params->get('se_group'), $groups ))
-    {
+    if ($this->params->get('se_group', 0) == 0 || !in_array($this->params->get('se_group'), $groups)) {
       $app->enqueueMessage('You do not have permission to access this resource.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      $app->redirect('/');  
+      $app->redirect('/');
     }
 
     // In read-only mode?
-    if ( $this->params->get('se_submissions_open') == 0) {
+    if ($this->params->get('se_submissions_open') == 0) {
       $fieldSet = $this->form->getFieldset('userinput');
-      foreach ( $fieldSet AS $field) {
+      foreach ($fieldSet as $field) {
         $this->form->setFieldAttribute($field->getAttribute('name'), 'readonly', 'true');
       }
     }
+
+    // Event Naming
+    /** @var \ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel */
+    $model = $this->getModel();
+    $this->eventInfo = $model->GetEventInfo();
 
     parent::display($tpl);
   }
