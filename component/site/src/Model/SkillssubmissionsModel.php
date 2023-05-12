@@ -12,121 +12,75 @@ namespace ClawCorp\Component\Claw\Site\Model;
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\MVC\Model\ListModel;
 
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Skills;
-use Joomla\CMS\Component\ComponentHelper;
-use Joomla\Database\ParameterType;
+use ClawCorpLib\Lib\ClawEvents;
+
+use Exception;
+use InvalidArgumentException;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\MVC\Model\AdminModel;
+use Joomla\Database\Exception\DatabaseNotFoundException;
+use Joomla\Database\Exception\UnsupportedAdapterException;
+use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
+use RuntimeException;
+
 
 /**
- * Methods to handle a list of records.
+ * Methods to handle presenter bios and class listing for display.
  *
  * @since  1.6
  */
-class SkillssubmissionsModel extends ListModel
+class SkillssubmissionsModel extends AdminModel
 {
 
-	private array $list_fields = [
-		'id',
-		'published',
-		'title',
-		'event',
-		'day',
-		'time_slot',
-		'location',
-		'track',
-		'presenters',
-		'equipment_info',
-		'copresenter_info',
-		'requirements_info',
-	];	
-
-	/**
-	 * Constructor.
-	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
-	 *
-	 */
-	public function __construct($config = [])
-	{
-		if (empty($config['filter_fields'])) {
-			$config['filter_fields'] = [];
-			
-			foreach( $this->list_fields AS $f )
-			{
-				$config['filter_fields'][] = $f;
-				$config['filter_fields'][] = 'a.'.$f;
-			}
-		}
-
-		parent::__construct($config);
-	}
-
-	protected function populateState($ordering = 'mtime', $direction = 'DESC')
-	{
-		// List state information.
-		parent::populateState($ordering, $direction);
-	}
-
-	protected function getStoreId($id = '')
-	{
-		// Compile the store id.
-		$id .= ':' . $this->getState('filter.search');
-		$id .= ':' . $this->getState('filter.published');
-
-		return parent::getStoreId($id);
-	}
-	/**
-	 * Get the master query for retrieving a list of skills classes
-	 *
-	 * @return  \Joomla\Database\QueryInterface
-	 *
-	 */
-  protected function getListQuery()
-	{
-		// Create a new query object.
-		$db    = $this->getDatabase();
-		$query = $db->getQuery(true);
-
-    $app = Factory::getApplication('site');
+    public function getForm($data = [], $loadData = true) { }
+    public function getTable($name = '', $prefix = '', $options = array())
+    {
+      $name = 'Presenters';
+      $prefix = 'Table';
+  
+      if ($table = $this->_createTable($name, $prefix, $options)) {
+        return $table;
+      }
+  
+      throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
+    }
+  
+  /**
+   * @param string $event (Optional) Event alias
+   * @return array|null 
+   * @throws DatabaseNotFoundException 
+   * @throws Exception 
+   * @throws UnsupportedAdapterException 
+   * @throws QueryTypeAlreadyDefinedException 
+   * @throws RuntimeException 
+   * @throws InvalidArgumentException 
+   */
+  public function GetPresenterBios(string $event = '')
+  {
+    $db = $this->getDatabase();
+    $app = Factory::getApplication();
     $uid = $app->getIdentity()->id;
-    // if ( 0 == $uid ) return $query;
-
-    // Select the required fields from the table.
-		$query->select(
-			$this->getState(
-				'list.select', array_map( function($a) use($db) { return $db->quoteName('a.'.$a); }, $this->list_fields)
-			)
-		)
-			->from($db->quoteName('#__claw_skills', 'a'));
-
-    $query->where('find_in_set(:uid,a.presenters) <> 0')
-    ->bind(':uid', $uid);
-
-    $query->where($db->quoteName('a.published') . '=1');
-
-    $event = $this->getState('filter.event');
-
-		switch ($event) {
-			case '':
-			case '_current_':
-				$event = Aliases::current;
-				break;
-			case '_all_':
-				$event = '';
-		}
-		
-		if ( $event != '' )
-		{
-			$query->where('a.event = :event')
-			->bind(':event', $event);
-		}
-
-    $query->order($db->quoteName('a.mtime'), 'DESC');
-
-    return $query;
+  
+    return Skills::GetPresenterBios($db, $uid, $event);
   }
 
+  public function GetPresenterClasses(string $event = '')
+  {
+    $db = $this->getDatabase();
+    $app = Factory::getApplication();
+    $uid = $app->getIdentity()->id;
+  
+    return Skills::GetPresenterClasses($db, $uid, $event);
+  }
 
+  public function GetEventInfo() : \ClawCorpLib\Lib\EventInfo
+  {
+    $events = new ClawEvents(Aliases::current);
+
+    $info = $events->getClawEventInfo();
+    return $info;
+  }
 }

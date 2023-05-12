@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -11,71 +12,85 @@ namespace ClawCorp\Component\Claw\Site\View\Skillssubmissions;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
+use ClawCorpLib\Lib\Aliases;
+
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
 {
-	/**
-	 * The model state
-	 *
-	 * @var  \Joomla\CMS\Object\CMSObject
-	 */
-	protected $state = null;
+  /**
+   * Execute and display a template script.
+   *
+   * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+   *
+   * @return  void
+   */
+  public function display($tpl = null)
+  {
+    $this->state = $this->get('State');
 
-	/**
-	 * The featured articles array
-	 *
-	 * @var  \stdClass[]
-	 */
-	protected $items = null;
+    // Check for errors.
+    $errors = $this->get('Errors');
+    if ($errors != null && count($errors)) {
+      throw new GenericDataException(implode("\n", $errors), 500);
+    }
 
-	/**
-	 * The pagination object.
-	 *
-	 * @var  \Joomla\CMS\Pagination\Pagination
-	 */
-	protected $pagination = null;
+    $params = $this->params = $this->state->get('params');
+    $temp = clone ($params);
 
-	/**
-	 * Form object for search filters
-	 *
-	 * @var  \JForm
-	 */
-	public $filterForm;
+    // Check that user is in the submission group
+    /** @var \Joomla\CMS\Application\SiteApplication */
+    $app = Factory::getApplication();
+    $groups = $app->getIdentity()->getAuthorisedGroups();
 
-	/**
-	 * The active search filters
-	 *
-	 * @var  array
-	 */
-	public $activeFilters;
+    $controllerMenuId = (int)Helpers::sessionGet('menuid');
+    $menu = $app->getMenu()->getActive();
+    if ($controllerMenuId != $menu->id) {
+      $sitemenu = $app->getMenu();
+      $sitemenu->setActive($controllerMenuId);
+      $menu = $app->getMenu()->getActive();
+    }
+    $paramsMenu = $menu->getParams();
+    $temp->merge($paramsMenu);
 
-	/**
-	 * Execute and display a template script.
-	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 *
-	 * @return  void
-	 */
-	public function display($tpl = null)
-	{
-		$this->state      = $this->get('State');
-		$this->items      = $this->get('Items');
-		$this->pagination = $this->get('Pagination');
-		$this->filterForm    = $this->get('FilterForm');
-		$this->activeFilters = $this->get('ActiveFilters');
+    $this->params = $temp;
 
-		// Check for errors.
-		$errors = $this->get('Errors');
-		if ($errors != null && count($errors))
-		{
-			throw new GenericDataException(implode("\n", $errors), 500);
-		}
+    if ($this->params->get('se_group', 0) == 0 || !in_array($this->params->get('se_group'), $groups)) {
+      $app->enqueueMessage('You do not have permission to access this resource.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      $app->redirect('/');
+    }
 
-		parent::display($tpl);
-	}
+    /** @var \ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel */
+    $model = $this->getModel();
+
+    $this->bio = (object)[];
+
+    // Try to get the most current bio for this user
+    $bio = $model->GetPresenterBios(Aliases::current);
+    if (count($bio) == 0) {
+      $bio = $model->GetPresenterBios();
+      if (count($bio) != 0) {
+        $this->bio = $bio[0];
+      }
+    } else {
+      $this->bio = $bio[0];
+    }
+
+    $this->classes = $model->GetPresenterClasses();
+    
+    // Check for errors.
+    $errors = $this->get('Errors');
+    if ($errors != null && count($errors)) {
+      throw new GenericDataException(implode("\n", $errors), 500);
+    }
+
+    $this->eventInfo = $model->GetEventInfo();
+
+    parent::display($tpl);
+  }
 }
