@@ -21,6 +21,7 @@ use Joomla\CMS\MVC\Controller\FormController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\Aliases;
 
 /**
  * Controller for a single sponsor record
@@ -71,7 +72,9 @@ class PresentersubmissionController extends FormController
       return false;
     }
 
-    if ( !$data['photo'] )
+    $files = $input->files->get('jform');
+
+    if ( !$data['photo'] && !count($files['photo_upload']))
     {
       $photo = Helpers::sessionGet('photo');
       if ( !$photo ) {
@@ -84,6 +87,7 @@ class PresentersubmissionController extends FormController
     // Setup items not included in site model
     $data['uid'] = $app->getIdentity()->id;
     $data['id'] = $input->get('id',0,'int');
+    $data['event'] = Aliases::current;
     
     if ( $data['id'] == 0 ) {
       $data['published'] = 3; // New submission
