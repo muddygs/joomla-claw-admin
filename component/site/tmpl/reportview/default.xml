@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <layout title="Reports">
+    <message>
+      Event View
+    </message>
+  </layout>
+
+  <!-- Add fields to the parameters object for the layout. -->
+  <fields name="params">
+
+    <!-- Options -->
+    <fieldset name="options">
+      <field name="viewtype" type="list" label="View Type" description="View Type" multiple="false" default="" required="true">
+        <option value="">Select a report</option>
+        <option value="speed_dating">Speed Dating</option>
+        <option value="volunteers_overview">Volunteer Overview</option>
+        <option value="volunteers_details">Volunteer Details</option>
+      </field>
+
+    </fieldset>
+
+  </fields>
+</metadata>
