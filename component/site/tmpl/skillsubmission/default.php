@@ -20,12 +20,15 @@ $view = 'Skillsubmission';
 
 $this->document->setTitle("Skill Submission");
 
-$header = $this->params->get('SkillHeader') ?? '';
-echo $header;
+echo $this->params->get('SkillHeader') ?? '';
 
-if ($this->params->get('se_submissions_open') == 0) :
+if ($this->params->get('se_submissions_open') ?? 0 == 0) :
 ?>
   <h1>Submissions are currently closed. You may view only your class description.</h1>
+<?php
+else :
+?>
+  <h1>You are submitting for <?php echo $this->eventInfo->description ?>.</h1>
 <?php
 endif;
 ?>
@@ -51,14 +54,14 @@ endif;
     <?php echo $this->form->renderField('comments'); ?>
   </div>
 
-  <hr/>
+  <hr />
 
   <div class="row">
     <h3>
   </div>
 
   <?php if ($this->params->get('se_submissions_open') != 0) : ?>
-    <button type="button" class="btn btn-primary" onclick="Joomla.submitbutton('<?php echo $view ?>.submit')">Save</button>
+    <button type="button" class="btn btn-primary" onclick="Joomla.submitbutton('<?php echo $view ?>.submit')">Submit for <?php echo $this->eventInfo->description ?></button>
   <?php endif; ?>
 
   <button type="button" class="btn btn-success" onclick="history.back()">Back</button>
