@@ -10,8 +10,33 @@ defined('_JEXEC') or die;
 class LocationListField extends ListField
 {
   protected $type = "LocationList";
+  private $maxValue = 2147483647; // SQL INT(11) max value signed int32
 
   private $listItems = [];
+
+  /**
+   * Method to get the field input markup for a generic list.
+   * Use the multiple attribute to enable multiselect.
+   *
+   * @return  string  The field input markup.
+   *
+   * @since   3.7.0
+   */
+  protected function getInput()
+  {
+    $data = $this->getLayoutData();
+
+    $data['options'] = (array) $this->getOptions();
+
+    // VALID for other menus -- future reference $db = $this->getDatabase();
+    $currentValue = $this->__get('value');
+    if ($currentValue === '') {
+      $data['value'] = $this->maxValue;
+    }
+
+    return $this->getRenderer($this->layout)->render($data);
+  }
+
 
   /**
    * Customized method to populate the field option groups.
@@ -22,9 +47,17 @@ class LocationListField extends ListField
   {
     $this->listItems = parent::getOptions();
 
-    $locations = Helpers::getLocations($this->getDatabase());
+    $tbd[] = (object)[
+      'id' => $this->maxValue,
+      'value' => 'TBD',
+      'catid' => 0
+    ];
+
+    $locations = array_merge($tbd, Helpers::getLocations($this->getDatabase()));
     $index = array_column($locations, 'catid', 'id');
     $titles = array_column($locations, 'value', 'id');
+
+    $currentValue = $this->__get('value');
 
     foreach ($locations as $l) {
       if ($l->catid == 0) {
@@ -33,8 +66,8 @@ class LocationListField extends ListField
           'text'     => $titles[$l->id],
           'disable'  => false,
           'class'    => '',
-          'selected' => false,
-          'checked'  => false,
+          'selected' => $l->id == $currentValue ? true : false,
+          'checked'  => $l->id == $currentValue ? true : false,
           'onclick'  => '',
           'onchange' => ''
         ];
@@ -55,15 +88,16 @@ class LocationListField extends ListField
   {
     // Are there children? If not, return option
     $children_keys = array_keys($index, $parent_id, true);
+    $currentValue = $this->__get('value');
 
     foreach ($children_keys as $childIndex) {
       $this->listItems[] = (object)[
         'value'    => ucfirst($childIndex),
-        'text'     => str_repeat('&emsp;', $level - 1). '|&mdash; '.$titles[$childIndex],
+        'text'     => str_repeat('&emsp;', $level - 1) . '|&mdash; ' . $titles[$childIndex],
         'disable'  => false,
         'class'    => '',
-        'selected' => false,
-        'checked'  => false,
+        'selected' => $childIndex == $currentValue ? true : false,
+        'checked'  => $childIndex == $currentValue ? true : false,
         'onclick'  => '',
         'onchange' => ''
       ];
