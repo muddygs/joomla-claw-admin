@@ -27,12 +27,9 @@ abstract class AbstractEvent
    */
   public function getEventIds(): array
   {
-    $ids = [];
-    return array_column($this->events, 'eventId');
-    // foreach ($this->event->events as $e) {
-    //   $ids[] = $e->eventId;
-    // }
-    // return $ids;
+    $ids = array_column($this->events, 'eventId');
+    sort($ids);
+    return $ids;
   }
 
   public function getInfo(): \ClawCorpLib\Lib\EventInfo {
