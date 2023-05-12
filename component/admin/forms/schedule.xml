@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
   <field
     name="id"
     type="hidden"
@@ -121,14 +121,12 @@
 
   <field
     name="location"
-    type="list"
+    type="LocationList"
     label="Location"
-    description="Location"
-    multiple="false"
-    layout="joomla.form.field.list-fancy-select"
-    default=""
     required="true"
+    layout="joomla.form.field.list-fancy-select"
   >
+    <option value="">Select Location</option>
   </field>
 
   <field
