@@ -3,13 +3,11 @@
 namespace ClawCorpLib\Lib;
 
 use Joomla\CMS\Factory;
-use \Joomla\CMS\Autoload\ClassLoader;
-
 
 use ClawCorpLib\Events\AbstractEvent;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Lib\EventInfo;;
-use ClawCorpLib\Lib\Aliases as CLAWALIASES;
+use ClawCorpLib\Lib\Aliases;
 use UnexpectedValueException;
 
 class ClawEvents
@@ -21,8 +19,6 @@ class ClawEvents
     var $shiftCategories = [];
     // private string $clawEventAlias = '';
 
-    // private EventInfo $clawEventInfo;
-
     private AbstractEvent $event;
 
     private static $eventIds = null;
@@ -31,8 +27,8 @@ class ClawEvents
 
     public function __construct(string $clawEventAlias, bool $enablePastEvents = false)
     {
-        $eventAliases = CLAWALIASES::active;
-        if ( $enablePastEvents ) $eventAliases = array_merge($eventAliases, CLAWALIASES::past);
+        $eventAliases = Aliases::active;
+        if ( $enablePastEvents ) $eventAliases = array_merge($eventAliases, Aliases::past);
 
         if ( !in_array($clawEventAlias, $eventAliases)) {
             die(__FILE__.': Invalid event request: '.$clawEventAlias);
@@ -63,11 +59,11 @@ class ClawEvents
         $this->couponRequired = array_unique($this->couponRequired);
 
 
-        foreach ( CLAWALIASES::overlapCategories AS $v ) {
+        foreach ( Aliases::overlapCategories AS $v ) {
             $this->overlapEventCategories[] = self::$categoryIds[$v]->id;
         }
 
-        foreach (CLAWALIASES::shiftCategories as $v) {
+        foreach (Aliases::shiftCategories as $v) {
             $this->shiftCategories[] = self::$categoryIds[$v]->id;
         }
     }
@@ -141,6 +137,17 @@ class ClawEvents
         return $result;
     }
 
+    /**
+     * Returns an array of all the enrolled events in this class when initialized
+     * @return array List of event IDs
+     */
+    public function getEventIds(): array {
+        return $this->event->getEventIds();
+    }
+
+    public function getClawEventInfo(): EventInfo {
+        return $this->event->getInfo();
+    }
 
     /**
      * Provides mapping of event alias to event id
@@ -188,7 +195,7 @@ class ClawEvents
      * @param array $categoryAliases Optional list of specific category ids to return
      * @return array Array of category ids
      */
-    public static function getCategoryIds(array $categoryAliases): array
+    public static function getCategoryIds(array $categoryAliases, bool $associative = false): array
     {
         if (self::$categoryIds == null) self::mapCategoryAliases();
 
@@ -199,7 +206,12 @@ class ClawEvents
         foreach ( $categoryAliases AS $c )
         {
             if ( !array_key_exists($c, self::$categoryIds )) die(__FILE__.": Unknown category $c");
-            $result[] = self::$categoryIds[$c]->id;
+
+            if ( $associative ) {
+                $result[$c] = self::$categoryIds[$c]->id;
+            } else {
+                $result[] = self::$categoryIds[$c]->id;
+            }
         }
 
         return $result;
@@ -209,7 +221,7 @@ class ClawEvents
     /** Returns list of event raw rows AND "total_registrants" for each event
      * @param array $categoryIds Array of category ids
      * @param string $orderBy Any valid database column for eb_events, default "title"
-     * @return array Array of objects of database event rows
+     * @return array Array of objects for "id" and "title" of all events sorted by title
      */
     public static function getEventsByCategoryId(array $categoryIds, EventInfo $clawEventInfo, string $orderBy = 'title' ): array
     {
@@ -353,7 +365,10 @@ SQL;
             }
 
             // Now try to match on date
-            if ( $event->event_date >= $info->start_date  && $event->event_end_date <= $info->end_date)
+            // Need to process end_date relative to start_date
+            $date = Factory::getDate($info->start_date);
+            $enddate = $date->modify($info->end_date)->toSql();
+            if ( $event->event_date >= $info->start_date  && $event->event_end_date <= $enddate)
             {
                 return $alias;
             }
@@ -391,7 +406,7 @@ SQL;
 
     /**
      * This is a special case, used only for refunds, to identify all events that
-     * uses the arrays CLAWALIASES::active and CLAWALIASES::past
+     * uses the arrays Aliases::active and Aliases::past
      */
     private function defineHistoricEventMapping(): void
     {
@@ -412,7 +427,7 @@ SQL;
         // }
 
         // $events = [];
-        // foreach(array_merge(CLAWALIASES::active, CLAWALIASES::past) AS $alias ) {
+        // foreach(array_merge(Aliases::active, Aliases::past) AS $alias ) {
         //     include(JPATH_ROOT.'/php/lib/events_'.$alias.'.php');
         // }
 
@@ -459,9 +474,9 @@ SQL;
 
     public static function eventAliasToTitle(string $eventAlias): string
     {
-        if ( array_key_exists($eventAlias, CLAWALIASES::eventTitleMapping))
+        if ( array_key_exists($eventAlias, Aliases::eventTitleMapping))
         {
-            return CLAWALIASES::eventTitleMapping[$eventAlias];
+            return Aliases::eventTitleMapping[$eventAlias];
         }
 
         return $eventAlias;
