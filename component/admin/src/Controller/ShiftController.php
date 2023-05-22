@@ -12,7 +12,11 @@ namespace ClawCorp\Component\Claw\Administrator\Controller;
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Form\FormFactoryInterface;
+use Joomla\CMS\Input\Input;
 use Joomla\CMS\MVC\Controller\FormController;
+use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 
 /**
  * Controller for a single shift record
