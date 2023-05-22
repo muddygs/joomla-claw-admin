@@ -28,6 +28,19 @@ class Helpers
     return $date->toSQL(true);
   }
 
+  static function getDays(): array
+  {
+    return [
+      'tue',
+      'wed',
+      'thu',
+      'fri',
+      'sat',
+      'sun',
+      'mon',
+    ];
+  }
+
   static function getUsersByGroupName(DatabaseDriver $db, string $groupname): array
   {
     $groupId = Helpers::getGroupId($db, $groupname);
@@ -100,7 +113,7 @@ SQL;
     $query = $db->getQuery(true);
     $query->select($db->qn(['id']))
       ->from($db->qn('#__usergroups'))
-      ->where($db->qn('title') . '=' . $db->q($groupName));
+      ->where('LOWER('.$db->qn('title') . ')=' . $db->q(strtolower($groupName)));
 
     $db->setQuery($query);
     $groupId = $db->loadResult();
@@ -111,7 +124,7 @@ SQL;
   /**
    * Returns array with short day (Mon,Tue) to sql date for the event week starting Monday
    */
-  static public function getDateArray(string $startDate)
+  static public function getDateArray(string $startDate, bool $dateOnly = false)
   {
     $result = [];
 
@@ -125,7 +138,9 @@ SQL;
     $date->setTime(0, 0);
     for ($i = 0; $i < 7; $i++) {
       $date->modify(('+1 day'));
-      $result[$date->format('D')] = $date->toSql();
+      $d = $date->toSql();
+      if ( $dateOnly ) $d = substr($d, 0, 10);
+      $result[$date->format('D')] = $d;;
     }
 
     return $result;
