@@ -141,7 +141,6 @@ class LocationsModel extends ListModel
 
 	public function getItems()
 	{
-		$result = [];
 		$db = $this->getDatabase();
 		$query = $this->getListQuery();
 
