@@ -1,39 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
+  <fields name="filter">
 
-	<fields name="filter">
+    <field name="search"
+      type="text"
+      label="Search"
+      description="Value search"
+      hint="JSEARCH_FILTER" />
 
-		<field
-			name="search"
-			type="text"
-			label="Search"
-			description="Value search"
-			hint="JSEARCH_FILTER"
-		/>
-	</fields>
+    <field name="event"
+      type="ClawEventsList"
+      label="Event Filter"
+      default="_current_"
+      onchange="this.form.submit();">
+      <option value="_all_">All Events</option>
+      <option value="_current_">Current Event</option>
+    </field>
 
-	<fields name="list">
+    <field
+      name="shift_area"
+      type="sql"
+      label="Shift Area"
+      required="false"
+      value_field="text"
+      query="SELECT value,text FROM #__claw_field_values WHERE `fieldname`='shift_shift_area' ORDER BY value"
+      onchange="this.form.submit();"
+      default="">
+        <option value="">Select Shift Area</option>
+    </field>
 
-		<field
-			name="fullordering"
-			type="list"
-			label="JGLOBAL_SORT_BY"
-			default="a.title ASC"
-			onchange="this.form.submit();"
-			>
-			<option value="">JGLOBAL_SORT_BY</option>
-			<option value="a.title ASC">Value Ascending</option>
-			<option value="a.title DESC">Value Descending</option>
-			<option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
-			<option value="a.id DESC">JGRID_HEADING_ID_DESC</option>
-		</field>
+  </fields>
 
-		<field
-			name="limit"
-			type="limitbox"
-			label="JGLOBAL_LIST_LIMIT"
-			default="All"
-			onchange="this.form.submit();"
-		/>
-	</fields>
+  <fields name="list">
+
+    <field name="fullordering"
+      type="list"
+      label="JGLOBAL_SORT_BY"
+      default="a.title ASC"
+      onchange="this.form.submit();">
+      <option value="">JGLOBAL_SORT_BY</option>
+      <option value="a.title ASC">Value Ascending</option>
+      <option value="a.title DESC">Value Descending</option>
+      <option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
+      <option value="a.id DESC">JGRID_HEADING_ID_DESC</option>
+    </field>
+
+    <field name="limit"
+      type="limitbox"
+      label="JGLOBAL_LIST_LIMIT"
+      default="All"
+      onchange="this.form.submit();" />
+  </fields>
 </form>

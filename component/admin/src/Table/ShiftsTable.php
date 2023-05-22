@@ -21,7 +21,7 @@ use Joomla\Database\DatabaseDriver;
  */
 class ShiftsTable extends Table
 {
-	protected $_jsonEncode = ['coordinators'];
+	protected $_jsonEncode = ['coordinators','grid'];
 
 	/**
 	 * Constructor

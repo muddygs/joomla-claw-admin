@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
   <field
     name="id"
     type="hidden"
@@ -26,16 +26,22 @@
   />
 
   <field
-    name="location"
-    type="sql"
-    default="1"
-    label="Primary Location"
+    name="event"
+    type="ClawEventsList"
+    label="Event"
     required="true"
-    query="SELECT id,value FROM #__claw_locations WHERE catid=0 AND published=1"
-    key_field="id"
-    value_field="value"
   />
 
+  <field
+    name="shift_area"
+    type="sql"
+    label="Shift Area"
+    required="false"
+    value_field="text"
+    query="SELECT value,text FROM #__claw_field_values WHERE `fieldname`='shift_shift_area' ORDER BY value"
+    default="">
+      <option value="tbd">TBD</option>
+  </field>
   <field
     name="requirements"
     type="text"
@@ -44,18 +50,16 @@
     maxLength="30"
   />
 
-<!-- https://joomla.stackexchange.com/questions/2406/filtering-list-of-users-in-user-form-field-type -->
   <field
     name="coordinators"
-    type="list"
+    type="UsersByGroup"
     label="Coordinators"
-    description="Select as least one coordinator"
     multiple="true"
     layout="joomla.form.field.list-fancy-select"
     default=""
+    groupnames="VolunteerCoord,Super Users"
     required="true"
-  >
-  </field>
+  />
 
   <field
     name="grid"

@@ -131,7 +131,7 @@ class HtmlView extends BaseHtmlView
 		Factory::getApplication()->input->set('hidemainmenu', true);
 		$isNew      = ($this->item->id == 0);
 
-		// $canDo = ContentHelper::getActions('com_countrybase');
+		// $canDo = ContentHelper::getActions('com_claw');
 
 		$toolbar = Toolbar::getInstance();
 

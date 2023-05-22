@@ -86,11 +86,16 @@ class HtmlView extends BaseHtmlView
 	 */
 	function display($tpl = null)
 	{
-		$this->state      = $this->get('State');
-		$this->items      = $this->get('Items');
-		$this->pagination = $this->get('Pagination');
-		$this->filterForm    = $this->get('FilterForm');
-		$this->activeFilters = $this->get('ActiveFilters');
+		/** @var SkillsModel $model */
+		$model               = $this->getModel();
+		$this->state         = $model->getState();
+		$this->items         = $model->getItems();
+		$this->pagination    = $model->getPagination();
+		$this->filterForm    = $model->getFilterForm();
+		$this->activeFilters = $model->getActiveFilters();
+
+		// Flag indicates to not add limitstart=0 to URL
+		$this->pagination->hideEmptyLimitstart = true;
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors'))) {
@@ -111,12 +116,25 @@ class HtmlView extends BaseHtmlView
 		// Get the toolbar object instance
 		$toolbar = Toolbar::getInstance('toolbar');
 
-		//$user  = $app->getIdentity();
+		$user  = $app->getIdentity();
 
-		// if ($user->authorise('core.admin', 'com_countrybase'))
-		// {
-		$toolbar->addNew('shift.add');
-		// }
+		if ($user->authorise('core.admin', 'com_claw')) {
+			$toolbar->addNew('shift.add');
+
+			$toolbar->delete('shift.delete')
+			->text('Delete')
+			->listCheck(true);
+		}
+
+		$toolbar->basicButton('process','Create Events','shifts.process')
+    ->icon('fas fa-calendar')
+    ->buttonClass('btn')
+		->listCheck(false);
+
+		ToolbarHelper::divider();
+
+		//$childBar = $dropdown->getChildToolbar();
+		//$childBar->save2copy('events.duplicate', 'Duplicate')->listCheck(true);
 
 		// if ($user->authorise('core.edit.state', 'com_countrybase'))
 		// {

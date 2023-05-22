@@ -2,8 +2,8 @@
 
 namespace ClawCorp\Component\Claw\Administrator\Field;
 
+use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Form\Field\ListField;
-use ClawCorpLib\Lib\Aliases;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('JPATH_PLATFORM') or die;
@@ -26,16 +26,7 @@ class ClawDaysListField extends ListField
 
     protected $dayfilter;
 
-    private $days = [
-        'tue',
-        'wed',
-        'thu',
-        'fri',
-        'sat',
-        'sun',
-        'mon',
-    ];
-
+    private $days = Helpers::getDays();
 
     /**
      * Method to get certain otherwise inaccessible properties from the form field object.
@@ -117,10 +108,9 @@ class ClawDaysListField extends ListField
         $data = $this->getLayoutData();
         $currentValue = $this->__get('value');
 
-        if ( $currentValue != '' && !in_array($currentValue, $this->days))
-        {
+        if ($currentValue != '' && !in_array($currentValue, $this->days)) {
             $datetime = date_create($currentValue);
-            if ( $datetime !== false ) {
+            if ($datetime !== false) {
                 $currentValue = strtolower(date_format($datetime, 'D'));
                 $this->__set('value', $currentValue);
                 $data['value'] = $currentValue;
@@ -132,7 +122,7 @@ class ClawDaysListField extends ListField
         return $this->getRenderer($this->layout)->render($data);
     }
 
-        /**
+    /**
      * Method to get the field options.
      *
      * @return  array  The field option objects.
@@ -145,20 +135,20 @@ class ClawDaysListField extends ListField
 
         $currentValue = $this->__get('value') ?? '';
 
-        foreach( $this->days AS $day ) {
-            if ( !count($this->dayfilter) || in_array($day, $this->dayfilter)) {
+        foreach ($this->days as $day) {
+            if (!count($this->dayfilter) || in_array($day, $this->dayfilter)) {
                 $options[] = (object)[
                     'value'    => $day,
                     'text'     => ucfirst($day),
                     'disable'  => false,
                     'class'    => '',
-                    'selected' => $day == $currentValue ? true: false,
-                    'checked'  => $day == $currentValue ? true: false,
+                    'selected' => $day == $currentValue ? true : false,
+                    'checked'  => $day == $currentValue ? true : false,
                     'onclick'  => '',
                     'onchange' => ''
                 ];
             }
-		}
+        }
 
         // Because this is what ListField (parent) does; I do not know if necessary
         reset($options);

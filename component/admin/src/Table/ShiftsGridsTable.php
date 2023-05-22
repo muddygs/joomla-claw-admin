@@ -32,4 +32,9 @@ class ShiftsGridsTable extends Table
 	{
 		parent::__construct('#__claw_shifts_grids', 'id', $db);
 	}
+
+	public function store($updateNulls = false)
+	{
+		var_dump("hello");
+	}
 }

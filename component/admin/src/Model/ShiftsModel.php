@@ -11,6 +11,7 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\ListModel;
 
@@ -21,6 +22,15 @@ use Joomla\CMS\MVC\Model\ListModel;
  */
 class ShiftsModel extends ListModel
 {
+	private array $list_fields = [
+    'id',
+    'published',
+    'title',
+    'coordinators',
+    'shift_area',
+		'event',
+  ];	
+
 	/**
 	 * Constructor.
 	 *
@@ -31,15 +41,15 @@ class ShiftsModel extends ListModel
 	 */
 	public function __construct($config = array())
 	{
-		if (empty($config['filter_fields']))
-		{
-			$config['filter_fields'] = array(
-					'id', 'a.id',
-					'published', 'a.published',
-					'title', 'a.title',
-					'coordinators', 'a.coordinators',
-			);
-		}
+		if (empty($config['filter_fields'])) {
+      $config['filter_fields'] = [];
+      
+      foreach( $this->list_fields AS $f )
+      {
+        $config['filter_fields'][] = $f;
+        $config['filter_fields'][] = 'a.'.$f;
+      }
+    }
 
 		parent::__construct($config);
 	}
@@ -97,7 +107,9 @@ class ShiftsModel extends ListModel
 		$id .= ':' . serialize($this->getState('filter.name'));
 		$id .= ':' . $this->getState('filter.search');
 		$id .= ':' . $this->getState('filter.state');
-		//$id .= ':' . serialize($this->getState('filter.tag'));
+
+		$id .= ':' . $this->getState('filter.event');
+    $id .= ':' . $this->getState('filter.shift_area');
 
 		return parent::getStoreId($id);
 	}
@@ -117,17 +129,11 @@ class ShiftsModel extends ListModel
 
 		// Select the required fields from the table.
 		$query->select(
-				$this->getState(
-						'list.select',
-						[
-								$db->quoteName('a.id'),
-								$db->quoteName('a.published'),
-								$db->quoteName('a.title'),
-								$db->quoteName('a.coordinators'),
-						]
-						)
-				)
-				->from($db->quoteName('#__claw_shifts', 'a'));
+      $this->getState(
+        'list.select', array_map( function($a) use($db) { return $db->quoteName('a.'.$a); }, $this->list_fields)
+      )
+    )
+      ->from($db->quoteName('#__claw_shifts', 'a'));
 
 		// Filter by search in title.
 		$search = $this->getState('filter.search');
@@ -137,6 +143,32 @@ class ShiftsModel extends ListModel
 			$search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
 			$query->where('(a.title LIKE ' . $search . ')');
 		}
+
+    $event = $this->getState('filter.event');
+
+    switch ($event) {
+      case '':
+      case '_current_':
+        $event = Aliases::current;
+        break;
+      case '_all_':
+        $event = '';
+    }
+    
+    if ( $event != '' )
+    {
+      $query->where('a.event = :event')
+      ->bind(':event', $event);
+    }
+
+		$shiftArea = $this->getState('filter.shift_area');
+
+		if ( $shiftArea != '' )
+		{
+			$query->where('a.shift_area = :area')
+			->bind(':area', $shiftArea);
+		}
+
 
 		// Add the list ordering clause.
 		$orderCol  = $this->state->get('list.ordering', 'a.name');

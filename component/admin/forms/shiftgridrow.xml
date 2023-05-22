@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form>
   <field
-    name="id"
-    type="hidden"
-    label="JGLOBAL_FIELD_ID_LABEL"
-    class="readonly"
-    default="0"
-    readonly="true"
-  />
-  <field
     name="time"
     type="time"
     label="Time"
@@ -109,5 +101,13 @@
     default="0"
     col="1"
   />
+
+  <field name="tuepri_eventid" type="hidden" default="0" />
+  <field name="wedpri_eventid" type="hidden" default="0" />
+  <field name="thupri_eventid" type="hidden" default="0" />
+  <field name="fripri_eventid" type="hidden" default="0" />
+  <field name="satpri_eventid" type="hidden" default="0" />
+  <field name="sunpri_eventid" type="hidden" default="0" />
+  <field name="monpri_eventid" type="hidden" default="0" />
 
 </form>
