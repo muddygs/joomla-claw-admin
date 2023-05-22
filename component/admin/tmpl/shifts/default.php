@@ -10,12 +10,17 @@
  // No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 
+use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Button\PublishedButton;
 use Joomla\CMS\User\UserFactoryInterface;
+
+/** @var \Joomla\CMS\WebAsset\WebAssetManager $wa */
+$wa = $this->document->getWebAssetManager();
+$wa->useScript('table.columns');
 
 $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn  = $this->escape($this->state->get('list.direction'));
@@ -26,22 +31,25 @@ $user = $app->getIdentity();
 ?>
 <div class="container">
 <form action="<?php echo Route::_('index.php?option=com_claw&view=shifts'); ?>" method="post" name="adminForm" id="adminForm">
-  <?php echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
+  <?php echo LayoutHelper::render('joomla.searchtools.default', ['view' => $this]); ?>
 
   <div class="table-responsive">
-    <table class="table table-striped table-bordered">
+    <table class="table table-striped table-bordered" id="shiftsList">
     <thead>
       <tr>
         <th class="w-1 text-center">
 			    <?php echo HTMLHelper::_('grid.checkall'); ?>
 		    </th>
-        <th scope="col">
-          Published
+        <th scope="col" class="w-1 text-center">
+          <?php echo HTMLHelper::_('searchtools.sort', 'JSTATUS', 'a.published', $listDirn, $listOrder); ?>
         </th>
 		    <th scope="col">
 			    <?php echo HTMLHelper::_('searchtools.sort', 'Title', 'a.title', $listDirn, $listOrder); ?>
 		    </th>
 		    <th scope="col">Coordinator</th>
+        <th scope="col">Shift Area</th>
+        <th scope="col">Event</th>
+        <th scope="col">ID</th>
       </tr>
     </thead>
     <tbody>
@@ -80,10 +88,24 @@ $user = $app->getIdentity();
               if ( $user->id != null ) echo $user->name. ' ';
             }
           ?></td>
+          <td>
+            <?php echo $item->shift_area ?>
+          </td>
+          <td>
+            <?php echo Aliases::eventTitleMapping[$item->event] ?>
+          </td>
+          <td>
+            <?php echo $item->id ?>
+          </td>
+
         </tr>
       <?php endforeach; ?>
     </tbody>
     </table>
+  </div>
+
+  <div class="row">
+    <?php echo $this->pagination->getListFooter(); ?>
   </div>
 
   <input type="hidden" name="task" value="">

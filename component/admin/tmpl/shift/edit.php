@@ -33,7 +33,8 @@ $view = 'sponsor';
 
 		<div class="row">
 			<?php echo $this->form->renderField('description'); ?>
-			<?php echo $this->form->renderField('location'); ?>
+			<?php echo $this->form->renderField('event'); ?>
+			<?php echo $this->form->renderField('shift_area'); ?>
 			<?php echo $this->form->renderField('requirements'); ?>
 			<?php echo $this->form->renderField('coordinators'); ?>
 			<?php echo $this->form->renderField('grid'); /* https://joomla.stackexchange.com/questions/18428/how-to-use-a-custom-layout-with-jform-subform-fields */?>
@@ -44,8 +45,6 @@ $view = 'sponsor';
 		<?php echo HTMLHelper::_('uitab.endTabSet'); ?>
 	</div>
 
-	<?php //echo $this->form->renderField('mtime'); ?>
-	
 	<input type="hidden" name="task" value="">
 	<?php echo HTMLHelper::_('form.token'); ?>
 </form>
