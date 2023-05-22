@@ -14,7 +14,7 @@ However, this component architecture may be useful in other ways. Rather than ma
 
 We have thousands of lines of PHP targeting Joomla 3 that will be freshly organized following the J4 MVC model. Our current database engine is using the [Fabrik](https://fabrikar.com/) UI, [which may or may not support J4](https://github.com/joomlahenk/fabrik/wiki/Tester-Instructions), but the decision was made that reliance upon Fabrik is not in the best interest of a fully-dedicated solution. This code base replaces the parts we are using within Fabrik with a J4-specific UI, which is primarily for data entry. All display templates are already separated from Fabrik.
 
-* _Important:_ Current code lacks all access controls; these are to be added later once baseline is working
+* _Important:_ Current code partially implements access controls; these are being added slowly
 * Build needs to be improved; current process is a bash script to assemble the zip files for installation
 * No translations; uncertain if this wll be done since everything for our purposes is in English
 * None of the front-end display templates have been made into modules
@@ -26,7 +26,7 @@ While probably not in final form, these are functional:
 
 | Menu Item | About |
 | --------- | ----- |
-| Location  | Allows 2-level locations for (a) city, (b) hotel room for shift management and display within the schedule of events |
+| Location  | Allows multi-level locations for (a) city, (b) hotel room for shift management and display within the schedule of events |
 | Sponsors  | We have multiple levels of sponsorship. This allows managing sponsors by level and include logos, links, etc. for each |
 | Shifts    | This is allows creation of shift "grids" that eventually get deployed within Event Booking |
 | Current Items | Global configuration parameters, especially affecting how Event Booking processes registrations |
