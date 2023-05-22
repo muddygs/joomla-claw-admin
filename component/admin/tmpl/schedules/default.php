@@ -17,6 +17,7 @@ use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Session\Session;
 
 use ClawCorpLib\Helpers\Helpers;
+use Joomla\CMS\Button\PublishedButton;
 
 $wa = $this->document->getWebAssetManager();
 $wa->useScript('table.columns');
@@ -39,12 +40,16 @@ $user = $app->getIdentity();
         <th class="w-1 text-center">
 			    <?php echo HTMLHelper::_('grid.checkall'); ?>
 		    </th>
-		    <th scope="col">
+        <th scope="col" class="w-1 text-center">
+          <?php echo HTMLHelper::_('searchtools.sort', 'JSTATUS', 'a.published', $listDirn, $listOrder); ?>
+        </th>
+        <th scope="col">
 			    <?php echo HTMLHelper::_('searchtools.sort', 'Day', 'a.day', $listDirn, $listOrder); ?>
 		    </th>
 		    <th scope="col">
 			    <?php echo HTMLHelper::_('searchtools.sort', 'Start Time', 'a.start_time', $listDirn, $listOrder); ?>
 		    </th>
+        <th scope="col">End Time</th>
 		    <th scope="col">Title</th>
         <th scope="col">Location</th>
         <th scole="col">Sponsors</th>
@@ -57,11 +62,25 @@ $user = $app->getIdentity();
           <td class="text-center">
             <?php echo HTMLHelper::_('grid.id', $i, $item->id, false, 'cid', 'cb', $item->event_title); ?>
           </td>
+          <td class="article-status text-center">
+                <?php
+                $options = [
+                  'task_prefix' => 'schedules.',
+                  //'disabled' => $workflow_state || !$canChange,
+                  'id' => 'published-' . $item->id
+                ];
+
+                echo (new PublishedButton)->render((int) $item->published, $i, $options);
+                ?>
+              </td>
           <td>
             <?php echo $item->day_text ?>
           </td>
           <td>
             <?php echo $item->start_time_text ?>
+          </td>
+          <td>
+            <?php echo $item->end_time_text ?>
           </td>
           <td>
             <a href="<?php echo Route::_('index.php?option=com_claw&task=schedule.edit&id=' . $item->id); ?>"
@@ -84,6 +103,7 @@ $user = $app->getIdentity();
     </table>
   </div>
 
+  <?php echo $this->pagination->getListFooter(); ?>
   <input type="hidden" name="task" value="">
   <input type="hidden" name="boxchecked" value="0">
   <?php echo HTMLHelper::_('form.token'); ?>
