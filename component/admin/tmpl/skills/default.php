@@ -18,8 +18,6 @@ use Joomla\CMS\Button\PublishedButton;
 
 use ClawCorpLib\Lib\Aliases;
 
-/** @var \Joomla\Component\Banners\Administrator\View\Banners\HtmlView $this */
-
 /** @var \Joomla\CMS\WebAsset\WebAssetManager $wa */
 $wa = $this->document->getWebAssetManager();
 $wa->useScript('table.columns');
