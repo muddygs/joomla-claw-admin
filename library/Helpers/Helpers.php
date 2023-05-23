@@ -41,6 +41,32 @@ class Helpers
     ];
   }
 
+  
+  /**
+   * Returns hh:mm formatted string in seconds
+   * @param mixed $t 
+   * @return int|bool 
+   */
+  static function timeToInt($t): int|bool
+  {
+    $ts = explode(':', $t);
+    if (count($ts) < 2) return false;
+    return 60*($ts[0] * 60 + $ts[1]);
+  }
+
+  static function getClawFieldValues(DatabaseDriver $db, string $section): array
+  {
+    $query = $db->getQuery(true);
+    $query->select(['value','text'])
+      ->from('#__claw_field_values')
+      ->where('fieldname = :fieldname')
+      ->order('value')
+      ->bind(':fieldname', $section);
+    $db->setQuery($query);
+    return $db->loadObjectList('value');
+  }
+
+
   static function getUsersByGroupName(DatabaseDriver $db, string $groupname): array
   {
     $groupId = Helpers::getGroupId($db, $groupname);
