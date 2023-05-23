@@ -3,17 +3,11 @@
 namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Enums\EbPublishedState;
+use ClawCorpLib\Lib\ClawEvents;
 use Joomla\CMS\Factory;
 
-class registrants {
-  // Returns simple list of registrants by event id
-  // Ties back to the primary invoice (badge id)
-
-  function __construct(public string $clawEventAlias)
-  {
-    $this->clawEventAlias = $clawEventAlias;
-  }
-
+class Registrants
+{
   /**
    * Returns array of registrant records for a specific event id
    * @return array Registrant records
@@ -22,11 +16,11 @@ class registrants {
   {
     $results = [];
 
-    $db = Factory::getContainer()->get(DatabaseInterface::class);
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     $eid = $db->q($eventId);
 
-    $published = '(' . implode(',', $db->q($publishedStatus)) . ')';
+    $published = '(' . implode(',', $db->quote(array_column($publishedStatus, 'value'))) . ')';
 
     $q = $db->getQuery(true);
 
@@ -39,11 +33,15 @@ class registrants {
     $db->setQuery($q);
     $userIds = array_unique($db->loadColumn());
 
-    $clawEventAlias = clawEvents::eventIdToClawEventAlias($eventId);
+    $clawEventAlias = ClawEvents::eventIdToClawEventAlias($eventId);
+
+    if ( $clawEventAlias === false ) {
+      die("Event from Event ID cannot be determined");
+    }
 
     foreach ( $userIds as $uid )
     {
-      $r = new registrant($clawEventAlias, $uid, [$eventId], true);
+      $r = new Registrant($clawEventAlias, $uid, [$eventId], true);
       $r->loadCurrentEvents();
       $results[] = $r;
     }
@@ -55,11 +53,11 @@ class registrants {
    * @param int $days_back Number of days for history to report
    * @return array Registrant records
    */
-  public function byHistory(int $days_back): array
+  public static function byHistory(string $eventAlias, int $days_back): array
   {
     $results = [];
 
-    $db = Factory::getContainer()->get(DatabaseInterface::class);
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     $q = $db->getQuery(true);
 
@@ -76,7 +74,7 @@ class registrants {
     $mergeFields = ['Z_REFUND_TRANSACTION', 'Z_REFUND_DATE', 'Z_REFUND_AMOUNT'];
     
     foreach ($rows as $row) {
-      $r = new registrant($this->clawEventAlias, $row->user_id, [$row->event_id], true);
+      $r = new registrant($eventAlias, $row->user_id, [$row->event_id], true);
       $r->loadCurrentEvents();
 
       if ( $r->count > 0) {
