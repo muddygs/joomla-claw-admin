@@ -163,7 +163,6 @@ SQL;
       'activate_waiting_list'=>	0,
       'admin_email_body'=>	"''",
       'alias'=>	"''",
-      'image_alt' => "''",
       'api_login'=>	"''",
       'article_id'=>	0,
       'attachment'=>	"''",
@@ -219,6 +218,7 @@ SQL;
       'hits'=>	0,
       'id'=>	0,
       'image'=>	"''",
+      'image_alt' => "''",
       'individual_price'=>	'0.00',
       'invoice_format'=>	"''",
       'is_additional_date'=>	0,
@@ -465,18 +465,17 @@ SQL;
     $yes = $db->q('["Yes"]');
     $registrantIds = [];
 
+    /** @var \ClawCorpLib\Lib\Registrant */
     foreach ( $registrants AS $registrant ) 
     {
-      $registrant = registrants::castRegistrant($registrant);
       $records = $registrant->records();
 
       if ( count($records) == 0 ) continue;
 
+      /** @var \ClawCorpLib\Lib\RegistrantRecord */
       $record = reset($records);
 
       if ( $record === false ) continue;
-
-      $record = registrants::castRecord($record);
 
       $insertQuery[] = <<< SQL
 INSERT INTO `#__eb_field_values`(`id`, `registrant_id`, `field_id`, `field_value`)
