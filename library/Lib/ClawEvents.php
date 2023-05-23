@@ -76,16 +76,16 @@ class ClawEvents
      * @param string $key Event key to search under
      * @param string $value Value to find
      * @param bool $mainOnly Main events only (by default) IFF clawEvent
-     * @return null|object Event object (clawEvent, hotelEvent)
+     * @return null|object Event object (ClawEvent)
      */
-    public function getEventByKey(string $key, string $value, bool $mainOnly = true): ?object
+    public function getEventByKey(string $key, string $value, bool $mainOnly = true): ?\ClawCorpLib\Lib\ClawEvent
     {
         $result = null;
         $found = 0;
         foreach ($this->event->getEvents() as $e) {
             if ( !property_exists($e, $key)) die(__FILE__.': Unknown key requested: ' . $key);
 
-            if ( get_class($e) == 'clawEvent' && $mainOnly && !$e->isMainEvent) continue;
+            if ( $mainOnly && !$e->isMainEvent) continue;
             
             if ($e->$key == $value) {
                 $result = $e;
@@ -329,37 +329,40 @@ SQL;
      * @param int $eventId The event ID
      * @return string Event Aliases
      */
-    public static function eventIdToClawEventAlias(int $eventId): string
+    public static function eventIdToClawEventAlias(int $eventId): string|bool
     {
         $event = self::loadEventRow($eventId);
 
         self::mapCategoryAliases();
         self::mapEventAliases();
 
-        $dir = JPATH_LIBRARIES . '/claw/Lib/';
+        $dir = JPATH_LIBRARIES . '/claw/Events';
         $files = scandir($dir);
-        if ( $files === false ) return 0;
+        if ( $files === false ) return false;
 
-        $files = preg_grep('/events_[a-z0-9]+\.php/i', $files);
-        if ( $files === false ) return 0;
+        $files = preg_grep('/[cl][0-9]{4}\.php/i', $files);
+        if ( $files === false ) return false;
 
         foreach( $files AS $file )
         {
             $events = [];
             $info = (object)[];
-            $aliasMatch = preg_match('/events_([a-z0-9]+)\.php/i', $file, $matches);
+            $aliasMatch = preg_match('/([a-z0-9]+)\.php/i', $file, $matches);
 
             if ( $aliasMatch != 1 ) continue;
             $alias = $matches[1];
 
             if ( 'events_current.php' == $file ) continue;
 
-            include($dir.$file);
+            $classname = "\\ClawCorpLib\\Events\\$alias";
+            /** @var \ClawCorpLib\Events\AbstractEvent */
+            $eventlib = new $classname($alias);
+            $info = $eventlib->getInfo();
 
             if ( $info->mainAllowed == false ) continue;
 
             // Specific -- failover to date (might not need this loop)
-            foreach ( $events AS $e )
+            foreach ( $eventlib->getEvents() AS $e )
             {
                 if ( $e->eventId == $eventId) return $alias;
             }
