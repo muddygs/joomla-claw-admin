@@ -62,7 +62,7 @@ class RegistrantRecord
     $this->registrant = new registrantRecordRegistrant();
     $this->fieldValue = (object)[];
 
-    foreach (get_class_vars('registrantRecordEvent') AS $k => $v) {
+    foreach (get_class_vars('ClawCorpLib\Lib\registrantRecordEvent') AS $k => $v) {
       $this->event->$k = property_exists($r,$k) ? $r->$k : '';
       if (property_exists($r, $k) && $r->$k == null) unset($r->$k);
       $default = gettype($this->event->$k) == 'string' ? '' : 0;
@@ -70,7 +70,7 @@ class RegistrantRecord
 
     $this->category->category_id = $r->category_id;
 
-    foreach (get_class_vars('registrantRecordRegistrant') as $k => $v) {
+    foreach (get_class_vars('ClawCorpLib\Lib\registrantRecordRegistrant') as $k => $v) {
       if ( property_exists($r, $k) && $r->$k == null ) unset($r->$k);
       $default = gettype($this->registrant->$k) == 'string' ? '' : 0;
       $this->registrant->$k = property_exists($r, $k) ? $r->$k : $default;
