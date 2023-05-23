@@ -12,7 +12,7 @@ namespace ClawCorp\Component\Claw\Administrator\Controller;
 
 \defined('_JEXEC') or die;
 
-use ClawCorpLib\Grids\Grids;
+use ClawCorpLib\Grid\Grids;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
 // use Joomla\CMS\Language\Text;
@@ -29,9 +29,8 @@ class ShiftsController extends AdminController
 {
 	public function process()
 	{
-		/** @var \Joomla\CMS\Application\CMSApplicationInterface $app */
-		$app = Factory::getApplication();
-		//$grids = new Grids($app->get
+		$grid = new Grids();
+		$grid->createEvents();
 	}
 
 	/**
