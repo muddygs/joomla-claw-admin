@@ -12,6 +12,7 @@ class GridItem
   // TODO: Add validation
   public function __construct(
     public int $id,
+    public string $grid_id,
     public string $time,
     public int $length,
     public string $title,
