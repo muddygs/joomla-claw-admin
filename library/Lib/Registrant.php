@@ -94,7 +94,7 @@ class Registrant
    */
   public static function loadRegistrantRow(string $value, string $key = 'id'): ?object
   {
-      $db = Factory::getContainer()->get(DatabaseInterface::class);
+      $db = Factory::getContainer()->get('DatabaseDriver');
 
       $q = $db->getQuery(true);
 
@@ -110,13 +110,13 @@ class Registrant
     return $this->uid;
   }
 
-  public function loadCurrentEvents(string $index = EbRecordIndexType::default): void
+  public function loadCurrentEvents(EbRecordIndexType $index = EbRecordIndexType::default): void
   {
     if ($this->count > 0) return;
 
     $this->indexType = $index;
 
-    $db = Factory::getContainer()->get(DatabaseInterface::class);
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     $info = $this->clawEvents->getClawEventInfo();
 
@@ -164,12 +164,12 @@ class Registrant
     }
 
     $db->setQuery($q);
-    $records = $db->loadObjectList($index);
+    $records = $db->loadObjectList($index->value);
 
     foreach( $records AS $k => $r )
     {
       $event = $this->clawEvents->getEventByKey('eventId',$r->eventId);
-      if ( null != $event && get_class($event) == 'clawEvent' && $event->isMainEvent) {
+      if ( null != $event && $event->isMainEvent) {
         $r->couponKey = $event->couponKey;
         $r->clawPackageType = $event->clawPackageType;
         $r->link = $event->link;
@@ -198,7 +198,7 @@ class Registrant
 
     if ($this->indexType != EbRecordIndexType::default) die ('Cannot merge on non-id index.');
 
-    $db = Factory::getContainer()->get(DatabaseInterface::class);
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     $registrantIds = implode(',', array_keys($this->_records));
 
@@ -242,7 +242,7 @@ class Registrant
   {
     if ($this->indexType != EbRecordIndexType::default) die('Cannot update on non-id index.');
 
-    $db = Factory::getContainer()->get(DatabaseInterface::class);
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     if ( !array_key_exists($registrant_id, $this->_records)) {
       die(__FILE__.': invalid registrant_id ('.$registrant_id.') in '.__FUNCTION__);
@@ -303,7 +303,7 @@ class Registrant
    */
   public static function getUserIdFromInvoice(string $regid, bool $any = false): int
   {
-    $db = Factory::getContainer()->get(DatabaseInterface::class);
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     $uidCandidate = registrant::invoiceToUid($regid);
 
@@ -343,7 +343,7 @@ SQL;
    */
   public static function getUserIdFromRegId(int $regid): int
   {
-    $db = Factory::getContainer()->get(DatabaseInterface::class);
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     $r = $db->q($regid);
 
