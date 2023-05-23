@@ -23,7 +23,6 @@ class l1122 extends AbstractEvent
     $info->end_date = 'next week Tuesday'; // Calculated
     $info->prefix = 'L22';
     $info->shiftPrefix = strtolower($info->prefix . '-shift-la-');
-    $info->shiftPrefix = strtolower($info->prefix . '-shift-la-');
     $info->mainAllowed = true;
     $info->cancelBy = '2023-04-01 00:00:00'; // Varies too much to calculate
     $info->eventType = EventTypes::main;
