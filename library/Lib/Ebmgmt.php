@@ -3,12 +3,10 @@
 namespace ClawCorpLib\Lib;
 
 use Joomla\CMS\Factory;
-
-use ClawCorpLib\Events\AbstractEvent;
-use ClawCorpLib\Enums\EventTypes;
-use ClawCorpLib\Lib\EventInfo;;
 use ClawCorpLib\Lib\Aliases;
 use UnexpectedValueException;
+
+\defined('_JEXEC') or die;
 
 class Ebmgmt
 {
@@ -147,6 +145,7 @@ class Ebmgmt
   {
     $db = Factory::getDbo();
 
+    # TODO: fix hard-coded table name and schema
     $q = <<<SQL
     SELECT `COLUMN_NAME`
     FROM INFORMATION_SCHEMA.COLUMNS
