@@ -21,7 +21,7 @@ use Joomla\CMS\MVC\View\GenericDataException;
 
 use ClawCorpLib\Grid\Grids;
 use ClawCorpLib\Helpers\Helpers;
-
+use Joomla\CMS\User\UserHelper;
 
 /**
  * Methods to handle a list of records.
@@ -41,6 +41,10 @@ class ShiftModel extends AdminModel
   public function save($data)
   {
     $data['mtime'] = Helpers::mtime();
+
+    foreach ( $data['grid'] AS $k => $g ) {
+      if ( $g['grid_id'] == '' ) $data['grid'][$k]['grid_id'] = UserHelper::genRandomPassword();
+    }
     return parent::save($data);
   }
 
