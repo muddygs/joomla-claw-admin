@@ -2,6 +2,8 @@
 
 namespace ClawCorpLib\Lib;
 
+\defined('_JEXEC') or die;
+
 class Aliases {
   const current='c0423';
   const active = [\ClawCorpLib\Lib\Aliases::current, 'l1122', 'virtualclaw', 'refunds'];
@@ -25,29 +27,66 @@ class Aliases {
   const onsiteActive = false;
   
   const shiftCategories = [
-    'shifts-guestservices','shifts-facilities','shifts-badgecheck',/*'shifts-transportation',*/
-    'shifts-hospitality','shifts-se', 'shifts-silentauction','shifts-float',
-    'shifts-specialty'
+    'shifts-artshow',
+    'shifts-badgecheck',
+    'shifts-events',
+    'shifts-facilities',
+    'shifts-float',
+    'shifts-guestservices',
+    'shifts-hospitality',
+    'shifts-se',
+    'shifts-silentauction',
+    'shifts-specialty',
   ];
 
   const overlapCategories = 
   [
-    'shifts-guestservices','shifts-facilities','shifts-badgecheck',
-    'shifts-hospitality','shifts-se', 'shifts-silentauction','shifts-float',
-    'speed-dating','dinner','buffet','buffet-breakfast',
+    'shifts-artshow',
+    'shifts-badgecheck',
+    'shifts-events',
+    'shifts-facilities',
+    'shifts-float',
+    'shifts-guestservices',
+    'shifts-hospitality',
+    'shifts-se',
+    'shifts-silentauction',
+
+    'speed-dating',
+    'dinner',
+    'buffet',
+    'buffet-breakfast',
   ];
 
   const invoiceCategories = [
 		'sponsorships',
-		'donation', 'donations-other',
-		'sponsorships-level-1','sponsorships-level2','sponsorships-level3',
-		'sponsorships-advertising','sponsorships-master-sustaining',
-		'sponsorships-logo', 'sponsorships-multi-level',
-		'vendormart'];
+		'donation',
+    'donations-other',
+		'sponsorships-gold',
+    'sponsorships-black',
+    'sponsorships-blue',
+		'sponsorships-advertising',
+    'sponsorships-master-sustaining',
+		'sponsorships-logo',
+    'sponsorships-multi-level',
+		'vendormart'
+  ];
+
+  const sponsorshipCategories = [
+    'sponsorships-black',
+    'sponsorships-blue',
+    'sponsorships-gold',
+    'sponsorships-master-sustaining',
+    'sponsorships-advertising',
+    'sponsorships-logo'
+  ];
 
   // Categories that require main events (other than shifts)
   const categoriesRequiringMainEvent = ['speed-dating', 'dinner', 'buffet-breakfast', 'buffet','meal-combos','equipment-rentals'];
 
+  // Meal combo events -- clawcart expects leading dash
+  const mealComboDinners = ['-thu-buffet','-fri-buffet','-dinner','-sun-buffet'];
+  const mealComboAll =     ['-thu-buffet','-fri-buffet','-dinner','-sun-buffet','-fri-breakfast','-sat-breakfast','-brunch'];
+  
   const categoriesTicketedEvents = [
     'dinner',
     'buffet',
@@ -72,6 +111,7 @@ class Aliases {
     'c1121' => 'CLAW 21',
     'c0422' => 'CLAW 22',
     'l1122' => 'Leather Getaway 22',
-    'c0423' => 'CLAW 23'
+    'c0423' => 'CLAW 23',
+    'l1123' => 'Leather Getaway 23',
   ];
 }
