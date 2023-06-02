@@ -12,6 +12,8 @@ use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Ebmgmt;
 use Joomla\CMS\Factory;
 
+\defined('_JEXEC') or die;
+
 class Grids
 {
   /** @var ClawCorpLib/Grid/Grid[] */
@@ -49,11 +51,40 @@ class Grids
       $o->category_id = $categoryId;
     }
 
+    ?>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Event ID</th>
+          <th>Title</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Slots</th>
+        </tr>
+      </thead>
+      <tbody>
+
+    <?php
+
+    // Grid update tracking - update per shift grid
+    $currentGid = 0;
+    $currentGriditems = [];
+
     /** @var \ClawCorpLib\Grid\GridItem */
     foreach ( $this->grids AS $grid ) {
-      if ( $grid->event_id != 0 ) continue;
-      if ( $grid->needed < 1 ) continue;
-      if ( $grid->shift_area == 'tbd' ) continue;
+      if ( $currentGid != $grid->id ) {
+        if ( count($currentGriditems) ) {
+          $this->updateGrids($currentGid, $currentGriditems);
+          break;
+        }
+
+        $currentGid = $grid->id;
+        $currentGriditems = [];
+      }
+
+      if ( $grid->event_id != 0 || $grid->needed < 1 || $grid->shift_area == 'tbd' ) {
+        continue;
+      }
 
       $main_category_id = $shiftAreas[$grid->shift_area]->category_id;
       $title = ucwords($grid->title);
@@ -78,8 +109,6 @@ class Grids
       $alias = strtolower($prefix.preg_replace('/[^a-z0-9_]+/','_',strtolower($title)).'-'.$grid->id.'-'.$grid->grid_id.'-'.$grid->day);
       $title .= " ($stitle-$etitle)";
 
-      echo "<pre>Adding: {$grid->day},$alias,$s,$e,$title,{$grid->needed}</pre>\n";
-
       $description = implode('<br/>', [$grid->description, $grid->requirements]);
 
       $insert = new Ebmgmt($main_category_id, $alias, $title, $description);
@@ -91,14 +120,61 @@ class Grids
       $insert->set('cut_off_date', $cutoffdate);
       $insert->set('enable_cancel_registration', 0);
 
-      $insert->insert();
-      
-      $event_count++;
+      $grid->event_id = $insert->insert();
+
+      if ( $grid->event_id != 0 ):
+      ?>
+        <tr>
+          <td><?=$grid->event_id?></td>
+          <td><?=$title?></td>
+          <td><?=$stitle?></td>
+          <td><?=$etitle?></td>
+          <td><?=$grid->needed?></td>
+        </tr>
+
+      <?php
+        $currentGriditems[] = $grid;
+        $event_count++;
+      endif;
 
     }
 
-    echo "<pre>Events Added: $event_count</pre>";
+    ?>
+      </tbody>
+    </table>
+    <?php
 
+    echo "<pre>Events Added: $event_count</pre>";
+  } 
+
+  private function updateGrids(int $shift_id, array $gridItems)
+  {
+    if ( !count($gridItems)) return;
+
+    $query = $this->db->getQuery(true);
+    $query->select('*')
+      ->from('#__claw_shifts')
+      ->where('id = :shiftid')
+      ->bind(':shiftid', $shift_id);
+    $this->db->setQuery($query);
+
+    $shift = $this->db->loadObject();
+    $grids = json_decode($shift->grid);
+
+    // TODO: Lazy but quick to implement
+    foreach ( $grids AS $g ) {
+      /** @var \ClawCorpLib\Grid\GridItem */
+      foreach ( $gridItems AS $i ) {
+        if ( $g->grid_id == $i->grid_id ) {
+          $key = $i->day.'pri_eventid';
+          $g->$key = $i->event_id;
+        }
+      }
+    }
+
+    $shift->grid = json_encode($grids);
+    
+    $query = $this->db->updateObject('#__claw_shifts', $shift, 'id', true);
   }
 
   private function loadGridsByEventAlias(string $eventAlias)
@@ -108,7 +184,8 @@ class Grids
       ->from('#__claw_shifts')
       ->where('event = :event')
       ->where('published = 1')
-      ->bind(':event', $eventAlias);
+      ->bind(':event', $eventAlias)
+      ->order('id');
     $this->db->setQuery($query);
 
     $shifts = $this->db->loadObjectList('id');
@@ -127,23 +204,18 @@ class Grids
     $data = get_object_vars($shift);
     $coordinators = json_decode($data['coordinators']);
 
+    /** @var \ClawCorpLib\Grid\GridItem */
     foreach ($grids as $gid => $g) {
-      $time = $g->time;
-      $length = $g->length;
-
       // Loop over set days
-
       foreach ($days as $day) {
         $pri = $day . 'pri';
         $event = $day . 'pri_eventid';
-        $needed = (int)($g->$pri);
-        $event_id = $g->$event;
 
         $this->grids[] = new GridItem(
           $data['id'],
-          $gid,
-          $time,
-          $length,
+          $g->grid_id,
+          $g->time,
+          $g->length,
           $data['title'],
           $data['description'],
           Aliases::current,
@@ -152,8 +224,8 @@ class Grids
           $coordinators,
           $data['published'],
           $day,
-          $needed,
-          $event_id
+          (int)($g->$pri),
+          $g->$event
         );
       }
     }

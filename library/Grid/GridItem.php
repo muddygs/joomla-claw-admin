@@ -4,6 +4,8 @@ namespace ClawCorpLib\Grid;
 
 use Joomla\Database\DatabaseDriver;
 
+\defined('_JEXEC') or die;
+
 // This class enforces data format for received form data
 
 // TODO: This can be improved with php8
