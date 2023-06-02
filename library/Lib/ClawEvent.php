@@ -2,7 +2,7 @@
 
 namespace ClawCorpLib\Lib;
 
-defined('_JEXEC') or die('Restricted access');
+\defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
 use ClawCorpLib\Enums\EventPackageTypes;

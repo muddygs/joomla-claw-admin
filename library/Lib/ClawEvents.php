@@ -10,6 +10,8 @@ use ClawCorpLib\Lib\EventInfo;;
 use ClawCorpLib\Lib\Aliases;
 use UnexpectedValueException;
 
+\defined('_JEXEC') or die;
+
 class ClawEvents
 {
     // private $events = [];
