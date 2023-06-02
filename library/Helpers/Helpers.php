@@ -12,11 +12,6 @@ use RuntimeException;
 
 class Helpers
 {
-  static function ClawHelpersLoaded(): bool
-  {
-    return true;
-  }
-
   /**
    * Quicky that produces a mostly correct SQL time
    * TODO: set time zone
