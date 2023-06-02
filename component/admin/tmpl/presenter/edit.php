@@ -76,7 +76,7 @@ $view = 'presenter';
             if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $this->item->photo]))) {
               $ts = time();
               ?>
-              <img src="<?php echo $this->item->photo ?>?ts=<?php echo $ts ?>" />
+              <img src="<?=$this->item->photo?>?ts=<?=$ts?>" />
               <?php
             }
           }

@@ -18,6 +18,7 @@ use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\Registrants;
 
 /**
  * @package     Joomla.Administrator

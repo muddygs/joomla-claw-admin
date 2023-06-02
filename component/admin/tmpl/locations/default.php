@@ -76,9 +76,9 @@ $user = $app->getIdentity();
         }
     
       ?>
-        <tr class="row<?php echo $i % 2; ?>" data-draggable-group="<?php echo $item->parent_id; ?>"
-          data-item-id="<?php echo $item->id; ?>" data-parents="<?php echo $parentsStr; ?>"
-          data-level="<?php echo $itemLevel ?>">
+        <tr class="row<?php echo $i % 2; ?>" data-draggable-group="<?=$item->parent_id?>"
+          data-item-id="<?=$item->id?>" data-parents="<?=$parentsStr?>"
+          data-level="<?=$itemLevel?>">
           <td class="order text-center d-none d-md-table-cell">
             <?php
               $iconClass = '';
@@ -95,7 +95,7 @@ $user = $app->getIdentity();
 
             <?php if ($canChange && $saveOrder) : ?>
               <input type="text" style="display:none" name="order[]" size="5"
-                value="<?php echo $item->ordering; ?>" class="width-20 text-area-order">
+                value="<?=$item->ordering?>" class="width-20 text-area-order">
             <?php endif; ?>
           </td>
           <td class="text-center">
@@ -104,14 +104,14 @@ $user = $app->getIdentity();
           <td>
             <a href="<?php echo Route::_('index.php?option=com_claw&task=location.edit&id=' . $item->id); ?>"
       			  title="Edit <?php echo $this->escape($item->value); ?>">
-              <?php echo $item->treename ?>
+              <?=$item->treename?>
             </a>
           </td>
           <td>
-            <?php echo $item->alias ?>
+            <?=$item->alias?>
           </td>
           <td>
-            <?php echo $item->id ?>
+            <?=$item->id?>
           </td>
         </tr>
       <?php endforeach; ?>
