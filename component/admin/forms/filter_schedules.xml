@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form>
-
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
 	<fields name="filter">
 
 		<field
@@ -18,6 +17,15 @@
 			>
 			<option value="">JOPTION_SELECT_PUBLISHED</option>
 		</field>
+
+    <field name="event"
+      type="ClawEventsList"
+      label="Event Filter"
+      default="_current_"
+      onchange="this.form.submit();">
+      <option value="_all_">All Events</option>
+      <option value="_current_">Current Event</option>
+    </field>
 
 		<field
 		  name="dayfilter"

@@ -32,6 +32,7 @@ class SchedulesModel extends ListModel
     'id',
     'published',
     'day',
+    'event',
     'start_time',
     'end_time',
     'event_title',
@@ -188,14 +189,20 @@ class SchedulesModel extends ListModel
     $search = $this->getState('filter.search');
     $published = $this->getState('filter.published');
     $daylist = $this->getState('filter.dayfilter');
+    $event = $this->getState('filter.event');
 
     if ($daylist != null) {
       $e = new ClawEvents(Aliases::current);
       $info = $e->getEvent()->getInfo();
       $days = Helpers::getDateArray($info->start_date, true);
       if (array_key_exists($daylist, $days)) {
-        $query->where('a.day =' . $db->quote($days[$daylist]));
+        $query->where('day_text =' . $db->quote($days[$daylist]));
       }
+    }
+
+    if ( $event != null ) {
+      if ( $event == '_current_' ) $event = Aliases::current;
+      $query->where('a.event = :event')->bind(':event', $event);
     }
 
     if ( $published != null && $published != '*') {

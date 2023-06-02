@@ -10,6 +10,13 @@
   />
 
   <field
+    name="event"
+    type="ClawEventsList"
+    label="Event"
+    required="true"
+  />
+
+  <field
     name="published"
     type="list"
     label="JSTATUS"

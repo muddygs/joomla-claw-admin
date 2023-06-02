@@ -109,7 +109,8 @@ ALTER TABLE `#__claw_shifts`
 CREATE TABLE `#__claw_schedule` (
   `id` int(11) NOT NULL,
   `published` TINYINT(4) DEFAULT NULL,
-  `day` TEXT DEFAULT NULL,
+  `event` varchar(10) DEFAULT NULL,
+  `day` DATE DEFAULT NULL,
   `start_time` time DEFAULT NULL,
   `end_time` time DEFAULT NULL,
   `featured` boolean NOT NULL DEFAULT 0,
