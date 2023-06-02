@@ -34,10 +34,11 @@ $view = 'schedule';
 	</div>
 
 	<div>
-		<?php echo HTMLHelper::_('uitab.startTabSet', 'myTab', array('active' => 'details')); ?>
+		<?php echo HTMLHelper::_('uitab.startTabSet', 'myTab', ['active' => 'general']); ?>
 
 		<?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'general', 'General'); ?>
 		<div class="row">
+			<?php echo $this->form->renderField('event'); ?>
 			<?php echo $this->form->renderField('day'); ?>
 			<?php echo $this->form->renderField('start_time'); ?>
 			<?php echo $this->form->renderField('end_time'); ?>

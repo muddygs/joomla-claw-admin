@@ -17,6 +17,7 @@ use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Session\Session;
 
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\Button\PublishedButton;
 
 $wa = $this->document->getWebAssetManager();
@@ -43,6 +44,9 @@ $user = $app->getIdentity();
         <th scope="col" class="w-1 text-center">
           <?php echo HTMLHelper::_('searchtools.sort', 'JSTATUS', 'a.published', $listDirn, $listOrder); ?>
         </th>
+        <th scope="col">
+			    <?php echo HTMLHelper::_('searchtools.sort', 'Event', 'a.event', $listDirn, $listOrder); ?>
+		    </th>
         <th scope="col">
 			    <?php echo HTMLHelper::_('searchtools.sort', 'Day', 'a.day', $listDirn, $listOrder); ?>
 		    </th>
@@ -73,6 +77,9 @@ $user = $app->getIdentity();
                 echo (new PublishedButton)->render((int) $item->published, $i, $options);
                 ?>
               </td>
+          <td>
+            <?php echo Aliases::eventTitleMapping[$item->event] ?? 'TBD' ?>
+          </td>
           <td>
             <?php echo $item->day_text ?>
           </td>
