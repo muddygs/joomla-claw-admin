@@ -109,5 +109,6 @@
   <field name="satpri_eventid" type="hidden" default="0" />
   <field name="sunpri_eventid" type="hidden" default="0" />
   <field name="monpri_eventid" type="hidden" default="0" />
+  <field name="grid_id" type="hidden" default="" />
 
 </form>
