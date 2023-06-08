@@ -11,6 +11,7 @@ namespace ClawCorp\Component\Claw\Administrator\View\Schedules;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Helpers\Sponsors;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
@@ -96,6 +97,7 @@ class HtmlView extends BaseHtmlView
 		}
 
 		$this->addToolbar();
+		$this->sponsors = new Sponsors();
 
 		parent::display($tpl);
 	}
@@ -109,16 +111,15 @@ class HtmlView extends BaseHtmlView
 		// Get the toolbar object instance
 		$toolbar = Toolbar::getInstance('toolbar');
 
-		//$user  = $app->getIdentity();
+		$user  = $app->getIdentity();
 
-		// if ($user->authorise('core.admin', 'com_countrybase'))
-		// {
-		$toolbar->addNew('schedule.add');
+		if ($user->authorise('core.admin', 'com_claw')) {
+			$toolbar->addNew('schedule.add');
 
-		$toolbar->delete('schedules.delete')
-		->text('Delete')
-		->listCheck(true);
-		// }
+			$toolbar->delete('schedules.delete')
+			->text('Delete')
+			->listCheck(true);
+		}
 
 		// if ($user->authorise('core.edit.state', 'com_countrybase'))
 		// {
@@ -143,18 +144,13 @@ class HtmlView extends BaseHtmlView
 		// 	}
 		// }
 
-		// if ($this->state->get('filter.published') == -2 && $user->authorise('core.delete', 'com_countrybase'))
-		// {
-		// 	$toolbar->delete('countries.delete')
-		// 	->text('JTOOLBAR_EMPTY_TRASH')
-		// 	->message('JGLOBAL_CONFIRM_DELETE')
-		// 	->listCheck(true);
-		// }
-
-		// if ($user->authorise('core.admin', 'com_countrybase') || $user->authorise('core.options', 'com_countrybase'))
-		// {
-		// 	$toolbar->preferences('com_countrybase');
-		// }
+		if ($this->state->get('filter.published') == -2 && $user->authorise('core.delete', 'com_claw'))
+		{
+			$toolbar->delete('schedules.delete')
+			->text('JTOOLBAR_EMPTY_TRASH')
+			->message('JGLOBAL_CONFIRM_DELETE')
+			->listCheck(true);
+		}
 
 		// $tmpl = $app->input->getCmd('tmpl');
 		// if ($tmpl !== 'component')
