@@ -161,7 +161,6 @@ class SchedulesModel extends ListModel
    */
   protected function getListQuery()
   {
-    // Create a new query object.
     $db    = $this->getDatabase();
     $query = $db->getQuery(true);
 
@@ -196,7 +195,7 @@ class SchedulesModel extends ListModel
       $info = $e->getEvent()->getInfo();
       $days = Helpers::getDateArray($info->start_date, true);
       if (array_key_exists($daylist, $days)) {
-        $query->where('day_text =' . $db->quote($days[$daylist]));
+        $query->where('a.day =' . $db->quote($days[$daylist]));
       }
     }
 
