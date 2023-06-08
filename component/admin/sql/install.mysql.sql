@@ -35,7 +35,8 @@ CREATE TABLE `#__claw_locations`(
   `catid` int(11) DEFAULT 0,
   `published` TINYINT(4) NOT NULL DEFAULT '1',
   `value` varchar(255) NOT NULL,
-  `alias` varchar(255) DEFAULT NULL
+  `alias` varchar(255) DEFAULT NULL,
+  `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP()
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `#__claw_locations`
@@ -57,7 +58,7 @@ CREATE TABLE `#__claw_sponsors`(
     `published` TINYINT(4) NOT NULL DEFAULT '1',
     `ordering` INT(11) NULL DEFAULT NULL,
     `expires` DATE DEFAULT '0000-00-00 00:00:00',
-    `mtime` DATE NOT NULL DEFAULT CURRENT_TIMESTAMP()
+    `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP()
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `#__claw_sponsors`
@@ -124,7 +125,7 @@ CREATE TABLE `#__claw_schedule` (
   `photo_size` varchar(255) DEFAULT NULL,
   `event_id` int(4) DEFAULT NULL,
   `sort_order` varchar(255) DEFAULT NULL,
-  `mtime` datetime DEFAULT NULL
+  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `#__claw_schedule`
@@ -153,7 +154,7 @@ CREATE TABLE `#__claw_presenters` (
   `bio` TEXT DEFAULT NULL,
   `photo` TEXT DEFAULT NULL,
   `submission_date` date DEFAULT NULL,
-  `mtime` datetime DEFAULT NULL
+  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `#__claw_presenters`
@@ -185,7 +186,7 @@ CREATE TABLE `#__claw_skills` (
   `length_info` int(4) DEFAULT 60,
   `comments` TEXT DEFAULT NULL,
   `submission_date` date DEFAULT NULL,
-  `mtime` datetime DEFAULT NULL
+  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `#__claw_skills`
@@ -201,7 +202,7 @@ CREATE TABLE `#__claw_skills_handouts` (
   `description` varchar(255) DEFAULT NULL,
   `filename` TEXT DEFAULT NULL,
   `skill_id` INT(11) DEFAULT NULL,
-  `mtime` datetime DEFAULT NULL
+  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE `#__claw_skills_handouts`
