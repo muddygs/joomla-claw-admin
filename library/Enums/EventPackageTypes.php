@@ -48,7 +48,8 @@ enum EventPackageTypes: int
             EventPackageTypes::day_pass_sat => 'Day Pass',
             EventPackageTypes::day_pass_sun => 'Day Pass',
             EventPackageTypes::pass => 'Pass',
-            EventPackageTypes::vip => 'VIP'
+            EventPackageTypes::vip => 'VIP',
+            default => ''
         };
     }
 }

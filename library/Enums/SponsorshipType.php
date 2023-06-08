@@ -22,8 +22,20 @@ enum SponsorshipType: int
     };
   }
 
-  public function values(): array
+  public static function values(): array
   {
     return array_column(self::cases(), 'value');
+  }
+
+  public static function valuesOrdered(): array
+  {
+    $result = [];
+    $result[] = SponsorshipType::Legacy_Master->value;
+    $result[] = SponsorshipType::Legacy_Sustaining->value;
+    $result[] = SponsorshipType::Master->value;
+    $result[] = SponsorshipType::Sustaining->value;
+    $result[] = SponsorshipType::Sponsor->value;
+    $result[] = SponsorshipType::Media->value;
+    return $result;
   }
 }
