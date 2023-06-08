@@ -74,11 +74,6 @@ class DisplayController extends BaseController
             # code...
             break;
         }
-        break;
-
-      default:
-        # code...
-        break;
     }
   }
 }
