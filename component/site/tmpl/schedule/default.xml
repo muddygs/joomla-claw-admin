@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <layout title="Schedule">
+    <message>
+      Displays the schedule for a CLAW event
+    </message>
+  </layout>
+
+  <!-- Add fields to the parameters object for the layout. -->
+  <fields name="params">
+    <fieldset name="options">
+      <field name="ScheduleEvent"
+        type="text"
+        label="Event"
+        required="true"
+        maxlength="5" />
+
+      <field name="ShowLocation"
+        type="radio"
+        label="Show Location"
+        description=""
+        default="1"
+        class="btn-group btn-group-yesno"
+        filter="integer">
+        <option value="1">JYES</option>
+        <option value="0">JNO</option>
+      </field>
+      
+      <field name="ScheduleHeader"
+        type="editor"
+        label="Header Information"
+        description=""
+        filter="safehtml" />
+
+      <field name="ScheduleFooter"
+        type="editor"
+        label="Footer Information"
+        description=""
+        filter="safehtml" />
+    </fieldset>
+
+  </fields>
+</metadata>
