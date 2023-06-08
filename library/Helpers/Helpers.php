@@ -100,6 +100,7 @@ SQL;
     return $db->loadObjectList();
   }
 
+  // TODO: move to Helpers::Locations.php
   /**
    * Returns array of locations ordered by catid (parental depth) and ordering (logical order)
    * @param DatabaseDriver $db 
