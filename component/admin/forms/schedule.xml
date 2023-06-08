@@ -93,10 +93,10 @@
     default="0"
     required="true"
   >
-    <option value="0" checked="1">Included</option>
+    <option value="0">Included</option>
     <option value="1">Preorder Required</option>
     <option value="2">Door Purchase Available</option>
-    <option value="4">At Door Only</option>
+    <option value="3">At Door Only</option>
   </field>
 
   <field
