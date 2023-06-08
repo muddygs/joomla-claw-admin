@@ -147,6 +147,10 @@ class ClawEvents
         return $this->event->getEventIds();
     }
 
+    /**
+     * Returns the loaded event info object
+     * @return EventInfo 
+     */
     public function getClawEventInfo(): EventInfo {
         return $this->event->getInfo();
     }
