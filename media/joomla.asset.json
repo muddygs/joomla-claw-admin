@@ -6,12 +6,10 @@
   "license": "GPLv2",
   "assets": [
     {
-      "name": "com_claw.adminskills",
+      "name": "com_claw.registrationsurvey",
       "type": "script",
-      "uri": "com_claw/skills.js",
-      "dependencies": [
-        "core"
-      ],
+      "uri": "com_claw/registrationsurvey.js",
+      "dependencies": [],
       "attributes": {
         "defer": true
       }
