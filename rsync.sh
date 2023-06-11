@@ -7,4 +7,4 @@ mv component/admin/script.php component/
 #rsync -arv --delete /var/www/eb/public_html/libraries/claw/ library/
 rsync -arv /var/www/eb/public_html/libraries/claw/ library/
 #rsync -arv /var/www/eb/public_html/plugins/system/claw/ plugin/
-rsync -arv /var/www/eb/public_html/media/com_claw/ media/
+rsync -arv /var/www/eb/public_html/media/com_claw/ media_raw/

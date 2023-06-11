@@ -5,6 +5,14 @@ rm package/packages/*.zip
 
 cd component && zip -r ../package/packages/com_claw.zip . && cd -
 
+# prepare media directory
+rm -rf media
+mkdir -p media/js
+mkdir -p media/css
+cp media_raw/joomla.asset.json media
+cp media_raw/js/*.js media/js
+cp media_raw/js/*.js.map media/js
+
 # Directories to append to main component package once admin is added
 zip -r package/packages/com_claw.zip media
 
