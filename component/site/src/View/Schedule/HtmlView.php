@@ -18,9 +18,7 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Schedule;
 use ClawCorpLib\Helpers\Sponsors;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvent;
 use ClawCorpLib\Lib\ClawEvents;
-use Joomla\CMS\Helper\ModuleHelper;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
@@ -28,14 +26,6 @@ class HtmlView extends BaseHtmlView
   
   public function display($tpl = null)
   {
-    $this->state = $this->get('State');
-    $this->form  = $this->get('Form');
-    $this->item  = $this->get('Item');
-    
-    $params = $this->params = $this->state->get('params');
-    $temp = clone ($params);
-
-    // Check that user is in the submission group
     /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
 
@@ -46,16 +36,12 @@ class HtmlView extends BaseHtmlView
       $sitemenu->setActive($controllerMenuId);
       $menu = $app->getMenu()->getActive();
     }
-    $paramsMenu = $menu->getParams();
-    $temp->merge($paramsMenu);
-    $this->params = $temp;
+    $this->params = $menu->getParams();
 
     $db = Factory::getContainer()->get('DatabaseDriver');
     $eventAlias =  $this->params->get('ScheduleEvent') ?? Aliases::current;
 
-    
-
-    $this->locations = \ClawCorpLib\Helpers\Locations::GetLocationsList($db);
+    $this->locations = \ClawCorpLib\Helpers\Locations::GetLocationsList();
     $this->sponsors = new Sponsors();
     $schedule = new Schedule($eventAlias, $db);
     $event = new ClawEvents($eventAlias);
@@ -97,7 +83,6 @@ class HtmlView extends BaseHtmlView
 
     # all caps $this->start_tab
     $this->start_tab = strtoupper($this->start_tab);
-
     
     parent::display($tpl);
   }
