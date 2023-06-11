@@ -22,12 +22,13 @@ use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Session\Session;
 use Joomla\Input\Input;
+use Joomla\Input\Json;
 
 class DisplayController extends BaseController
 {
   protected $app;
+  protected $post;
 
-  // TODO: temp for debugging
   public function __construct(
     $config = [],
     MVCFactoryInterface $factory = null,
@@ -35,29 +36,47 @@ class DisplayController extends BaseController
     ?Input $input = null,
     FormFactoryInterface $formFactory = null
   ) {
+    // Call parent constructor before anything else to ensure all $this properties are set
+    parent::__construct($config, $factory, $app, $input, $formFactory);
+
     Helpers::sessionSet('formdata', '');
     Helpers::sessionSet('photo', '');
 
     /** @var \Joomla\CMS\Application\SiteApplication */
-    $app = Factory::getApplication();
-    $menu = $app->getMenu()->getActive();
+    $this->app = Factory::getApplication();
+    $menu = $this->app->getMenu()->getActive();
     Helpers::sessionSet('menuid', $menu->id);
+
+    if ( $this->input == null ) {
+      $this->input = $this->app->input;
+    }
 
     // $view = $input->get('view');
     // $task = $input->get('task');
     // $id = $input->get('id');
 
-    parent::__construct($config, $factory, $app, $input, $formFactory);
+    // switch ($task) {
+    //   case 'copy':
+    //     $this->copy();
+    //     break;
+
+    //   case 'validatecoupon':
+    //     //$this->RegistrationSurveyProcess();
+    //     break;
+
+    //   default:
+    //     # code...
+    //     break;
+    // }
+
   }
 
+  // TODO: Is this supposed to be here, or it is somewhere else and this is a copy/paste error?
   public function copy()
   {
-    $this->app = Factory::getApplication();
-    $input = $this->app->input;
-
-    $view = $input->get('view');
-    $task = $input->get('task');
-    $id = $input->get('id');
+    $view = $this->input->get('view');
+    $task = $this->input->get('task');
+    $id = $this->input->get('id');
 
     switch ($view) {
       case 'skillsubmission':
@@ -76,4 +95,26 @@ class DisplayController extends BaseController
         }
     }
   }
+
+
+  /**
+   * Process the registration survey form's coupon field
+   *
+   * @return void
+   */
+  public function validatecoupon()
+  {
+    // TODO: check token
+
+    $json = new Json();
+    $coupon = $json->get('coupon', '', 'string');
+
+    /** @var ClawCorp\Component\Claw\Site\Model\RegistrationsurveyModel */
+    $siteModel = $this->getModel('Registrationsurvey');
+    $json = $siteModel->RegistrationSurveyCouponStatus($coupon);
+
+    header('Content-Type: application/json');
+    echo $json;
+  }
+
 }
