@@ -1,9 +1,9 @@
 <?php
 /**
- * @package     Countrybase.Site
- * @subpackage  com_countrybase
+ * @package     Claw.Site
+ * @subpackage  com_claw
  *
- * @copyright   (C) 2022 Clifford E Ford
+ * @copyright   (C) 2023 C.L.A.W. Corp.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -23,7 +23,7 @@ use Joomla\CMS\Menu\AbstractMenu;
 use Joomla\Database\DatabaseInterface;
 
 /**
- * Routing class of com_countrybase
+ * Routing class of com_claw
  *
  * @since  3.3
  */
@@ -50,7 +50,7 @@ class Router extends RouterView
 	private $db;
 
 	/**
-	 * Countrybase Component router constructor
+	 * ClawCorp Component router constructor
 	 *
 	 * @param   SiteApplication           $app              The application object
 	 * @param   AbstractMenu              $menu             The menu object to work with
