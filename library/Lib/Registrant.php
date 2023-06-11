@@ -148,7 +148,7 @@ class Registrant
     if ( $info->mainAllowed == true && $this->enablePastEvents == false ) {
       $q->where($db->qn('e.event_end_date') . '<' . $db->q($endDate))
       ->where($db->qn('e.event_date') . '>' . $db->q($startDate))
-      ->where($db->qn('r.published') . '=' . EbPublishedState::published);
+      ->where($db->qn('r.published') . '=' . EbPublishedState::published->value);
     }
   
     if ( count($this->eventIdFilter) > 0 ) {
