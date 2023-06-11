@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.joomla.org/schemas/json-schema/web_assets.json",
+  "name": "com_claw",
+  "version": "1.0.0",
+  "description": "ClawCorp Media Support Files",
+  "license": "GPLv2",
+  "assets": [
+    {
+      "name": "com_claw.registrationsurvey",
+      "type": "script",
+      "uri": "com_claw/registrationsurvey.js",
+      "dependencies": [],
+      "attributes": {
+        "defer": true
+      }
+    }
+  ]
+}
