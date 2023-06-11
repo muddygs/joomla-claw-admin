@@ -2,58 +2,60 @@
 
 namespace ClawCorpLib\Lib;
 
-class registrantRecordEvent
+use ClawCorpLib\Enums\EventPackageTypes;
+
+class RegistrantRecordEvent
 {
-  var int $eventId = 0;
-  var string $alias = '';
-  var string $title = '';
-  var string $event_date = '';
-  var string $event_end_date = '';
+  public int $eventId = 0;
+  public string $alias = '';
+  public string $title = '';
+  public string $event_date = '';
+  public string $event_end_date = '';
 }
 
-class registrantRecordCategory
+class RegistrantRecordCategory
 {
-  var int $category_id = 0;
+  public int $category_id = 0;
 }
 
-class registrantRecordRegistrant
+class RegistrantRecordRegistrant
 {
-  var int $id = 0;
-  var int $published = 0;
-  var int $clawPackageType = 0;
-  var int $user_id = 0;
-  var string $first_name = '';
-  var string $last_name = '';
-  var string $invoice_number = '';
-  var string $email = '';
-  var string $address = '';
-  var string $address2 = '';
-  var string $city = '';
-  var string $state = '';
-  var string $zip = '';
-  var string $country = '';
-  var string $ts_modified = '';
-  var string $register_date = '';
-  var int $payment_status = -1;
-  var float $total_amount = 0.0;
-  var float $deposit_amount = 0.0;
-  var float $payment_amount = 0.0;
-  var float $discount_amount = 0.0;
-  var float $amount = 0.0;
-  var string $payment_method = '';
-  var string $transaction_id = '';
-  var string $deposit_payment_method = '';
-  var string $deposit_payment_transaction_id = '';
-  var string $registration_code = ''; 
-  var string $badgeId = '';
+  public int $id = 0;
+  public int $published = 0;
+  public int $eventPackageType = EventPackageTypes::none;
+  public int $user_id = 0;
+  public string $first_name = '';
+  public string $last_name = '';
+  public string $invoice_number = '';
+  public string $email = '';
+  public string $address = '';
+  public string $address2 = '';
+  public string $city = '';
+  public string $state = '';
+  public string $zip = '';
+  public string $country = '';
+  public string $ts_modified = '';
+  public string $register_date = '';
+  public int $payment_status = -1;
+  public float $total_amount = 0.0;
+  public float $deposit_amount = 0.0;
+  public float $payment_amount = 0.0;
+  public float $discount_amount = 0.0;
+  public float $amount = 0.0;
+  public string $payment_method = '';
+  public string $transaction_id = '';
+  public string $deposit_payment_method = '';
+  public string $deposit_payment_transaction_id = '';
+  public string $registration_code = ''; 
+  public string $badgeId = '';
 }
 
 class RegistrantRecord
 {
-  var registrantRecordEvent $event;
-  var registrantRecordCategory $category;
-  var registrantRecordRegistrant $registrant;
-  var $fieldValue;
+  public registrantRecordEvent $event;
+  public registrantRecordCategory $category;
+  public registrantRecordRegistrant $registrant;
+  public $fieldValue;
 
   function __construct(object $r)
   {
