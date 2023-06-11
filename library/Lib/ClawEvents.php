@@ -80,7 +80,7 @@ class ClawEvents
      * @param bool $mainOnly Main events only (by default) IFF clawEvent
      * @return null|object Event object (ClawEvent)
      */
-    public function getEventByKey(string $key, string $value, bool $mainOnly = true): ?\ClawCorpLib\Lib\ClawEvent
+    public function getEventByKey(string $key, $value, bool $mainOnly = true): ?\ClawCorpLib\Lib\ClawEvent
     {
         $result = null;
         $found = 0;
@@ -153,6 +153,13 @@ class ClawEvents
      */
     public function getClawEventInfo(): EventInfo {
         return $this->event->getInfo();
+    }
+
+    /**
+     * Returns list of loaded events
+     */
+    public function getEvents(): array {
+        return $this->event->getEvents();
     }
 
     /**
