@@ -13,6 +13,24 @@
       "attributes": {
         "defer": true
       }
+    },
+    {
+      "name": "com_claw.toast",
+      "type": "script",
+      "uri": "com_claw/toast.js",
+      "dependencies": [],
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_claw.ebcheckout",
+      "type": "script",
+      "uri": "com_claw/eventbooking_checkout.js",
+      "dependencies": [],
+      "attributes": {
+        "defer": true
+      }
     }
   ]
 }
