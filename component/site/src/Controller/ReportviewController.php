@@ -43,7 +43,7 @@ class ReportviewController extends FormController
 
     if ( $task == 'submit' && $input != null )
     {
-      $this->save();
+      // $this->save();
     }
   }
 
