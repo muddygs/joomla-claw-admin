@@ -71,6 +71,9 @@
 			</menu>
 		</submenu>
 
+		<dashboards>
+			<dashboard title="COM_EXAMPLE_DASHBOARD_TITLE" icon="icon-lock">example</dashboard>
+		</dashboards>
 		<!-- Administration Main File Copy Section -->
 		<!-- Note the folder attribute: This attribute describes the folder
 			to copy FROM in the package to install therefore files copied
