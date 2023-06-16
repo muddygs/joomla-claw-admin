@@ -22,7 +22,7 @@ class RegistrantRecordRegistrant
 {
   public int $id = 0;
   public int $published = 0;
-  public int $eventPackageType = EventPackageTypes::none;
+  public EventPackageTypes $eventPackageType = EventPackageTypes::none;
   public int $user_id = 0;
   public string $first_name = '';
   public string $last_name = '';
@@ -64,18 +64,18 @@ class RegistrantRecord
     $this->registrant = new registrantRecordRegistrant();
     $this->fieldValue = (object)[];
 
-    foreach (get_class_vars('ClawCorpLib\Lib\registrantRecordEvent') AS $k => $v) {
-      $this->event->$k = property_exists($r,$k) ? $r->$k : '';
-      if (property_exists($r, $k) && $r->$k == null) unset($r->$k);
-      $default = gettype($this->event->$k) == 'string' ? '' : 0;
+    foreach (get_class_vars('ClawCorpLib\Lib\RegistrantRecordEvent') AS $k => $v) {
+      if ( property_exists($r, $k) ) {
+        $this->event->$k = $r->$k;
+      }
     }
 
     $this->category->category_id = $r->category_id;
 
-    foreach (get_class_vars('ClawCorpLib\Lib\registrantRecordRegistrant') as $k => $v) {
-      if ( property_exists($r, $k) && $r->$k == null ) unset($r->$k);
-      $default = gettype($this->registrant->$k) == 'string' ? '' : 0;
-      $this->registrant->$k = property_exists($r, $k) ? $r->$k : $default;
+    foreach (get_class_vars('ClawCorpLib\Lib\RegistrantRecordRegistrant') as $k => $v) {
+      if ( property_exists($r, $k) ) {
+        $this->registrant->$k = $r->$k;
+      }
     }
   }
 }

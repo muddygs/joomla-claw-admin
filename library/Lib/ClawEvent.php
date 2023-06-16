@@ -63,12 +63,11 @@ class ClawEvent
     public function getEventRow(): ?object
     {
         $db = Factory::getContainer()->get('DatabaseDriver');
-        
-        $query = <<<SQL
-SELECT *
-FROM #__eb_events
-WHERE id = $this->eventId
-SQL;
+        $query = $db->getQuery(true);
+        $query->select('*')
+            ->from('#__eb_events')
+            ->where('id = :id')
+            ->bind(':id', $this->eventId);
         $db->setQuery($query);
 
         $results = $db->loadObject();
