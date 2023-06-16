@@ -13,4 +13,5 @@ $autoLoader = include JPATH_LIBRARIES . '/vendor/autoload.php';
 if ($autoLoader)
 {
 	$autoLoader->setPsr4('ClawCorpLib\\', __DIR__);
+	define('CLAW_INCLUDED', 1);
 }
