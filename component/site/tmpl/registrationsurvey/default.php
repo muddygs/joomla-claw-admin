@@ -27,9 +27,9 @@ $couponInfo = null;
 if ( !Aliases::onsiteActive )
 {
   // Let's see if already registered
-  $uid = Factory::getUser()->id;
+  $uid = $app->getIdentity()->id;
 
-  if (0 == $uid) {
+  if (!$uid) {
     $return = \Joomla\CMS\Uri\Uri::getInstance()->toString();
     $url    = 'index.php?option=com_users&view=login';
     $url   .= '&return='.base64_encode($return);
@@ -44,7 +44,7 @@ if ( !Aliases::onsiteActive )
 
   if ( '' == $coupon && null == $mainEvent  )
   {
-    $events = new ClawEvents('c0423');
+    $events = new ClawEvents(Aliases::current);
     $eventIds = $events->getEventIds();
     $couponInfo = Coupons::getAssignedCoupon($uid, $eventIds);
 
@@ -53,13 +53,12 @@ if ( !Aliases::onsiteActive )
 }
 else
 {
-  if ( Factory::getUser()->id != 0 ) $app->logout();
+  if ( $app->getIdentity()->id != 0 ) $app->logout();
 }
 
 ?>
-<script src="/js/registrationsurvey_events.js"></script>
 <div style="text-align: center;">
-  <p><img alt="Registration Banner" src="images/<?=Aliases::defaultPrefix?>/banners/Registration.png" class="img-fluid mx-auto d-block" /></p>
+  <p><img alt="Registration Banner" src="images/<?=strtolower(Aliases::defaultPrefix)?>/banners/Registration.png" class="img-fluid mx-auto d-block" /></p>
 </div>
 
 <?php
@@ -79,7 +78,7 @@ if ( $mainEvent != null ):
 <h1>You are already registered</h1>
 <div class="d-grid gap-2 col-6 mx-auto mb-3">
     <a href="/planning/my-reg" role="button" class="btn btn-danger">View Registrations</a>
-    <a href="/<?=Aliases::defaultPrefix?>-reg-addons" role="button" class="btn btn-success">Get Addons</a>
+    <a href="/<?=strtolower(Aliases::defaultPrefix)?>-reg-addons" role="button" class="btn btn-success">Get Addons</a>
 </div>
 <p>If you are trying to register another person, please SIGN OUT (under the Registration menu) and start again using that person's account.</p>
 <?php
@@ -95,7 +94,7 @@ if ( !Aliases::onsiteActive ) {
   ?>
     <h1>Already Registered?</h1>
     <div class="d-grid mb-3">
-    <a href="/<?=Aliases::defaultPrefix ?>-reg-addons" class="btn btn-success btn-lg" role="button">
+    <a href="/<?=strtolower(Aliases::defaultPrefix) ?>-reg-addons" class="btn btn-success btn-lg" role="button">
       Click Here To Get Add Ons
     </a>
     </div>
@@ -171,7 +170,7 @@ Bootstrap::writePillTabs($tabs, $html, 'none');
 
 function attendeeHtml(): string
 {
-  $link = '/'.Aliases::defaultPrefix.'-reg-att';
+  $link = '/'.strtolower(Aliases::defaultPrefix).'-reg-att';
 
   if ( Aliases::onsiteActive ) {
     return <<<HTML
@@ -202,8 +201,8 @@ HTML;
 
 function volunteerHtml(int $uid = 0): string
 {
-  $link2 = '/'.Aliases::defaultPrefix.'-reg-vol2';
-  $link3 = '/'.Aliases::defaultPrefix.'-reg-vol3';
+  $link2 = '/'.strtolower(Aliases::defaultPrefix).'-reg-vol2';
+  $link3 = '/'.strtolower(Aliases::defaultPrefix).'-reg-vol3';
 
   if ( Aliases::onsiteActive ) {
     return <<<HTML
@@ -280,7 +279,7 @@ HTML;
 }
 
 function vipHtml(): string {
-  $vipEventId = clawEvents::getEventId(strtolower(Aliases::defaultPrefix.'-vip'));
+  $vipEventId = clawEvents::getEventId(strtolower(strtolower(Aliases::defaultPrefix).'-vip'));
 
   $content = [
     'ticket-alt' => ['Attendee Package','Includes over 150 events and exhibitors'],
