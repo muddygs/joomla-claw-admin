@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -21,30 +22,31 @@ use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\DI\Container;
 use Joomla\DI\ServiceProviderInterface;
 
-return new class implements ServiceProviderInterface {
-    
-    public function register(Container $container): void {
-		// Require the CLAW Libraries
-		if (!defined('CLAW_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/claw/init.php'))
-		{
-			throw new RuntimeException('CLAW library is not installed', 500);
-		}
+return new class implements ServiceProviderInterface
+{
 
-        
-        
-        $container->registerServiceProvider(new CategoryFactory('\\ClawCorp\\Component\\Claw'));
-        $container->registerServiceProvider(new MVCFactory('\\ClawCorp\\Component\\Claw'));
-        $container->registerServiceProvider(new ComponentDispatcherFactory('\\ClawCorp\\Component\\Claw'));
-        $container->registerServiceProvider(new RouterFactory('\\ClawCorp\\Component\\Claw'));
-
-        $container->set(
-            ComponentInterface::class,
-            function (Container $container) {
-                $component = new MVCComponent($container->get(ComponentDispatcherFactoryInterface::class));
-                $component->setMVCFactory($container->get(MVCFactoryInterface::class));
-
-                return $component;
-            }
-        );
+  public function register(Container $container): void
+  {
+    // Require the CLAW Libraries
+    if (!defined('CLAW_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/claw/init.php')) {
+      throw new RuntimeException('CLAW library is not installed', 500);
     }
+
+
+
+    $container->registerServiceProvider(new CategoryFactory('\\ClawCorp\\Component\\Claw'));
+    $container->registerServiceProvider(new MVCFactory('\\ClawCorp\\Component\\Claw'));
+    $container->registerServiceProvider(new ComponentDispatcherFactory('\\ClawCorp\\Component\\Claw'));
+    $container->registerServiceProvider(new RouterFactory('\\ClawCorp\\Component\\Claw'));
+
+    $container->set(
+      ComponentInterface::class,
+      function (Container $container) {
+        $component = new MVCComponent($container->get(ComponentDispatcherFactoryInterface::class));
+        $component->setMVCFactory($container->get(MVCFactoryInterface::class));
+
+        return $component;
+      }
+    );
+  }
 };
