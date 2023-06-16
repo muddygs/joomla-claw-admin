@@ -36,7 +36,7 @@ class Helpers
     ];
   }
 
-  
+
   /**
    * Returns hh:mm formatted string in seconds
    * @param mixed $t 
@@ -46,13 +46,13 @@ class Helpers
   {
     $ts = explode(':', $t);
     if (count($ts) < 2) return false;
-    return 60*($ts[0] * 60 + $ts[1]);
+    return 60 * ($ts[0] * 60 + $ts[1]);
   }
 
   static function getClawFieldValues(DatabaseDriver $db, string $section): array
   {
     $query = $db->getQuery(true);
-    $query->select(['value','text'])
+    $query->select(['value', 'text'])
       ->from('#__claw_field_values')
       ->where('fieldname = :fieldname')
       ->order('value')
@@ -135,7 +135,7 @@ SQL;
     $query = $db->getQuery(true);
     $query->select($db->qn(['id']))
       ->from($db->qn('#__usergroups'))
-      ->where('LOWER('.$db->qn('title') . ')=' . $db->q(strtolower($groupName)));
+      ->where('LOWER(' . $db->qn('title') . ')=' . $db->q(strtolower($groupName)));
 
     $db->setQuery($query);
     $groupId = $db->loadResult();
@@ -161,7 +161,7 @@ SQL;
     for ($i = 0; $i < 7; $i++) {
       $date->modify(('+1 day'));
       $d = $date->toSql();
-      if ( $dateOnly ) $d = substr($d, 0, 10);
+      if ($dateOnly) $d = substr($d, 0, 10);
       $result[$date->format('D')] = $d;;
     }
 
@@ -175,11 +175,11 @@ SQL;
    */
   static function sessionSet(string $key, string $value): void
   {
-    /** @var $app \Joomla\CMS\Application\CMSApplicationInterface */
+    /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
     $session = $app->getSession();
     if ($session->isActive()) {
-      $session->set($key, $value, 'claw');
+      $session->set('claw'.$key, $value);
     }
   }
 
@@ -191,11 +191,11 @@ SQL;
    */
   static function sessionGet(string $key, string $default = ''): string|null
   {
-    /** @var $app \Joomla\CMS\Application\CMSApplicationInterface */
+    /** @var $app \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
     $session = $app->getSession();
     if ($session->isActive()) {
-      return $session->get($key, $default, 'claw');
+      return $session->get('claw'.$key, $default);
     }
 
     return null;
@@ -218,5 +218,24 @@ SQL;
     }
 
     return $time;
+  }
+
+  /**
+   * Pass in some data - it gets emailed to webmaster for debugging
+   */
+  static function sendErrorNotification(string $path, $data)
+  {
+    $mailer = Factory::getMailer();
+
+    $mailer->setSender(['webmaster@clawinfo.org', 'CLAW']);
+    $mailer->setSubject('Some Error Has Occurred');
+    $mailer->addRecipient('webmaster@clawinfo.org');
+
+    $body = 'PATH: ' . $path . "\n";
+    $body .= "DATA FOLLOWS:\n";
+    $body .= print_r($data, true);
+    $mailer->setBody($body);
+
+    $mailer->Send();
   }
 }
