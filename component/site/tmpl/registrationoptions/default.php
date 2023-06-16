@@ -5,11 +5,6 @@ use ClawCorpLib\Enums\EventPackageTypes;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 
-// require_once(JPATH_ROOT . '/php/helpers.php');
-// require_once(JPATH_ROOT . '/php/lib/registrant.php');
-// require_once(JPATH_ROOT . '/php/lib/events.php');
-// require_once(JPATH_ROOT . '/php/lib/events_current.php');
-
 require_once(JPATH_ROOT . '/components/com_eventbooking/helper/cart.php');
 require_once(JPATH_ROOT . '/components/com_eventbooking/helper/database.php');
 require_once(JPATH_ROOT . '/components/com_eventbooking/helper/helper.php');
@@ -19,8 +14,7 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Registrant;
-use ClawCorpLib\Lib\Coupons;
-
+use Joomla\CMS\HTML\HTMLHelper;
 
 // Parse URL to determine what the registrant is trying to do:
 $url = strtolower(substr(Uri::getInstance()->getPath(), 1));
@@ -104,9 +98,9 @@ if ( !Aliases::onsiteActive ) {
   }
 }
 
-$uid = Factory::getUser()->id;
+$uid = Factory::getApplication()->getIdentity()->id;
 
-if (0 == $uid) {
+if (!$uid) {
   echo 'You must be signed in to see this resource';
   return;
 }
@@ -134,10 +128,13 @@ if ($addons == false && $mainEvent != null && $mainEvent->registrant->eventPacka
 endif;
 
 #region Toast
+$app = Factory::getApplication();
+/** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
+$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa->useScript('com_claw.toast');
 ?>
 
-<script src="/js/eb_event_options.js"></script>
-
+<!-- TODO: Load properly -->
 <div class="position-fixed top-50 start-50 translate-middle p-3" style="z-index: 11">
   <div id="liveToast" class="toast rounded-pill" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header rounded-pill">
@@ -146,11 +143,10 @@ endif;
     </div>
   </div>
 </div>
-
 <?php
 #endregion Toast
 
-$clawEvents = new clawEvents(Aliases::current);
+$clawEvents = new ClawEvents(Aliases::current);
 $regEvent = $clawEvents->getEventByKey('clawPackageType', $eventPackageType);
 
 // Auto add this registration to the cart
@@ -266,7 +262,7 @@ endif;
 
   function categoryLinkButtons(array $categoryAliases, string $urlPrefix = '/claw-all-events/'): string
   {
-    $categoryInfo = clawEvents::getCategoryNames($categoryAliases);
+    $categoryInfo = ClawEvents::getCategoryNames($categoryAliases);
 
     $result = '<div class="row row-cols-1 row-cols-sm-2 g-2 px-4 py-2">';
 
@@ -332,10 +328,12 @@ HTML;
   function contentMeals(): string
   {
     $result = '';
-    $categoryIds = clawEvents::getCategoryIds(['dinner', 'buffet', 'buffet-breakfast','meal-combos']);
+    $categoryIds = ClawEvents::getCategoryIds(['dinner', 'buffet', 'buffet-breakfast','meal-combos']);
 
     foreach ($categoryIds as $id) {
-      $result .= "{ebcategory $id toast}";
+      $content = "{ebcategory $id toast}";
+      $prepared = HTMLHelper::_('content.prepare', $content);
+      $result .= $prepared;
     }
 
     return $result;
@@ -343,20 +341,23 @@ HTML;
 
   function contentSpeedDating(): string
   {
-    $categoryIds = clawEvents::getCategoryIds(['speed-dating']);
-    return '{ebcategory ' . $categoryIds[0] . ' toast}';
+    $categoryIds = ClawEvents::getCategoryIds(['speed-dating']);
+    $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
+    return HTMLHelper::_('content.prepare', $content);
   }
 
   function contentRentals(): string
   {
-    $categoryIds = clawEvents::getCategoryIds(['equipment-rentals']);
-    return '{ebcategory ' . $categoryIds[0] . ' toast}';
+    $categoryIds = ClawEvents::getCategoryIds(['equipment-rentals']);
+    $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
+    return HTMLHelper::_('content.prepare', $content);
   }
 
   function contentParties(): string
   {
-    $categoryIds = clawEvents::getCategoryIds([Aliases::current . '-parties']);
-    return '{ebcategory ' . $categoryIds[0] . ' toast}';
+    $categoryIds = ClawEvents::getCategoryIds([Aliases::current . '-parties']);
+    $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
+    return HTMLHelper::_('content.prepare', $content);
   }
 
   function contentSponsorships(): string
@@ -379,8 +380,9 @@ HTML;
 
     $result = ''; // for now
 
-    $categoryIds = clawEvents::getCategoryIds(['donations-leather-heart']);
-    $result .= '{ebcategory ' . $categoryIds[0] . ' toast}';
+    $categoryIds = ClawEvents::getCategoryIds(['donations-leather-heart']);
+    $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
+    $result .= HTMLHelper::_('content.prepare', $content);
 
     return $result;
   }
@@ -408,7 +410,7 @@ HTML;
 
     foreach ( $eventIds AS $eventId )
     {
-      $raw = clawEvents::loadEventRow($eventId);
+      $raw = ClawEvents::loadEventRow($eventId);
 
       // no waiting list:
       //  no limits
