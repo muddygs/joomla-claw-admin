@@ -25,6 +25,7 @@ class Aliases {
   
   const defaultPrefix = 'C23'; // Use C for CLAW, L for Leather Getaway, V for Virtual CLAW
   const onsiteActive = false;
+  const onsiteCoupon = 'ONSITE-CASH'; // TODO: Remove all usage of this
   
   const shiftCategories = [
     'shifts-artshow',
@@ -67,7 +68,6 @@ class Aliases {
 		'sponsorships-advertising',
     'sponsorships-master-sustaining',
 		'sponsorships-logo',
-    'sponsorships-multi-level',
 		'vendormart'
   ];
 
