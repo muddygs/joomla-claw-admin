@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS `#__claw_events_current`;
 CREATE TABLE `#__claw_events_current` (
   `id` int(11) NOT NULL,
   `name` varchar(50) NOT NULL,
@@ -13,7 +12,6 @@ ALTER TABLE `#__claw_events_current`
 ALTER TABLE `#__claw_events_current`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
-DROP TABLE IF EXISTS `#__claw_configuration`;
 CREATE TABLE `#__claw_configuration` (
   `id` int(11) NOT NULL,
   `key` varchar(50) NOT NULL,
@@ -28,7 +26,6 @@ ALTER TABLE `#__claw_configuration`
 ALTER TABLE `#__claw_configuration`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
-DROP TABLE IF EXISTS `#__claw_locations`;
 CREATE TABLE `#__claw_locations`(
   `id` int(11) NOT NULL,
   `ordering` int(11) DEFAULT NULL,
@@ -47,7 +44,6 @@ ALTER TABLE `#__claw_locations`
 
 CREATE UNIQUE INDEX `aliasindex` ON `#__claw_locations` (`alias`, `catid`);
 
-DROP TABLE IF EXISTS `#__claw_sponsors`;
 CREATE TABLE `#__claw_sponsors`(
     `id` INT(11) NOT NULL,
     `name` VARCHAR(255) NOT NULL,
@@ -67,7 +63,6 @@ ALTER TABLE `#__claw_sponsors`
 ALTER TABLE `#__claw_sponsors`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
-DROP TABLE IF EXISTS `#__claw_vendors`;
 CREATE TABLE `#__claw_vendors`(
     `id` INT(11) NOT NULL,
     `published` TINYINT(4) NOT NULL DEFAULT '1',
@@ -87,7 +82,6 @@ ALTER TABLE `#__claw_vendors`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 
-DROP TABLE IF EXISTS `#__claw_shifts`;
 CREATE TABLE `#__claw_shifts`(
     `id` INT(11) NOT NULL,
     `title` VARCHAR(255) NOT NULL,
@@ -130,7 +124,7 @@ CREATE TABLE `#__claw_schedule` (
 
 ALTER TABLE `#__claw_schedule`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fb_groupby_day_INDEX` (`day`(10)),
+  ADD KEY `fb_groupby_day_INDEX` (`day`),
   ADD KEY `fb_groupbyorder_sort_order_INDEX` (`sort_order`(10));
 
 ALTER TABLE `#__claw_schedule`
@@ -231,6 +225,24 @@ ALTER TABLE `#__claw_profile_charge_log`
 
 ALTER TABLE `#__claw_profile_charge_log`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `#__claw_jwt` (
+  `id` int(11) NOT NULL,
+  `iat` int(11) DEFAULT NULL,
+  `exp` int(11) DEFAULT NULL,
+  `nonce` varchar(255) NOT NULL,
+  `state` enum('new','expired','issued','revoked') NOT NULL DEFAULT 'new',
+  `secret` varchar(255) NOT NULL,
+  `email` varchar(64) NOT NULL,
+  `subject` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `#__claw_jwt`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `#__claw_jwt`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
 
 DROP TABLE IF EXISTS `#__claw_field_values`;
 CREATE TABLE `#__claw_field_values` (
