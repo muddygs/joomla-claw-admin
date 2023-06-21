@@ -1,102 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="component" method="upgrade">
+<extension type="component"
+  method="upgrade">
 
-	<name>CLAW</name>
-	<!-- The following elements are optional and free of formatting constraints -->
-	<creationDate>April 2023</creationDate>
-	<author>CLAW Corp.</author>
-	<authorUrl>https://www.clawinfo.org/</authorUrl>
-	<copyright>(c) 2023 CLAW Corp.</copyright>
-	<license>GPLv2</license>
-	<!--  The version string is recorded in the components table -->
-	<version>0.0.7</version>
-	<!-- The description is optional and defaults to the name -->
-	<description>CLAW Data Administration</description>
+  <name>CLAW</name>
+  <!-- The following elements are optional and free of formatting constraints -->
+  <creationDate>April 2023</creationDate>
+  <author>CLAW Corp.</author>
+  <authorUrl>https://www.clawinfo.org/</authorUrl>
+  <copyright>(c) 2023 CLAW Corp.</copyright>
+  <license>GPLv2</license>
+  <!--  The version string is recorded in the components table -->
+  <version>0.0.7</version>
+  <!-- The description is optional and defaults to the name -->
+  <description>CLAW Data Administration</description>
 
-	<namespace path="src/">ClawCorp\Component\Claw</namespace>
+  <namespace path="src/">ClawCorp\Component\Claw</namespace>
 
-	<install>
-		<sql>
-			<file driver="mysql" charset="utf8">sql/install.mysql.sql</file>
-		</sql>
-	</install>
-	<uninstall>
-	</uninstall>
-	<update>
-	</update>
+  <install>
+    <sql>
+      <file driver="mysql"
+        charset="utf8">sql/install.mysql.sql</file>
+    </sql>
+  </install>
+  <uninstall>
+  </uninstall>
+  <update>
+  </update>
 
-	<scriptfile>script.php</scriptfile>
+  <scriptfile>script.php</scriptfile>
 
-	<media destination="com_claw" folder="media">
-		<file>joomla.asset.json</file>
-		<folder>js</folder>
-	</media>
+  <media destination="com_claw"
+    folder="media">
+    <file>joomla.asset.json</file>
+    <folder>js</folder>
+  </media>
 
-	<files folder="site">
-		<folder>forms</folder>
-		<folder>language</folder>
-		<folder>src</folder>
-		<folder>tmpl</folder>
-	</files>
+  <files folder="site">
+    <folder>forms</folder>
+    <folder>language</folder>
+    <folder>src</folder>
+    <folder>tmpl</folder>
+  </files>
 
 
-	<administration>
-		<!-- Administration Menu Section -->
-		<menu img="class:bookmark">CLAW</menu>
+  <administration>
+    <!-- Administration Menu Section -->
+    <menu img="class:bookmark">CLAW</menu>
 
-		<submenu>
-			<menu link="option=com_claw" view="claw" img="class:banners" alt="CLAW/CLAW">
-						Dashboard
-			</menu>
-			<menu link="option=com_claw&amp;view=configuration" view="configuration" img="class:banners" alt="CLAW/CLAW">
-						Config
-			</menu>
-			<menu link="option=com_claw&amp;view=locations" view="locations" img="class:banners" alt="CLAW/CLAW">
-						Locations
-			</menu>
-			<menu link="option=com_claw&amp;view=sponsors" view="sponsors" img="class:banners" alt="CLAW/CLAW">
-						Sponsors
-			</menu>
-			<menu link="option=com_claw&amp;view=schedules" view="schedules" img="class:banners" alt="CLAW/CLAW">
-						Schedules
-			</menu>
-			<menu link="option=com_claw&amp;view=shifts" view="shifts" img="class:banners" alt="CLAW/CLAW">
-						Shifts
-			</menu>
-			<menu link="option=com_claw&amp;view=presenters" view="presenters" img="class:banners" alt="CLAW/CLAW">
-						Skills Presenters
-			</menu>
-			<menu link="option=com_claw&amp;view=skills" view="skills" img="class:banners" alt="CLAW/CLAW">
-						Skills Classes
-			</menu>
-		</submenu>
+    <submenu>
+      <menu link="option=com_claw"
+        img="class:banners">
+            Dashboard
+      </menu>
+      <menu link="option=com_claw&amp;view=configuration"
+        img="class:banners">
+            Config
+      </menu>
+      <menu link="option=com_claw&amp;view=locations"
+        img="class:banners">
+            Locations
+      </menu>
+      <menu link="option=com_claw&amp;view=sponsors"
+        img="class:banners">
+            Sponsors
+      </menu>
+      <menu link="option=com_claw&amp;view=schedules"
+        img="class:banners">
+            Schedules
+      </menu>
+      <menu link="option=com_claw&amp;view=shifts"
+        img="class:banners">
+            Shifts
+      </menu>
+      <menu link="option=com_claw&amp;view=presenters"
+        img="class:banners">
+            Skills Presenters
+      </menu>
+      <menu link="option=com_claw&amp;view=skills"
+        img="class:banners">
+            Skills Classes
+      </menu>
+    </submenu>
 
-		<dashboards>
-			<dashboard title="COM_EXAMPLE_DASHBOARD_TITLE" icon="icon-lock">example</dashboard>
-		</dashboards>
-		<!-- Administration Main File Copy Section -->
-		<!-- Note the folder attribute: This attribute describes the folder
-			to copy FROM in the package to install therefore files copied
-			in this section are copied from /admin/ in the package -->
+    <dashboards>
+      <dashboard title="COM_EXAMPLE_DASHBOARD_TITLE"
+        icon="icon-lock">example</dashboard>
+    </dashboards>
+    <!-- Administration Main File Copy Section -->
+    <!-- Note the folder attribute: This attribute describes the folder
+      to copy FROM in the package to install therefore files copied
+      in this section are copied from /admin/ in the package -->
 
-		<files folder="admin/">
-			<folder>forms</folder>
-			<folder>language</folder>
-			<folder>layouts</folder>
-			<folder>services</folder>
-			<folder>sql</folder>
-			<folder>src</folder>
-			<folder>tmpl</folder>
-			<file>LICENSE.txt</file>
-			<file>access.xml</file>
-			<file>config.xml</file>
-		</files>
+    <files folder="admin/">
+      <folder>forms</folder>
+      <folder>language</folder>
+      <folder>layouts</folder>
+      <folder>services</folder>
+      <folder>sql</folder>
+      <folder>src</folder>
+      <folder>tmpl</folder>
+      <file>LICENSE.txt</file>
+      <file>access.xml</file>
+      <file>config.xml</file>
+    </files>
 
-		<!-- Have not done much with these yet -->
-		<languages>
-			<language tag="en-GB">admin/language/en-GB/com_claw.ini</language>
-			<language tag="en-GB">admin/language/en-GB/com_claw.sys.ini</language>
-		</languages>
-	</administration>
+    <!-- Have not done much with these yet -->
+    <languages>
+      <language tag="en-GB">admin/language/en-GB/com_claw.ini</language>
+      <language tag="en-GB">admin/language/en-GB/com_claw.sys.ini</language>
+    </languages>
+  </administration>
 
 </extension>
