@@ -14,3 +14,5 @@ use Joomla\CMS\Language\Text;
 
 ?>
 <h2><?php echo Text::_('COM_CLAW_DASHBOARD_PARAMS') ?></h2>
+
+<a href="/administrator/index.php?option=com_claw&view=coupongenerator&layout=edit">Coupon Generator</a>
