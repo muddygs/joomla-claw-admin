@@ -119,50 +119,49 @@ class Coupons
 
     if ( $this->clawCouponAssignment == EbCouponAssignments::selected_events &&
       count($this->couponEventsIds) == 0 ) {
-        die('Cannot create per-event coupon without event assignment(s).');
-      }
+      die('Cannot create per-event coupon without event assignment(s).');
+    }
 
     $db = Factory::getDbo();
     
-    $insert = [
+    $insert = (object)[
       'id' => '0',
+      'access' => $this->access,
+      'apply_to' => 0,
+      'category_id' => -1,
       'code' => $newcode,
       'coupon_type' => $this->clawCouponType->value,
       'discount' => $this->discount,
+      'enable_for' => 0,
       'event_id' => $this->clawCouponAssignment->value,
-      'times' => $this->times,
-      'used' => 0,
-      'valid_from' => '0000-00-00 00:00:00',
-      'valid_to' => '0000-00-00 00:00:00',
-      'published' => 1,
-      'max_usage_per_user' => $this->max_usage_per_user,
-      'category_id' => -1,
-      'user_id' => $this->userId,
-      'apply_to' => 0,
       'max_number_registrants' => 0,
+      'max_usage_per_user' => $this->max_usage_per_user,
       'min_number_registrants' => 0,
       'note' => $this->note,
-      'enable_for' => 0,
-      'access' => $this->access,
-      'used_amount' => '0.00'
+      'published' => 1,
+      'times' => $this->times,
+      'used_amount' => '0.00',
+      'used' => 0,
+      'user_id' => $this->userId,
+      'valid_from' => $db->getNullDate(),
+      'valid_to' => $db->getNullDate()
     ];
 
-    $query = $db->getQuery(true);
-    $query
-      ->insert($db->qn('#__eb_coupons'))
-      ->columns($db->qn(array_keys($insert)))
-      ->values(implode(',', $db->q(array_values($insert))));
-    $db->setQuery($query);
-    $db->execute();	
+    $result = $db->insertObject('#__eb_coupons', $insert, 'id');
 
-    $id = $db->insertid();
-    
-    if ( $this->clawCouponAssignment == EbCouponAssignments::selected_events ) {
-      foreach ( $this->couponEventsIds as $e ) {
-        $query = "INSERT INTO `#__eb_coupon_events` (coupon_id, event_id) VALUES ($id,$e)";
-        $db->setQuery($query);
-        $db->execute();
+    if ( $result ) {
+      if ( $this->clawCouponAssignment == EbCouponAssignments::selected_events ) {
+        foreach ( $this->couponEventsIds as $e ) {
+          $couponEvent = (object)[
+            'coupon_id' => $insert->id,
+            'event_id' => $e
+          ];
+
+          $db->insertObject('#__eb_coupon_events', $couponEvent);
+        }
       }
+    } else {
+      $newcode = 'ERROR DURING INSERT';
     }
 
     return $newcode;
@@ -202,7 +201,10 @@ class Coupons
   {
     $db = Factory::getDbo();
 
-    $query = 'SELECT code FROM #__eb_coupons WHERE code = '.$db->q($coupon);
+    $query = $db->getQuery(true);
+    $query->select($db->quoteName('code'))
+        ->from($db->quoteName('#__eb_coupons'))
+        ->where($db->quoteName('code') . ' = ' . $db->quote($coupon));
     $db->setQuery($query);
     $rows = $db->loadResult();
 
@@ -223,14 +225,13 @@ class Coupons
     $db = Factory::getDbo();
     $events = join(',',$eventIds);
 
-    #TODO: Convert to prepared statement
-    $query = <<< SQL
-    SELECT c.code, e.event_id
-    FROM #__eb_coupons c
-    LEFT OUTER JOIN #__eb_coupon_events e ON e.coupon_id = c.id
-    WHERE c.user_id = $uid AND c.published = 1 AND e.event_id IN ($events)
-SQL;
-
+    $query = $db->getQuery(true);
+    $query->select('c.code, e.event_id')
+        ->from('#__eb_coupons c')
+        ->leftJoin('#__eb_coupon_events e ON e.coupon_id = c.id')
+        ->where('c.user_id = ' . $uid)
+        ->where('c.published = 1')
+        ->where('e.event_id IN (' . $events . ')');
     $db->setQuery($query);
     $result = $db->loadObject();
 
