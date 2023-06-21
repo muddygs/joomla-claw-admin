@@ -13,9 +13,10 @@ use ClawCorpLib\Lib\Coupons;
 Helpers::sessionSet('clawcoupon','');
 Helpers::sessionSet('clawcouponrequest','');
 
+/** @var Joomla\CMS\Application\SiteApplication */
 $app = Factory::getApplication();
 /** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
-$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa = $app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.registrationsurvey');
 
 $coupon = trim($app->input->get('coupon', '', 'string'));
@@ -82,7 +83,7 @@ if ( $mainEvent != null ):
 </div>
 <p>If you are trying to register another person, please SIGN OUT (under the Registration menu) and start again using that person's account.</p>
 <?php
-$groups = getUserGroupsByName();
+$groups = Helpers::getUserGroupsByName(Factory::getContainer()->get('DatabaseDriver'));
 if (!array_key_exists('Super Users', $groups)) {
   return;
 }
@@ -110,13 +111,13 @@ if ( null == $couponInfo ):
   <h1>Have a coupon?</h1>
     <?php
 else:
-      $databaseRow = clawEvents::loadEventRow($couponInfo->event_id);
+      $databaseRow = ClawEvents::loadEventRow($couponInfo->event_id);
     ?>
       <h1>You have a coupon assigned to your account</h1>
       <p>Coupon Event Assignment: <strong><?=$databaseRow->title ?></strong></p>  
       <ul>
         <li>To request a different coupon type, contact <a href="/help?category_id=17">Guest Services</a>.</li>
-        <li>If you have a different coupon, please enter it below.</li>
+        <li>If you have a different coupon, you may enter it below instead.</li>
         <li>If you do not wish to use this coupon, please select a registration type below.</li>
       </ul>
     <?php
