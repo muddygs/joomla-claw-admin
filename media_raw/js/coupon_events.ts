@@ -1,5 +1,5 @@
 function getQuantity(): number {
-	var n = document.getElementById('quantity') as HTMLInputElement;
+	var n = document.getElementById('jform_quantity') as HTMLInputElement;
 	if ( n !== null && n.value !== null ) return parseInt(n.value);
 	return 0; 
 }
@@ -134,47 +134,27 @@ function generateCoupons() {
 		});
 }
 
-jQuery(function () {
-	// jQuery(window).on('keydown', function (event) {
-	// 	if (event.key == 'Enter') {
-	// 		event.preventDefault();
-	// 		return false;
-	// 	}
-	// });
+function submitCoupons() {
+	var result = document.getElementById('results');
+	result.textContent = '';
 
+	var error = '';
+	var name = document.getElementById('name') as HTMLInputElement;
+	var regExp = /[a-zA-Z]/g;
+	if ( ! regExp.test(name.value)) error = 'Please set the name.';
 
-	// Lookup button to populate registration (events div)
-	jQuery('#submit').on('click', function () {
-		var result = document.getElementById('results');
-		result.textContent = '';
+	var quantity = parseInt((document.getElementById('quantity') as HTMLInputElement).value);
+	if ( ! Number.isInteger(quantity)) error = 'Please set an integer quantity.';
 
-		var error = '';
-		var name = document.getElementById('name') as HTMLInputElement;
-		var regExp = /[a-zA-Z]/g;
-		if ( ! regExp.test(name.value)) error = 'Please set the name.';
-
-		var quantity = parseInt((document.getElementById('quantity') as HTMLInputElement).value);
-		if ( ! Number.isInteger(quantity)) error = 'Please set an integer quantity.';
-
-		if ( error != '' )
-		{
-			var node = document.createElement("p");
-			var note = document.createTextNode(error);
-			node.appendChild(note);
-			result.appendChild(node);
-		}
-		else
-		{
-			generateCoupons();
-		}
-	});
-
-	jQuery('#eventSelection').on('change', function () {
-		loadEvent();
-	});
-	jQuery('#email').on('change', function () {
-		getEmailStatus();
-	});
-
-
-});
+	if ( error != '' )
+	{
+		var node = document.createElement("p");
+		var note = document.createTextNode(error);
+		node.appendChild(note);
+		result.appendChild(node);
+	}
+	else
+	{
+		generateCoupons();
+	}
+}
