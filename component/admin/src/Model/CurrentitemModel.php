@@ -40,7 +40,7 @@ class CurrentitemModel extends AdminModel
 	 *
 	 * @since   1.6
 	 */
-	public function getForm($data = array(), $loadData = true)
+	public function getForm($data = [], $loadData = true)
 	{
 		// Get the form.
 		$form = $this->loadForm('com_claw.currentitem', 'currentitem', array('control' => 'jform', 'load_data' => $loadData));
