@@ -20,7 +20,8 @@ class LocationHelper
 {
   public static function nextOrdering(DatabaseDriver $db, int $catid): int
   {
-    $query = 'SELECT MAX(ordering) FROM #__claw_locations WHERE `catid`='.$db->q($catid);
+    $query = $db->getQuery(true);
+    $query->select('MAX(ordering)')->from('#__claw_locations')->where('catid = '.$db->q($catid));
     $db->setQuery($query);
     $result = $db->loadResult();
     return $result ?? 1;
@@ -34,11 +35,8 @@ class LocationHelper
    */
   public static function getCandidateParents(DatabaseDriver $db): array
   {
-    $query = <<<SQL
-    SELECT id,value
-    FROM #__claw_locations
-    WHERE published = '1' AND catid = '0'
-SQL;
+    $query = $db->getQuery(true);
+    $query->select(['id','value'])->from('#__claw_locations')->where('catid = 0')->where('published = 1');
     $db->setQuery($query);
     $results = $db->loadObjectList('id');
     return $results;
