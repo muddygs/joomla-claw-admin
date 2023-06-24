@@ -3,8 +3,10 @@
 namespace ClawCorpLib\Helpers;
 
 use InvalidArgumentException;
+use Joomla\CMS\Access\Access;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
+use Joomla\CMS\User\UserHelper;
 use Joomla\Database\DatabaseDriver;
 use Joomla\Database\Exception\UnsupportedAdapterException;
 use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
@@ -17,13 +19,13 @@ class Helpers
    * TODO: set time zone
    * @return string
    */
-  static function mtime(): string
+  static public function mtime(): string
   {
     $date = new Date('now');
     return $date->toSQL(true);
   }
 
-  static function getDays(): array
+  static public function getDays(): array
   {
     return [
       'tue',
@@ -42,14 +44,14 @@ class Helpers
    * @param mixed $t 
    * @return int|bool 
    */
-  static function timeToInt($t): int|bool
+  static public function timeToInt($t): int|bool
   {
     $ts = explode(':', $t);
     if (count($ts) < 2) return false;
     return 60 * ($ts[0] * 60 + $ts[1]);
   }
 
-  static function getClawFieldValues(DatabaseDriver $db, string $section): array
+  static public function getClawFieldValues(DatabaseDriver $db, string $section): array
   {
     $query = $db->getQuery(true);
     $query->select(['value', 'text'])
@@ -62,27 +64,82 @@ class Helpers
   }
 
 
-  static function getUsersByGroupName(DatabaseDriver $db, string $groupname): array
+  static public function getUsersByGroupName(DatabaseDriver $db, string $groupname): array
   {
     $groupId = Helpers::getGroupId($db, $groupname);
 
     if (!$groupId) return [];
 
-    $query = <<< SQL
-    SELECT m.user_id, u.name
-    FROM #__user_usergroup_map m
-    LEFT OUTER JOIN #__users u ON u.id = m.user_id
-    WHERE m.group_id = $groupId
-    ORDER BY u.name
-SQL;
-
+    $query = $db->getQuery(true);
+    $query->select(['m.user_id', 'u.name'])
+      ->from('#__user_usergroup_map m')
+      ->leftJoin('#__users u ON u.id = m.user_id')
+      ->where('m.group_id = ' . $groupId)
+      ->order('u.name');
     $db->setQuery($query);
     $users = $db->loadObjectList();
 
     return $users != null ? $users : [];
   }
 
-  static function getSponsorsList(DatabaseDriver $db, array $filter = []): array
+  /**
+   * Provides an associative array, keyed by group title, of user groups by name.
+   * @return array Group list
+   */
+  public static function getUserViewLevelsByName(DatabaseDriver $db, int $userId = 0): array
+  {
+    if ( $userId == 0 ) {
+      $identity = Factory::getApplication()->getIdentity();
+      if (!$identity) return [];
+
+      $userId = $identity->id;
+    }
+
+    $views = Access::getAuthorisedViewLevels($userId);
+
+    $query = $db->getQuery(true);
+    $query->select($db->qn(['id', 'title']))
+      ->from($db->qn('#__viewlevels'))
+      ->where('id IN (' . implode(',', $query->bindArray($views)) . ')');
+    $db->setQuery($query);
+    $avl  = $db->loadAssocList('title');
+
+    return $avl;
+  }
+
+  /**
+   * Create associative array of group titles for the current user
+   * 
+   * @param int $userId (optional) use specific user id. If not supplied, user comes from Factory object
+   * 
+   * @return array groups indexed by group name
+   */
+  static public function getUserGroupsByName(DatabaseDriver $db, int $userId = 0): array
+  {
+    if (!$userId) {
+      $identity = Factory::getApplication()->getIdentity();
+
+      if (!$identity || !$identity->id) {
+        return [];
+      }
+      
+      $userId = $identity->id;
+    }
+
+    $groupIds = UserHelper::getUserGroups($userId);
+    
+    $query = $db->getQuery(true);
+    $query->select(['id', 'title'])
+    ->from('#__usergroups')
+    ->where('id IN (' . implode(',',$query->bindArray($groupIds)) . ')');
+    $db->setQuery($query);
+    $groups  = $db->loadAssocList('title');
+
+    return $groups != null ? $groups : [];
+  }
+
+
+  static public function getSponsorsList(DatabaseDriver $db, array $filter = []): array
   {
     $query = $db->getQuery(true);
     $query->select($db->qn(['id', 'name']))
@@ -111,7 +168,7 @@ SQL;
    * @throws RuntimeException 
    * @throws InvalidArgumentException 
    */
-  static function getLocations(DatabaseDriver $db, string $baseAlias = ''): array
+  static public function getLocations(DatabaseDriver $db, string $baseAlias = ''): array
   {
     $query = $db->getQuery(true);
     $query->select(['l.id', 'l.value', 'l.catid'])
