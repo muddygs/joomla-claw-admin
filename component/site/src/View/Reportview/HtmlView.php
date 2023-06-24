@@ -58,11 +58,6 @@ class HtmlView extends BaseHtmlView
       $app->redirect('/');  
     }
 
-    // Event Naming
-		/** @var \ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel */
-		$model = $this->getModel();
-		$this->eventInfo = $model->GetEventInfo();
-
     parent::display($tpl);
   }
 }
