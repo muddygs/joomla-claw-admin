@@ -10,11 +10,6 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Layout\LayoutHelper;
-use Joomla\CMS\Router\Route;
-use Joomla\CMS\Form\Form;
-
-use ClawCorpLib\Helpers\Helper;
 use Joomla\CMS\Factory;
 
 /** @var Joomla\CMS\Application\AdministratorApplication */
@@ -23,13 +18,7 @@ $app = Factory::getApplication();
 $wa = $app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.coupongenerator');
 
-// $avl = Helpers::getUserViewLevelsByName();
-
-// if (!array_key_exists('Discount Codes', $avl)) {
-//   die("Restricted access");
-// }
-
-$allowOverride = array_key_exists('Special', $avl ?? []) ? true: false;
+$allowOverride = array_key_exists('Special', $this->avl ?? []) ? true: false;
 
 ?>
 <h1>Coupon Generator</h1>
@@ -71,7 +60,7 @@ $allowOverride = array_key_exists('Special', $avl ?? []) ? true: false;
       <?php echo $this->form->renderField('email'); ?>
       <div id="emailstatus" class="text-info"></div>
       <?php if ($allowOverride): ?>
-      <div class="form-check">
+      <div class="form-check float-end">
         <input class="form-check-input" type="checkbox" value="1" id="emailOverride" name="emailOverride">
         <label class="form-check-label" for="emailOverride">Ignore email</label>
       </div>
@@ -80,7 +69,7 @@ $allowOverride = array_key_exists('Special', $avl ?? []) ? true: false;
   </div>
 
   <div class="col-12">
-  <input name="submit" id="submit" type="button" value="Generate" class="btn btn-danger mb-2" onclick="/>
+  <input name="submit" id="submit" type="button" value="Generate" class="btn btn-danger mb-2" onclick="createCoupons()"/>
   </div>
 </form>
 
@@ -90,3 +79,5 @@ $allowOverride = array_key_exists('Special', $avl ?? []) ? true: false;
 <div id="results">
   <p>Ready!</p>
 </div>
+
+<?php echo HTMLHelper::_('form.token'); ?>

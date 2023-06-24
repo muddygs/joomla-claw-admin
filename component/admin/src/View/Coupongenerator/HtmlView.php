@@ -11,11 +11,9 @@ namespace ClawCorp\Component\Claw\Administrator\View\Coupongenerator;
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
-use Joomla\CMS\MVC\View\GenericDataException;
+use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Toolbar\Toolbar;
-use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 
 /**
  * @package     Joomla.Administrator
@@ -33,8 +31,9 @@ class HtmlView extends BaseHtmlView
 	 */
 	function display($tpl = null)
 	{
-		$model               = $this->getModel();
+		$model       = $this->getModel();
 		$this->form  = $this->get('Form');
+		$this->avl   = Helpers::getUserViewLevelsByName(Factory::getContainer()->get('DatabaseDriver'));
 
 		// // Check for errors.
 		// if (count($errors = $this->get('Errors'))) {

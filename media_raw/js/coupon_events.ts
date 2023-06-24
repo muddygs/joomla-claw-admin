@@ -10,84 +10,61 @@ function getFormData() {
 	return value;
 }
 
-function loadEvent() {
-	var data = getFormData();
+function couponAjaxUrl(task: string) {
+	return '/administrator/index.php?option=com_claw&task=' + task + '&format=raw';
+}
 
-	if (data.eventSelection == "0") return;
-
-	data["action"] = "load";
-
-	const options = {
+function couponOptions() {
+	return {
 		method: 'POST',
-		body: JSON.stringify(data),
+		body: JSON.stringify(getFormData()),
 		headers: {
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			'X-CSRF-Token': Joomla.getOptions('csrf.token')
 		}
 	}
+}
 
-	fetch('/php/coupons/process.php', options)
+function loadEvent() {
+	var data = getFormData();
+	var task = "couponLoadEvent";
+
+	if (!data.hasOwnProperty("jform[event]") || data["jform[event]"] == "0") return;
+
+	fetch(couponAjaxUrl(task), couponOptions() )
 		.then(result => result.json())
 		.then(html => {
-			var p = document.getElementById('packagetype');
-			var a = document.getElementById('addons');
+			var p = document.getElementById('jform_packagetype');
+			var a = document.getElementById('jform_addons');
 
 			if ( p == null || a == null ) return;
 			if ( html.length == 2 ) {
+				// TODO: Lazy -- should create elements and append
 				p.innerHTML = html[0];
 				a.innerHTML = html[1];
 
-				var n = document.getElementById('value') as HTMLInputElement;
+				var n = document.getElementById('jform_value') as HTMLInputElement;
 				if (n !== null) n.value = "0";
-
-				jQuery('#package').on('change', function () {
-					updateTotalValue();
-				});
-
-				// Any checkboxes
-				jQuery('input[type=checkbox][id^=addon').on('change', function () {
-					updateTotalValue();
-				});
-
 			}
 		});
 
 }
 
 function updateTotalValue() {
-	var data = getFormData();
+	var task = "couponValue";
 
-	data["action"] = "value";
-
-	const options = {
-		method: 'POST',
-		body: JSON.stringify(data),
-		headers: {
-			'Content-Type': 'application/json'
-		}
-	}
-
-	fetch('/php/coupons/process.php', options )
-		.then(result => result.json())
+	fetch(couponAjaxUrl(task), couponOptions() )
+		.then(result => result.text())
 		.then(html => {
-			var n = document.getElementById('value') as HTMLInputElement;
-			if ( n !== null ) n.value = html.value;
+			var n = document.getElementById('jform_value') as HTMLInputElement;
+			if ( n !== null ) n.value = html;
 		});
 }
 
 function getEmailStatus() {
-	var data = getFormData();
+	var task = "emailStatus";
 
-	data["action"] = "emailstatus";
-
-	const options = {
-		method: 'POST',
-		body: JSON.stringify(data),
-		headers: {
-			'Content-Type': 'application/json'
-		}
-	}
-
-	fetch('/php/coupons/process.php', options )
+	fetch(couponAjaxUrl(task), couponOptions() )
 		.then(result => result.text())
 		.then(html => {
 			var n = document.getElementById('emailstatus');
@@ -113,20 +90,10 @@ function copyCoupons() {
 		});
 }
 
-function generateCoupons() {
-	var data = getFormData();
+function createCoupons() {
+	var task = "createCoupons";
 
-	data["action"] = "generate";
-
-	const options = {
-		method: 'POST',
-		body: JSON.stringify(data),
-		headers: {
-			'Content-Type': 'application/json'
-		}
-	}
-
-	fetch('/php/coupons/process.php', options )
+	fetch(couponAjaxUrl(task), couponOptions() )
 		.then(result => result.text())
 		.then(html => {
 			var n = document.getElementById('results');
@@ -139,11 +106,11 @@ function submitCoupons() {
 	result.textContent = '';
 
 	var error = '';
-	var name = document.getElementById('name') as HTMLInputElement;
+	var name = document.getElementById('jform_name') as HTMLInputElement;
 	var regExp = /[a-zA-Z]/g;
 	if ( ! regExp.test(name.value)) error = 'Please set the name.';
 
-	var quantity = parseInt((document.getElementById('quantity') as HTMLInputElement).value);
+	var quantity = parseInt((document.getElementById('jform_quantity') as HTMLInputElement).value);
 	if ( ! Number.isInteger(quantity)) error = 'Please set an integer quantity.';
 
 	if ( error != '' )
@@ -155,6 +122,11 @@ function submitCoupons() {
 	}
 	else
 	{
-		generateCoupons();
+		createCoupons();
 	}
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+	loadEvent();
+	document.getElementById('jform_packagetype').addEventListener("change", updateTotalValue);
+});
