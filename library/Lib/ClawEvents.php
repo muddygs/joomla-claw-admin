@@ -108,7 +108,7 @@ class ClawEvents
    * @param string $couponCode Coupon Prefix Letter
    * @return null|clawEvent 
    */
-  public function getEventByCouponCode(string $couponCode): ?ClawEvent
+  public function getEventByCouponCode(string $couponCode, bool $quiet=false): ?ClawEvent
   {
     $result = null;
     $found = 0;
@@ -119,8 +119,10 @@ class ClawEvents
       }
     }
 
-    if ($found > 1) die('Duplicate coupon codes loaded. Did you load multiple events?');
-    if (0 == $found) die('Unknown coupon code requested: ' . $couponCode);
+    if ( !$quiet) {
+      if ($found > 1) die('Duplicate coupon codes loaded. Did you load multiple events?');
+      if (0 == $found) die('Unknown coupon code requested: ' . $couponCode);
+    }
 
     return $result;
   }
