@@ -36,7 +36,9 @@
       "name": "com_claw.coupongenerator",
       "type": "script",
       "uri": "com_claw/coupon_events.js",
-      "dependencies": [],
+      "dependencies": [
+        "core"
+      ],
       "attributes": {
         "defer": true
       }
