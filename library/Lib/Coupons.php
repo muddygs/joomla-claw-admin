@@ -94,7 +94,7 @@ class Coupons
     $this->clawCouponType = $type;
   }
 
-  public function setCouponAssignment(int $assignment): void
+  public function setCouponAssignment(EbCouponAssignments $assignment): void
   {
     $this->clawCouponAssignment = $assignment;
   }
