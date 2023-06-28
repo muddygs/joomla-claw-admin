@@ -31,6 +31,18 @@
       "attributes": {
         "defer": true
       }
+    },
+    {
+      "name": "com_claw.coupongenerator",
+      "type": "script",
+      "uri": "com_claw/coupon_events.js",
+      "dependencies": [
+        "core"
+      ],
+      "attributes": {
+        "defer": true
+      }
     }
+
   ]
 }
