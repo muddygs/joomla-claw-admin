@@ -26,7 +26,7 @@ class ClawDaysListField extends ListField
 
     protected $dayfilter;
 
-    private $days = Helpers::getDays();
+    private $days;
 
     /**
      * Method to get certain otherwise inaccessible properties from the form field object.
@@ -86,6 +86,8 @@ class ClawDaysListField extends ListField
      */
     public function setup(\SimpleXMLElement $element, $value, $group = null)
     {
+        $this->days = Helpers::getDays();
+
         $result = parent::setup($element, $value, $group);
 
         if ($result == true) {
