@@ -55,11 +55,13 @@ class PresentersubmissionController extends FormController
     /** @var Joomla\CMS\MVC\Model\AdminModel */
     $siteModel = $this->getModel();
     $form = $siteModel->getForm();
+    /** @var Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
 
     $input = $app->input;
     $data = $input->get('jform', [], 'array');
     $validation = $siteModel->validate($form, $data);
+
     
     if ( $validation === false ) {
       Helpers::sessionSet('formdata', json_encode($data));
@@ -84,9 +86,20 @@ class PresentersubmissionController extends FormController
       
     }
     
+    $identity = $app->getIdentity();
+
     // Setup items not included in site model
-    $data['uid'] = $app->getIdentity()->id;
+    $data['uid'] = $identity->id;
+    $data['email'] = $identity->email;
     $data['id'] = $input->get('id',0,'int');
+
+    // If it's not the current event, we want to clear the ID and create
+    // a new record.
+
+    if ( $data['event'] != Aliases::current ) {
+      $data['id'] = 0;
+    }
+
     $data['event'] = Aliases::current;
     
     if ( $data['id'] == 0 ) {
@@ -99,6 +112,8 @@ class PresentersubmissionController extends FormController
 
     if ( $result ) {
       $app->enqueueMessage('Biography save successful.');
+      // Redirect to the main submission page
+      $app->redirect('index.php?option=com_claw&view=skillssubmissions');
     }
     return $result;
   }

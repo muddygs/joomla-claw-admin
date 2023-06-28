@@ -22,10 +22,12 @@ use Joomla\CMS\MVC\Model\ListModel;
  */
 class PresentersModel extends ListModel
 {
+  public $db;
 
   private array $list_fields = [
     'id',
     'published',
+    'uid',
     'name',
     'legal_name',
     'event',
@@ -58,6 +60,8 @@ class PresentersModel extends ListModel
     }
 
     parent::__construct($config);
+
+    $this->db = $this->getDatabase();
   }
 
   /**
@@ -144,7 +148,7 @@ class PresentersModel extends ListModel
     if (!empty($search))
     {
       $search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
-      $query->where('(a.value LIKE ' . $search . ')');
+      $query->where('(a.name LIKE ' . $search . ')');
     }
 
     $event = $this->getState('filter.event');

@@ -45,6 +45,20 @@ function BioHtml(object &$__this)
 {
   $presenterRoute = Route::_('index.php?option=com_claw&view=presentersubmission');
 
+  $published = match($__this->bio->published) {
+    0 => 'Unpublished',
+    1 => 'Published',
+    default => 'Pending Review'
+  };
+
+  $event = ClawCorpLib\Lib\ClawEvents::eventAliasToTitle($__this->bio->event);
+  if ( $__this->bio->event == Aliases::current ) {
+    $event .= ' <span class="badge bg-danger">Current</span>';
+  } else {
+    $event .= ' <span class="badge bg-info">Previous</span>';
+  }
+
+  if ( property_exists($__this->bio, 'event')):
 ?>
   <h2>Biography Summary</h2>
 
@@ -59,11 +73,11 @@ function BioHtml(object &$__this)
       <tbody>
         <tr class="">
           <td class="col-4">Event:</td>
-          <td class="col-8"><?php echo ClawCorpLib\Lib\ClawEvents::eventAliasToTitle($__this->bio->event) ?></td>
+          <td class="col-8"><?=$event?></td>
         </tr>
         <tr>
           <td>State:</td>
-          <td><?php echo $__this->bio->published ?></td>
+          <td><?=$published?></td>
         </tr>
         <tr>
           <td>Public Name:</td>
@@ -78,7 +92,9 @@ function BioHtml(object &$__this)
 
   </div>
   
-  <?php if ($__this->params->get('se_submissions_open') == 0):
+  <?php 
+  endif;
+  if ($__this->params->get('se_submissions_open') == 0):
     if ( $__this->bio->id ?? 0 != 0 ):
   ?>
       <h3 class="text-info">Submissions are currently closed. You may view only your biography.</h3>
@@ -93,6 +109,15 @@ function BioHtml(object &$__this)
     ?>
     <h3 class="text-warning">Submissions are open for <?php echo $__this->eventInfo->description ?>. 
     You may add/edit your biography.</h3>
+    <?php
+        if ( $__this->bio->event == Aliases::current ) {
+          $buttonRoute = Route::_('index.php?option=com_claw&view=skillsubmission&id='. $__this->bio->id);
+          $msg = 'Add/Edit Biography';
+        } else {
+          $buttonRoute = Route::_('index.php?option=com_claw&view=skillsubmission&task=copy&id=' . $__this->bio->id);
+          $msg = 'Resubmit for '.Aliases::eventTitleMapping[Aliases::current];
+        }
+    ?>
     <a name="add-biography" id="add-biography" class="btn btn-danger" href="<?php echo $presenterRoute ?>" role="button">Add/Edit Biography</a>
   <?php
 
@@ -106,17 +131,20 @@ function ClassesHtml(object &$__this)
 
   $canSubmit = $__this->params->get('se_submissions_open') == 0 ? false : true;
 
+  $bioIsCurrent = $__this->bio->event == Aliases::current ? true : false;
+
   // var_dump($__this->classes);
 
   ?>
-  <div class="table-responsive">
-    <h2>Table of Submitted Classes</h2>
-    <?php if (!$canSubmit): ?>
-      <h1>Class submissions are currently closed.</h1>
+  <?php if (!$canSubmit): ?>
+    <h3 class="text-warning text-center border border-danger p-3">Class submissions are currently closed.</h3>
+  <?php else:
+    if ( $bioIsCurrent ): ?>
+      <h3 class="text-warning text-center border border-info p-3">Class submissions are open for <?=$__this->eventInfo->description?>. You may add and edit your class submissions.</h3>
     <?php else: ?>
-      <h1>Class submissions are open for <?php echo $__this->eventInfo->description ?>. You may add and edit your class submissions.</h1>
+      <h3 class="text-warning text-center border border-info p-3">Please submit your bio for <?=$__this->eventInfo->description?> before adding/editing class descriptions.</h3>
     <?php endif; ?>
-  </div>
+  <?php endif; ?>
 
   <div class="table-responsive col-12">
     <table class="table table-striped table-dark">
@@ -129,7 +157,7 @@ function ClassesHtml(object &$__this)
   <?php
 
   foreach ($__this->classes AS $class) {
-    ClassRow($class, $canSubmit);
+    ClassRow($class, $canSubmit & $bioIsCurrent);
   }
   ?>
       </tbody>

@@ -22,20 +22,22 @@ $this->document->setTitle("Skill Submission");
 
 echo $this->params->get('SkillHeader') ?? '';
 
-if ($this->params->get('se_submissions_open') ?? 0 == 0) :
+$canSubmit = $this->params->get('se_submissions_open');
+
+if ($canSubmit == 0) :
 ?>
   <h1>Submissions are currently closed. You may view only your class description.</h1>
 <?php
 else :
 ?>
-  <h1>You are submitting for <?php echo $this->eventInfo->description ?>.</h1>
+  <h1 class="text-center w-100 border border-info p-3">You are submitting for <?php echo $this->eventInfo->description ?>.</h1>
 <?php
 endif;
 ?>
 
-<?php if ($this->params->get('se_submissions_open') != 0) : ?>
+<?php if ( $canSubmit != 0 ) : ?>
   <form action="<?php echo Route::_('index.php?option=com_claw&view=' . $view . '&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="<?php echo $view ?>" id="<?php echo $view ?>-form" class="form-validate" enctype="multipart/form-data">
-  <?php endif; ?>
+<?php endif; ?>
 
   <div class="row form-vertical mb-3">
     <div class="col-9">
@@ -60,11 +62,11 @@ endif;
     <h3>
   </div>
 
-  <?php if ($this->params->get('se_submissions_open') != 0) : ?>
+  <?php if ($canSubmit != 0) : ?>
     <button type="button" class="btn btn-primary" onclick="Joomla.submitbutton('<?php echo $view ?>.submit')">Submit for <?php echo $this->eventInfo->description ?></button>
   <?php endif; ?>
 
-  <button type="button" class="btn btn-success" onclick="history.back()">Back</button>
+  <a href="/index.php?option=com_claw&view=skillssubmissions" role="button" class="btn btn-success">Back</a>
 
   <input type="hidden" name="idx" value="<?php echo $this->item->id ?>" />
   <input type="hidden" name="task" value="" />

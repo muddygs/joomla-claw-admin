@@ -21,6 +21,7 @@ use Joomla\CMS\MVC\Controller\FormController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\Aliases;
 
 /**
@@ -70,8 +71,13 @@ class SkillsubmissionController extends FormController
     }
 
     // Setup items not included in site model
-    $data['uid'] = $app->getIdentity()->id;
-    $data['owner'] = $data['uid'];
+    $identity = $app->getIdentity();
+    $data['owner'] = $data['uid'] = $identity->id;
+    $data['email'] = $identity->email;
+
+    $bio = Skills::GetPresenterBios($siteModel->getDatabase(), $data['owner'], Aliases::current);
+    $data['name'] = $bio[0]->name;
+
     $data['id'] = $input->get('id', 0, 'int');
     $data['event'] = Aliases::current;
     $data['length_info'] = $input->get('length', 60, 'int');

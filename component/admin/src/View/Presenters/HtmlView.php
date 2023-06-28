@@ -11,11 +11,15 @@ namespace ClawCorp\Component\Claw\Administrator\View\Presenters;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Helpers\Skills;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Router\Route;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\CMS\Toolbar\ToolbarFactoryInterface;
+
 
 /**
  * @package     Joomla.Administrator
@@ -30,136 +34,118 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
  */
 class HtmlView extends BaseHtmlView
 {
-	/**
-	 * The search tools form
-	 *
-	 * @var    Form
-	 * @since  1.6
-	 */
-	public $filterForm;
+  /**
+   * The search tools form
+   *
+   * @var    Form
+   * @since  1.6
+   */
+  public $filterForm;
 
-	/**
-	 * The active search filters
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	public $activeFilters = [];
+  /**
+   * The active search filters
+   *
+   * @var    array
+   * @since  1.6
+   */
+  public $activeFilters = [];
 
-	/**
-	 * Category data
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	protected $categories = [];
+  /**
+   * Category data
+   *
+   * @var    array
+   * @since  1.6
+   */
+  protected $categories = [];
 
-	/**
-	 * An array of items
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	protected $items = [];
+  /**
+   * An array of items
+   *
+   * @var    array
+   * @since  1.6
+   */
+  protected $items = [];
 
-	/**
-	 * The pagination object
-	 *
-	 * @var    Pagination
-	 * @since  1.6
-	 */
-	protected $pagination;
+  /**
+   * The pagination object
+   *
+   * @var    Pagination
+   * @since  1.6
+   */
+  protected $pagination;
 
-	/**
-	 * The model state
-	 *
-	 * @var    Registry
-	 * @since  1.6
-	 */
-	protected $state;
+  /**
+   * The model state
+   *
+   * @var    Registry
+   * @since  1.6
+   */
+  protected $state;
 
-	/**
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 * @return  void
-	 */
-	function display($tpl = null)
-	{
-		$this->state      = $this->get('State');
-		$this->items      = $this->get('Items');
-		$this->pagination = $this->get('Pagination');
-		$this->filterForm    = $this->get('FilterForm');
-		$this->activeFilters = $this->get('ActiveFilters');
+  /**
+   * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+   * @return  void
+   */
+  function display($tpl = null)
+  {
+    $this->state      = $this->get('State');
+    $this->items      = $this->get('Items');
+    $this->pagination = $this->get('Pagination');
+    $this->filterForm    = $this->get('FilterForm');
+    $this->activeFilters = $this->get('ActiveFilters');
 
-		// Check for errors.
-		if (count($errors = $this->get('Errors'))) {
-			throw new GenericDataException(implode("\n", $errors), 500);
-		}
+    $model = $this->getModel();
 
-		$this->addToolbar();
+    foreach ( $this->items AS $item )
+    {
+      $classes = Skills::GetPresenterClasses($this->getModel()->db, $item->uid, 'c0423');
 
-		parent::display($tpl);
-	}
+      $classesLink = array_map(function($class) {
+        $url = Route::_("index.php?option=com_claw&view=skill&layout=edit&id={$class->id}");
+        $link = '<a href="'.$url.'"> '.$class->title.'</a>';
+        return $link;
+      }, $classes);
 
-	protected function addToolbar(): void
-	{
-		$app = Factory::getApplication();
+      $item->classes = implode('<br/>', $classesLink);
+    }
 
-		ToolbarHelper::title('CLAW Presenters');
+    // Check for errors.
+    if (count($errors = $this->get('Errors'))) {
+      throw new GenericDataException(implode("\n", $errors), 500);
+    }
 
-		// Get the toolbar object instance
-		$toolbar = Toolbar::getInstance('toolbar');
+    $this->toolbar = $this->addToolbar();
 
-		//$user  = $app->getIdentity();
+    parent::display($tpl);
+  }
 
-		// if ($user->authorise('core.admin', 'com_countrybase'))
-		// {
-		$toolbar->addNew('presenter.add');
+  protected function addToolbar(): Toolbar
+  {
+    $app = Factory::getApplication();
 
-		$toolbar->delete('presenters.delete')
-		->text('Delete')
-		->listCheck(true);
-		// }
+    ToolbarHelper::title('CLAW Presenters');
 
-		// if ($user->authorise('core.edit.state', 'com_countrybase'))
-		// {
-		// 	$dropdown = $toolbar->dropdownButton('status-group')
-		// 	->text('JTOOLBAR_CHANGE_STATUS')
-		// 	->toggleSplit(false)
-		// 	->icon('icon-ellipsis-h')
-		// 	->buttonClass('btn btn-action')
-		// 	->listCheck(true);
+    // TODO: This is the "new" way to do toolbars, but there are some formatting
+    // issues that need to be resolved.
 
-		// 	$childBar = $dropdown->getChildToolbar();
 
-		// 	$childBar->publish('countries.publish')->listCheck(true);
+    // Get the toolbar object instance
+    /** @var Toolbar $toolbar */
+    $toolbar = Factory::getContainer()->get(ToolbarFactoryInterface::class)->createToolbar('toolbar');
 
-		// 	$childBar->unpublish('countries.unpublish')->listCheck(true);
+    $user  = $app->getIdentity();
 
-		// 	$childBar->archive('countries.archive')->listCheck(true);
+    // TODO: Need both?
+    if ($user->authorise('core.admin', 'com_claw') || $user->authorise('claw.skills', 'com_claw'))
+    {
+      $toolbar->addNew('presenter.add');
 
-		// 	if ($this->state->get('filter.published') != -2)
-		// 	{
-		// 		$childBar->trash('countries.trash')->listCheck(true);
-		// 	}
-		// }
+      $toolbar->delete('presenters.delete')
+        ->text('Delete')
+        ->message('Confirm delete selected presenter(s)?')
+        ->listCheck(true);
+    }
 
-		// if ($this->state->get('filter.published') == -2 && $user->authorise('core.delete', 'com_countrybase'))
-		// {
-		// 	$toolbar->delete('countries.delete')
-		// 	->text('JTOOLBAR_EMPTY_TRASH')
-		// 	->message('JGLOBAL_CONFIRM_DELETE')
-		// 	->listCheck(true);
-		// }
-
-		// if ($user->authorise('core.admin', 'com_countrybase') || $user->authorise('core.options', 'com_countrybase'))
-		// {
-		// 	$toolbar->preferences('com_countrybase');
-		// }
-
-		// $tmpl = $app->input->getCmd('tmpl');
-		// if ($tmpl !== 'component')
-		// {
-		// 	ToolbarHelper::help('countrybase', true);
-		// }
-	}
+    return $toolbar;
+  }
 }

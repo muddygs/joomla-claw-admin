@@ -71,6 +71,13 @@ class SponsorModel extends AdminModel
 		return $form;
 	}
 
+	public function onContentBeforeSave($context, $data, $isNew)
+	{
+		$data['mtime'] = Helpers::mtime();
+
+		//return parent::onContentBeforeSave($context, $data, $isNew);
+	}
+
 	/**
 	 * Method to get the data that should be injected in the form.
 	 *
@@ -82,12 +89,18 @@ class SponsorModel extends AdminModel
 	{
 		// Check the session for previously entered form data.
 		$app = Factory::getApplication();
-		$data = $app->getUserState('com_claw.edit.sponsor.data', array());
+		$data = $app->getUserState('com_claw.edit.sponsor.data', []);
 
 		if (empty($data))
 		{
-			$data = $this->getItem();
+			$data = ($this->getItem());
 		}
+
+		$data = (object)$data;
+
+		// TODO: Fix calendar date (w/o time) in "null" case
+		if ( !property_exists($data, 'expires') || str_starts_with($data->expires, '0000-00-00')) 
+			$data->expires = $this->getDatabase()->getNullDate();
 
 		return $data;
 	}

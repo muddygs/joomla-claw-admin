@@ -116,7 +116,7 @@ class HtmlView extends BaseHtmlView
       $toolbar->addNew('sponsor.add');
       $toolbar->delete('sponsors.delete')
 			->text('Deleted Selected')
-			->message('Confirm delete selected selection?')
+			->message('Confirm delete selected sponsor(s)?')
 			->listCheck(true);
     }
   }

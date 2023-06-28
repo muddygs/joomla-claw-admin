@@ -19,7 +19,9 @@ use Joomla\CMS\Language\Text;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Enums\SkillsCategories;
 use ClawCorpLib\Enums\SkillsTracks;
+use ClawCorpLib\Helpers\Mailer;
 use ClawCorpLib\Helpers\Skills;
+use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 
 /**
@@ -83,6 +85,12 @@ class SkillModel extends AdminModel
     }
 
     $data['presenters'] = implode(',', $data['presenters'] ?? []);
+
+    // If we're coming from the front end controller, email will be defined
+    if ( array_key_exists('email', $data)) {
+      $new = $data['id'] == 0 ? true : false;
+      $this->email(new: $new, data: $data);
+    }
 
     return parent::save($data);
   }
@@ -169,4 +177,31 @@ class SkillModel extends AdminModel
 
     throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
   }
+
+  private function email(bool $new, array $data)
+  {
+    $subject = $new ? '[New] ' : '[Updated] ';
+    $subject .= Aliases::defaultPrefix. ' Class Submission - ';
+    $subject .= $data['name'];
+
+    $m = new Mailer(
+      tomail: [$data['email']],
+      toname: [$data['name']],
+      fromname: 'CLAW Skills and Education',
+      frommail: 'education@clawinfo.org',
+      subject: $subject,
+    );
+
+    $m->appendToMessage(
+      '<p>Thank you for your interest in presenting at the CLAW/Leather Getaway Skills and Education Program.</p>'.
+      '<p>Your class submission has been received and will be reviewed by the CLAW Education Committee.  You will be notified of the status of your application by email.</p>'.
+      '<p>If you have any questions, please contact us at <a href="mailto:education@clawinfo.org">CLAW S&E Program Manager</a>.</p>');
+
+    $m->appendToMessage('<p>Class Submission Details:</p>');
+
+    $m->appendToMessage($m->arrayToTable($data, ['id', 'mtime', 'day', 'presenters', 'owner']));
+
+    $m->send();
+  }
+
 }

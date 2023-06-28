@@ -60,18 +60,18 @@ endif;
     <div class="col-12 col-md-6">
       <?php echo $this->form->renderField('photo'); ?>
       <?php
-        $field = $this->form->getField('photo');
-        if ( $field != false && $field->value !== '') {
-          if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $field->value]))) {
-            $ts = time();
-            ?>
-            <p class="form-label"><strong>Current Image Preview</strong></p>
-            <img src="<?php echo $field->value ?>?ts=<?php echo $ts ?>" />
-            <?php
-          }
-        }
+      $field = $this->form->getField('photo');
+      if ($field != false && $field->value !== '') {
+        if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $field->value]))) {
+          $ts = time();
       ?>
-      
+          <p class="form-label"><strong>Current Image Preview</strong></p>
+          <img src="<?php echo $field->value ?>?ts=<?php echo $ts ?>" />
+      <?php
+        }
+      }
+      ?>
+
     </div>
   </div>
 
@@ -82,7 +82,7 @@ endif;
     <?php echo $this->form->renderField('social_media'); ?>
     <?php echo $this->form->renderField('comments'); ?>
   </div>
-  
+
   <?php if ($this->params->get('se_submissions_open') != 0) : ?>
     <button type="button" class="btn btn-primary" onclick="Joomla.submitbutton('<?php echo $view ?>.submit')">Submit for <?php echo $this->eventInfo->description ?></button>
     <?php echo $this->form->renderField('event'); ?>
@@ -91,8 +91,8 @@ endif;
     <?php echo HTMLHelper::_('form.token'); ?>
   <?php endif; ?>
 
-  <button type="button" class="btn btn-success" onclick="history.back()">Back</button>
+  <a href="/index.php?option=com_claw&view=skillssubmissions" role="button" class="btn btn-success">Back</a>
 
   <?php if ($this->params->get('se_submissions_open') != 0) : ?>
-   </form>
-  <?php endif;
+  </form>
+<?php endif;

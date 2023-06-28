@@ -31,6 +31,9 @@ $user = $app->getIdentity();
 
 ?>
 <div class="container">
+  <div id="subhead" class="subhead noshadow mb-3">
+    <?php echo $this->toolbar->render(); ?>
+  </div>
   <form action="<?php echo Route::_('index.php?option=com_claw&view=presenters'); ?>" method="post" name="adminForm" id="adminForm">
     <?php echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
 
@@ -102,7 +105,7 @@ $user = $app->getIdentity();
               </td>
 
               <td>
-                <?php echo 'classes...' ?>
+                <?=$item->classes?>
               </td>
 
               <td>
@@ -121,6 +124,10 @@ $user = $app->getIdentity();
           <?php endforeach; ?>
         </tbody>
       </table>
+    </div>
+
+    <div class="row">
+      <?php echo $this->pagination->getListFooter(); ?>
     </div>
 
     <input type="hidden" name="task" value="">

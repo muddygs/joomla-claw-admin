@@ -50,10 +50,25 @@ class PresentersubmissionModel extends AdminModel
     $app = Factory::getApplication();
     $uid = $app->getIdentity()->id;
 
-    $result = Skills::GetPresenterBios($this->getDatabase(), $uid, Aliases::current);
+    $bios = Skills::GetPresenterBios($this->getDatabase(), $uid);
 
-    if ($result) {
-      $this->setState($this->getName() . '.id', $result[0]->id);
+    $id = 0;
+    $mtime = 0;
+
+    foreach ( $bios AS $bio ) {
+      if ( $bio->event == Aliases::current ) {
+        $id = $bio->id;
+        break;
+      }
+
+      if ( $bio->mtime > $mtime ) {
+        $id = $bio->id;
+        $mtime = $bio->mtime;
+      }
+    }
+
+    if ($id) {
+      $this->setState($this->getName() . '.id', $id);
     }
 
     $data = $this->getItem();

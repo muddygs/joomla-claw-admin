@@ -104,7 +104,9 @@ class DisplayController extends BaseController
    */
   public function validatecoupon()
   {
-    // TODO: check token
+    // TODO: Need to validate checkToken on ALL controllers
+    // Check for request forgeries.
+    $this->checkToken();
 
     $json = new Json();
     $coupon = $json->get('coupon', '', 'string');

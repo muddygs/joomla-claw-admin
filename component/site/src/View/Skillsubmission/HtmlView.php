@@ -57,13 +57,15 @@ class HtmlView extends BaseHtmlView
       $app->redirect('/');
     }
 
-    // In read-only mode?
-    if ($this->params->get('se_submissions_open') == 0) {
-      $fieldSet = $this->form->getFieldset('userinput');
-      foreach ($fieldSet as $field) {
-        $this->form->setFieldAttribute($field->getAttribute('name'), 'readonly', 'true');
-      }
-    }
+    // Read-only is handled in the template by omitting the form and submit button
+    
+    // // In read-only mode?
+    // if ($this->params->get('se_submissions_open') == 0) {
+    //   $fieldSet = $this->form->getFieldset('userinput');
+    //   foreach ($fieldSet as $field) {
+    //     $this->form->setFieldAttribute($field->getAttribute('name'), 'readonly', 'true');
+    //   }
+    // }
 
     // Event Naming
     /** @var \ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel */
