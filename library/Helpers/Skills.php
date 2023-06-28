@@ -61,8 +61,9 @@ class Skills
     $query = $db->getQuery(true);
     $query->select('*')
       ->from($db->quoteName('#__claw_skills'))
-      ->where($db->qn('owner') . '= :uid')
-      ->bind(':uid', $uid);
+      ->where('(JSON_CONTAINS(' . $db->qn('presenters') . ', :copresenters) OR ' . $db->qn('owner') . ' = :uid)')
+      ->bind(':uid', $uid)
+      ->bind(':copresenters', $uid);
 
     if ( $current != '' ) {
       $query->where($db->qn('event') . ' = :event')
