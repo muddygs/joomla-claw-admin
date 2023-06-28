@@ -67,11 +67,11 @@
     maxLength="5"
   />
 
+  <!-- this does not work: default="now +6 months" -->
   <field
     name="expires"
     type="calendar"
     label="Expiration Date"
-    default="now +6 months"
     description="Leave blank to none"
     minyear="0"
   />
