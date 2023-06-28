@@ -11,6 +11,7 @@ enum EventPackageTypes: int
     case event_staff = 4; // Multiple list values
     case event_talent = 5; // Renamed to recruited, Multiple list values
     case vendor_crew = 6;
+    case vendor_crew_extra = 26;
     case dinner = 7;
     case brunch_fri = 8;
     case brunch_sat = 22;
@@ -39,6 +40,7 @@ enum EventPackageTypes: int
             EventPackageTypes::event_staff => 'Staff',
             EventPackageTypes::event_talent => 'Volunteer',
             EventPackageTypes::vendor_crew => 'Vendor Crew',
+            EventPackageTypes::vendor_crew_extra => 'Vendor Crew',
             EventPackageTypes::volunteer1 => 'Volunteer',
             EventPackageTypes::volunteer2 => 'Volunteer',
             EventPackageTypes::volunteer3 => 'Volunteer',
