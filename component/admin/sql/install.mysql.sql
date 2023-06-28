@@ -148,6 +148,7 @@ CREATE TABLE `#__claw_presenters` (
   `bio` TEXT DEFAULT NULL,
   `photo` TEXT DEFAULT NULL,
   `submission_date` date DEFAULT NULL,
+  `archive_state` VARCHAR(255) DEFAULT NULL,
   `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
@@ -180,6 +181,7 @@ CREATE TABLE `#__claw_skills` (
   `length_info` int(4) DEFAULT 60,
   `comments` TEXT DEFAULT NULL,
   `submission_date` date DEFAULT NULL,
+  `archive_state` VARCHAR(255) DEFAULT NULL,
   `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
