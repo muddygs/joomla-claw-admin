@@ -6,16 +6,16 @@ use Joomla\CMS\Factory;
 use ClawCorpLib\Enums\EventTypes;
 
 class EventInfo {
-    var string $description = '';
-    var string $location = '';
-    var string $locationAlias = '';
-    var string $start_date = '';
-    var string $end_date = '';
-    var string $prefix = '';
-    var string $shiftPrefix = '';
-    var bool $mainAllowed = false;
-    var string $cancelBy = '';
-    var EventTypes $eventType = EventTypes::none;
+    public string $description = '';
+    public string $location = '';
+    public string $locationAlias = '';
+    public string $start_date = '';
+    public string $end_date = '';
+    public string $prefix = '';
+    public string $shiftPrefix = '';
+    public bool $mainAllowed = false;
+    public string $cancelBy = '';
+    public EventTypes $eventType = EventTypes::none;
 
     /**
      * Event info object with simple date validation if main events are allowed

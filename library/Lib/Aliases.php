@@ -5,13 +5,13 @@ namespace ClawCorpLib\Lib;
 \defined('_JEXEC') or die;
 
 class Aliases {
-  const current='c0423';
-  const active = [\ClawCorpLib\Lib\Aliases::current, 'l1122', 'virtualclaw', 'refunds'];
+  const current='l1123';
+  const active = [\ClawCorpLib\Lib\Aliases::current, 'c0423', 'virtualclaw', 'refunds'];
   const location = 'westin-bonaventure';
 
   // For refunds, allow past events to be identified
   // Also used for checking if volunteer is in good starting in registrationsurvey.php
-  const past = ['l1122', 'c1121', 'c0422'];
+  const past = ['c0423'];
 
   // Day, night, etc passes
   const passesAliases = [];
@@ -23,7 +23,7 @@ class Aliases {
   // For database, based on service provider
   const timezonedb = 'American/Chicago';
   
-  const defaultPrefix = 'C23'; // Use C for CLAW, L for Leather Getaway, V for Virtual CLAW
+  const defaultPrefix = 'L23'; // Use C for CLAW, L for Leather Getaway, V for Virtual CLAW
   const onsiteActive = false;
   const onsiteCoupon = 'ONSITE-CASH'; // TODO: Remove all usage of this
   

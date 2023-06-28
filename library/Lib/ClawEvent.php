@@ -9,19 +9,20 @@ use ClawCorpLib\Enums\EventPackageTypes;
 
 class ClawEvent
 {
-    var string $description = '';
-    var EventPackageTypes $clawPackageType = EventPackageTypes::none;
-    var bool $isMainEvent = false;
-    var string $couponKey = '';
-    var int $couponValue = 0;
-    var int $eventId = 0;
-    var int $category = 0;
-    var int $minShifts = 0;
-    var bool $requiresCoupon = false;
-    var array $couponAccessGroups = [];
-    var bool $isAddon = false;
-    var string $link = '';
+    public string $description = '';
+    public EventPackageTypes $clawPackageType = EventPackageTypes::none;
+    public bool $isMainEvent = false;
+    public string $couponKey = '';
+    public int $couponValue = 0;
+    public int $eventId = 0;
+    public int $category = 0;
+    public int $minShifts = 0;
+    public bool $requiresCoupon = false;
+    public array $couponAccessGroups = [];
+    public bool $isAddon = false;
+    public string $link = '';
 
+    // TODO: Rewrite with named parameters and remove above public properties
     public function __construct(object $e)
     {
         $requiredKeys = [
@@ -45,7 +46,7 @@ class ClawEvent
         foreach ($requiredKeys as $k) {
             if (!property_exists($e, $k)) {
                 var_dump($e);
-                die("clawEvent definition failed on $k");
+                die("ClawEvent definition failed on $k");
             }
 
             $this->$k = $e->$k;
