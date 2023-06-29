@@ -50,52 +50,28 @@ class DisplayController extends BaseController
     if ( $this->input == null ) {
       $this->input = $this->app->input;
     }
-
-    // $view = $input->get('view');
-    // $task = $input->get('task');
-    // $id = $input->get('id');
-
-    // switch ($task) {
-    //   case 'copy':
-    //     $this->copy();
-    //     break;
-
-    //   case 'validatecoupon':
-    //     //$this->RegistrationSurveyProcess();
-    //     break;
-
-    //   default:
-    //     # code...
-    //     break;
-    // }
-
   }
 
-  // TODO: Is this supposed to be here, or it is somewhere else and this is a copy/paste error?
-  public function copy()
+  public function copyskill()
   {
-    $view = $this->input->get('view');
-    $task = $this->input->get('task');
+//    $this->checkToken();
+
     $id = $this->input->get('id');
-
-    switch ($view) {
-      case 'skillsubmission':
-        switch ($task) {
-          case 'copy':
-            echo "copy task for skillsubmission id $id";
-            /** @var ClawCorp\Component\Claw\Site\Model\SkillsubmissionModel */
-            $siteModel = $this->getModel('Skillsubmission', 'Site');
-            $siteModel->duplicate($id);
-
-            break;
-
-          default:
-            # code...
-            break;
-        }
-    }
+    /** @var \ClawCorp\Component\Claw\Site\Model\SkillsubmissionModel */
+    $siteModel = $this->getModel('Skillsubmission', 'Site');
+    $siteModel->duplicate($id);
   }
 
+
+  public function copybio()
+  {
+//    $this->checkToken();
+
+    $id = $this->input->get('id');
+    /** @var \ClawCorp\Component\Claw\Site\Model\PresentersubmissionModel */
+    $siteModel = $this->getModel('Presentersubmission', 'Site');
+    $siteModel->duplicate($id);
+  }
 
   /**
    * Process the registration survey form's coupon field

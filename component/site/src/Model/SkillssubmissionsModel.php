@@ -19,8 +19,10 @@ use ClawCorpLib\Lib\ClawEvents;
 
 use Exception;
 use InvalidArgumentException;
+use Joomla\CMS\Form\Form;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\MVC\Model\AdminModel;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\MVC\Model\FormModel;
 use Joomla\Database\Exception\DatabaseNotFoundException;
 use Joomla\Database\Exception\UnsupportedAdapterException;
 use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
@@ -32,22 +34,8 @@ use RuntimeException;
  *
  * @since  1.6
  */
-class SkillssubmissionsModel extends AdminModel
+class SkillssubmissionsModel extends BaseDatabaseModel
 {
-
-    public function getForm($data = [], $loadData = true) { }
-    public function getTable($name = '', $prefix = '', $options = array())
-    {
-      $name = 'Presenters';
-      $prefix = 'Table';
-  
-      if ($table = $this->_createTable($name, $prefix, $options)) {
-        return $table;
-      }
-  
-      throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
-    }
-  
   /**
    * @param string $event (Optional) Event alias
    * @return array|null 

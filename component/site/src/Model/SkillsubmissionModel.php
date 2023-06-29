@@ -26,6 +26,14 @@ use Joomla\Database\Exception\DatabaseNotFoundException;
  */
 class SkillsubmissionModel extends AdminModel
 {
+  public $db;
+
+  public function __construct()
+  {
+    parent::__construct();
+    $this->db = $this->getDatabase();
+  }
+
   public function getForm($data = [], $loadData = true)
   {
     // Get the form.
@@ -47,14 +55,14 @@ class SkillsubmissionModel extends AdminModel
 
   /**
    * Given the ID of a record, attempt to copy it to the current
-   * event
+   * event while setting the old record to achived.
    * @param int $id 
    * @return int|false 
    * @throws DatabaseNotFoundException 
    */
   public function duplicate(int $id)
   {
-    /** @var \Joomla\CMS\Application\CMSApplicationInterface */
+    /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
     $db = $this->getDatabase();
     $uid = $app->getIdentity()->id;
@@ -66,38 +74,49 @@ class SkillsubmissionModel extends AdminModel
       ->bind(':id', $id);
 
     $db->setQuery($query);
-    $record = $db->loadAssoc();
+    $record = $db->loadObject();
+
+    // Is this user the owner of the record?
+    if ( $record == null || $record->owner != $uid ) {
+      $app->enqueueMessage('Permission denied.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      $skillRoute = Route::_('index.php?option=com_claw&view=skillssubmissions');
+      $app->redirect($skillRoute);
+    }
 
     $success = false;
 
-    if ( $record != null ) {
-      if ( $record['owner'] == $uid && $record['event'] != Aliases::current ) {
-        $record['id'] = 0;
-        $record['event'] = Aliases::current;
-        $record['published'] = 3;
-        $record['day'] = $db->getNullDate();
-        $record['mtime'] = Helpers::mtime();
-        $record['submission_date'] = date("Y-m-d");
-        $record['presenters'] = '';
-        $record['location'] = 2147483647;
-        $record['handout_id'] = 0;
+    if ( $record->event != Aliases::current ) {
+      $record->id = 0;
+      $record->event = Aliases::current;
+      $record->published = 3;
+      $record->day = $db->getNullDate();
+      $record->submission_date = date("Y-m-d");
+      $record->presenters = '';
+      $record->location = 2147483647;
+      $record->handout_id = 0;
+      $record->archive_state = '';
+      $record->mtime = Helpers::mtime();
 
-        $query = $db->getQuery(true);
-        $query->insert($db->quoteName('#__claw_skills'))
-          ->columns(array_keys($record))
-          ->values(implode(',', $db->q(array_values($record))));
+      $db->insertObject('#__claw_skills', $record, 'id');
 
-        $db->setQuery($query);
-        $db->execute();
-    
-        $success = true;
-      }
+      // Set the old record to archived with reference to new ID
+      $query = $db->getQuery(true);
+      $query->update('#__claw_skills')
+        ->set('archive_state = :idx')
+        ->where('id = :id')
+        ->bind(':id', $id)
+        ->bind(':idx', $record->id);
+      $db->setQuery($query);
+      $db->execute();
+      
+  
+      $success = true;
     }
 
     if ( $success ) {
       $app->enqueueMessage('Class copied successfully.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_INFO);
     } else {
-      $app->enqueueMessage('Class copied failed.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      $app->enqueueMessage('Class copy failed.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
     }
 
     $skillRoute = Route::_('index.php?option=com_claw&view=skillssubmissions');

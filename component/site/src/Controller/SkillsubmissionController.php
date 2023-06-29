@@ -50,7 +50,7 @@ class SkillsubmissionController extends FormController
     // Check for request forgeries.
     $this->checkToken();
 
-    /** @var Joomla\CMS\MVC\Model\AdminModel */
+    /** @var \Joomla\CMS\MVC\Model\FormModel */
     $siteModel = $this->getModel();
     $form = $siteModel->getForm();
     $app = Factory::getApplication();
@@ -75,7 +75,7 @@ class SkillsubmissionController extends FormController
     $data['owner'] = $data['uid'] = $identity->id;
     $data['email'] = $identity->email;
 
-    $bio = Skills::GetPresenterBios($siteModel->getDatabase(), $data['owner'], Aliases::current);
+    $bio = Skills::GetPresenterBios($siteModel->db, $data['owner'], Aliases::current);
     $data['name'] = $bio[0]->name;
 
     $data['id'] = $input->get('id', 0, 'int');
