@@ -36,6 +36,7 @@ class Skills
     $query->select('*')
       ->from($db->quoteName('#__claw_presenters'))
       ->where($db->qn('uid') . '= :uid')
+      ->where($db->qn('archive_state') . ' = ""')
       ->bind(':uid', $uid);
 
     if ( $current != '' ) {
@@ -62,6 +63,7 @@ class Skills
     $query->select('*')
       ->from($db->quoteName('#__claw_skills'))
       ->where('(JSON_CONTAINS(' . $db->qn('presenters') . ', :copresenters) OR ' . $db->qn('owner') . ' = :uid)')
+      ->where('('.$db->qn('archive_state') . ' = "" OR ' . $db->qn('archive_state') . ' IS NULL)')
       ->bind(':uid', $uid)
       ->bind(':copresenters', $uid);
 
