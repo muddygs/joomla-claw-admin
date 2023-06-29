@@ -51,7 +51,7 @@ final class Mailer
 
         $filename = basename($attachment);
 
-        $mailer->addAttachment($path, $filename, 'base64', 'application/octet-stream', 'attachment');
+        if ( file_exists($path)) $mailer->addAttachment($path, $filename, 'base64', 'application/octet-stream', 'attachment');
       }
     }
 
