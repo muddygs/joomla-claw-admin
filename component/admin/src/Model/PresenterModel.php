@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -20,7 +20,6 @@ use Joomla\CMS\Image\Image;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Mailer;
 use ClawCorpLib\Lib\Aliases;
-use Joomla\Component\Finder\Administrator\Indexer\Parser\Html;
 use LogicException;
 
 /**
@@ -102,11 +101,10 @@ class PresenterModel extends AdminModel
     $mime = $files['photo_upload']['type'];
     $error = $files['photo_upload']['error'];
   
-    $orig = '';
+    $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, Aliases::presentersdir, 'orig', $data['uid'].'.jpg']);
     
     if ( 0 == $error ) {
       // Copy original out of tmp
-      $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, Aliases::presentersdir, 'orig', $data['uid'].'.jpg']);
       $result = copy($tmp_name, $orig);
       if ( !$result ) {
         $app->enqueueMessage('Unable to save original photo file.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
@@ -227,7 +225,10 @@ class PresenterModel extends AdminModel
 
   private function email(bool $new, array $data)
   {
-    return;
+    // Get notification configuration
+    $app = Factory::getApplication();
+    $params = $app->getParams();
+    $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
 
     $subject = $new ? '[New] ' : '[Updated] ';
     $subject .= Aliases::defaultPrefix. ' Presenter Application - ';
@@ -237,9 +238,9 @@ class PresenterModel extends AdminModel
       tomail: [$data['email']],
       toname: [$data['name']],
       fromname: 'CLAW Skills and Education',
-      frommail: 'education@clawinfo.org',
+      frommail: $notificationEmail,
       subject: $subject,
-      attachments: [$data['photo']]
+      attachments: [implode(DIRECTORY_SEPARATOR, [Aliases::presentersdir, 'orig', $data['uid'].'.jpg'])]
     );
 
     $header = <<< HTML
@@ -253,7 +254,7 @@ HTML;
     $m->appendToMessage('<p>Application Details:</p>');
     $m->appendToMessage($m->arrayToTable($data, ['photo','uid','email','id','mtime', 'orig']));
     
-    $m->appendToMessage('<p>Questions? Please email <a href="mailto:education@clawinfo.org">education@clawinfo.org</a></p>');
+    $m->appendToMessage('<p>Questions? Please email <a href="'.$notificationEmail.'">Education Coordinator</a></p>');
 
     $m->send();
   }

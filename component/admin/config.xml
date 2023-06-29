@@ -47,6 +47,15 @@
 				<option value="0">JNO</option>
 			</field>
 
+			<field
+				name="se_notification_email"
+				type="email"
+				label="Notification Email"
+				default="education@clawinfo.org"
+				required="true"
+				validate="email"
+			/>
+
 	</fieldset>
 
 </config>
