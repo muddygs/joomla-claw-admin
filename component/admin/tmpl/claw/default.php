@@ -41,7 +41,7 @@ $content = [
 Bootstrap::writeGrid($content, $tags);
 
 ?>
-<h2>Skills &amp; Eductions</h2>
+<h2>Skills &amp; Education</h2>
 <?php
 $content = [
     'ticket-alt' => ['Presenter Submissions','LINK'],
