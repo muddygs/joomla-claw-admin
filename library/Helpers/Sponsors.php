@@ -33,10 +33,10 @@ class Sponsors {
     return $this->cache;
   }
 
-  public function GetSponsorById(int $id): object
+  public function GetSponsorById(int $id): ?object
   {
     if ( !count($this->cache) ) Sponsors::CacheSponsorsList();
-    return array_key_exists($id, $this->cache) ? $this->cache[$id] : (object)[];
+    return array_key_exists($id, $this->cache) ? $this->cache[$id] : null;
   }
 
   public function GetSmallImageLink(int $id): string

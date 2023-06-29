@@ -187,15 +187,23 @@ class SchedulesModel extends ListModel
     // Filter by search in title.
     $search = $this->getState('filter.search');
     $published = $this->getState('filter.published');
-    $daylist = $this->getState('filter.dayfilter');
-    $event = $this->getState('filter.event');
+    $day = $this->getState('filter.dayfilter');
+    $event = $this->getState('filter.event', '_current_');
 
-    if ($daylist != null) {
-      $e = new ClawEvents(Aliases::current);
-      $info = $e->getEvent()->getInfo();
-      $days = Helpers::getDateArray($info->start_date, true);
-      if (array_key_exists($daylist, $days)) {
-        $query->where('a.day =' . $db->quote($days[$daylist]));
+    if ($day != null) {
+      // $e = new ClawEvents(Aliases::current);
+      // $info = $e->getEvent()->getInfo();
+      // $days = Helpers::getDateArray($info->start_date, true);
+      // if (array_key_exists($day, $days)) {
+      //   $query->where('a.day =' . $db->quote($days[$day]));
+      // }
+      date_default_timezone_set('etc/UTC');
+      $dayInt = date('w', strtotime($day)); 
+
+      if ( $dayInt !== false ) {
+        $dayInt++; // PHP to MariaDB conversion
+        $query->where('DAYOFWEEK(a.day) = :dayint');
+        $query->bind(':dayint', $dayInt, ParameterType::INTEGER);
       }
     }
 

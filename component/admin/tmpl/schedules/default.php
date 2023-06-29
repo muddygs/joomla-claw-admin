@@ -51,7 +51,7 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
         <th scope="col">End Time</th>
 		    <th scope="col">Title</th>
         <th scope="col">Location</th>
-        <th scole="col">Sponsor(s)</th>
+        <th scope="col">Sponsor(s)</th>
         <th scope="col">ID</th>
       </tr>
     </thead>
@@ -98,7 +98,8 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
               $sponsors = json_decode($item->sponsors);
               $names = [];
               foreach ( $sponsors AS $s ):
-                $names[] = ($this->sponsors)->GetSponsorById($s)->name;
+                $sponsor = ($this->sponsors)->GetSponsorById($s);
+                $names[] = $sponsor ? ($this->sponsors)->GetSponsorById($s)->name : "<span class=\"text-danger\">Error: Sponsor $s not found</span>";
               endforeach;
               echo implode('<br/>', $names);
             ?>

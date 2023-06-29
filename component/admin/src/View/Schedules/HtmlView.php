@@ -121,29 +121,6 @@ class HtmlView extends BaseHtmlView
 			->listCheck(true);
 		}
 
-		// if ($user->authorise('core.edit.state', 'com_countrybase'))
-		// {
-		// 	$dropdown = $toolbar->dropdownButton('status-group')
-		// 	->text('JTOOLBAR_CHANGE_STATUS')
-		// 	->toggleSplit(false)
-		// 	->icon('icon-ellipsis-h')
-		// 	->buttonClass('btn btn-action')
-		// 	->listCheck(true);
-
-		// 	$childBar = $dropdown->getChildToolbar();
-
-		// 	$childBar->publish('countries.publish')->listCheck(true);
-
-		// 	$childBar->unpublish('countries.unpublish')->listCheck(true);
-
-		// 	$childBar->archive('countries.archive')->listCheck(true);
-
-		// 	if ($this->state->get('filter.published') != -2)
-		// 	{
-		// 		$childBar->trash('countries.trash')->listCheck(true);
-		// 	}
-		// }
-
 		if ($this->state->get('filter.published') == -2 && $user->authorise('core.delete', 'com_claw'))
 		{
 			$toolbar->delete('schedules.delete')
