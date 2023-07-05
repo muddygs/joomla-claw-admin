@@ -56,11 +56,11 @@ class Registrant
     foreach ( $this->_records as $r )
     {
       /** @var \ClawCorpLib\Lib\RegistrantRecord $r */
-      if ( $r->registrant->published == EbPublishedState::published ) {
+      if ( $r->registrant->published == EbPublishedState::published->value ) {
         if ( in_array($r->event->eventId, $this->clawEvents->mainEventIds)) {
           $r->registrant->badgeId = $this->badgeId;
           $e = $this->clawEvents->getEventByKey('eventId', $r->event->eventId);
-          $r->registrant->clawPackageType = $e->clawPackageType;
+          $r->registrant->eventPackageType = $e->clawPackageType;
           return $r;
         }
       }
@@ -323,7 +323,7 @@ class Registrant
 SQL;
     
     if ( false == $any ) {
-      $q .= ' AND published = '. EbPublishedState::published;
+      $q .= ' AND published = '. EbPublishedState::published->value;
     }
 
     $db->setQuery($q);
