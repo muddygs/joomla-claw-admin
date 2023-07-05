@@ -34,7 +34,7 @@ class c0423 extends AbstractEvent
     $prefix = strtolower($prefix);
 
     // Addons (for coupon generation)
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'D',
       'description' => 'Dinner',
       'clawPackageType' => EventPackageTypes::dinner,
@@ -48,7 +48,7 @@ class c0423 extends AbstractEvent
       'isAddon' => true
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'B',
       'description' => 'Sun Brunch',
       'clawPackageType' => EventPackageTypes::brunch_sun,
@@ -62,7 +62,7 @@ class c0423 extends AbstractEvent
       'isAddon' => true
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'G',
       'description' => 'Fri Buffet',
       'clawPackageType' => EventPackageTypes::buffet_fri,
@@ -76,7 +76,7 @@ class c0423 extends AbstractEvent
       'isAddon' => true
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'A',
       'link' => $prefix . '-reg-att',
       'description' => 'Attendee',
@@ -90,7 +90,7 @@ class c0423 extends AbstractEvent
       'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr']
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => '',
       'link' => $prefix . '-reg-vip',
       'description' => 'VIP',
@@ -104,7 +104,7 @@ class c0423 extends AbstractEvent
       'couponAccessGroups' => []
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'C',
       'link' => $prefix . '-reg-claw',
       'description' => 'Coordinator',
@@ -118,7 +118,7 @@ class c0423 extends AbstractEvent
       'couponAccessGroups' => ['Super Users', 'Administrator']
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'S',
       'link' => $prefix . '-reg-sta',
       'description' => 'Onsite Staff',
@@ -132,7 +132,7 @@ class c0423 extends AbstractEvent
       'couponAccessGroups' => ['Super Users', 'Administrator']
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'T',
       'link' => $prefix . '-reg-tal',
       'description' => 'Recruited Volunteer',
@@ -146,7 +146,7 @@ class c0423 extends AbstractEvent
       'couponAccessGroups' => ['Super Users', 'Administrator']
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'V',
       'link' => $prefix . '-reg-vol2',
       'description' => 'Volunteer 2 Shifts',
@@ -161,7 +161,7 @@ class c0423 extends AbstractEvent
       'authNetProfile' => true
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'W',
       'link' => $prefix . '-reg-vol3',
       'description' => 'Volunteer 3 Shifts',
@@ -176,7 +176,7 @@ class c0423 extends AbstractEvent
       'authNetProfile' => true,
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'Y',
       'link' => $prefix . '-reg-super',
       'description' => 'Super Volunteer',
@@ -191,7 +191,7 @@ class c0423 extends AbstractEvent
       'authNetProfile' => true,
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'R',
       'link' => $prefix . '-reg-ven',
       'description' => 'Vendor Crew',
@@ -205,7 +205,7 @@ class c0423 extends AbstractEvent
       'couponAccessGroups' => ['Super Users', 'Administrator']
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'E',
       'link' => $prefix . '-reg-edu',
       'description' => 'Educator',
@@ -219,7 +219,7 @@ class c0423 extends AbstractEvent
       'couponAccessGroups' => ['Super Users', 'Administrator', 'SkillsMgmr']
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'I',
       'link' => $prefix . '-reg-att',
       'description' => 'General Assistant',
@@ -233,7 +233,7 @@ class c0423 extends AbstractEvent
       'couponAccessGroups' => ['Super Users', 'Administrator', 'SkillsMgmr']
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'N',
       'link' => $prefix . '-reg-att',
       'description' => 'CLAW Nation',
@@ -247,7 +247,7 @@ class c0423 extends AbstractEvent
       'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr']
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'FRI',
       'link' => 'onsite',
       'description' => 'Friday Day Pass',
@@ -261,7 +261,7 @@ class c0423 extends AbstractEvent
       'couponAccessGroups' => []
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'SAT',
       'link' => 'onsite',
       'description' => 'Saturday Day Pass',
@@ -275,7 +275,7 @@ class c0423 extends AbstractEvent
       'couponAccessGroups' => []
     ]));
 
-    $this->AppendEvent(new clawEvent((object)[
+    $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'SUN',
       'link' => 'onsite',
       'description' => 'Sunday Day Pass',
