@@ -75,8 +75,10 @@ $view = 'presenter';
           if ( $this->item->photo !== '') {
             if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $this->item->photo]))) {
               $ts = time();
+              $orig = implode(DIRECTORY_SEPARATOR, ['', 'images', 'skills', 'presenters', 'orig', basename($this->item->photo)]);
               ?>
-              <img src="<?=$this->item->photo?>?ts=<?=$ts?>" />
+              <img src="<?=$this->item->photo?>?ts=<?=$ts?>" class="img-thumbnail"/>
+              <span><a href="<?=$orig?>" target="_blank">[ view original ]</a></span>
               <?php
             }
           }
