@@ -119,9 +119,9 @@ if ($addons == true && $mainEvent == null) :
   return;
 endif;
 
-if ($addons == false && $mainEvent != null && $mainEvent->registrant->eventPackageType != $EventPackageType) :
+if ($addons == false && $mainEvent != null && $mainEvent->registrant->eventPackageType != $eventPackageType) :
 ?>
-  <p>You cannot register for this event because you are already registered for <a href="<?php echo $mainEvent->claw->link; ?>"><?php echo $mainEvent->event->title; ?></a>.</p>
+  <p>You cannot register for this event because you are already registered for <b><?= $mainEvent->event->title ?></b>.</p>
   <p><span class="fa fa-info-circle fa-2x"></span><a href="/help?category_id=11">&nbsp;Contact Guest Services for assistance.</a></p>
 <?php
   return;
