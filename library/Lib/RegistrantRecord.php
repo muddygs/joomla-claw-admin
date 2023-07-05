@@ -73,7 +73,7 @@ class RegistrantRecord
     $this->category->category_id = $r->category_id;
 
     foreach (get_class_vars('ClawCorpLib\Lib\RegistrantRecordRegistrant') as $k => $v) {
-      if ( property_exists($r, $k) ) {
+      if ( property_exists($r, $k) && $r->$k !== null ) {
         $this->registrant->$k = $r->$k;
       }
     }
