@@ -1,7 +1,7 @@
 <?php
 namespace ClawCorpLib\Enums;
 
-enum EbPublishedState : string
+enum EbPaymentTypes : string
 {
   case authnet = 'os_authnet';
 }
