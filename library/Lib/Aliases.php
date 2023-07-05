@@ -108,6 +108,7 @@ class Aliases {
 
   // TODO: Pull from event data directly
   const eventTitleMapping = [
+    'virtualclaw' => 'Virtual CLAW',
     'c1121' => 'CLAW 21',
     'c0422' => 'CLAW 22',
     'l1122' => 'Leather Getaway 22',
