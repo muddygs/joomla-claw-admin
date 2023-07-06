@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" client="site"
+  method="upgrade">
+
+  <name>CLAW</name>
+  <creationDate>July 2023</creationDate>
+  <author>CLAW Corp.</author>
+  <authorUrl>https://www.clawinfo.org/</authorUrl>
+  <copyright>(c) 2023 CLAW Corp.</copyright>
+  <license>GPLv2</license>
+  <version>0.1.0</version>
+  <description>Displays sponsor logos</description>
+
+  <namespace path="src">ClawCorp\Module\Sponsors</namespace>
+
+	<files>
+		<filename module="mod_claw_sponsors">mod_claw_sponsors.php</filename>
+		<folder>tmpl</folder>
+		<folder>src</folder>
+	</files>
+
+  <config>
+    <fields name="params">
+      <fieldset name="module" label="Options">
+        <field
+          name="layout"
+          type="list"
+          label="Sponsor Type"
+          default="master"
+          validate="options"
+          >
+          <option value="master">Master</option>
+          <option value="sustaining">Sustaining</option>
+        </field>
+      </fieldset>
+    </fields>
+  </config>
+</extension>
