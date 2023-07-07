@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -36,6 +36,9 @@ class SponsorModel extends AdminModel
 
 	public function save($data)
 	{
+		if ( $data['expires'] == $this->getDatabase()->getNullDate() || $data['expires'] == '' )
+			$data['expires'] = '0000-00-00';
+
 		$data['mtime'] = Helpers::mtime();
 
 		return parent::save($data);
@@ -54,7 +57,7 @@ class SponsorModel extends AdminModel
 	public function getForm($data = array(), $loadData = true)
 	{
 		// Get the form.
-		$form = $this->loadForm('com_claw.sponsor', 'sponsor', array('control' => 'jform', 'load_data' => $loadData));
+		$form = $this->loadForm('com_claw.sponsor', 'sponsor', ['control' => 'jform', 'load_data' => $loadData]);
 
 		if (empty($form))
 		{

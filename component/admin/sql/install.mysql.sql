@@ -53,7 +53,7 @@ CREATE TABLE `#__claw_sponsors`(
     `logo_large` VARCHAR(255) NULL,
     `published` TINYINT(4) NOT NULL DEFAULT '1',
     `ordering` INT(11) NULL DEFAULT NULL,
-    `expires` DATE DEFAULT '0000-00-00 00:00:00',
+    `expires` DATE DEFAULT '0000-00-00',
     `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP()
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
@@ -71,7 +71,7 @@ CREATE TABLE `#__claw_vendors`(
     `logo` TEXT NOT NULL,
     `location` INT(11) DEFAULT NULL,
     `catid` INT(11) NULL DEFAULT NULL,
-    `expires` DATE DEFAULT '0000-00-00 00:00:00',
+    `expires` DATE DEFAULT '0000-00-00',
     `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP()
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 

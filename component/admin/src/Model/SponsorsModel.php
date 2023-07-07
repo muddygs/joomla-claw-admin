@@ -132,11 +132,17 @@ class SponsorsModel extends ListModel
 
 		// Filter by search in title.
 		$search = $this->getState('filter.search');
+		$type = $this->getState('filter.type');
 
 		if (!empty($search))
 		{
 			$search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
-			$query->where('(a.value LIKE ' . $search . ')');
+			$query->where('(a.name LIKE ' . $search . ')');
+		}
+
+		if ( !empty($type) )
+		{
+			$query->where('a.type = ' . $db->quote($type));
 		}
 
 		// Add the list ordering clause.

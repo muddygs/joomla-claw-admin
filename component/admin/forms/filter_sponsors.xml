@@ -2,6 +2,21 @@
 <form>
 
 	<fields name="filter">
+		<field
+			name="type"
+			type="list"
+			label="Sponsor Type"
+			default="0"
+			onchange="this.form.submit();"
+			>
+			<option value="0">All</option>
+			<option value="1">Event Sponsor</option>
+			<option value="2">Sustaining</option>
+			<option value="3">Master</option>
+			<option value="6">Legacy Sustaining</option>
+			<option value="5">Legacy Master</option>
+			<option value="4">Media</option>
+		</field>
 
 		<field
 			name="search"
