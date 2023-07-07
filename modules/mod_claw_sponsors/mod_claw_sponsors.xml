@@ -8,7 +8,7 @@
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2023 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <description>Displays sponsor logos</description>
 
   <namespace path="src">ClawCorp\Module\Sponsors</namespace>
@@ -31,6 +31,7 @@
           >
           <option value="master">Master</option>
           <option value="sustaining">Sustaining</option>
+          <option value="overview">Overview</option>
         </field>
       </fieldset>
     </fields>

@@ -26,17 +26,18 @@ use ClawCorpLib\Enums\SponsorshipType;
  */
 class SponsorsHelper
 {
-  public static function echoLogos(bool $master = true)
+  public static function loadSponsors()
   {
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    // Index on rows maps to grouping value by sponsor_type radio in elements
-    $logos = (object) [
-      'legacymaster' => [],
-      'legacysustaining' => [],
-      'master' => [],
-      'sustaining' => []
-    ];
+    # Enumerate SponsorshipType and create empty arrays
+    $sponsors = [];
+    $validTypes = [];
+
+    foreach (SponsorshipType::cases() as $type) {
+      $sponsors[$type->value] = [];
+      $validTypes[] = $type->value;
+    }
 
     $query = $db->getQuery(true);
 
@@ -48,25 +49,35 @@ class SponsorsHelper
     $db->setQuery($query);
     $rows = $db->loadObjectList();
 
+    // TODO: validate $row->type is a valid enum value
     foreach ($rows as $row) {
-      switch ($row->type) {
-        case SponsorshipType::Legacy_Master->value:
-          $logos->legacymaster[] = $row;
-          break;
-        case SponsorshipType::Legacy_Sustaining->value:
-          $logos->legacysustaining[] = $row;
-          break;
-        case SponsorshipType::Master->value:
-          $logos->master[] = $row;
-          break;
-        case SponsorshipType::Sustaining->value:
-          $logos->sustaining[] = $row;
-          break;
-      }
+      if (!in_array($row->type, $validTypes)) continue;
+      $sponsors[$row->type][] = $row;
     }
 
+    return $sponsors;
+  }
+
+  public static function echoAllSponsors()
+  {
+    $sponsors = SponsorsHelper::loadSponsors();
+
+    SponsorsHelper::writeSponsorTable($sponsors[SponsorshipType::Legacy_Master->value],'legacymaster','Legacy Master Sponsors',true);
+    SponsorsHelper::writeSponsorTable($sponsors[SponsorshipType::Master->value],'master','Master Sponsors',true);
+    SponsorsHelper::writeSponsorTable($sponsors[SponsorshipType::Legacy_Sustaining->value],'legacysus','Legacy Sustaining Sponsors',true);
+    SponsorsHelper::writeSponsorTable($sponsors[SponsorshipType::Sustaining->value],'sus','Legacy Sustaining Sponsors',true);
+    SponsorsHelper::writeSponsorTable($sponsors[SponsorshipType::Sponsor->value],'sus','Event Sponsors',true);
+    SponsorsHelper::writeSponsorTable($sponsors[SponsorshipType::Media->value],'sus','Media Sponsors',true);
+  }
+
+  public static function echoLogos(bool $master = true)
+  {
+    $sponsors = SponsorsHelper::loadSponsors();
+
     if ($master) :
-      SponsorsHelper::writeCss(count($logos->legacymaster) * 2 + count($logos->master), count($logos->legacysustaining) * 2 + count($logos->sustaining));
+      $masterCells = count($sponsors[SponsorshipType::Legacy_Master->value]) * 2 + count($sponsors[SponsorshipType::Master->value]);
+      $sustainingCells = count($sponsors[SponsorshipType::Legacy_Sustaining->value]) * 2 + count($sponsors[SponsorshipType::Sustaining->value]);
+      SponsorsHelper::writeCss($masterCells, $sustainingCells);
 ?>
       <div class="container">
         <div class="row">
@@ -79,8 +90,8 @@ class SponsorsHelper
               </div>
               <div class="d-flex flex-wrap justify-content-center">
                 <?php
-                SponsorsHelper::writeSponsors($logos->legacymaster, 'mastersponsor2x');
-                SponsorsHelper::writeSponsors($logos->master, 'mastersponsor');
+                SponsorsHelper::writeSponsors($sponsors[SponsorshipType::Legacy_Master->value], 'mastersponsor2x');
+                SponsorsHelper::writeSponsors($sponsors[SponsorshipType::Master->value], 'mastersponsor');
                 ?>
               </div>
             </div>
@@ -102,8 +113,8 @@ class SponsorsHelper
 
               <div class="d-flex flex-wrap justify-content-center">
                 <?php
-                SponsorsHelper::writeSponsors($logos->legacysustaining, 'sustainingsponsor2x');
-                SponsorsHelper::writeSponsors($logos->sustaining, 'sustainingsponsor');
+                SponsorsHelper::writeSponsors($sponsors[SponsorshipType::Legacy_Sustaining->value], 'sustainingsponsor2x');
+                SponsorsHelper::writeSponsors($sponsors[SponsorshipType::Sustaining->value], 'sustainingsponsor');
                 ?>
               </div>
             </div>
@@ -177,15 +188,15 @@ class SponsorsHelper
         }
       }
     </style>
-<?php
+  <?php
   }
 
   public static function writeJavascript($c)
   {
-    $sponsor = count($c->sustaining);
-    $sponsord = count($c->legacysustaining);
-    $master = count($c->master);
-    $masterd = count($c->legacymaster);
+    $sponsor = count($c[SponsorshipType::Sustaining->value]);
+    $sponsord = count($c[SponsorshipType::Legacy_Sustaining->value]);
+    $master = count($c[SponsorshipType::Master->value]);
+    $masterd = count($c[SponsorshipType::Legacy_Master->value]);
 
     $s = $sponsor + $sponsord * 2;
     $sm = $master + $masterd * 2;
@@ -378,5 +389,33 @@ javascript;
       ),
       $input
     );
+  }
+
+  public static function writeSponsorTable(array $sponsors, string $class, string $heading, bool $large)
+  {
+    if (!count($sponsors)) return;
+  ?>
+    <h1 style="text-align:center;" class="m-3"><?= $heading ?></h1>
+    <div class="d-flex flex-row flex-wrap justify-content-center mb-3">
+      <?php
+      foreach ($sponsors as $row):
+        $name = $row->name;
+        $logo = $large ? $row->logo_large : $row->logo_small;
+
+        $url = $row->link;
+        $click = empty($url) ? '' : "style=\"cursor:pointer;\" onClick=\"javascript:window.open('$url','_blank')\"";
+
+      ?>
+        <div class="m-2 p-2 <?= $class ?>" style="background-color:#111;" <?= $click ?>>
+          <div class="mb-1">
+            <img src="<?= $logo ?>" class="img-fluid mx-auto d-block <?= $class ?>logo" alt="<?= $name ?>" title="<?= $name ?>" />
+          </div>
+          <p class="<?=$class?>name text-center" style="margin-bottom:0 !important;"><?=$name?></p>
+        </div>
+      <?php
+      endforeach;
+      ?>
+    </div>
+<?php
   }
 }
