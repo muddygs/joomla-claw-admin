@@ -3,15 +3,12 @@
   method="upgrade">
 
   <name>CLAW</name>
-  <!-- The following elements are optional and free of formatting constraints -->
   <creationDate>April 2023</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2023 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <!--  The version string is recorded in the components table -->
   <version>0.0.7</version>
-  <!-- The description is optional and defaults to the name -->
   <description>CLAW Data Administration</description>
 
   <namespace path="src/">ClawCorp\Component\Claw</namespace>
