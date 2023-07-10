@@ -8,16 +8,21 @@ class Skills
 {
   private static array $cache = [];
 
-  public static function GetPresentersList(DatabaseDriver $db): array
+  public static function GetPresentersList(DatabaseDriver $db, string $eventAlias = ''): array
   {
     if (count(Skills::$cache)) return Skills::$cache;
 
     $query = $db->getQuery(true);
 
-    $query->select($db->qn(['uid', 'name', 'published']))
+    $query->select($db->qn(['id', 'uid', 'name', 'published']))
       ->from($db->qn('#__claw_presenters'))
       ->where($db->qn('published') . ' IN (1,3)')
       ->order('name ASC');
+
+    if ( $eventAlias != '' ) {
+      $query->where($db->qn('event') . ' = :event')
+      ->bind(':event', $eventAlias);
+    }
 
     $db->setQuery($query);
     Skills::$cache = $db->loadObjectList('uid') ?? [];
