@@ -81,9 +81,9 @@ class SkillModel extends AdminModel
       $day = $info->modify(modifier: $data['day'] ?? '', validate: false);
       if ($day !== false) {
         $data['day'] = $day;
-      } else {
-        $data['day'] = null;
-      }
+      } 
+    } else {
+      $data['day'] = $this->getDatabase()->getNullDate();
     }
 
     $data['presenters'] = implode(',', $data['presenters'] ?? []);
