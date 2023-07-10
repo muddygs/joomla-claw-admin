@@ -59,6 +59,8 @@ class ClawEventsListField extends ListField
     {
         $options = parent::getOptions();
 
+        // TODO: Fix so that _current_ isn't necessary; this code is missing checks for selected/checked/disable
+        // TODO: See LocationListField.php for example
         foreach(Aliases::eventTitleMapping AS $alias => $title ) {
             $options[] = (object)[
                 'value'    => $alias,
