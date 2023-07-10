@@ -18,6 +18,7 @@ use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Helpers\Locations;
 use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Router\Route;
 use Joomla\Database\ParameterType;
 
 /**
@@ -27,7 +28,6 @@ use Joomla\Database\ParameterType;
  */
 class SkillsModel extends ListModel
 {
-
   private array $list_fields = [
     'id',
     'published',
@@ -136,34 +136,53 @@ class SkillsModel extends ListModel
   {
     $items = parent::getItems();
 
+    $event = $this->getState('filter.event');
+    switch ($event) {
+      case '':
+      case '_current_':
+        $event = Aliases::current;
+        break;
+      case '_all_':
+        $event = '';
+    }
+
     $locations = Locations::GetLocationsList($this->getDatabase());
-    $presenters = Skills::GetPresentersList($this->getDatabase());
+    $presenters = Skills::GetPresentersList($this->getDatabase(), $event);
 
     foreach ( $items AS $item ) {
       $item->day_text = '<i class="fa fa-question"></i>';
-      if ( $item->day != null ) {
+      if ( isset($item->day) && $item->day != '0000-00-00' ) {
         $datetime = date_create($item->day);
         if ( $datetime !== false ) {
           $item->day_text = date_format($datetime, 'D');
         }
 
-        if ( $item->time_slot ) {
+        if ( isset($item->time_slot) && $item->time_slot ) {
           $time = explode(':', $item->time_slot)[0];
           $datetime = date_create($time);
           $item->day_text .= ' '.date_format($datetime, 'h:i A');
         }
+      } else {
+        $item->day_text = '<i class="fa fa-question"></i>';
       }
-
 
       $item->presenter_names = [];
 
       if ( array_key_exists($item->owner, $presenters)) {
-        $item->presenter_names[] = $presenters[$item->owner]->name;
+        $presenterRoute = Route::_('index.php?option=com_claw&view=presenter&layout=edit&id='.$presenters[$item->owner]->id);
+        $item->presenter_names[] = '<a href="'. $presenterRoute. '">'.$presenters[$item->owner]->name.'</a>';
+        if ( $presenters[$item->owner]->published == 3 ) {
+          $item->presenter_names[count($item->presenter_names)-1] .= ' <i class="fa fa-exclamation-triangle text-danger"></i>';
+        }
 
         if ( $item->presenters != '' ) {
           foreach ( explode(',',$item->presenters) AS $p ) {
             if ( array_key_exists($p, $presenters)) {
-              $item->presenter_names[] = $presenters[$p]->name;
+              $item->presenter_names[] = '<i>'.$presenters[$p]->name.'</i>';
+              if ( $presenters[$item->owner]->published == 3 ) {
+                $item->presenter_names[count($item->presenter_names)-1] .= ' <i class="fa fa-exclamation-triangle text-danger"></i>';
+              }
+      
             } else {
               $item->presenter_names = ['<span class="text-danger">ERROR: Deleted presenter</span>'];
               break;
@@ -216,6 +235,8 @@ class SkillsModel extends ListModel
     }
     
     $event = $this->getState('filter.event');
+    $day = $this->getState('filter.day');
+    $presenter = $this->getState('filter.presenter');
 
     switch ($event) {
       case '':
@@ -232,7 +253,6 @@ class SkillsModel extends ListModel
       ->bind(':event', $event);
     }
     
-    $day = $this->getState('filter.day');
     
     if ( $day ) {
       date_default_timezone_set('etc/UTC');
@@ -243,6 +263,11 @@ class SkillsModel extends ListModel
         $query->where('DAYOFWEEK(a.day) = :dayint');
         $query->bind(':dayint', $dayInt, ParameterType::INTEGER);
       }
+    }
+
+    if ( $presenter ) {
+      $query->where('a.owner = :presenter');
+      $query->bind(':presenter', $presenter);
     }
 
     // Add the list ordering clause.
