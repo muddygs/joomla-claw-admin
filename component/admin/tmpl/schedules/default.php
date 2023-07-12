@@ -96,12 +96,14 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
           <td>
             <?php
               $sponsors = json_decode($item->sponsors);
-              $names = [];
-              foreach ( $sponsors AS $s ):
-                $sponsor = ($this->sponsors)->GetSponsorById($s);
-                $names[] = $sponsor ? ($this->sponsors)->GetSponsorById($s)->name : "<span class=\"text-danger\">Error: Sponsor $s not found</span>";
-              endforeach;
-              echo implode('<br/>', $names);
+              if ( $sponsors !== null):
+                $names = [];
+                foreach ( $sponsors AS $s ):
+                  $sponsor = ($this->sponsors)->GetSponsorById($s);
+                  $names[] = $sponsor ? ($this->sponsors)->GetSponsorById($s)->name : '<span class="text-danger">Error: Sponsor ' . $s . ' not found</span>';
+                endforeach;
+                echo implode('<br/>', $names);
+              endif;
             ?>
           </td>
           <td>
