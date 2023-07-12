@@ -67,10 +67,12 @@ CREATE TABLE `#__claw_vendors`(
     `id` INT(11) NOT NULL,
     `published` TINYINT(4) NOT NULL DEFAULT '1',
     `name` VARCHAR(255) NOT NULL,
-    `description` VARCHAR(255) NOT NULL,
+    `spaces` TINYINT(4) NOT NULL DEFAULT '1',
+    `link` VARCHAR(255) NOT NULL DEFAULT '',
+    `description` TEXT NOT NULL,
     `logo` TEXT NOT NULL,
     `location` INT(11) DEFAULT NULL,
-    `catid` INT(11) NULL DEFAULT NULL,
+    `ordering` INT(11) NULL DEFAULT NULL,
     `expires` DATE DEFAULT '0000-00-00',
     `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP()
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
