@@ -29,7 +29,7 @@ $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn  = $this->escape($this->state->get('list.direction'));
 
 $saveOrder = $listOrder == 'a.ordering';
-$canChange = true;
+$this->canChange = true;
 
 if ($saveOrder && !empty($this->items))
 {
@@ -62,9 +62,11 @@ $user = $app->getIdentity();
         <th scope="col">ID</th>
       </tr>
     </thead>
-    <tbody <?php if ($saveOrder):
-      ?> class="js-draggable" data-url="<?php echo $saveOrderingUrl; ?>" data-direction="<?php echo strtolower($listDirn); ?>" data-nested="true"<?php
-      endif; ?>>
+    <tbody 
+      <?php if ($saveOrder): ?>
+        class="js-draggable" data-url="<?php echo $saveOrderingUrl; ?>" data-direction="<?php echo strtolower($listDirn); ?>" data-nested="true"
+      <?php endif; ?>
+    />
       <?php foreach ( $this->items AS $i => $item ): 
         // Get the parent of item for sorting
         if ($item->parent_id > 0) {
@@ -82,7 +84,7 @@ $user = $app->getIdentity();
           <td class="order text-center d-none d-md-table-cell">
             <?php
               $iconClass = '';
-              if (!$canChange) {
+              if (!$this->canChange) {
                 $iconClass = ' inactive';
               } else if (!$saveOrder) {
                 $iconClass = ' inactive tip-top hasTooltip" title="' . HTMLHelper::_('tooltipText', 'JORDERINGDISABLED');
@@ -93,7 +95,7 @@ $user = $app->getIdentity();
               <span class="icon-menu" aria-hidden="true"></span>
             </span>
 
-            <?php if ($canChange && $saveOrder) : ?>
+            <?php if ($this->canChange && $saveOrder) : ?>
               <input type="text" style="display:none" name="order[]" size="5"
                 value="<?=$item->ordering?>" class="width-20 text-area-order">
             <?php endif; ?>
@@ -117,6 +119,10 @@ $user = $app->getIdentity();
       <?php endforeach; ?>
     </tbody>
     </table>
+  </div>
+
+  <div class="row">
+      <?php /* echo $this->pagination->getListFooter(); */ ?>
   </div>
 
   <input type="hidden" name="task" value="">

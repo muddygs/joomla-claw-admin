@@ -4,6 +4,7 @@ namespace ClawCorp\Component\Claw\Administrator\Field;
 
 use Joomla\CMS\Form\Field\ListField;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Helpers\Locations;
 
 defined('_JEXEC') or die;
 
@@ -13,6 +14,8 @@ class LocationListField extends ListField
   private $maxValue = 2147483647; // SQL INT(11) max value signed int32
 
   private $listItems = [];
+
+  public $filter = '';
 
   /**
    * Method to get the field input markup for a generic list.
@@ -45,64 +48,68 @@ class LocationListField extends ListField
    */
   protected function getOptions()
   {
-    $this->listItems = parent::getOptions();
-
-    $tbd[] = (object)[
-      'id' => $this->maxValue,
-      'value' => 'TBD',
-      'catid' => 0
-    ];
-
-    $locations = array_merge($tbd, Helpers::getLocations($this->getDatabase()));
-    $index = array_column($locations, 'catid', 'id');
-    $titles = array_column($locations, 'value', 'id');
+    $rootLocations = Locations::GetRootLocationIds();
 
     $currentValue = $this->__get('value');
 
-    foreach ($locations as $l) {
-      if ($l->catid == 0) {
+    // Assume "Select message" is first item (based on form config)
+    $selectCase = false;
+
+    foreach ($this->element->xpath('option') as $option) {
+      $value = (string) $option['value'];
+      $text  = trim((string) $option) ?: $value;
+
+      // TODO: Fix "Select Location" case
+      if (in_array($value, $rootLocations) || !$selectCase ) {
         $this->listItems[] = (object)[
-          'value'    => $l->id,
-          'text'     => $titles[$l->id],
-          'disable'  => false,
+          'value'    => $value,
+          'text'     => $text,
+          'disable'  => true,
           'class'    => '',
-          'selected' => $l->id == $currentValue ? true : false,
-          'checked'  => $l->id == $currentValue ? true : false,
+          'selected' => $value == $currentValue,
+          'checked'  => $value == $currentValue,
           'onclick'  => '',
           'onchange' => ''
         ];
 
-        $this->addChildren($index, $titles, $l->id, 1);
-
-        // If nothing, set as option
-        continue;
-      }
-
-      break; // Once non zero reached, base locations have been exhausted per locations query
+        $selectCase = true;
+      } else {
+        $level=1;
+        $this->listItems[] = (object)[
+          'value'    => $value,
+          'text'     => str_repeat('&emsp;', $level - 1) . '|&mdash; ' . $text,
+          'disable'  => false,
+          'class'    => '',
+          'selected' => $value == $currentValue,
+          'checked'  => $value == $currentValue,
+          'onclick'  => '',
+          'onchange' => ''
+        ];
+      }  
     }
 
     return $this->listItems;
   }
 
-  private function addChildren(&$index, &$titles, int $parent_id, int $level)
-  {
-    // Are there children? If not, return option
-    $children_keys = array_keys($index, $parent_id, true);
-    $currentValue = $this->__get('value');
+  // private function addChildren(&$index, &$titles, int $parent_id, int $level)
+  // {
+  //   // Are there children? If not, return option
+  //   $children_keys = array_keys($index, $parent_id, true);
+  //   $currentValue = $this->__get('value');
 
-    foreach ($children_keys as $childIndex) {
-      $this->listItems[] = (object)[
-        'value'    => ucfirst($childIndex),
-        'text'     => str_repeat('&emsp;', $level - 1) . '|&mdash; ' . $titles[$childIndex],
-        'disable'  => false,
-        'class'    => '',
-        'selected' => $childIndex == $currentValue ? true : false,
-        'checked'  => $childIndex == $currentValue ? true : false,
-        'onclick'  => '',
-        'onchange' => ''
-      ];
+  //   foreach ($children_keys as $childIndex) {
+  //     $this->listItems[] = (object)[
+  //       'value'    => ucfirst($childIndex),
+  //       'text'     => str_repeat('&emsp;', $level - 1) . '|&mdash; ' . $titles[$childIndex],
+  //       'disable'  => false,
+  //       'class'    => '',
+  //       'selected' => $childIndex == $currentValue ? true : false,
+  //       'checked'  => $childIndex == $currentValue ? true : false,
+  //       'onclick'  => '',
+  //       'onchange' => ''
+  //     ];
 
-      $this->addChildren($index, $titles, $childIndex, $level + 1);
-    }
-  }
+  //     $this->addChildren($index, $titles, $childIndex, $level + 1);
+  //   }
+  // }
 }

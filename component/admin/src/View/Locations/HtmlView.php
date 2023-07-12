@@ -78,6 +78,9 @@ class HtmlView extends BaseHtmlView
 	 */
 	protected $state;
 
+	// For the template to enable ordering
+	protected bool $canChange = false;
+
 	/**
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
 	 * @return  void
@@ -104,62 +107,18 @@ class HtmlView extends BaseHtmlView
 	{
 		$app = Factory::getApplication();
 
-		ToolbarHelper::title('CLAW Locations');
+		ToolbarHelper::title('Event Locations');
 
 		// Get the toolbar object instance
 		$toolbar = Toolbar::getInstance('toolbar');
 
-		//$user  = $app->getIdentity();
+		$user  = $app->getIdentity();
 
-		// if ($user->authorise('core.admin', 'com_countrybase'))
-		// {
-		$toolbar->addNew('location.add');
-
-		$toolbar->delete('locations.delete')
-		->text('Delete')
-		->listCheck(true);
-		// }
-
-		// if ($user->authorise('core.edit.state', 'com_countrybase'))
-		// {
-		// 	$dropdown = $toolbar->dropdownButton('status-group')
-		// 	->text('JTOOLBAR_CHANGE_STATUS')
-		// 	->toggleSplit(false)
-		// 	->icon('icon-ellipsis-h')
-		// 	->buttonClass('btn btn-action')
-		// 	->listCheck(true);
-
-		// 	$childBar = $dropdown->getChildToolbar();
-
-		// 	$childBar->publish('countries.publish')->listCheck(true);
-
-		// 	$childBar->unpublish('countries.unpublish')->listCheck(true);
-
-		// 	$childBar->archive('countries.archive')->listCheck(true);
-
-		// 	if ($this->state->get('filter.published') != -2)
-		// 	{
-		// 		$childBar->trash('countries.trash')->listCheck(true);
-		// 	}
-		// }
-
-		// if ($this->state->get('filter.published') == -2 && $user->authorise('core.delete', 'com_countrybase'))
-		// {
-		// 	$toolbar->delete('countries.delete')
-		// 	->text('JTOOLBAR_EMPTY_TRASH')
-		// 	->message('JGLOBAL_CONFIRM_DELETE')
-		// 	->listCheck(true);
-		// }
-
-		// if ($user->authorise('core.admin', 'com_countrybase') || $user->authorise('core.options', 'com_countrybase'))
-		// {
-		// 	$toolbar->preferences('com_countrybase');
-		// }
-
-		// $tmpl = $app->input->getCmd('tmpl');
-		// if ($tmpl !== 'component')
-		// {
-		// 	ToolbarHelper::help('countrybase', true);
-		// }
+		if ($user->authorise('core.admin', 'com_claw'))
+		{
+			$toolbar->addNew('location.add');
+			$toolbar->delete('locations.delete')->text('Delete')->listCheck(true);
+			$this->canChange = true;
+		}
 	}
 }

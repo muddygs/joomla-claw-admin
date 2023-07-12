@@ -14,6 +14,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Model\ListModel;
+use Joomla\CMS\Pagination\Pagination;
 
 /**
  * Methods to handle a list of records.
@@ -97,7 +98,7 @@ class LocationsModel extends ListModel
 	protected function getStoreId($id = '')
 	{
 		// Override since we are handling getItems manually
-		$id = '';
+		// $id = '';
 		
 		// Compile the store id.
 		$id .= ':' . serialize($this->getState('filter.name'));
@@ -144,6 +145,17 @@ class LocationsModel extends ListModel
 		$db = $this->getDatabase();
 		$query = $this->getListQuery();
 
+		// TODO: Next major edit: Have locations tied to events; 0-level locations
+		// TODO: will need to have event field
+
+		// $limit = (int) $this->getState('list.limit') - (int) $this->getState('list.links');
+
+		// // Create the pagination object and add the object to the internal cache -- implementing ListModel getPagination
+		// $store = $this->getStoreId('getPagination');
+		// $this->cache[$store] = new Pagination($this->getTotal(), $this->getStart(), $limit);
+
+		// $query->setLimit($limit, $this->getStart());
+
 		$db->setQuery($query);
 		$rows = $db->loadObjectList();
 
@@ -166,7 +178,7 @@ class LocationsModel extends ListModel
 			}
 		}
 
-		$list             = HTMLHelper::_('menu.treerecurse', $parent, '', [], $children, 9999);
+		$list             = HTMLHelper::_('menu.treerecurse', $parent, '', [], $children, 9999, 0, 0);
 
 		// Get a storage key.
 		$store = $this->getStoreId();

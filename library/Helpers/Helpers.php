@@ -157,36 +157,6 @@ class Helpers
     return $db->loadObjectList();
   }
 
-  // TODO: move to Helpers::Locations.php
-  /**
-   * Returns array of locations ordered by catid (parental depth) and ordering (logical order)
-   * @param DatabaseDriver $db 
-   * @param string $baseAlias 
-   * @return array 
-   * @throws UnsupportedAdapterException 
-   * @throws QueryTypeAlreadyDefinedException 
-   * @throws RuntimeException 
-   * @throws InvalidArgumentException 
-   */
-  static public function getLocations(DatabaseDriver $db, string $baseAlias = ''): array
-  {
-    $query = $db->getQuery(true);
-    $query->select(['l.id', 'l.value', 'l.catid'])
-      ->from($db->qn('#__claw_locations', 'l'));
-
-    if ($baseAlias != '') {
-      $query->join('LEFT OUTER', $db->qn('#__claw_locations', 't') . ' ON ' . $db->qn('t.alias') . ' = ' . $db->q($baseAlias))
-        ->where($db->qn('t.published') . '= 1')
-        ->where($db->qn('l.catid') . '=' . $db->qn('t.id'));
-    }
-
-    $query->where($db->qn('l.published') . '= 1');
-    $query->order('l.catid ASC, l.ordering ASC');
-
-    $db->setQuery($query);
-    return $db->loadObjectList();
-  }
-
   static public function getGroupId(DatabaseDriver $db, $groupName): int
   {
     $query = $db->getQuery(true);
