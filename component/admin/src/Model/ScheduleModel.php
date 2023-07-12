@@ -14,12 +14,12 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Application\AdministratorApplication;
 
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Helpers\EventBooking;
+use ClawCorpLib\Helpers\Locations;
 
 /**
  * Methods to handle a list of records.
@@ -80,12 +80,12 @@ class ScheduleModel extends AdminModel
 
 		}
 
-		$locations = Helpers::getLocations($this->getDatabase(), $info->locationAlias);
+		$locations = Locations::GetLocationsList($info->locationAlias);
 		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
 		$parentField = $form->getField('location');
 		foreach ( $locations AS $l )
 		{
-			$parentField->addOption($l->value, ['value' => $l->id]);
+			$parentField->addOption(htmlentities($l->value), ['value' => $l->id]);
 		}
 
 		$sponsors = Helpers::getSponsorsList($this->getDatabase());
@@ -109,17 +109,6 @@ class ScheduleModel extends AdminModel
 		return $form;
 	}
 
-
-
-	/**
-	 * Hack for Intelliphense
-	 * @param mixed $x 
-	 * @return AdministratorApplication 
-	 */
-	public static function castAdministratorApplication($x): AdministratorApplication
-	{
-		return $x;
-	}
 	/**
 	 * Method to get the data that should be injected in the form.
 	 *
@@ -130,8 +119,9 @@ class ScheduleModel extends AdminModel
 	protected function loadFormData()
 	{
 		// Check the session for previously entered form data.
+
+		/** @var \Joomla\CMS\Application\AdministratorApplication $app */
 		$app = Factory::getApplication();
-		$app = $this::castAdministratorApplication($app);
 		$data = $app->getUserState('com_claw.edit.schedule.data', array());
 
 		if (empty($data))
