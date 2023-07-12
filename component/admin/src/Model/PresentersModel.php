@@ -22,7 +22,7 @@ use Joomla\CMS\MVC\Model\ListModel;
  */
 class PresentersModel extends ListModel
 {
-  public $db;
+  protected $db;
 
   private array $list_fields = [
     'id',

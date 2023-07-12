@@ -52,7 +52,7 @@ class HtmlView extends BaseHtmlView
 	protected $state;
 
 	/**
-	 * The actions the user is authorised to perform
+	 * The actions the user is authorized to perform
 	 *
 	 * @var  \JObject
 	 */
@@ -132,7 +132,7 @@ class HtmlView extends BaseHtmlView
 		$isNew      = ($this->item->id == 0);
 
 		ToolbarHelper::title(
-			'CLAW Schedule ' . ($isNew ? 'Add' : 'Edit'), ($isNew ? 'calendar' : 'calendar')
+			'CLAW Schedule ' . ($isNew ? 'Add' : 'Edit'), 'calendar'
 		);
 
 		$toolbarButtons = [];

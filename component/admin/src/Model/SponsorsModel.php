@@ -111,24 +111,23 @@ class SponsorsModel extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		// Create a new query object.
-		$db    = $this->getDbo();
+		$db    = $this->getDatabase();
 		$query = $db->getQuery(true);
 
 		// Select the required fields from the table.
 		$query->select(
-				$this->getState(
-						'list.select',
-						[
-								$db->quoteName('a.id'),
-								$db->quoteName('a.published'),
-								$db->quoteName('a.ordering'),
-								$db->quoteName('a.name'),
-								$db->quoteName('a.type'),
-						]
-						)
-				)
-				->from($db->quoteName('#__claw_sponsors', 'a'));
+			$this->getState(
+				'list.select',
+				[
+					$db->quoteName('a.id'),
+					$db->quoteName('a.published'),
+					$db->quoteName('a.ordering'),
+					$db->quoteName('a.name'),
+					$db->quoteName('a.type'),
+				]
+			)
+		)
+		->from($db->quoteName('#__claw_sponsors', 'a'));
 
 		// Filter by search in title.
 		$search = $this->getState('filter.search');
