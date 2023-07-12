@@ -90,13 +90,13 @@
     name="fee_event"
     type="checkboxes"
     label="Purchase Options"
-    default="0"
+    default="included"
     required="true"
   >
-    <option value="0">Included</option>
-    <option value="1">Preorder Required</option>
-    <option value="2">Door Purchase Available</option>
-    <option value="3">At Door Only</option>
+    <option value="included">Included</option>
+    <option value="preorder">Preorder Required</option>
+    <option value="door">Door Purchase Available</option>
+    <option value="dooronly">At Door Only</option>
   </field>
 
   <field
