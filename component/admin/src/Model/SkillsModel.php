@@ -146,7 +146,7 @@ class SkillsModel extends ListModel
         $event = '';
     }
 
-    $locations = Locations::GetLocationsList($this->getDatabase());
+    $locations = Locations::GetLocationsList();
     $presenters = Skills::GetPresentersList($this->getDatabase(), $event);
 
     foreach ( $items AS $item ) {
