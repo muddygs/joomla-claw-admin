@@ -26,6 +26,7 @@ Helpers::sessionSet('filter_duration','');
 
 $tab = 'Meals';
 $addons = false;
+$vipRedirect = false;
 
 // NEXT EVENT: change to use url param to switch case, e.g., /claw22?e=reg-att 
 // OR /reg?e=nnn where nnn = $EventPackageTypes::xxx
@@ -34,6 +35,13 @@ $addons = false;
 switch ($url) {
   case $prefix . '-reg-att':
     $eventPackageType = EventPackageTypes::attendee;
+    break;
+  case $prefix . '-reg-vip':
+      $clawPackageType = EventPackageTypes::vip;
+    break;
+  case $prefix . '-reg-vip2':
+    $clawPackageType = EventPackageTypes::vip;
+    $vipRedirect = true;
     break;
   case $prefix . '-reg-vol1':
     $eventPackageType = EventPackageTypes::volunteer1;
@@ -111,7 +119,7 @@ Helpers::sessionSet('clawEventAlias', Aliases::current);
 /** @var ClawCorpLib\Lib\Registrant\RegistrantRecord */
 $mainEvent = $registrant->getMainEvent();
 
-if ($addons == true && $mainEvent == null) :
+if ($addons == true && $mainEvent == null && !$vipRedirect) :
 ?>
   <p>You are not currently registered. Please start your registration <a href="/registration-survey">here</a>.</p>
   <p><span class="fa fa-info-circle fa-2x"></span><a href="/help?category_id=11">&nbsp;Contact Guest Services for assistance.</a></p>
@@ -128,9 +136,10 @@ if ($addons == false && $mainEvent != null && $mainEvent->registrant->eventPacka
 endif;
 
 #region Toast
+/** @var \Joomla\CMS\Application\SiteApplication */
 $app = Factory::getApplication();
 /** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
-$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
+$wa = $app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.toast');
 ?>
 
@@ -173,6 +182,20 @@ if ($addons == false && $mainEvent == null) {
       }
     }
   }
+}
+
+if ( $vipRedirect ) {
+  $cart = new EventbookingHelperCart();
+  $cart->reset();
+
+  $comboMealsAll = clawEvents::getEventId(Aliases::defaultPrefix.'-meals-combo-all');
+  $vip = clawEvents::getEventId(Aliases::defaultPrefix.'-vip');
+  $cart->addEvents([$vip, $comboMealsAll]);
+
+  // In case they want to come back, fall back to vip
+  Helpers::sessionSet('regtype', strtolower(Aliases::defaultPrefix.'-reg-vip'));
+
+  $app->redirect('/index.php?option=com_eventbooking&view=cart');
 }
 
 $coupon = Helpers::sessionGet('clawcoupon');
@@ -224,8 +247,9 @@ endif;
 
   // Define tab headings
   $content = [];
+  $headings = [];
 
-  $headings = [ 'Shifts' ];
+  $headings[] = 'Shifts';
   if ( Aliases::onsiteActive ) {
     $content[] = contentShiftsOnsite();
   } else {
@@ -328,7 +352,15 @@ HTML;
   function contentMeals(): string
   {
     $result = '';
-    $categoryIds = ClawEvents::getCategoryIds(['dinner', 'buffet', 'buffet-breakfast','meal-combos']);
+    $categoryIds = clawEvents::getCategoryIds([
+      'dinner',
+      'buffet',
+      'buffet-breakfast',
+    ]);
+
+    if ( !Aliases::onsiteActive ) {
+      $categoryIds[] = ClawEvents::getCategoryId('meal-combos');
+    }
 
     foreach ($categoryIds as $id) {
       $content = "{ebcategory $id toast}";
