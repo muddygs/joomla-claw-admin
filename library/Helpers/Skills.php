@@ -41,7 +41,7 @@ class Skills
     $query->select('*')
       ->from($db->quoteName('#__claw_presenters'))
       ->where($db->qn('uid') . '= :uid')
-      ->where($db->qn('archive_state') . ' = ""')
+      ->where('('. $db->qn('archive_state') . ' = "" OR ' . $db->qn('archive_state') . ' IS NULL)')
       ->bind(':uid', $uid);
 
     if ( $current != '' ) {
