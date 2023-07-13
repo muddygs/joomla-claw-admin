@@ -73,4 +73,4 @@ endif;
   <?php echo HTMLHelper::_('form.token'); ?>
   <?php if ($this->params->get('se_submissions_open') != 0) : ?>
   </form>
-<?php endif; ?>
+<?php endif;

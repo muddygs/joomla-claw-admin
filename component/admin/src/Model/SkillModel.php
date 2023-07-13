@@ -90,8 +90,7 @@ class SkillModel extends AdminModel
 
     // If we're coming from the front end controller, email will be defined
     if ( array_key_exists('email', $data)) {
-      $new = $data['id'] == 0 ? true : false;
-      $this->email(new: $new, data: $data);
+      $this->email(new: $data['id'] == 0, data: $data);
     }
 
     return parent::save($data);

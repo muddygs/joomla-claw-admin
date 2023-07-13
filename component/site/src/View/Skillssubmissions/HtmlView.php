@@ -34,14 +34,20 @@ class HtmlView extends BaseHtmlView
   {
     $this->state = $this->get('State');
 
+    /** @var Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
     $this->params = $params = $app->getParams();
     $group = $params->get('se_group', '');
     $groups = $app->getIdentity()->getAuthorisedGroups();
 
     if ($group == 0 || !in_array($group, $groups)) {
-      $app->enqueueMessage('You do not have permission to access this resource.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      $app->redirect('/');
+      $app->enqueueMessage('You do not have permission to access this resource. Please sign in.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+
+      // Redirect to login
+      $return = \Joomla\CMS\Uri\Uri::getInstance()->toString();
+      $url    = 'index.php?option=com_users&view=login';
+      $url   .= '&return='.base64_encode($return);
+      $app->redirect($url);  
     }
 
     /** @var \ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel */

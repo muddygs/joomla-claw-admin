@@ -144,6 +144,8 @@ class SkillsubmissionModel extends AdminModel
       Helpers::sessionSet('photo', $data->photo);
     }
 
+    $data->length = $data->length_info ?? 60;
+
     return $data;
   }
 

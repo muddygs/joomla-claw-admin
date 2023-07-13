@@ -16,6 +16,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Helpers\Helpers;
+use HelixUltimate\Framework\Platform\Helper;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
@@ -25,6 +26,9 @@ class HtmlView extends BaseHtmlView
     $this->state = $this->get('State');
     $this->form  = $this->get('Form');
     $this->item  = $this->get('Item');
+
+    // Put the record id in the session
+    Helpers::sessionSet('recordid', $this->item->id ?? 0);
 
     // Check for errors.
     $errors = $this->get('Errors');
@@ -53,20 +57,17 @@ class HtmlView extends BaseHtmlView
     $this->params = $temp;
 
     if ($this->params->get('se_group', 0) == 0 || !in_array($this->params->get('se_group'), $groups)) {
-      $app->enqueueMessage('You do not have permission to access this resource.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      $app->redirect('/');
+      $app->enqueueMessage('You do not have permission to access this resource. Please sign in.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+
+      // Redirect to login
+      $return = \Joomla\CMS\Uri\Uri::getInstance()->toString();
+      $url    = 'index.php?option=com_users&view=login';
+      $url   .= '&return='.base64_encode($return);
+      $app->redirect($url);  
     }
 
     // Read-only is handled in the template by omitting the form and submit button
     
-    // // In read-only mode?
-    // if ($this->params->get('se_submissions_open') == 0) {
-    //   $fieldSet = $this->form->getFieldset('userinput');
-    //   foreach ($fieldSet as $field) {
-    //     $this->form->setFieldAttribute($field->getAttribute('name'), 'readonly', 'true');
-    //   }
-    // }
-
     // Event Naming
     /** @var \ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel */
     $model = $this->getModel();

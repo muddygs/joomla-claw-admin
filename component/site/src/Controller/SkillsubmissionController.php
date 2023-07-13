@@ -78,15 +78,18 @@ class SkillsubmissionController extends FormController
     $bio = Skills::GetPresenterBios($siteModel->db, $data['owner'], Aliases::current);
     $data['name'] = $bio[0]->name;
 
-    $data['id'] = $input->get('id', 0, 'int');
     $data['event'] = Aliases::current;
-    $data['length_info'] = $input->get('length', 60, 'int');
+    $data['length_info'] = (int)$data['length'] ?? 60;
 
-    if (($data['id'] ?? 0) == 0 || !is_int($data['id'])) {
+    // Get id from the session
+    $data['id'] = Helpers::sessionGet('recordid', 0);
+
+    if ($data['id'] == 0) {
       $data['published'] = 3; // New submission
+      $data['submission_date'] = date('Y-m-d');
     }
 
-    /** @var ClawCorp\Component\Claw\Administrator\Model\PresenterModel */
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\SkillModel */
     $adminModel = $this->getModel('Skill', 'Administrator');
     $result = $adminModel->save($data);
 

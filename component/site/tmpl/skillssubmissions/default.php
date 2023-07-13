@@ -42,6 +42,33 @@ Bootstrap::writePillTabs($tabs, $content);
 
 function BioHtml(object &$__this)
 {
+  // Handle easy case where recent bio is not on file
+  if ( !property_exists($__this, 'bio') || !property_exists($__this->bio, 'id') ) {
+    ?>
+      <h2>No recent biography on file</h2>
+    <?php
+    if ($__this->params->get('se_submissions_open') == 0):
+    ?>
+      <h3 class="text-warning">Submissions are closed, but you may submit a biography (typically used for late entry).
+        After submission, you will no longer be able to edit it.</h3>
+    <?php
+    else:
+    ?>
+      <h3 class="text-warning">Submissions are open for <?php echo $__this->eventInfo->description ?>.
+        You may add your biography.</h3>
+    <?php
+    endif;
+
+    $buttonRoute = Route::_('index.php?option=com_claw&view=presentersubmission&id=0');
+    $msg = 'Add Biography';
+    ?>
+      <a name="add-biography" id="add-biography" class="btn btn-danger" href="<?= $buttonRoute ?>" role="button"><?= $msg ?></a>
+    <?php
+
+    return;
+  }
+
+
   $published = match ($__this->bio->published) {
     0 => 'Unpublished',
     1 => 'Published',
@@ -54,8 +81,6 @@ function BioHtml(object &$__this)
   } else {
     $event .= ' <span class="badge bg-info">Previous</span>';
   }
-
-  if (property_exists($__this->bio, 'event')) :
 ?>
     <h2>Biography Summary</h2>
 
@@ -90,7 +115,6 @@ function BioHtml(object &$__this)
     </div>
 
     <?php
-  endif;
   if ($__this->params->get('se_submissions_open') == 0) :
     if ($__this->bio->id ?? 0 != 0) :
     ?>
@@ -125,9 +149,8 @@ function ClassesHtml(object &$__this)
 {
   $skillRoute = Route::_('index.php?option=com_claw&view=skillsubmission');
 
-  $canSubmit = $__this->params->get('se_submissions_open') == 0 ? false : true;
-
-  $bioIsCurrent = $__this->bio->event == Aliases::current ? true : false;
+  $canSubmit = $__this->params->get('se_submissions_open') != 0;
+  $bioIsCurrent = property_exists($__this, 'bio') && property_exists($__this->bio, 'event') && $__this->bio->event == Aliases::current;
 
   // var_dump($__this->classes);
 
@@ -153,15 +176,19 @@ function ClassesHtml(object &$__this)
         <?php
 
         foreach ($__this->classes as $class) {
-          ClassRow($class, $canSubmit & $bioIsCurrent);
+          ClassRow($class, $canSubmit && $bioIsCurrent);
         }
         ?>
       </tbody>
     </table>
   </div>
 
-  <a name="add-class" id="add-class" class="btn btn-danger" href="<?php echo $skillRoute ?>" role="button">Add Class</a>
-<?php
+  <?php
+  if ($canSubmit && $bioIsCurrent):
+  ?>
+    <a name="add-class" id="add-class" class="btn btn-danger" href="<?php echo $skillRoute ?>" role="button">Add Class</a>
+  <?php
+  endif;
 }
 
 function ClassRow(object $row, bool $canSubmit)
