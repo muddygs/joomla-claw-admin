@@ -201,135 +201,137 @@ class SponsorsHelper
     $s = $sponsor + $sponsord * 2;
     $sm = $master + $masterd * 2;
 
-    $javascript = <<< javascript
+    $javascript = <<< js
 <script>
-jQuery(document).ready(function() {
-	updateCss();
+document.addEventListener("DOMContentLoaded", function() {
+  updateCss();
 });
 
 var rtime;
 var timeout = false;
 var delta = 200;
-jQuery(window).resize(function() {
-    rtime = new Date();
-    if (timeout === false) {
-        timeout = true;
-        setTimeout(resizeend, delta);
-    }
+window.addEventListener("resize", function() {
+  rtime = new Date();
+  if (timeout === false) {
+      timeout = true;
+      setTimeout(resizeend, delta);
+  }
 });
 
 function resizeend() {
-    if (new Date() - rtime < delta) {
-        setTimeout(resizeend, delta);
-    } else {
-        timeout = false;
-        updateCss();
-    }               
+  if (new Date() - rtime < delta) {
+      setTimeout(resizeend, delta);
+  } else {
+      timeout = false;
+      updateCss();
+  }               
 }
 
 function headingWidth(m,w,width,doubles,s)
 {
-	var heading_width = 0;
-	
-	if ( m == 1 )
-	{
-		heading_width = s * width;
-	}
-	else
-	{
-		while ( heading_width < w )
-		{
-			if ( doubles > 1 && heading_width + 2 * width > w ) break;
+var heading_width = 0;
 
-			if ( doubles > 0 )
-			{
-				heading_width = heading_width + 2 * width;
-				s = s - 2;
-				doubles--;
-				
-				continue;
-			}
+if ( m == 1 )
+{
+  heading_width = s * width;
+}
+else
+{
+  while ( heading_width < w )
+  {
+    if ( doubles > 1 && heading_width + 2 * width > w ) break;
 
-			if ( s > 1 && heading_width + width > w ) break;
-			
-			if ( s > 0 && heading_width + width < w)
-			{
-				heading_width = heading_width + width;
-				s--;
-				continue;
-			}
-			else
-			{
-				break;
-			}
-			
-			if ( doubles == 0 && s == 0 ) break;
-		}
-	}
-	
-	return heading_width;
+    if ( doubles > 0 )
+    {
+      heading_width = heading_width + 2 * width;
+      s = s - 2;
+      doubles--;
+      
+      continue;
+    }
+
+    if ( s > 1 && heading_width + width > w ) break;
+    
+    if ( s > 0 && heading_width + width < w)
+    {
+      heading_width = heading_width + width;
+      s--;
+      continue;
+    }
+    else
+    {
+      break;
+    }
+    
+    if ( doubles == 0 && s == 0 ) break;
+  }
+}
+
+return heading_width;
 }
 
 /* 
- * m := rows
- * w := div width
- * width := individual logo width
- * doubles := count of doubles
- * s := count of singles
- */
+* m := rows
+* w := div width
+* width := individual logo width
+* doubles := count of doubles
+* s := count of singles
+*/
 
 function updateCss()
 {
-	var w = document.getElementById("sustaining_sponsors").offsetWidth;
-	var s = $s;
-	var doubles = $sponsord;
-	
-	var m = 1;
-	while ( m * w / s < 50 && ((m+1)*w/s) < 75 ) m++;
-	while ( s/m != Math.floor(s/m) ) s++;
-	var width = Math.floor(m * w / s );
-	var heading_width = headingWidth(m,w,width,doubles,s);
-	jQuery(".sponsor_header").css("width", heading_width + 'px');
-	jQuery(".sponsor").css("width", width + 'px');
-	jQuery(".sponsor2x").css("width", 2 * width + 'px');
-	
-	var sponsor_width = width;
-	
-	w = document.getElementById("master_sponsors").offsetWidth;
-	s = $sm;
-	doubles = $masterd;
-	
-	var target_width = sponsor_width *2 > 100 ? 100 : sponsor_width * 2;
+var w = document.getElementById("sustaining_sponsors").offsetWidth;
+var s = $s;
+var doubles = $sponsord;
 
-	m = 1;
-	while ( m * w / s < target_width*0.75 && ((m+1) * w / s) < target_width ) m++;
-	while ( s/m != Math.floor(s/m) ) s++;
-	
-	width = Math.floor(m * w / s );
-	
-	// Want master sponsors larger
-	if ( width < sponsor_width *1.25 )
-	{
-		m++;
-		width = Math.floor(m * w / s  );
-		if ( width > target_width ) width=Math.floor(sponsor_width*1.25);
-	}
+var m = 1;
+while ( m * w / s < 50 && ((m+1)*w/s) < 75 ) m++;
+while ( s/m != Math.floor(s/m) ) s++;
+var width = Math.floor(m * w / s );
+var heading_width = headingWidth(m,w,width,doubles,s);
 
-	if ( width > 100 ) width=100;
-	
-	heading_width = headingWidth(m,w,width,doubles,s);
-	
-	jQuery(".master_sponsor_header").css("width", heading_width + 'px');
-	jQuery(".master").css("width", width + 'px');
-	jQuery(".master2x").css("width", 2 * width + 'px');
+
+var sponsor_width = width;
+
+w = document.getElementById("master_sponsors").offsetWidth;
+s = $sm;
+doubles = $masterd;
+
+var target_width = sponsor_width *2 > 100 ? 100 : sponsor_width * 2;
+
+m = 1;
+while ( m * w / s < target_width*0.75 && ((m+1) * w / s) < target_width ) m++;
+while ( s/m != Math.floor(s/m) ) s++;
+
+width = Math.floor(m * w / s );
+
+// Want master sponsors larger
+if ( width < sponsor_width *1.25 )
+{
+  m++;
+  width = Math.floor(m * w / s  );
+  if ( width > target_width ) width=Math.floor(sponsor_width*1.25);
 }
+
+if ( width > 100 ) width=100;
+
+heading_width = headingWidth(m,w,width,doubles,s);
+
+const sponsorHeader = document.querySelector(".master_sponsor_header");
+const sponsor = document.querySelectorAll(".master");
+const sponsor2x = document.querySelectorAll(".master2x");
+
+sponsorHeader.style.width = heading_width + 'px';
+sponsor.forEach(s => s.style.width = width + 'px');
+sponsor2x.forEach(s => s.style.width = 2 * width + 'px');}
+
 </script>
 
 <style>
 .sponsor {
 }
 </style>
-javascript;
+js;
 
     echo SponsorsHelper::minify_js($javascript);
   }

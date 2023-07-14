@@ -2,13 +2,13 @@
 <extension type="module" client="site"
   method="upgrade">
 
-  <name>CLAW</name>
+  <name>CLAW Sponsors Display</name>
   <creationDate>July 2023</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2023 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
   <description>Displays sponsor logos</description>
 
   <namespace path="src">ClawCorp\Module\Sponsors</namespace>
