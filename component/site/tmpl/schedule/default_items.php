@@ -107,7 +107,7 @@ HTML;
 
         if ( $type != '' ):
         ?>
-          <div class="text-center font-size-sm"><?=$type?>&nbsp;Sponsor</div>
+          <div class="text-center" style="font-size: smaller; color:#ffae00"><?=$type?>&nbsp;Sponsor</div>
         <?php
         endif;
 
