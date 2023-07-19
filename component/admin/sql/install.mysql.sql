@@ -219,7 +219,7 @@ CREATE TABLE `#__claw_profile_charge_log`(
     `invoice_id` VARCHAR(255) NOT NULL,
     `profile_id` VARCHAR(255) NOT NULL,
     `payment_profile_id` VARCHAR(255) NOT NULL,
-    `charge_date` DATE NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+    `charge_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     `charge_amount` DECIMAL(10,2) DEFAULT 0.0,
     `transaction_id` VARCHAR(50) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
