@@ -9,3 +9,4 @@ rsync -arv /var/www/eb/public_html/libraries/claw/ library/
 #rsync -arv /var/www/eb/public_html/plugins/system/claw/ plugin/
 rsync -arv /var/www/eb/public_html/media/com_claw/ media_raw/
 rsync -arv /var/www/eb/public_html/modules/mod_claw_sponsors modules/
+rsync -arv /var/www/eb/public_html/modules/mod_claw_cart modules/
