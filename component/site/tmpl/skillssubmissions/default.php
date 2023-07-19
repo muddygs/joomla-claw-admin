@@ -6,10 +6,10 @@ use Joomla\CMS\Router\Route;
 
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Bootstrap;
-?>
-<h1>Presenter Submissions</h1>
 
-<?php
+// Get menu heading information
+echo $this->params->get('heading') ?? '<h1>Presenter Submissions</h1>';
+
 ob_start();
 BioHtml($this);
 $bioHtml = ob_get_contents();

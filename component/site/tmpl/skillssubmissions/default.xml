@@ -11,6 +11,13 @@
 
 		<!-- Options -->
 		<fieldset name="options">
+			<field name="heading"
+				type="editor"
+				label="Intro Heading"
+				description="Enter the intro heading that appears above the biography and classes lists."
+				size="40"
+				filter="safehtml"
+				default="S&amp;E User Submission" />
 		</fieldset>
 
 	</fields>
