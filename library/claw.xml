@@ -9,7 +9,6 @@
     <authorUrl>www.clawinfo.org</authorUrl>
     <version>0.0.8</version>
     <description>CLAW Support Libraries</description>
-    <scriptfile>init.php</scriptfile>
 
     <libraryname>claw</libraryname>
     <namespace path="">ClawCorpLib</namespace>
