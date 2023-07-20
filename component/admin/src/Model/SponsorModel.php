@@ -91,6 +91,7 @@ class SponsorModel extends AdminModel
 	protected function loadFormData()
 	{
 		// Check the session for previously entered form data.
+		/** @var Joomla\CMS\Application\AdministratorApplication */
 		$app = Factory::getApplication();
 		$data = $app->getUserState('com_claw.edit.sponsor.data', []);
 
