@@ -1,110 +1,79 @@
-CREATE TABLE `#__claw_events_current` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `#__claw_events_current` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `type` enum('string','number','stringarray','numberarray','bool') NOT NULL DEFAULT 'string',
-  `value` text NOT NULL
+  `value` text NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_name` (`name`);
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_events_current`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`);
-
-ALTER TABLE `#__claw_events_current`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-CREATE TABLE `#__claw_configuration` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `#__claw_configuration` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `key` varchar(50) NOT NULL,
   `input` text NOT NULL,
-  `value` text NOT NULL
+  `value` text NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_key` (`key`);
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_configuration`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `key` (`key`);
-
-ALTER TABLE `#__claw_configuration`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-CREATE TABLE `#__claw_locations`(
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `#__claw_locations`(
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `ordering` int(11) DEFAULT NULL,
   `catid` int(11) DEFAULT 0,
   `published` TINYINT(4) NOT NULL DEFAULT '1',
   `value` varchar(255) NOT NULL,
   `alias` varchar(255) DEFAULT NULL,
-  `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP()
+  `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_locations`
-  ADD PRIMARY KEY (`id`);
+# CREATE UNIQUE INDEX `aliasindex` ON `#__claw_locations` (`alias`, `catid`);
 
-ALTER TABLE `#__claw_locations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-CREATE UNIQUE INDEX `aliasindex` ON `#__claw_locations` (`alias`, `catid`);
-
-CREATE TABLE `#__claw_sponsors`(
-    `id` INT(11) NOT NULL,
-    `name` VARCHAR(255) NOT NULL,
-    `link` VARCHAR(255) NOT NULL,
-    `type` TINYINT NOT NULL,
-    `logo_small` VARCHAR(255) NULL,
-    `logo_large` VARCHAR(255) NULL,
-    `published` TINYINT(4) NOT NULL DEFAULT '1',
-    `ordering` INT(11) NULL DEFAULT NULL,
-    `expires` DATE DEFAULT '0000-00-00',
-    `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP()
+CREATE TABLE IF NOT EXISTS `#__claw_sponsors`(
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `link` VARCHAR(255) NOT NULL,
+  `type` TINYINT NOT NULL,
+  `logo_small` VARCHAR(255) NULL,
+  `logo_large` VARCHAR(255) NULL,
+  `published` TINYINT(4) NOT NULL DEFAULT '1',
+  `ordering` INT(11) NULL DEFAULT NULL,
+  `expires` DATE DEFAULT '0000-00-00',
+  `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_sponsors`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `#__claw_sponsors`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-CREATE TABLE `#__claw_vendors`(
-    `id` INT(11) NOT NULL,
-    `published` TINYINT(4) NOT NULL DEFAULT '1',
-    `name` VARCHAR(255) NOT NULL,
-    `spaces` TINYINT(4) NOT NULL DEFAULT '1',
-    `link` VARCHAR(255) NOT NULL DEFAULT '',
-    `description` TEXT NOT NULL,
-    `logo` TEXT NOT NULL,
-    `location` INT(11) DEFAULT NULL,
-    `ordering` INT(11) NULL DEFAULT NULL,
-    `expires` DATE DEFAULT '0000-00-00',
-    `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP()
+CREATE TABLE IF NOT EXISTS `#__claw_vendors`(
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `published` TINYINT(4) NOT NULL DEFAULT '1',
+  `name` VARCHAR(255) NOT NULL,
+  `spaces` TINYINT(4) NOT NULL DEFAULT '1',
+  `link` VARCHAR(255) NOT NULL DEFAULT '',
+  `description` TEXT NOT NULL,
+  `logo` TEXT NOT NULL,
+  `location` INT(11) DEFAULT NULL,
+  `ordering` INT(11) NULL DEFAULT NULL,
+  `expires` DATE DEFAULT '0000-00-00',
+  `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_vendors`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `#__claw_vendors`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-
-CREATE TABLE `#__claw_shifts`(
-    `id` INT(11) NOT NULL,
-    `title` VARCHAR(255) NOT NULL,
-    `description` VARCHAR(255) NOT NULL,
-    `event` TEXT DEFAULT NULL,
-    `shift_area` TEXT DEFAULT NULL,
-    `grid` TEXT DEFAULT NULL,
-    `requirements` VARCHAR(255) NOT NULL,
-    `coordinators` text NULL,
-    `published` TINYINT(4) NOT NULL DEFAULT '1',
-    `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP()
+CREATE TABLE IF NOT EXISTS `#__claw_shifts`(
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(255) NOT NULL,
+  `description` VARCHAR(255) NOT NULL,
+  `event` TEXT DEFAULT NULL,
+  `shift_area` TEXT DEFAULT NULL,
+  `grid` TEXT DEFAULT NULL,
+  `requirements` VARCHAR(255) NOT NULL,
+  `coordinators` text NULL,
+  `published` TINYINT(4) NOT NULL DEFAULT '1',
+  `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_shifts`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `#__claw_shifts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-CREATE TABLE `#__claw_schedule` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `#__claw_schedule` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `published` TINYINT(4) DEFAULT NULL,
   `event` varchar(10) DEFAULT NULL,
   `day` DATE DEFAULT NULL,
@@ -120,20 +89,13 @@ CREATE TABLE `#__claw_schedule` (
   `poster` TEXT DEFAULT NULL,
   `photo_size` varchar(255) DEFAULT NULL,
   `event_id` int(4) DEFAULT NULL,
-  `sort_order` varchar(255) DEFAULT NULL,
-  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()
+  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`),
+  KEY `fb_groupby_day_INDEX` (`day`),
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_schedule`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fb_groupby_day_INDEX` (`day`),
-  ADD KEY `fb_groupbyorder_sort_order_INDEX` (`sort_order`(10));
-
-ALTER TABLE `#__claw_schedule`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-CREATE TABLE `#__claw_presenters` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `#__claw_presenters` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `uid` int(11) NOT NULL,
   `published` TINYINT(4) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -151,17 +113,12 @@ CREATE TABLE `#__claw_presenters` (
   `photo` TEXT DEFAULT NULL,
   `submission_date` date DEFAULT NULL,
   `archive_state` VARCHAR(255) DEFAULT NULL,
-  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()
+  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_presenters`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `#__claw_presenters`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-CREATE TABLE `#__claw_skills` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `#__claw_skills` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `published` TINYINT(4) DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
   `event` TEXT DEFAULT NULL,
@@ -184,102 +141,52 @@ CREATE TABLE `#__claw_skills` (
   `comments` TEXT DEFAULT NULL,
   `submission_date` date DEFAULT NULL,
   `archive_state` VARCHAR(255) DEFAULT NULL,
-  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()
+  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_skills`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `#__claw_skills`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-CREATE TABLE `#__claw_skills_handouts` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `#__claw_skills_handouts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` text  DEFAULT NULL,
   `alias` VARCHAR(255) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
   `filename` TEXT DEFAULT NULL,
   `skill_id` INT(11) DEFAULT NULL,
-  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP()
+  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_skills_handouts`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `#__claw_skills_handouts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-DROP TABLE IF EXISTS `#__claw_profile_charge_log`;
-CREATE TABLE `#__claw_profile_charge_log`(
-    `id` INT(11) NOT NULL,
-    `description` VARCHAR(255) NOT NULL,
-    `eventbooking_event_id` INT(11) NOT NULL,
-    `fname` VARCHAR(255) NOT NULL,
-    `lname` VARCHAR(255) NOT NULL,
-    `invoice_id` VARCHAR(255) NOT NULL,
-    `profile_id` VARCHAR(255) NOT NULL,
-    `payment_profile_id` VARCHAR(255) NOT NULL,
-    `charge_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-    `charge_amount` DECIMAL(10,2) DEFAULT 0.0,
-    `transaction_id` VARCHAR(50) NOT NULL
+CREATE TABLE IF NOT EXISTS `#__claw_profile_charge_log`(
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `description` VARCHAR(255) NOT NULL,
+  `eventbooking_event_id` INT(11) NOT NULL,
+  `fname` VARCHAR(255) NOT NULL,
+  `lname` VARCHAR(255) NOT NULL,
+  `invoice_id` VARCHAR(255) NOT NULL,
+  `profile_id` VARCHAR(255) NOT NULL,
+  `payment_profile_id` VARCHAR(255) NOT NULL,
+  `charge_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  `charge_amount` DECIMAL(10,2) DEFAULT 0.0,
+  `transaction_id` VARCHAR(50) NOT NULL
+  PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_profile_charge_log`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `#__claw_profile_charge_log`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-CREATE TABLE `#__claw_jwt` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `#__claw_jwt` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `iat` int(11) DEFAULT NULL,
   `exp` int(11) DEFAULT NULL,
   `nonce` varchar(255) NOT NULL,
   `state` enum('new','expired','issued','revoked') NOT NULL DEFAULT 'new',
   `secret` varchar(255) NOT NULL,
   `email` varchar(64) NOT NULL,
-  `subject` varchar(255) NOT NULL
+  `subject` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `#__claw_jwt`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `#__claw_jwt`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-
-DROP TABLE IF EXISTS `#__claw_field_values`;
-CREATE TABLE `#__claw_field_values` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `#__claw_field_values` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `fieldname` varchar(255) DEFAULT NULL,
   `value` varchar(255) DEFAULT NULL,
-  `text` varchar(255) DEFAULT NULL
+  `text` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-INSERT INTO `#__claw_field_values` (`id`, `fieldname`, `value`, `text`) VALUES
-(1, 'skill_time_slot', '0930:060', '9:30AM - 60 minutes'),
-(2, 'skill_time_slot', '1100:090', '11:00AM - 90 minutes'),
-(3, 'skill_time_slot', '1400:090', '2:00PM - 90 minutes (Sun)'),
-(4, 'skill_time_slot', '1400:120', '2:00PM - 120 minutes'),
-(5, 'skill_time_slot', '1630:060', '4:30PM - 60 minutes'),
-(6, 'skill_class_type', 'demo', 'Demo'),
-(7, 'skill_class_type', 'lecture', 'Lecture'),
-(8, 'skill_class_type', 'round', 'Round Table'),
-(9, 'skill_class_type', 'panel', 'Panel'),
-(10, 'shift_shift_area', 'guestservices', 'Guest Services'),
-(11, 'shift_shift_area', 'facilities', 'Facilities'),
-(12, 'shift_shift_area', 'se', 'Skills & Education'),
-(13, 'shift_shift_area', 'badgecheck', 'Badge Check'),
-(14, 'shift_shift_area', 'events', 'Events'),
-(15, 'shift_shift_area', 'volhosp', 'Volunteer Hospitality'),
-(16, 'shift_shift_area', 'silentauction', 'Silent Auction'),
-(17, 'shift_shift_area', 'artshow', 'Art Show'),
-(18, 'shift_shift_area', 'specialty', 'Specialty'),
-(19, 'shift_shift_area', 'float', 'Float'),
-(20, 'shift_shift_area', 'tbd', 'TBD');
-
-ALTER TABLE `#__claw_field_values`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `#__claw_field_values`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
