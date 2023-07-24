@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" client="site"
+  method="upgrade">
+
+  <name>CLAW Vendors Display</name>
+  <creationDate>July 2023</creationDate>
+  <author>CLAW Corp.</author>
+  <authorUrl>https://www.clawinfo.org/</authorUrl>
+  <copyright>(c) 2023 CLAW Corp.</copyright>
+  <license>GPLv2</license>
+  <version>0.1.0</version>
+  <description>Displays vendor logos</description>
+
+  <namespace path="src">ClawCorp\Module\Vendors</namespace>
+
+	<files>
+		<filename module="mod_claw_vendors">mod_claw_vendors.php</filename>
+		<folder>tmpl</folder>
+		<folder>src</folder>
+	</files>
+
+  <config>
+    <fields name="params">
+      <fieldset name="module" label="Options">
+        <field
+          name="event"
+          type="text"
+          label="Event Alias"
+          default=""
+          required="true"
+        />
+      </fieldset>
+    </fields>
+  </config>
+</extension>
