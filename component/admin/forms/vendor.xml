@@ -1,42 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form>
-  <fields name="request">
-    <fieldset name="basic">
-      <field name="id"
-        type="text"
-        label="ID"
-        readonly="true" />
-      <field name="published"
-        type="list"
-        label="Published"
-        description="Select Yes to publish this vendor."
-        default="1">
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-      </field>
-      <field name="name"
-        type="text"
-        label="Name"
-        required="true" />
-      <field name="description"
-        type="text"
-        label="Description"
-        required="true" />
-      <field name="logo"
-        type="media"
-        label="Logo"
-        description="Upload the vendor's logo."
-        directory="images" 
-      />
-      <field name="expires"
-        type="calendar"
-        label="Expires"
-        description="Select the expiration date for this vendor."
-      />
-      <field name="mtime"
-        type="text"
-        label="Modified Time"
-        readonly="true" />
-    </fieldset>
-  </fields>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
+  <field name="id"
+    type="text"
+    label="ID"
+    readonly="true" />
+
+  <field
+    name="published"
+    type="list"
+    label="JSTATUS"
+    class="form-select-color-state"
+    default="1"
+    validate="options"
+    >
+    <option value="1">JPUBLISHED</option>
+    <option value="0">JUNPUBLISHED</option>
+    <option value="2">JARCHIVED</option>
+    <option value="-2">JTRASHED</option>
+  </field>
+
+  <field name="event"
+    type="ClawEventsList"
+    label="Event Selection"
+    required="true"
+    multiple="false"
+    default=""
+    validate="options" />
+
+  <field name="spaces"
+    type="number"
+    label="Spaces"
+    description="Enter the number of spaces available for this vendor."
+    required="true"
+    default="1"
+    min="1"
+    max="10" />  
+
+  <field name="name"
+    type="text"
+    label="Name"
+    required="true" />
+
+  <field name="link"
+    type="url"
+    label="Link"
+    maxlength="255"
+    validate="url"
+    relative="false"
+    required="false" />
+
+  <field name="description"
+    type="text"
+    label="Description"
+    required="true" />
+  <field name="logo"
+    type="media"
+    label="Logo"
+    description="Upload the vendor's logo. 150x150 pixels is required."
+    directory="0_static_graphics/vendors"
+    preview_height="100"
+    preview_width="100" 
+    />
+  <field name="mtime"
+    type="text"
+    label="Modified Time"
+    readonly="true" />
 </form>

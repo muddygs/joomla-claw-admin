@@ -53,7 +53,7 @@ class VendorsController extends AdminController
 	 *
 	 * @since   1.6
 	 */
-	public function getModel($name = 'Vendor', $prefix = 'Administrator', $config = array('ignore_request' => true))
+	public function getModel($name = 'Vendors', $prefix = 'Administrator', $config = array('ignore_request' => true))
 	{
 		return parent::getModel($name, $prefix, $config);
 	}

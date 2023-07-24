@@ -115,8 +115,8 @@ class HtmlView extends BaseHtmlView
     if ($user->authorise('core.admin', 'com_claw')) {
       $toolbar->addNew('vendor.add');
       $toolbar->delete('vendors.delete')
-			->text('Deleted Selected')
-			->message('Confirm delete selected vendor(s)?')
+			->text('Delete Selected')
+			->message('Confirm delete vendor selection?')
 			->listCheck(true);
     }
   }

@@ -18,9 +18,7 @@ use Joomla\CMS\Language\Text;
 use ClawCorpLib\Helpers\Helpers;
 
 /**
- * Methods to handle a list of records.
- *
- * @since  1.6
+ * Methods to handle editing a record
  */
 class VendorModel extends AdminModel
 {
@@ -33,13 +31,33 @@ class VendorModel extends AdminModel
 	 */
 	public function save($data)
 	{
-		if ( $data['expires'] == $this->getDatabase()->getNullDate() || trim($data['expires']) == '' )
-			$data['expires'] = '0000-00-00';
+    $input = Factory::getApplication()->getInput();
+
+    if ( 0 == $data['id'] || -1 == $input->data['ordering'] )
+		{
+			$this->nextOrdering($data);
+		}
 
 		$data['mtime'] = Helpers::mtime();
 
 		return parent::save($data);
 	}
+
+  private function nextOrdering(&$data)
+  {
+    $db = $this->getDatabase();
+
+    $query = $db->getQuery(true);
+    $query->select('MAX(ordering)')
+      ->from('#__claw_vendors')
+      ->where('spaces = :spaces')
+      ->bind(':spaces', $data['spaces']);
+
+    $db->setQuery($query);
+    $result = $db->loadResult() ?? 0;
+    $data['ordering'] = $result + 1;
+  }
+
 
 	/**
 	 * Method to get the record form.
@@ -62,11 +80,6 @@ class VendorModel extends AdminModel
 		return $form;
 	}
 
-	public function onContentBeforeSave($context, $data, $isNew)
-	{
-		$data['mtime'] = Helpers::mtime();
-	}
-
 	/**
 	 * Method to get the data that should be injected in the form.
 	 *
@@ -77,6 +90,7 @@ class VendorModel extends AdminModel
 	protected function loadFormData()
 	{
 		// Check the session for previously entered form data.
+		/** @var Joomla\CMS\Application\AdministratorApplication */
 		$app = Factory::getApplication();
 		$data = $app->getUserState('com_claw.edit.vendor.data', []);
 
