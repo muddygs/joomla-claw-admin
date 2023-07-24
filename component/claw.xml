@@ -65,6 +65,10 @@
         img="class:banners">
             Schedules
       </menu>
+      <menu link="option=com_claw&amp;view=vendors"
+        img="class:banners">
+            Vendors
+      </menu>
       <menu link="option=com_claw&amp;view=shifts"
         img="class:banners">
             Shifts
