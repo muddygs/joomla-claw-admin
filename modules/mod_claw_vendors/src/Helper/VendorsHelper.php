@@ -23,7 +23,7 @@ use Joomla\CMS\HTML\HTMLHelper;
  */
 class VendorsHelper
 {
-  public static function loadVendors(string $event): object
+  public static function loadVendors(string $event): array
   {
     if (empty(trim($event))) {
       return (object) array();
@@ -46,6 +46,9 @@ class VendorsHelper
   public static function echoVendors(string $event)
   {
     $vendors = VendorsHelper::loadVendors($event);
+    ?>
+    <div class="d-flex flex-row flex-wrap justify-content-center mb-3">
+    <?php
 
     foreach ( $vendors AS $row ) {
       $name = $row->name;
@@ -74,13 +77,15 @@ class VendorsHelper
           <div class="card h-100 border border-warning" style="background-color:#444;">
             <?=$urlopen?><?=$img?><?=$urlclose?>
             <div class="card-body border-top border-warning">
-            <h5 class="card-title"><?=$urlopen?><?=$name?><?=$urlclose?></h5>
-            <p class="card-text d-none d-lg-block" style="font-size:0.8rem;margin-bottom:0 !important;"><?=$row->description?></p>
+              <h5 class="card-title"><?=$urlopen?><?=$name?><?=$urlclose?></h5>
+              <p class="card-text d-none d-lg-block" style="font-size:0.8rem;margin-bottom:0 !important;"><?=$row->description?></p>
             </div>
           </div>
         </div>
     <?php
-    
     }
+    ?>
+    </div>
+    <?php
   }
 }
