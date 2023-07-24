@@ -24,7 +24,7 @@ class LocationHelper
     $query->select('MAX(ordering)')->from('#__claw_locations')->where('catid = '.$db->q($catid));
     $db->setQuery($query);
     $result = $db->loadResult();
-    return $result ?? 1;
+    return $result ? $result + 1 : 1;
   }
 
   /**

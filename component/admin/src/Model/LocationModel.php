@@ -27,117 +27,115 @@ use Joomla\CMS\Application\CMSApplication;
  */
 class LocationModel extends AdminModel
 {
-  	/**
-	 * The prefix to use with controller messages.
-	 *
-	 * @var    string
-	 * @since  1.6
-	 */
-	protected $text_prefix = 'COM_CLAW_LOCATION';
+    /**
+   * The prefix to use with controller messages.
+   *
+   * @var    string
+   * @since  1.6
+   */
+  protected $text_prefix = 'COM_CLAW_LOCATION';
 
-	public function save($data)
-	{
-		// deprecate $input = Factory::getApplication()->input;
+  public function save($data)
+  {
+    $input = Factory::getApplication()->getInput();
+    /** @var $app AdministratorApplication */
+    $app = Factory::getApplication();
+    $oldcatid = $app->getUserState('com_claw.location.old', array());
 
-		$input = Factory::getApplication()->getInput();
-		/** @var $app AdministratorApplication */
-		$app = Factory::getApplication();
-		$oldcatid = $app->getUserState('com_claw.location.old', array());
+    if ( 0 == $data['id'] || -1 == $input->data['ordering'] || $oldcatid != $data['catid'] )
+    {
+      $data['ordering'] = LocationHelper::nextOrdering($this->getDatabase(), (int)$data['catid']);
+    }
 
-		if ( 0 == $data['id'] || -1 == $input->data['ordering'] || $oldcatid != $data['catid'] )
-		{
-			$data['ordering'] = LocationHelper::nextOrdering($this->getDatabase(), (int)$data['catid'])+1;
-		}
+    // Basic replacement to avoid database uniqueness error (aliasindex)
+    if ( $data['alias'] == '' )
+    {
+      $patterns = [
+        '/\s/',
+        '/[^a-z0-9_]/'
+      ];
 
-		// Basic replacement to avoid database uniqueness error (aliasindex)
-		if ( $data['alias'] == '' )
-		{
-			$patterns = [
-				'/\s/',
-				'/[^a-z0-9_]/'
-			];
+      $replacements = [
+        '_',
+        ''
+      ];
 
-			$replacements = [
-				'_',
-				''
-			];
+      $data['alias'] = preg_replace($patterns, $replacements, strtolower($data['value']));
+    }
+    // TODO: further validation for uniqueness
 
-			$data['alias'] = preg_replace($patterns, $replacements, strtolower($data['value']));
-		}
-		// TODO: further validation for uniqueness
+    return parent::save($data);
+  }
 
-		return parent::save($data);
-	}
+  /**
+   * Method to get the record form.
+   *
+   * @param   array    $data      Data for the form.
+   * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
+   *
+   * @return  Form|boolean  A Form object on success, false on failure
+   *
+   * @since   1.6
+   */
+  public function getForm($data = array(), $loadData = true)
+  {
+    // Get the form.
+    $form = $this->loadForm('com_claw.location', 'location', array('control' => 'jform', 'load_data' => $loadData));
 
-	/**
-	 * Method to get the record form.
-	 *
-	 * @param   array    $data      Data for the form.
-	 * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
-	 *
-	 * @return  Form|boolean  A Form object on success, false on failure
-	 *
-	 * @since   1.6
-	 */
-	public function getForm($data = array(), $loadData = true)
-	{
-		// Get the form.
-		$form = $this->loadForm('com_claw.location', 'location', array('control' => 'jform', 'load_data' => $loadData));
+    if (empty($form))
+    {
+      return false;
+    }
 
-		if (empty($form))
-		{
-			return false;
-		}
+    return $form;
+  }
 
-		return $form;
-	}
+  /**
+   * Method to get the data that should be injected in the form.
+   *
+   * @return  mixed  The data for the form.
+   *
+   * @since   1.6
+   */
+  protected function loadFormData()
+  {
+    // Check the session for previously entered form data.
+    /** @var $app AdministratorApplication */
+    $app = Factory::getApplication();
+    $data = $app->getUserState('com_claw.edit.location.data', array());
 
-	/**
-	 * Method to get the data that should be injected in the form.
-	 *
-	 * @return  mixed  The data for the form.
-	 *
-	 * @since   1.6
-	 */
-	protected function loadFormData()
-	{
-		// Check the session for previously entered form data.
-		/** @var $app AdministratorApplication */
-		$app = Factory::getApplication();
-		$data = $app->getUserState('com_claw.edit.location.data', array());
+    if (empty($data))
+    {
+      $data = $this->getItem();
+    }
 
-		if (empty($data))
-		{
-			$data = $this->getItem();
-		}
+    $app->setUserState("com_claw.location.old", $data->catid);
 
-		$app->setUserState("com_claw.location.old", $data->catid);
+    return $data;
+  }
 
-		return $data;
-	}
+  /**
+   * Method to get a table object, load it if necessary.
+   *
+   * @param   string  $name     The table name. Optional.
+   * @param   string  $prefix   The class prefix. Optional.
+   * @param   array   $options  Configuration array for model. Optional.
+   *
+   * @return  Table  A Table object
+   *
+   * @since   3.0
+   * @throws  \Exception
+   */
+  public function getTable($name = '', $prefix = '', $options = array())
+  {
+    $name = 'Locations';
+    $prefix = 'Table';
 
-	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return  Table  A Table object
-	 *
-	 * @since   3.0
-	 * @throws  \Exception
-	 */
-	public function getTable($name = '', $prefix = '', $options = array())
-	{
-		$name = 'Locations';
-		$prefix = 'Table';
+    if ($table = $this->_createTable($name, $prefix, $options))
+    {
+      return $table;
+    }
 
-		if ($table = $this->_createTable($name, $prefix, $options))
-		{
-			return $table;
-		}
-
-		throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
-	}
+    throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
+  }
 }
