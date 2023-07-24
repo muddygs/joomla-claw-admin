@@ -7,7 +7,7 @@
     <license>GNU/GPLv2</license>
     <authorEmail>webmaster@clawinfo.org</authorEmail>
     <authorUrl>www.clawinfo.org</authorUrl>
-    <version>0.0.8</version>
+    <version>0.0.9</version>
     <description>CLAW Support Libraries</description>
 
     <libraryname>claw</libraryname>
@@ -19,7 +19,6 @@
         <folder>Grid</folder>
         <folder>Helpers</folder>
         <folder>Lib</folder>
-        <file>init.php</file>
         <file>claw.xml</file>
         <file>LICENSE.txt</file>
     </files>
