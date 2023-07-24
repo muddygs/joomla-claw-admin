@@ -18,19 +18,17 @@ use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Button\PublishedButton;
 use Joomla\CMS\Session\Session;
 
-use ClawCorpLib\Lib\Aliases;
-
 $wa = $this->document->getWebAssetManager();
 $wa->useScript('table.columns');
 
 $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn  = $this->escape($this->state->get('list.direction'));
 
-$saveOrder = $listOrder == 'a.ordering';
 $canChange = true;
+$saveOrder = true;
 
 if ($saveOrder && !empty($this->items)) {
-  $saveOrderingUrl = 'index.php?option=com_claw&task=locations.saveOrderAjax&tmpl=component&' . Session::getFormToken() . '=1';
+  $saveOrderingUrl = 'index.php?option=com_claw&task=vendors.saveOrderAjax&tmpl=component&' . Session::getFormToken() . '=1';
   HTMLHelper::_('draggablelist.draggable');
 }
 
@@ -39,10 +37,6 @@ $user = $app->getIdentity();
 
 ?>
 <div class="container">
-  <div id="subhead" class="subhead noshadow mb-3">
-    <?php echo $this->toolbar->render(); ?>
-  </div>
-
   <div class="clearfix"></div>
   <form action="<?php echo Route::_('index.php?option=com_claw&view=vendors'); ?>" method="post" name="adminForm" id="adminForm">
     <?php echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
@@ -71,7 +65,11 @@ $user = $app->getIdentity();
             <th scope="col">ID</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody 
+          <?php if ($saveOrder): ?>
+            class="js-draggable" data-url="<?php echo $saveOrderingUrl; ?>" data-direction="<?php echo strtolower($listDirn); ?>" data-nested="false"
+          <?php endif; ?>
+        />
           <?php foreach ($this->items as $i => $item) : ?>
             <tr class="row<?php echo $i % 2; ?>" data-draggable-group="0"
               data-item-id="<?=$item->id?>" data-parents="0"
@@ -122,17 +120,19 @@ $user = $app->getIdentity();
               <td><?= $item->spaces ?></td>
 
               <td>
-                <?php
-                  if ( isset($item->logo) && $item->logo !== '') {
-                    if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $item->logo]))) {
+                <?php 
+                  if ( $item->logo !== '') {
+                    $i = HTMLHelper::cleanImageURL($item->logo);
+
+                    if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $i->url]))) {
                       ?>
-                      <img src="<?php echo $item->logo ?>" style="max-width:100px; height:auto;" />
+                      <img src="/<?= $i->url ?>" style="max-width:100px; height:auto;" />
                       <?php
                     } else {
-                      echo 'No logo';
+                      echo 'Invalid logo file';
                     }
                   } else {
-                    echo 'No logo';
+                    echo 'No logo file';
                   }
                 ?>
               </td>
