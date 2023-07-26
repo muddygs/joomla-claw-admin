@@ -196,7 +196,7 @@ class Helpers
   }
 
   /**
-   * Sets a CLAW-specific Joomla session variable. See code comments for example usage.
+   * Sets a CLAW-specific Joomla session variable.
    * @param string $key Key to variable
    * @param string $value Key's value
    */
