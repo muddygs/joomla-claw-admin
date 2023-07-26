@@ -11,7 +11,6 @@ defined('_JEXEC') or die;
 class LocationListField extends ListField
 {
   protected $type = "LocationList";
-  private $maxValue = 2147483647; // SQL INT(11) max value signed int32
 
   private $listItems = [];
 
@@ -31,10 +30,9 @@ class LocationListField extends ListField
 
     $data['options'] = (array) $this->getOptions();
 
-    // VALID for other menus -- future reference $db = $this->getDatabase();
     $currentValue = $this->__get('value');
     if ($currentValue === '') {
-      $data['value'] = $this->maxValue;
+      $data['value'] = Locations::$blankLocation;
     }
 
     return $this->getRenderer($this->layout)->render($data);

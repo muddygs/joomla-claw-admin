@@ -6,6 +6,8 @@ use Joomla\CMS\Factory;
 class Locations {
   private static array $cache = [];
 
+  public static int $blankLocation = -1;
+
   public static function GetLocationsList(string $parentAlias = ''): array {
     if ( count(Locations::$cache) > 0) return Locations::$cache;
 
@@ -41,10 +43,12 @@ class Locations {
       $db->setQuery($query);
       $children = $db->loadObjectList('id') ?? [];
 
-      foreach ( $children AS $c) {
-        // push on the child
-        Locations::$cache[$c->id] = $c;
-      }
+      Locations::$cache = array_merge(Locations::$cache, $children);
+
+      // foreach ( $children AS $c) {
+      //   // push on the child
+      //   Locations::$cache[$c->id] = $c;
+      // }
     }
 
     return Locations::$cache;
@@ -88,6 +92,7 @@ class Locations {
 
   public static function GetLocationById(int $id): ?object
   {
+    if ( $id == Locations::$blankLocation ) return (object)['value' => ''];
     if ( !count(Locations::$cache) ) Locations::GetLocationsList();
     return Locations::$cache[$id] ?? (object)['value' => ''];
   }

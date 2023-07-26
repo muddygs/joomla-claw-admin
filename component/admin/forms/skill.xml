@@ -108,10 +108,10 @@
     name="location"
     type="LocationList"
     label="Location"
-    required="true"
+    required="false"
     layout="joomla.form.field.list-fancy-select"
   >
-    <option value="">Select Location</option>
+    <option value="-1">Select Location</option>
   </field>
 
   <field 

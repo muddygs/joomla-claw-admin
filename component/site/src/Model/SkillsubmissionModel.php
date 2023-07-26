@@ -15,6 +15,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Helpers\Locations;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use Joomla\CMS\Factory;
@@ -92,7 +93,7 @@ class SkillsubmissionModel extends AdminModel
       $record->day = $db->getNullDate();
       $record->submission_date = date("Y-m-d");
       $record->presenters = '';
-      $record->location = 2147483647;
+      $record->location = Locations::$blankLocation;
       $record->handout_id = 0;
       $record->archive_state = '';
       $record->mtime = Helpers::mtime();

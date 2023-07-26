@@ -19,6 +19,7 @@ use Joomla\CMS\Language\Text;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Enums\SkillsCategories;
 use ClawCorpLib\Enums\SkillsTracks;
+use ClawCorpLib\Helpers\Locations;
 use ClawCorpLib\Helpers\Mailer;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\Aliases;
@@ -88,6 +89,10 @@ class SkillModel extends AdminModel
 
     $data['presenters'] = implode(',', $data['presenters'] ?? []);
 
+    if ( !$data['location']) {
+      $data['location'] = Locations::$blankLocation;
+    }
+
     // If we're coming from the front end controller, email will be defined
     if ( array_key_exists('email', $data)) {
       $this->email(new: $data['id'] == 0, data: $data);
@@ -130,6 +135,18 @@ class SkillModel extends AdminModel
       if ($c->name == 'None') continue;
       $audience->addOption($c->value, ['value' => $c->name]);
     }
+
+		$event = $form->getField('event')->value;
+		$e = new ClawEvents( !empty($event) ? $event : Aliases::current);
+		$info = $e->getEvent()->getInfo();
+
+    $locations = Locations::GetLocationsList($info->locationAlias);
+		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
+		$parentField = $form->getField('location');
+		foreach ( $locations AS $l )
+		{
+			$parentField->addOption(htmlentities($l->value), ['value' => $l->id]);
+		}
 
     return $form;
   }
