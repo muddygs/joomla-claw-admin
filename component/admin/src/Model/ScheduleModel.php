@@ -80,13 +80,9 @@ class ScheduleModel extends AdminModel
 
 		}
 
-		$locations = Locations::GetLocationsList($info->locationAlias);
-		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
+		/** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
 		$parentField = $form->getField('location');
-		foreach ( $locations AS $l )
-		{
-			$parentField->addOption(htmlentities($l->value), ['value' => $l->id]);
-		}
+		$parentField->populateOptions($info->locationAlias);
 
 		$sponsors = Helpers::getSponsorsList($this->getDatabase());
 

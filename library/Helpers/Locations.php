@@ -9,7 +9,8 @@ class Locations {
   public static int $blankLocation = -1;
 
   public static function GetLocationsList(string $parentAlias = ''): array {
-    if ( count(Locations::$cache) > 0) return Locations::$cache;
+    if ( $parentAlias == '' ) $parentAlias = '_all_';
+    if ( array_key_exists($parentAlias, Locations::$cache) ) return Locations::$cache[$parentAlias];
 
     $db = Factory::getContainer()->get('DatabaseDriver');
 
@@ -21,7 +22,7 @@ class Locations {
     ->where($db->qn('catid'). '=0')
     ->order($db->qn('value'));
 
-    if ( $parentAlias != '' ) {
+    if ( $parentAlias != '' && $parentAlias != '_all_') {
       $query->where($db->qn('alias') . '=' . $db->q($parentAlias));
     }
 
@@ -43,15 +44,11 @@ class Locations {
       $db->setQuery($query);
       $children = $db->loadObjectList('id') ?? [];
 
-      Locations::$cache = array_merge(Locations::$cache, $children);
-
-      // foreach ( $children AS $c) {
-      //   // push on the child
-      //   Locations::$cache[$c->id] = $c;
-      // }
+      if ( !array_key_exists($parentAlias, Locations::$cache) ) Locations::$cache[$parentAlias] = [];
+      Locations::$cache[$parentAlias] = array_merge(Locations::$cache[$parentAlias], $children);
     }
 
-    return Locations::$cache;
+    return Locations::$cache[$parentAlias];
   }
 
   // TODO: Need parents, and this is a quickie to get that info for now
@@ -95,5 +92,23 @@ class Locations {
     if ( $id == Locations::$blankLocation ) return (object)['value' => ''];
     if ( !count(Locations::$cache) ) Locations::GetLocationsList();
     return Locations::$cache[$id] ?? (object)['value' => ''];
+  }
+
+  /**
+   * Validates if an location alias is defined in eventbooking
+   * @param string $alias
+   * @return bool True if alias is found
+   */
+  public static function ValidateLocationAlias(string $alias): bool
+  {
+    $db = Factory::getContainer()->get('DatabaseDriver');
+    $query = $db->getQuery(true)
+      ->select('COUNT(*)')
+      ->from('#__claw_locations')
+      ->where('published = 1')
+      ->where('alias = :alias')
+      ->bind(':alias', $alias);
+    $db->setQuery($query);
+    return $db->loadResult() > 0;
   }
 }

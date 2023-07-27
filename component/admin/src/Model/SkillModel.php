@@ -140,13 +140,9 @@ class SkillModel extends AdminModel
 		$e = new ClawEvents( !empty($event) ? $event : Aliases::current);
 		$info = $e->getEvent()->getInfo();
 
-    $locations = Locations::GetLocationsList($info->locationAlias);
-		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
+		/** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
 		$parentField = $form->getField('location');
-		foreach ( $locations AS $l )
-		{
-			$parentField->addOption(htmlentities($l->value), ['value' => $l->id]);
-		}
+    $parentField->populateOptions($info->locationAlias);
 
     return $form;
   }

@@ -89,25 +89,12 @@ class LocationListField extends ListField
     return $this->listItems;
   }
 
-  // private function addChildren(&$index, &$titles, int $parent_id, int $level)
-  // {
-  //   // Are there children? If not, return option
-  //   $children_keys = array_keys($index, $parent_id, true);
-  //   $currentValue = $this->__get('value');
+  public function populateOptions(string $rootEventAlias = '')
+  {
+    $locations = Locations::GetLocationsList($rootEventAlias);
 
-  //   foreach ($children_keys as $childIndex) {
-  //     $this->listItems[] = (object)[
-  //       'value'    => ucfirst($childIndex),
-  //       'text'     => str_repeat('&emsp;', $level - 1) . '|&mdash; ' . $titles[$childIndex],
-  //       'disable'  => false,
-  //       'class'    => '',
-  //       'selected' => $childIndex == $currentValue ? true : false,
-  //       'checked'  => $childIndex == $currentValue ? true : false,
-  //       'onclick'  => '',
-  //       'onchange' => ''
-  //     ];
-
-  //     $this->addChildren($index, $titles, $childIndex, $level + 1);
-  //   }
-  // }
+    foreach ( $locations AS $l) {
+      $this->addOption(htmlentities($l->value), ['value' => $l->id]);
+    }
+  }
 }
