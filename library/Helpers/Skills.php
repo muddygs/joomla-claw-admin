@@ -2,13 +2,14 @@
 
 namespace ClawCorpLib\Helpers;
 
+use ClawCorpLib\Lib\Aliases;
 use Joomla\Database\DatabaseDriver;
 
 class Skills
 {
   private static array $cache = [];
 
-  public static function GetPresentersList(DatabaseDriver $db, string $eventAlias = ''): array
+  public static function GetPresentersList(DatabaseDriver $db, string $eventAlias = Aliases::current): array
   {
     if (count(Skills::$cache)) return Skills::$cache;
 
