@@ -63,6 +63,7 @@ class LocationModel extends AdminModel
       $data['alias'] = preg_replace($patterns, $replacements, strtolower($data['value']));
     }
     // TODO: further validation for uniqueness
+    // TODO: if root location, verify alias is defined in eventbooking via Locations::ValidateLocationAlias
 
     return parent::save($data);
   }
