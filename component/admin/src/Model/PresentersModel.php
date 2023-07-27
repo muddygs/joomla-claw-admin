@@ -175,4 +175,17 @@ class PresentersModel extends ListModel
     $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
     return $query;
   }
+
+  public function getItems()
+  {
+    $items = parent::getItems();
+
+    foreach ( $items AS $item )
+    {
+      if ( 3 == $item->published) {
+        $item->name .= ' <span class="badge rounded-pill bg-warning">New</span>';
+      }
+    }
+    return $items;
+  }
 }
