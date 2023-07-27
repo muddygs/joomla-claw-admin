@@ -149,6 +149,8 @@ class SkillsModel extends ListModel
     $locations = Locations::GetLocationsList();
     $presenters = Skills::GetPresentersList($this->getDatabase(), $event);
 
+    $new = ' <span class="badge rounded-pill bg-warning">New</span>';
+
     foreach ( $items AS $item ) {
       $item->day_text = '<i class="fa fa-question"></i>';
       if ( isset($item->day) && $item->day != '0000-00-00' ) {
@@ -166,13 +168,17 @@ class SkillsModel extends ListModel
         $item->day_text = '<i class="fa fa-question"></i>';
       }
 
+      if ( 3 == $item->published) {
+        $item->title = $item->title. $new;
+      }
+
       $item->presenter_names = [];
 
       if ( array_key_exists($item->owner, $presenters)) {
         $presenterRoute = Route::_('index.php?option=com_claw&view=presenter&layout=edit&id='.$presenters[$item->owner]->id);
         $item->presenter_names[] = '<a href="'. $presenterRoute. '">'.$presenters[$item->owner]->name.'</a>';
         if ( $presenters[$item->owner]->published == 3 ) {
-          $item->presenter_names[count($item->presenter_names)-1] .= ' <i class="fa fa-exclamation-triangle text-danger"></i>';
+          $item->presenter_names[count($item->presenter_names)-1] .= $new;
         }
 
         if ( $item->presenters != '' ) {
@@ -180,7 +186,7 @@ class SkillsModel extends ListModel
             if ( array_key_exists($p, $presenters)) {
               $item->presenter_names[] = '<i>'.$presenters[$p]->name.'</i>';
               if ( $presenters[$item->owner]->published == 3 ) {
-                $item->presenter_names[count($item->presenter_names)-1] .= ' <i class="fa fa-exclamation-triangle text-danger"></i>';
+                $item->presenter_names[count($item->presenter_names)-1] .= $new;
               }
       
             } else {
