@@ -133,7 +133,7 @@ function BioHtml(object &$__this)
     <?php
     if ($__this->bio->event == Aliases::current) {
       $buttonRoute = Route::_('index.php?option=com_claw&view=presentersubmission&id=' . $__this->bio->id);
-      $msg = 'Add/Edit Biography';
+      $msg = 'Edit Biography';
     } else {
       $buttonRoute = Route::_('index.php?option=com_claw&task=copybio&id=' . $__this->bio->id);
       $msg = 'Resubmit for ' . Aliases::eventTitleMapping[Aliases::current];
