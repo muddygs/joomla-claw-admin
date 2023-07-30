@@ -93,6 +93,10 @@ class LocationListField extends ListField
   {
     $locations = Locations::GetLocationsList($rootEventAlias);
 
+    if ( $rootEventAlias != '' ) {
+      $this->addOption(htmlentities('TBD'), ['value' => Locations::$blankLocation]);
+    }
+
     foreach ( $locations AS $l) {
       $this->addOption(htmlentities($l->value), ['value' => $l->id]);
     }
