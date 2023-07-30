@@ -142,6 +142,7 @@ class VendorsModel extends ListModel
     // Filter by search in title.
     $search = $this->getState('filter.search');
     $event = $this->getState('filter.event', '_current_');
+    $published = $this->getState('filter.published', -999);
 
     if (!empty($search))
     {
@@ -153,6 +154,9 @@ class VendorsModel extends ListModel
       if ( $event == '_current_' ) $event = Aliases::current;
       $query->where('a.event = :event')->bind(':event', $event);
     }
+
+    if ( $published != -999)
+      $query->where('a.published = :published')->bind(':published', $published);
 
     // Add the list ordering clause.
     $orderCol  = $this->state->get('list.ordering', 'a.name');

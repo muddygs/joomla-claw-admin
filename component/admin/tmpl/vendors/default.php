@@ -27,9 +27,13 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
 $canChange = true;
 $saveOrder = true;
 
+$saveOrderingUrl = '';
+
 if ($saveOrder && !empty($this->items)) {
   $saveOrderingUrl = 'index.php?option=com_claw&task=vendors.saveOrderAjax&tmpl=component&' . Session::getFormToken() . '=1';
   HTMLHelper::_('draggablelist.draggable');
+} else {
+  $saveOrder = false;
 }
 
 $app = Factory::getApplication();

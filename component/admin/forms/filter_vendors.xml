@@ -17,6 +17,17 @@
       <option value="_all_">All Events</option>
       <option value="_current_">Current Event</option>
     </field>
+
+		<field name="published"
+			type="list"
+			label="JSTATUS"
+			description="JFIELD_PUBLISHED_DESC"
+			onchange="this.form.submit();"
+			>
+			<option value="">JSTATUS</option>
+			<option value="1">JPUBLISHED</option>
+			<option value="0">JUNPUBLISHED</option>
+		</field>
 	</fields>
 
 	<fields name="list">
