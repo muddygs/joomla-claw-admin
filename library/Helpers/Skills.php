@@ -3,7 +3,11 @@
 namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Lib\Aliases;
+use InvalidArgumentException;
 use Joomla\Database\DatabaseDriver;
+use Joomla\Database\Exception\UnsupportedAdapterException;
+use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
+use RuntimeException;
 
 class Skills
 {
@@ -28,6 +32,29 @@ class Skills
     $db->setQuery($query);
     Skills::$cache = $db->loadObjectList('uid') ?? [];
     return Skills::$cache;
+  }
+
+  /**
+   * Returns a simple list of the presenters for the given event
+   * @param DatabaseDriver $db 
+   * @param string $eventAlias 
+   * @return array 
+   * @throws UnsupportedAdapterException 
+   * @throws QueryTypeAlreadyDefinedException 
+   * @throws RuntimeException 
+   * @throws InvalidArgumentException 
+   */
+  public static function GetPresenterList(DatabaseDriver $db, string $eventAlias): array
+  {
+    $query = $db->getQuery(true);
+
+    $query->select($db->qn(['uid', 'name']))
+      ->from($db->qn('#__claw_presenters'))
+      ->where($db->qn('published') . '= 1')
+      ->where($db->qn('event') . ' = :event')->bind(':event', $eventAlias);
+
+    $db->setQuery($query);
+    return $db->loadObjectList('uid') ?? [];
   }
 
   /**
@@ -63,7 +90,7 @@ class Skills
    * @param string $event Event alias
    * @return array|null Bio records array (of objects) or null on error
    */
-  public static function GetPresenterClasses(DatabaseDriver $db, int $uid, string $current = ''): ?array
+  public static function GetPresenterClasses(DatabaseDriver $db, int $uid, string $eventAlias = ''): ?array
   {
     $query = $db->getQuery(true);
     $query->select('*')
@@ -73,9 +100,9 @@ class Skills
       ->bind(':uid', $uid)
       ->bind(':copresenters', $uid);
 
-    if ( $current != '' ) {
+    if ( $eventAlias != '' ) {
       $query->where($db->qn('event') . ' = :event')
-      ->bind(':event', $current);
+      ->bind(':event', $eventAlias);
     }
 
     $query->order('mtime');
@@ -83,6 +110,30 @@ class Skills
 
     $db->setQuery($query);
     return $db->loadObjectList();
+  }
+
+  /**
+   * Returns a simple list of the classes for the given event
+   * 
+   * @param DatabaseDriver $db 
+   * @param string $eventAlias 
+   * @return array 
+   * @throws UnsupportedAdapterException 
+   * @throws QueryTypeAlreadyDefinedException 
+   * @throws RuntimeException 
+   * @throws InvalidArgumentException 
+   */
+  public static function GetClassList(DatabaseDriver $db, string $eventAlias): array
+  {
+    $query = $db->getQuery(true);
+
+    $query->select('*')
+      ->from($db->qn('#__claw_skills'))
+      ->where($db->qn('published') . '= 1')
+      ->where($db->qn('event') . ' = :event')->bind(':event', $eventAlias);
+
+    $db->setQuery($query);
+    return $db->loadObjectList() ?? [];
   }
 
 }
