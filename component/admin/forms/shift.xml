@@ -53,7 +53,7 @@
   <field
     name="coordinators"
     type="UsersByGroup"
-    label="Coordinators"
+    label="Managers"
     multiple="true"
     layout="joomla.form.field.list-fancy-select"
     default=""

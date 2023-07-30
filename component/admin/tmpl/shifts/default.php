@@ -46,7 +46,7 @@ $user = $app->getIdentity();
 		    <th scope="col">
 			    <?php echo HTMLHelper::_('searchtools.sort', 'Title', 'a.title', $listDirn, $listOrder); ?>
 		    </th>
-		    <th scope="col">Coordinator</th>
+		    <th scope="col">Manager(s)</th>
         <th scope="col">Shift Area</th>
         <th scope="col">Event</th>
         <th scope="col">ID</th>
