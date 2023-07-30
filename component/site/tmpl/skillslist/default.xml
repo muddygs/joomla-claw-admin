@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+	<layout title="Class Listing">
+		<message>
+			S&amp;E Simple Class Listing
+		</message>
+	</layout>
+
+	<!-- Add fields to the parameters object for the layout. -->
+	<fields name="params">
+
+		<!-- Options -->
+		<fieldset name="options">
+			<field name="event_alias"
+				type="text"
+				label="Event Alias"
+				description="Alias of the event for class display."
+				size="40"
+				default="" />
+
+			<field name="list_type"
+				type="options"
+				label="List Type"
+				description="Select the type of list to display."
+				default="simple"
+				required="true">
+				<option value="simple">Simple</option>
+				<option value="detailed">Detailed</option>
+			</field>
+
+			<field name="heading"
+				type="editor"
+				label="Intro Heading"
+				description="Enter the intro heading that appears above the class listing."
+				size="40"
+				filter="safehtml"
+				default="" />
+
+			<field name="include_room"
+				type="radio"
+				default="0"
+				label="Include Room"
+				description="Include the room number in the class listing."
+				class="btn-group btn-group-yesno">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+		</fieldset>
+
+	</fields>
+</metadata>
