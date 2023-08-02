@@ -2,30 +2,31 @@
 
 namespace ClawCorpLib\Helpers;
 
-use InvalidArgumentException;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\CMS\User\UserHelper;
 use Joomla\Database\DatabaseDriver;
-use Joomla\Database\Exception\UnsupportedAdapterException;
-use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
-use RuntimeException;
 
 class Helpers
 {
+
+#region Date/Time functions
   /**
    * Quicky that produces a mostly correct SQL time
    * TODO: set time zone
    * @return string
    */
-  static public function mtime(): string
+  public static function mtime(): string
   {
     $date = new Date('now');
     return $date->toSQL(true);
   }
 
-  static public function getDays(): array
+  /** 
+   * Returns event days from tue to mon
+   * @return array  */
+  public static function getDays(): array
   {
     return [
       'tue',
@@ -44,14 +45,74 @@ class Helpers
    * @param mixed $t 
    * @return int|bool 
    */
-  static public function timeToInt($t): int|bool
+  public static function timeToInt($t): int|bool
   {
     $ts = explode(':', $t);
     if (count($ts) < 2) return false;
     return 60 * ($ts[0] * 60 + $ts[1]);
   }
 
-  static public function getClawFieldValues(DatabaseDriver $db, string $section): array
+  public static function dateToDay(string $date): string
+  {
+    $d = Factory::getDate($date);
+    return $d->format('D');
+  }
+
+  public static function dateToDayNum(string $date): int
+  {
+    $d = Factory::getDate($date);
+    $n = $d->format('w');
+    if ( $n < 2 ) $n += 7;
+    return $n;
+  }
+
+  /**
+   * Converts hh:mm:ss to hh:mm XM, 00:00 -> Midnight, 12:00 -> Noon
+   * @param string Time string (hh:mm:ss)
+   * @return string Formatted time
+   */
+  public static function formatTime(string $time): string
+  {
+    if (0 === strpos($time, '00:00')) {
+      $time = "Midnight";
+    } else if (0 === strpos($time, '12:00')) {
+      $time = "Noon";
+    } else {
+      date_default_timezone_set('etc/UTC');
+      $time = date('g:iA', strtotime(substr($time, 0, 5)));
+    }
+
+    return $time;
+  }
+
+  /**
+   * Returns array with short day (Mon,Tue) to sql date for the event week starting Monday
+   */
+  public static function getDateArray(string $startDate, bool $dateOnly = false)
+  {
+    $result = [];
+
+    $date = Factory::getDate($startDate);
+
+    if ($date->dayofweek != 1) // 0 is Sunday
+    {
+      die('Starting date must be a Monday');
+    }
+
+    $date->setTime(0, 0);
+    for ($i = 0; $i < 7; $i++) {
+      $date->modify(('+1 day'));
+      $d = $date->toSql();
+      if ($dateOnly) $d = substr($d, 0, 10);
+      $result[$date->format('D')] = $d;
+    }
+
+    return $result;
+  }
+
+#endregion Date/Time functions
+
+  public static function getClawFieldValues(DatabaseDriver $db, string $section): array
   {
     $query = $db->getQuery(true);
     $query->select(['value', 'text'])
@@ -64,7 +125,7 @@ class Helpers
   }
 
 
-  static public function getUsersByGroupName(DatabaseDriver $db, string $groupname): array
+  public static function getUsersByGroupName(DatabaseDriver $db, string $groupname): array
   {
     $groupId = Helpers::getGroupId($db, $groupname);
 
@@ -114,7 +175,7 @@ class Helpers
    * 
    * @return array groups indexed by group name
    */
-  static public function getUserGroupsByName(DatabaseDriver $db, int $userId = 0): array
+  public static function getUserGroupsByName(DatabaseDriver $db, int $userId = 0): array
   {
     if (!$userId) {
       $identity = Factory::getApplication()->getIdentity();
@@ -138,26 +199,7 @@ class Helpers
     return $groups != null ? $groups : [];
   }
 
-
-  static public function getSponsorsList(DatabaseDriver $db, array $filter = []): array
-  {
-    $query = $db->getQuery(true);
-    $query->select($db->qn(['id', 'name']))
-      ->from($db->qn('#__claw_sponsors'))
-      ->where($db->qn('published') . '=1');
-
-    if (sizeof($filter) > 0) {
-      $filter = (array)($db->q($filter));
-      $query->where($db->qn('type') . ' IN (' . implode(',', $filter) . ')');
-    }
-
-    $query->order('name ASC');
-
-    $db->setQuery($query);
-    return $db->loadObjectList();
-  }
-
-  static public function getGroupId(DatabaseDriver $db, $groupName): int
+  public static function getGroupId(DatabaseDriver $db, $groupName): int
   {
     $query = $db->getQuery(true);
     $query->select($db->qn(['id']))
@@ -170,30 +212,6 @@ class Helpers
     return $groupId != null ? $groupId : 0;
   }
 
-  /**
-   * Returns array with short day (Mon,Tue) to sql date for the event week starting Monday
-   */
-  static public function getDateArray(string $startDate, bool $dateOnly = false)
-  {
-    $result = [];
-
-    $date = Factory::getDate($startDate);
-
-    if ($date->dayofweek != 1) // 0 is Sunday
-    {
-      die('Starting date must be a Monday');
-    }
-
-    $date->setTime(0, 0);
-    for ($i = 0; $i < 7; $i++) {
-      $date->modify(('+1 day'));
-      $d = $date->toSql();
-      if ($dateOnly) $d = substr($d, 0, 10);
-      $result[$date->format('D')] = $d;;
-    }
-
-    return $result;
-  }
 
   /**
    * Sets a CLAW-specific Joomla session variable.
@@ -228,24 +246,6 @@ class Helpers
     return null;
   }
 
-  /**
-   * Converts hh:mm:ss to hh:mm XM, 00:00 -> Midnight, 12:00 -> Noon
-   * @param string Time string (hh:mm:ss)
-   * @return string Formatted time
-   */
-  static function formatTime(string $time): string
-  {
-    if (0 === strpos($time, '00:00')) {
-      $time = "Midnight";
-    } else if (0 === strpos($time, '12:00')) {
-      $time = "Noon";
-    } else {
-      date_default_timezone_set('etc/UTC');
-      $time = date('g:iA', strtotime(substr($time, 0, 5)));
-    }
-
-    return $time;
-  }
 
   /**
    * Pass in some data - it gets emailed to webmaster for debugging
@@ -264,5 +264,11 @@ class Helpers
     $mailer->setBody($body);
 
     $mailer->Send();
+  }
+
+  static function StringCleanup(string $s, bool $lower = false): string
+  {
+    $s = preg_replace('/[\x00-\x20\x7F-\xFF]/', '', $s);
+    return $lower ? strtolower($s) : $s;
   }
 }
