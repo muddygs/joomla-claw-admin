@@ -1,7 +1,12 @@
 <?php
 namespace ClawCorpLib\Helpers;
 
+use InvalidArgumentException;
 use Joomla\CMS\Factory;
+use Joomla\Database\DatabaseDriver;
+use Joomla\Database\Exception\UnsupportedAdapterException;
+use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
+use RuntimeException;
 
 class Sponsors {
   private array $cache = [];
@@ -64,5 +69,33 @@ class Sponsors {
 
     return $tag;
 
+  }
+
+  /**
+   * Returns array of published sponsors, potentially filtered by sponsor types
+   * @param DatabaseDriver $db 
+   * @param array $filter Sponsor types
+   * @return array 
+   * @throws UnsupportedAdapterException 
+   * @throws QueryTypeAlreadyDefinedException 
+   * @throws RuntimeException 
+   * @throws InvalidArgumentException 
+   */
+  static public function GetPublishedSponsors(DatabaseDriver $db, array $filter = []): array
+  {
+    $query = $db->getQuery(true);
+    $query->select($db->qn(['id', 'name']))
+      ->from($db->qn('#__claw_sponsors'))
+      ->where($db->qn('published') . '=1');
+
+    if (sizeof($filter) > 0) {
+      $filter = (array)($db->q($filter));
+      $query->where($db->qn('type') . ' IN (' . implode(',', $filter) . ')');
+    }
+
+    $query->order('name ASC');
+
+    $db->setQuery($query);
+    return $db->loadObjectList();
   }
 }
