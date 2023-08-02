@@ -45,7 +45,7 @@ class Locations {
       $children = $db->loadObjectList('id') ?? [];
 
       if ( !array_key_exists($parentAlias, Locations::$cache) ) Locations::$cache[$parentAlias] = [];
-      Locations::$cache[$parentAlias] = array_merge(Locations::$cache[$parentAlias], $children);
+      Locations::$cache[$parentAlias] = array_replace(Locations::$cache[$parentAlias], $children);
     }
 
     return Locations::$cache[$parentAlias];
