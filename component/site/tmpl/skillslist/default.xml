@@ -19,7 +19,7 @@
 				default="" />
 
 			<field name="list_type"
-				type="options"
+				type="list"
 				label="List Type"
 				description="Select the type of list to display."
 				default="simple"
@@ -45,6 +45,17 @@
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>
 			</field>
+
+			<field name="enable_surveys"
+				type="radio"
+				default="0"
+				label="Enable Surveys"
+				description="Add survey link to class listing (detailed only)."
+				class="btn-group btn-group-yesno">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+
 		</fieldset>
 
 	</fields>
