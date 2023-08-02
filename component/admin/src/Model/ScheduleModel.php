@@ -19,7 +19,7 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Helpers\EventBooking;
-use ClawCorpLib\Helpers\Locations;
+use ClawCorpLib\Helpers\Sponsors;
 
 /**
  * Methods to handle a list of records.
@@ -84,7 +84,7 @@ class ScheduleModel extends AdminModel
 		$parentField = $form->getField('location');
 		$parentField->populateOptions($info->locationAlias);
 
-		$sponsors = Helpers::getSponsorsList($this->getDatabase());
+		$sponsors = Sponsors::GetPublishedSponsors($this->getDatabase());
 
 		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
 		$parentField = $form->getField('sponsors');
