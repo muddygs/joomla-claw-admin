@@ -47,8 +47,7 @@ class ClawEvents
     if ($clawEventAlias != 'refunds') {
       $this->LoadEventClass($clawEventAlias);
     } else {
-      die("Refund not implemented");
-      //$this->defineHistoricEventMapping();
+      $this->defineHistoricEventMapping();
     }
 
     if ($this->event->getInfo()->eventType == EventTypes::main) {
@@ -438,20 +437,12 @@ SQL;
   {
     if ($this->event->alias != 'refunds') die('This function can only be used for refunds.');
 
-    // $events = [];
-    // $info = (object)[];
-    // include(JPATH_ROOT.'/php/lib/events_'.$this->event->alias.'.php');
+    $classname = "\\ClawCorpLib\\Events\\refunds";
+    $this->event = new $classname('refunds');
 
-    // $clawEventInfo = new EventInfo();
+    $clawEventInfo = $this->event->getInfo();
 
-    // foreach ( array_keys(get_class_vars("clawEventInfo")) AS $k ) {
-    //     if ( !property_exists($info, $k )) {
-    //         var_dump($info);
-    //         die("Event description lacks: $k\n");
-    //     }
-    //     $clawEventInfo->$k = $info->$k;
-    // }
-
+    die("Implementation incomplete");
     // $events = [];
     // foreach(array_merge(Aliases::active, Aliases::past) AS $alias ) {
     //     include(JPATH_ROOT.'/php/lib/events_'.$alias.'.php');
