@@ -17,7 +17,6 @@ use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Enums\SkillsCategories;
 use ClawCorpLib\Enums\SkillsTracks;
 use ClawCorpLib\Helpers\Locations;
 use ClawCorpLib\Helpers\Mailer;
@@ -120,22 +119,6 @@ class SkillModel extends AdminModel
       return false;
     }
 
-    // For cases, see libraries/claw/Enums
-
-    /** @var $filter \Joomla\CMS\Form\FormField */
-    $audience = $form->getField('category');
-    foreach (SkillsCategories::cases() as $c) {
-      if ($c->name == 'TBD') continue;
-      $audience->addOption($c->value, ['value' => $c->name]);
-    }
-
-    /** @var $filter \Joomla\CMS\Form\FormField */
-    $audience = $form->getField('track');
-    foreach (SkillsTracks::cases() as $c) {
-      if ($c->name == 'None') continue;
-      $audience->addOption($c->value, ['value' => $c->name]);
-    }
-
 		$event = $form->getField('event')->value;
 		$e = new ClawEvents( !empty($event) ? $event : Aliases::current);
 		$info = $e->getEvent()->getInfo();
@@ -194,7 +177,7 @@ class SkillModel extends AdminModel
 
   private function email(bool $new, array $data)
   {
-    // Get notification configuration
+    /** @var Joomla\CMS\Application\AdministratorApplication */
     $app = Factory::getApplication();
     $params = $app->getParams();
     $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
