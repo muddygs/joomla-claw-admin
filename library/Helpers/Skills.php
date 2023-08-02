@@ -38,20 +38,24 @@ class Skills
    * Returns a simple list of the presenters for the given event
    * @param DatabaseDriver $db 
    * @param string $eventAlias 
+   * @param bool $published (default: true)
    * @return array 
    * @throws UnsupportedAdapterException 
    * @throws QueryTypeAlreadyDefinedException 
    * @throws RuntimeException 
    * @throws InvalidArgumentException 
    */
-  public static function GetPresenterList(DatabaseDriver $db, string $eventAlias): array
+  public static function GetPresenterList(DatabaseDriver $db, string $eventAlias, bool $published = true): array
   {
     $query = $db->getQuery(true);
 
     $query->select($db->qn(['uid', 'name']))
       ->from($db->qn('#__claw_presenters'))
-      ->where($db->qn('published') . '= 1')
       ->where($db->qn('event') . ' = :event')->bind(':event', $eventAlias);
+
+    if ( $published ) {
+      $query->where($db->qn('published') . '= 1');
+    }
 
     $db->setQuery($query);
     return $db->loadObjectList('uid') ?? [];
@@ -113,27 +117,44 @@ class Skills
   }
 
   /**
-   * Returns a simple list of the classes for the given event
+   * Returns a list of classes for the given event
    * 
    * @param DatabaseDriver $db 
    * @param string $eventAlias 
+   * @param bool $published (default: true)
    * @return array 
    * @throws UnsupportedAdapterException 
    * @throws QueryTypeAlreadyDefinedException 
    * @throws RuntimeException 
    * @throws InvalidArgumentException 
    */
-  public static function GetClassList(DatabaseDriver $db, string $eventAlias): array
+  public static function GetClassList(DatabaseDriver $db, string $eventAlias, bool $published = true): array
   {
     $query = $db->getQuery(true);
 
     $query->select('*')
       ->from($db->qn('#__claw_skills'))
-      ->where($db->qn('published') . '= 1')
       ->where($db->qn('event') . ' = :event')->bind(':event', $eventAlias);
+    
+    if ( $published ) {
+      $query->where($db->qn('published') . '= 1');
+    }
 
     $db->setQuery($query);
-    return $db->loadObjectList() ?? [];
+    return $db->loadObjectList('id') ?? [];
   }
 
+  public static function GetPresenter(DatabaseDriver $db, int $uid, string $eventAlias): ?object
+  {
+    $query = $db->getQuery(true);
+
+    $query->select('*')
+      ->from($db->qn('#__claw_presenters'))
+      ->where($db->qn('uid') . ' = :uid')->bind(':uid', $uid)
+      ->where($db->qn('event') . ' = :event')->bind(':event', $eventAlias)
+      ->where($db->qn('published') . ' = 1');
+
+    $db->setQuery($query);
+    return $db->loadObject();
+  }
 }
