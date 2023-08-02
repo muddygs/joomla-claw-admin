@@ -38,6 +38,7 @@ class HtmlView extends BaseHtmlView
     $app = Factory::getApplication();
 
     $controllerMenuId = (int)Helpers::sessionGet('menuid');
+    Helpers::sessionSet('skillsmenuid', $controllerMenuId);
     $menu = $app->getMenu()->getActive();
     if ($controllerMenuId != $menu->id) {
       $sitemenu = $app->getMenu();
@@ -45,13 +46,15 @@ class HtmlView extends BaseHtmlView
       $menu = $app->getMenu()->getActive();
     }
     $this->params = $menu->getParams();
+ 
+    $tpl = $this->params->get('list_type', 'simple');
 
 
     /** @var \ClawCorp\Component\Claw\Site\Model\SkillslistModel */
     $model = $this->getModel();
     $this->eventInfo = $model->GetEventInfo($this->params->get('event_alias', Aliases::current));
 
-    $this->presenters = $model->GetPresenterList();
+    $this->list = $model->GetConsolidatedList();
     parent::display($tpl);
   }
 }
