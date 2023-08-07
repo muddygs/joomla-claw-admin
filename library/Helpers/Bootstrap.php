@@ -7,7 +7,9 @@ use Joomla\CMS\User\UserHelper;
 
 class Bootstrap
 {
-  static function getSponsorTag($sponsorImg, $sponsorName, $sponsorLink)
+  public static $tabGuids = [];
+
+  public static function getSponsorTag($sponsorImg, $sponsorName, $sponsorLink)
   {
     $tag = '';
 
@@ -30,7 +32,13 @@ class Bootstrap
    * Writes out HTML for pilled tabs in Bootstrap 5
    * @return Nothing
    */
-  static function writePillTabs(array $tabTitles, array $tabContent, string $activeTab = '')
+  public static function writePillTabs(array $tabTitles, array $tabContent, string $activeTab = '')
+  {
+    $guid = Bootstrap::writePillTabList($tabTitles, $activeTab);
+    Bootstrap::writePillTabContent($guid, $tabTitles, $tabContent, $activeTab);
+  }
+
+  public static function writePillTabList(array $tabTitles, string $activeTab = ''): string
   {
     $guid = UserHelper::genRandomPassword(8);
     if ($activeTab == '') $activeTab = $tabTitles[0];
@@ -50,34 +58,49 @@ class Bootstrap
       }
       ?>
     </ul>
-    <div class="tab-content" id="pills-tab-<?php echo $guid ?>Content">
-      <?php
-      reset($tabContent);
-
-      foreach ($tabTitles as $title) {
-        $active = $title == $activeTab ? 'show active' : '';
-        $tabName = strtolower($title);
-        $tabName = preg_replace("/[^\w]/", '', $tabName);
-
-      ?>
-        <div class="tab-pane fade <?php echo $active ?>" id="pills-<?php echo $tabName ?>" role="tabpanel" aria-labelledby="pills-<?php echo $tabName ?>-tab">
-          <?php
-          echo current($tabContent);
-          next($tabContent);
-          ?>
-        </div>
-      <?php
-      }
-      ?>
-    </div>
 <?php
+    return $guid;
   }
 
+  public static function writePillTabContent(string $guid, array $tabTitles, array $tabContent, string $activeTab = '')
+  {
+    if ($activeTab == '') $activeTab = $tabTitles[0];
+
+    if ( !array_key_exists($guid, Bootstrap::$tabGuids) ) {
+    ?>
+      <div class="tab-content" id="pills-tab-<?php echo $guid ?>Content">
+    <?php
+    }
+
+    reset($tabContent);
+
+    foreach ($tabTitles AS $title) {
+      $active = $title == $activeTab ? 'show active' : '';
+      $tabName = strtolower($title);
+      $tabName = preg_replace("/[^\w]/", '', $tabName);
+
+    ?>
+      <div class="tab-pane fade <?php echo $active ?>" id="pills-<?php echo $tabName ?>" role="tabpanel" aria-labelledby="pills-<?php echo $tabName ?>-tab">
+        <?php
+        echo current($tabContent);
+        next($tabContent);
+        ?>
+      </div>
+    <?php
+    }
+
+    if ( !array_key_exists($guid, Bootstrap::$tabGuids) ) {
+      Bootstrap::$tabGuids[$guid] = 0;
+    ?>
+      </div>
+    <?php
+    }
+  }
 
   /**
    * Generates HTML based on Bootstrap 5 flex. Input is array with icon and content.
    */
-  static function writeGrid(array $content, array $tags = [], bool $asString = false)
+  public static function writeGrid(array $content, array $tags = [], bool $asString = false)
   {
     $result = '<div class="container px-2 py-2" id="icon-grid-vip">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2 px-4 py-2 justify-content-center">';
