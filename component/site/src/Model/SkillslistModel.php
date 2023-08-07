@@ -34,12 +34,32 @@ class SkillslistModel extends BaseDatabaseModel
     $classTypes = Helpers::getClawFieldValues($this->getDatabase(), 'skill_class_type');
     $classCategories = Helpers::getClawFieldValues($this->getDatabase(), 'skill_category');
 
-    // Prepare data for summary view
+    // Prepare data for views
 
-    $simple_items = [];
+    $tab_items = (object)[
+      'overview' => [],
+      'friam' => [],
+      'fripm' => [],
+      'satam' => [],
+      'satpm' => [],
+      'sun' => [],
+    ];
+
+    // Prepare data references for detailed views
+    foreach ( ['Overview', 'Fri AM', 'Fri PM', 'Sat AM', 'Sat PM', 'Sun'] AS $time ) {
+      // Remove spaces and lowercase
+      $name = strtolower(str_replace(' ', '', $time));
+
+      $tab_items->$name = [
+        'name' => $time,
+        'ids' => [],
+      ];
+    }
+
+    $tab_items->overview['category'] = [];
 
     foreach ( $classCategories AS $category ) {
-      $simple_items[$category->value] = [
+      $tab_items->overview['category'][$category->value] = [
         'name' => $category->text,
         'ids' => [],
       ];
@@ -48,6 +68,7 @@ class SkillslistModel extends BaseDatabaseModel
     foreach ( $classes AS $class ) {
       if ( $class->published != 1 ) continue;
 
+      // These should all be defined per validation on a published skills class
       $day = Helpers::dateToDayNum($class->day);
       $class->day_text = Helpers::dateToDay($class->day);
       $time = $class->time_slot;
@@ -55,9 +76,31 @@ class SkillslistModel extends BaseDatabaseModel
 
       $ordering = implode('-', [$day, $time, $title, $class->id]);
 
-      if ( array_key_exists($class->category, $simple_items) ) {
-        $simple_items[$class->category]['ids'][$ordering] = $class->id;
+      // Overview view gets all items indexed by category
+      if ( array_key_exists($class->category, $tab_items->overview['category']) ) {
+        $tab_items->overview['category'][$class->category]['ids'][$ordering] = $class->id;
       }
+
+      // Detailed view gets items indexed by day, time
+
+      // Example value: 0900:060 (start time : length)
+      $startTime = explode(':', $time)[0];
+
+      switch ( $day ) {
+        case 5:
+          $tab = 'fri';
+          $tab .= ($startTime < 1200) ? 'am' : 'pm';
+          break;
+        case 6:
+          $tab = 'sat';
+          $tab .= ($startTime < 1200) ? 'am' : 'pm';
+          break;
+        case 7:
+          $tab = 'sun';
+          break;
+      }
+
+      $tab_items->$tab['ids'][$ordering] = $class->id;
 
       $class->presenter_info = [];
 
@@ -83,12 +126,18 @@ class SkillslistModel extends BaseDatabaseModel
       }
     }
 
+    // Sort tab items by key
+    foreach ( $tab_items AS $tab => $items ) {
+      if ( $tab === 'overview' ) continue;
+
+      ksort($tab_items->$tab['ids']);
+    }
+
     return (object) [
-      'items' => $classes,
-      'simple' => $simple_items,
-      'categories' => $classCategories,
-      'types' => $classTypes,
-      'simple_items' => $simple_items,
+      'items' => $classes, // All classes
+      'tabs' => $tab_items, // Organized by tab
+      'categories' => $classCategories, // Categories used by overview listing
+      'types' => $classTypes, // Class types of presentations
     ];
   }
 

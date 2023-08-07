@@ -47,7 +47,7 @@ class HtmlView extends BaseHtmlView
     }
     $this->params = $menu->getParams();
  
-    $tpl = $this->params->get('list_type', 'simple');
+    $this->list_type = $this->params->get('list_type', 'simple');
 
 
     /** @var \ClawCorp\Component\Claw\Site\Model\SkillslistModel */
@@ -55,6 +55,7 @@ class HtmlView extends BaseHtmlView
     $this->eventInfo = $model->GetEventInfo($this->params->get('event_alias', Aliases::current));
 
     $this->list = $model->GetConsolidatedList();
+
     parent::display($tpl);
   }
 }
