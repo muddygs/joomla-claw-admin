@@ -26,7 +26,7 @@ class VendorsHelper
   public static function loadVendors(string $event): array
   {
     if (empty(trim($event))) {
-      return (object) array();
+      return [];
     }
 
     $db = Factory::getContainer()->get('DatabaseDriver');
