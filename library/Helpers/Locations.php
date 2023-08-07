@@ -91,7 +91,7 @@ class Locations {
   {
     if ( $id == Locations::$blankLocation ) return (object)['value' => ''];
     if ( !count(Locations::$cache) ) Locations::GetLocationsList();
-    return Locations::$cache[$id] ?? (object)['value' => ''];
+    return Locations::$cache['_all_'][$id] ?? (object)['value' => ''];
   }
 
   /**
