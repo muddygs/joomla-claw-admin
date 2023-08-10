@@ -21,6 +21,10 @@ class ClawEvent
     public array $couponAccessGroups = [];
     public bool $isAddon = false;
     public string $link = '';
+    public bool $authNetProfile = false;
+    public string $start = '';
+    public string $end = '';
+
 
     // TODO: Rewrite with named parameters and remove above public properties
     public function __construct(object $e)
@@ -40,7 +44,10 @@ class ClawEvent
 
         $optionalKeys = [
             'isAddon',
-            'link'
+            'link',
+            'authNetProfile',
+            'start',
+            'end'
         ];
 
         foreach ($requiredKeys as $k) {
