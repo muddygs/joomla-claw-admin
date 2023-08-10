@@ -92,4 +92,66 @@ class DisplayController extends BaseController
     echo json_encode($status);
   }
 #endregion Coupon Tasks
+
+#region Refunds
+  public function refundProcessRefund()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\RefundsModel */
+    $model = $this->getModel('Refunds');
+    $text = $model->refundProcessRefund($json);
+    header('Content-Type: text/plain');
+    echo $text;
+  }
+
+  public function refundChargeProfile()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\RefundsModel */
+    $model = $this->getModel('Refunds');
+    $text = $model->refundChargeProfile($json);
+    header('Content-Type: text/plain');
+    echo $text;
+  }
+
+  public function refundPopulate()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\RefundsModel */
+    $model = $this->getModel('Refunds');
+    header('Content-Type: text/plain');
+    $model->refundPopulate($json);
+//    echo $text;
+  }
+/*
+	case 'populate':
+		$invoice = trim($app->input->get('invoice', '', 'string'));
+		if ( $invoice ) getInvoices($invoice);
+		break;
+
+	case 'refund':
+		$transaction = trim($app->input->get('transaction', 0, 'int'));
+		$amount = trim($app->input->get('amount', 0.0, 'double'));
+		$cancelall = trim($app->input->get('cancelall', 'false', 'string'));
+		if ($transaction < 1 || $amount < 1) return '<pre>Check transaction selection and/or amount</pre>';
+
+		process($transaction, $amount, $cancelall == 'false' ? false : true);
+		break;
+
+	case 'charge':
+		$regcode = trim($app->input->get('regcode', '', 'string'));
+		$amount = trim($app->input->get('amount', 0.0, 'double'));
+		$receiptText = trim($app->input->get('receipt', 'CLAW Refund', 'string'));
+		if ($regcode == '' || $amount < 1) return '<pre>Check transaction selection and/or amount</pre>';
+
+		processProfileCharge($regcode, $amount, $receiptText);
+		break;
+*/
+#endregion Refunds
 }

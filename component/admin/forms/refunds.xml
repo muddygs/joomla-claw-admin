@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+  <field
+    name="invoice"
+    type="text"
+    label="Enter Invoice #"
+    required="true"
+  />
+
+  <field
+    name="refundSelect"
+    type="list"
+    label="Select Refund Transaction"
+    multiple="false"
+    default="0"
+  >
+    <option value="0">Select Transaction ID</option>
+  </field>
+
+  <field
+    name="refundAmount"
+    type="text"
+    label="Refund Amount ($)"
+    hint="0.00"
+    onchange="validateRefundAmount();"
+  />
+
+  <field
+    name="cancelall"
+    type="checkbox"
+    label="Cancel all invoice registrations"
+    value="1"
+  />
+
+  <field
+    name="profileSelect"
+    type="list"
+    label="Select Charge Profile"
+    multiple="false"
+    default="0"
+  >
+    <option value="0">Select Profile ID</option>
+  </field>
+
+  <field
+    name="profileAmount"
+    type="text"
+    label="Enter Charge Amount ($)"
+    hint="0.00"
+  />
+
+  <field
+    name="profileDescription"
+    type="text"
+    label="Charge Description"
+    default="CLAW Payment"
+  />
+</form>
+
