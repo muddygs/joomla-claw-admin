@@ -4,7 +4,7 @@ function getQuantity(): number {
 	return 0; 
 }
 
-function getFormData() {
+function getCouponFormData() {
 	const data = new FormData(document.getElementById('claw-coupon-generator') as HTMLFormElement);
 	const value = Object.fromEntries(data.entries());
 	return value;
@@ -17,7 +17,7 @@ function couponAjaxUrl(task: string) {
 function couponOptions() {
 	return {
 		method: 'POST',
-		body: JSON.stringify(getFormData()),
+		body: JSON.stringify(getCouponFormData()),
 		headers: {
 			'Content-Type': 'application/json',
 			'X-CSRF-Token': Joomla.getOptions('csrf.token')
@@ -26,7 +26,7 @@ function couponOptions() {
 }
 
 function loadEvent() {
-	var data = getFormData();
+	var data = getCouponFormData();
 	var task = "couponLoadEvent";
 
 	if (!data.hasOwnProperty("jform[event]") || data["jform[event]"] == "0") return;
