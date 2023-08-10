@@ -15,14 +15,36 @@ function removeOptions(selectElement: HTMLElement) {
 	}
 }
 
-function populateEventDiv(_invoice: string) {
+function getRefundFormData() {
+	const data = new FormData(document.getElementById('claw-refund') as HTMLFormElement);
+	const value = Object.fromEntries(data.entries());
+	return value;
+}
+
+function refundAjaxUrl(task: string) {
+	return '/administrator/index.php?option=com_claw&task=' + task + '&format=raw';
+}
+
+function refundOptions() {
+	return {
+		method: 'POST',
+		body: JSON.stringify(getRefundFormData()),
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRF-Token': Joomla.getOptions('csrf.token')
+		}
+	}
+}
+
+
+function populateEventDiv() {
 	var button = (document.getElementById('refundSubmit') as HTMLInputElement);
 	button.disabled = true;
 
-	var amount = (document.getElementById('refundAmount') as HTMLInputElement);
+	var amount = (document.getElementById('jform_refundAmount') as HTMLInputElement);
 	amount.value = "0";
 
-	fetch('/php/refunds/process.php?action=populate&invoice=' + _invoice + '&time=' + Date.now())
+	fetch(refundAjaxUrl('refundPopulate'), refundOptions())
 		.then(result => result.text())
 		.then(html => {
 			const n = document.getElementById("events");
@@ -56,7 +78,7 @@ function updateRefundSelect() {
 		}
 	});
 
-	var nts = document.getElementById('refundSelect');
+	var nts = document.getElementById('jform_refundSelect');
 	if (nts !== null) {
 		removeOptions(nts);
 		var opt = document.createElement("option");
@@ -84,7 +106,7 @@ function updateProfileSelect() {
 		if ( regcode != '' && profileid > 0 ) selects[regcode] = profileid;
 	});
 
-	var nts = document.getElementById('profileSelect');
+	var nts = document.getElementById('jform_profileSelect');
 	if (nts !== null) {
 		removeOptions(nts);
 		var opt = document.createElement("option");
@@ -102,23 +124,23 @@ function updateProfileSelect() {
 }
 
 function getInvoice(): string {
-	var n = document.getElementById('invoice') as HTMLInputElement;
+	var n = document.getElementById('jform_invoice') as HTMLInputElement;
 	if (n !== null && n.value !== null) return n.value
 	return '';
 }
 
 function doPopulate() {
 	var invoice = getInvoice();
-	if (invoice != '') populateEventDiv(invoice);
+	if (invoice != '') populateEventDiv();
 }
 
 function validateRefundAmount() {
 	var button = (document.getElementById('refundSubmit') as HTMLInputElement);
 	button.disabled = true;
 
-	var transaction: number = parseInt((document.getElementById('refundSelect') as HTMLSelectElement).value, 10);
+	var transaction: number = parseInt((document.getElementById('jform_refundSelect') as HTMLSelectElement).value, 10);
 	var refund = 0;
-	var n = document.getElementById('refundAmount') as HTMLInputElement;
+	var n = document.getElementById('jform_refundAmount') as HTMLInputElement;
 	if (n !== null && n.value !== null) refund = parseFloat(n.value);
 	if (refund > 0 && transaction > 0) button.disabled = false;
 }
@@ -127,22 +149,15 @@ function validateProfileAmount() {
 	var button = (document.getElementById('profileSubmit') as HTMLInputElement);
 	button.disabled = true;
 
-	var transaction: string = (document.getElementById('profileSelect') as HTMLSelectElement).value;
+	var transaction: string = (document.getElementById('jform_profileSelect') as HTMLSelectElement).value;
 	var refund = 0;
-	var n = document.getElementById('profileAmount') as HTMLInputElement;
+	var n = document.getElementById('jform_profileAmount') as HTMLInputElement;
 	if (n !== null && n.value !== null) refund = parseFloat(n.value);
 	if (refund > 0 && transaction != '') button.disabled = false;
 }
 
 function processRefund() {
-	var refund = (document.getElementById('refundAmount') as HTMLInputElement).value;
-	var transaction = (document.getElementById('refundSelect') as HTMLSelectElement).value;
-	var cancelall = (document.getElementById('cancelall') as HTMLInputElement).checked;
-
-	fetch('/php/refunds/process.php?action=refund&transaction=' + encodeURIComponent(transaction) +
-		 '&amount=' + encodeURIComponent(refund) +
-		 '&cancelall=' + encodeURIComponent(cancelall) + 
-		 '&time=' + Date.now())
+	fetch(refundAjaxUrl('refundProcessRefund'), refundOptions())
 		.then(result => result.text())
 		.then(html => {
 			var n = document.getElementById('results');
@@ -151,14 +166,7 @@ function processRefund() {
 }
 
 function processProfile() {
-	var charge = (document.getElementById('profileAmount') as HTMLInputElement).value;
-	var regcode = (document.getElementById('profileSelect') as HTMLSelectElement).value;
-	var receipt = (document.getElementById('profileDescription') as HTMLInputElement).value;
-
-	fetch('/php/refunds/process.php?action=charge&regcode=' + encodeURIComponent(regcode) + 
-		'&amount=' + encodeURIComponent(charge) + 
-		'&receipt=' + encodeURIComponent(receipt) + 
-		'&time=' + Date.now())
+	fetch(refundAjaxUrl('refundChargeProfile'), refundOptions())
 		.then(result => result.text())
 		.then(html => {
 			var n = document.getElementById('results');
