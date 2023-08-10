@@ -150,6 +150,10 @@ class Registrant
       ->where($db->qn('e.event_date') . '>' . $db->q($startDate))
       ->where($db->qn('r.published') . '=' . EbPublishedState::published->value);
     }
+
+    if ( $info->description == 'refunds') {
+      $q->where($db->qn('r.published') . '=' . EbPublishedState::published->value);
+    }
   
     if ( count($this->eventIdFilter) > 0 ) {
       $in = implode(',',$db->quote($this->eventIdFilter));
