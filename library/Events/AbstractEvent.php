@@ -40,6 +40,10 @@ abstract class AbstractEvent
     return $this->events;
   }
 
+  public function mergeEvents(array $otherEvents) {
+    $this->events = array_merge($this->events, $otherEvents);
+  }
+
   public function AppendEvent(ClawEvent $e)
   {
     $this->events[] = $e;
