@@ -17,7 +17,7 @@ use UnexpectedValueException;
 class ClawEvents
 {
   // private $events = [];
-  var $mainEventIds = [];
+  public array $mainEventIds = [];
   var $couponRequired = [];
   var $overlapEventCategories = [];
   var $shiftCategories = [];
@@ -97,8 +97,10 @@ class ClawEvents
       }
     }
 
-    if ($found > 1) die('Duplicate results found. Did you load multiple events?');
-
+    if ($found > 1) {
+      var_dump($this->event->getEvents());
+      die('Duplicate results found. Did you load multiple events?');
+    }
     return $result;
   }
 
@@ -435,21 +437,19 @@ SQL;
    */
   private function defineHistoricEventMapping(): void
   {
-    if ($this->event->alias != 'refunds') die('This function can only be used for refunds.');
-
     $classname = "\\ClawCorpLib\\Events\\refunds";
     $this->event = new $classname('refunds');
 
     $clawEventInfo = $this->event->getInfo();
 
-    die("Implementation incomplete");
-    // $events = [];
-    // foreach(array_merge(Aliases::active, Aliases::past) AS $alias ) {
-    //     include(JPATH_ROOT.'/php/lib/events_'.$alias.'.php');
-    // }
+    $events = [];
+    foreach(array_merge(Aliases::active, Aliases::past) AS $alias ) {
+      if ( $alias == 'refunds' ) continue;
 
-    // $this->event->events = $events;
-    // $this->clawEventInfo = $clawEventInfo;
+      $classname = "\\ClawCorpLib\\Events\\$alias";
+      $tmp = new $classname($alias);
+      $this->event->mergeEvents($tmp->getEvents());
+    }
   }
 
   private static function mapEventAliases(): void
