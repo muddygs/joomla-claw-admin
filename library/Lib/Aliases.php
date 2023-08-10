@@ -6,7 +6,7 @@ namespace ClawCorpLib\Lib;
 
 class Aliases {
   const current='l1123';
-  const active = [\ClawCorpLib\Lib\Aliases::current, 'c0423', 'virtualclaw', 'refunds'];
+  const active = [\ClawCorpLib\Lib\Aliases::current, 'virtualclaw', 'refunds'];
   const location = 'westin-bonaventure';
 
   // For refunds, allow past events to be identified
