@@ -16,6 +16,7 @@
     <files>
         <folder>Events</folder>
         <folder>Enums</folder>
+        <folder>External</folder>
         <folder>Grid</folder>
         <folder>Helpers</folder>
         <folder>Lib</folder>
