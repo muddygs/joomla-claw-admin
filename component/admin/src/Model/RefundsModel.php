@@ -12,17 +12,14 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Enums\EbPublishedState;
-use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\Authnetprofile;
-use ClawCorpLib\Lib\ClawEvents;
-use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\Factory;
-use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Model\FormModel;
 use Joomla\Database\ParameterType;
 use Joomla\Input\Json;
+use ClawCorpLib\Enums\EbPublishedState;
+use ClawCorpLib\Lib\Authnetprofile;
+use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\Registrant;
 
 require_once JPATH_LIBRARIES . '/claw/External/auth.net/vendor/autoload.php';
 require_once JPATH_ROOT . '/../authnet_constants.php';
