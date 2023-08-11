@@ -12,7 +12,6 @@ namespace ClawCorp\Component\Claw\Site\Model;
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Helpers;
-use Joomla\CMS\Factory;
 
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Skills;
