@@ -16,6 +16,7 @@
       label="Public Name"
       required="true"
       maxLength="30"
+      filter="string"
     />
 
     <field
@@ -24,6 +25,7 @@
       label="Legal Name"
       required="true"
       maxLength="30"
+      filter="string"
     />
 
     <field
@@ -39,6 +41,7 @@
       description="@twitter, @instagram, etc."
       required="false"
       maxLength="255"
+      filter="string"
     />
 
     <field
@@ -47,6 +50,7 @@
       label="Phone Number"
       required="false"
       maxLength="255"
+      filter="string"
     />
 
     <field
@@ -111,6 +115,7 @@
       required="false"
       maxLength="255"
       showon="copresenter:1"
+      filter="string"
     />
 
     <field
@@ -119,6 +124,7 @@
       label="Comments"
       required="false"
       maxLength="255"
+      filter="string"
     />
   </fieldset>
 
@@ -129,5 +135,6 @@
     required="false"
     maxLength="255"
     readonly="true"
+    filter="string"
   />
 </form>

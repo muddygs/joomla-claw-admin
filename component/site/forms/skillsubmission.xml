@@ -7,6 +7,7 @@
     class="readonly"
     default="0"
     readonly="true"
+    filter="uint"
   />
 
   <field
@@ -15,6 +16,7 @@
     label="Class Title"
     required="true"
     maxLength="30"
+    filter="string"
   />
 
   <field
@@ -57,7 +59,7 @@
     description="Contact information on any copresenters"
     required="false"
     maxLength="255"
-    filter="raw"
+    filter="string"
     rows="3"
     columns="00"
   />
@@ -69,9 +71,9 @@
     description="Describe class prerequisites and/or equipment/gear attendees should bring to class"
     required="false"
     maxLength="255"
-    filter="raw"
     rows="3"
-    columns="00"
+    columns="0"
+    filter="string"
   />
 
   <field
@@ -80,9 +82,9 @@
     label="Other Comments"
     required="false"
     maxLength="255"
-    filter="raw"
     rows="3"
     columns="00"
+    filter="string"
   />
 
 </form>

@@ -60,6 +60,7 @@ class PresentersubmissionController extends FormController
 
     $input = $app->input;
     $data = $input->get('jform', [], 'array');
+    $data = $form->filter($data);
     $validation = $siteModel->validate($form, $data);
 
     
