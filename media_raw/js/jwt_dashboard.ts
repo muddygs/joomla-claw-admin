@@ -1,27 +1,31 @@
-jQuery(function () {
-  jQuery(window).on('keydown', function (event) {
-    if (event.key == 'Enter') {
-      event.preventDefault();
-      return false;
+window.addEventListener('keydown', function (e) {
+  if (e.key == 'Enter') {
+      e.preventDefault(); return false; 
     }
-  });
-});
+}, true);
 
-function doConfirm(id: number) {
+function jwtdashboardAjaxUrl(task: string) {
+	return '/administrator/index.php?option=com_claw&task=' + task + '&format=raw';
+}
+
+function jwtdashboardOptions(action: string, id: number) {
   var data = {
-    action: "confirm",
+    action: action,
     id: id
   };
 
-  const options = {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  };
+  return {
+		method: 'POST',
+		body: JSON.stringify(data),
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRF-Token': Joomla.getOptions('csrf.token')
+		}
+	}
+}
 
-  fetch('/php/jwt/jwt_dashboard_process.php', options)
+function doConfirm(id: number) {
+  fetch(jwtdashboardAjaxUrl('jwtdashboardConfirm'), jwtdashboardOptions('confirm', id))
     .then(result => result.json())
     .then(html => {
       var b = document.getElementById('dbrdc' + html.id) as HTMLInputElement;
@@ -30,27 +34,13 @@ function doConfirm(id: number) {
 }
 
 function doRevoke(id: number) {
-  var data = {
-    action: "revoke",
-    id: id
-  };
-
-  const options = {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  };
-
-  fetch('/php/jwt/jwt_dashboard_process.php', options)
+  fetch(jwtdashboardAjaxUrl('jwtdashboardRevoke'), jwtdashboardOptions('revoke', id))
     .then(result => result.json())
     .then(html => {
       var b = document.getElementById('dbrdc' + html.id) as HTMLInputElement;
       if (b != null) b.remove();
       b = document.getElementById('dbrdr' + html.id) as HTMLInputElement;
       if (b != null) b.remove();
-
     });
 
 }

@@ -1,8 +1,12 @@
 const jwtstatus:string = 'jwtstatus';
-var jwttoken:string = null;
+let jwttoken:string = '';
 
-function tokenmon() {
-  var data = {
+function jwtmonAjaxUrl(task: string) {
+  return `/index.php?option=com_claw&view=checkin&task=${task}&format=raw`;
+}
+
+function tokencheck() {
+  const data = {
     action: 'validate',
     token: jwttoken
   };
@@ -11,20 +15,21 @@ function tokenmon() {
     method: 'POST',
     body: JSON.stringify(data),
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': Joomla.getOptions('csrf.token')
     }
   };
 
-  fetch('/php/jwt/jwt_link_request_process.php', options)
+  fetch(jwtmonAjaxUrl('jwtTokenCheck'), options)
     .then( result => result.json())
     .then(state => {
-      var timer = state.time_remaining as number;
-      var tokenState = state.state as string;
+      const timer = state.time_remaining as number;
+      const tokenState = state.state as string;
 
       if ( timer > 0 && tokenState == 'issued' ) {
         updateMonitorStatus(timer);
         setTimeout(() => {
-            tokenmon();
+            tokencheck();
         }, 60000);
       } else {
         updateMonitorStatus(0);
@@ -33,44 +38,38 @@ function tokenmon() {
     }).catch( error => {
       console.log("Fetch error in tokenmon");
       setTimeout(() => {
-        tokenmon();
+        tokencheck();
       }, 5000);
     });
 }
 
 function updateMonitorStatus(timer: number) {
-  var n = document.getElementById(jwtstatus);
+  const n = document.getElementById(jwtstatus);
   if ( n === null ) return;
 
-  var minutes = Math.round(timer/60);
-
-  var html = 'Authentication expires in ' + secondsToHms(timer) + '.';
-  //var now = Math.round(new Date().getTime() / 1000);
+  const minutes = Math.round(timer/60);
   if ( minutes <= 1 ) {
-      html = 'Authentication has expired. Click <a href="/getlink">HERE</a> to re-authenticate.';
+    window.location.href = '/index.php?option=com_claw&view=checkin';
   }
 
-  n.innerHTML = html;
+  n.innerHTML = `Authentication expires in ${secondsToHms(timer)}.`;
 }
 
-function secondsToHms(d: number):string {
-  var h = Math.floor(d / 3600);
-  var m = Math.floor(d % 3600 / 60);
-  //var s = Math.floor(d % 3600 % 60);
-
-  var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
-  var mDisplay = m > 0 ? m + (m == 1 ? " minute" : " minutes") : "";
-  //var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
-  return hDisplay + mDisplay; 
+function secondsToHms(d: number): string {
+  if ( d <= 0 ) return 'N/A';
+  const h = Math.floor(d / 3600);
+  const m = Math.floor(d % 3600 / 60);
+  const hDisplay = h > 0 ? `${h} ${h === 1 ? 'hour' : 'hours'}, ` : '';
+  const mDisplay = m > 0 ? `${m} ${m === 1 ? 'minute' : 'minutes'}` : '';
+  return hDisplay + mDisplay;
 }
 
-
-jQuery(function() {
-  var s = document.getElementById(jwtstatus);
+document.addEventListener('DOMContentLoaded', function() {
+  const s = document.getElementById(jwtstatus);
 
   jwttoken = (document.getElementById('token') as HTMLInputElement).value;
 
   if ( s !== null && jwttoken !== null ) {
-    tokenmon();
+    tokencheck();
   }
 });

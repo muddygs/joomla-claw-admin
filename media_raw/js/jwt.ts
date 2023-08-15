@@ -1,68 +1,75 @@
-var timeout:number = 0;
-var tokenState:string = 'error';
-var email: string = '';
-var urlInput: string = '';
+let timeout: number = 0;
+let jwttokenState: string = 'error';
+let email: string = '';
+let urlInput: string = '';
+
+function jwtstateAjaxUrl(task: string) {
+  return `/index.php?option=com_claw&view=checkin&task=${task}&format=raw`;
+}
+
+function jwtstateOptions(action: string, email: string, urlInput: string) {
+  const data = {
+    action: action,
+    email: email,
+    urlInput: urlInput
+  };
+
+  return {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': Joomla.getOptions('csrf.token')
+    }
+  }
+}
 
 /**
  * Start the token process using page's #email and #nonce inputs
  */
 function initToken(): void {
-    var e = document.getElementById('email') as HTMLInputElement;
-    if ( e === null || e.value === null ) return;
+  const e = document.getElementById('email') as HTMLInputElement;
+  if (e === null || e.value === null) return;
 
-    var u = document.getElementById('url') as HTMLInputElement;
-    if ( u === null || u.value === null ) return;
+  const u = document.getElementById('url') as HTMLInputElement;
+  if (u === null || u.value === null) return;
 
-    //nonce = n.value;
-    email = e.value;
-    urlInput = u.value;
-    tokenState = 'new';
+  //nonce = n.value;
+  email = e.value;
+  urlInput = u.value;
+  jwttokenState = 'new';
 
-    // Default 5 minutes
-    timeout = time() + 300;
+  // Default 5 minutes
+  timeout = time() + 300;
 
-    var data = {
-        action: 'init',
-        email: email,
-        urlInput: urlInput
-    };
-
-    const options = {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    };
-
-    // Request token sent to email
-    fetch('/php/jwt/jwt_link_request_process.php', options)
+  // Request token sent to email
+  fetch(jwtstateAjaxUrl('jwtstateInit'), jwtstateOptions('init', email, urlInput))
     .then(result => result.text())
     .then(state => {
-        tokenState = state;
+      jwttokenState = state;
     })
 
-    updateStatus();
+  updateStatus();
 
-    setTimeout(() => {
-        getNonceStatus();
-    }, 5000);
+  setTimeout(() => {
+    getNonceStatus();
+  }, 5000);
 }
 
 /**
  * Displays a simple timeout message on the page in #msg
  */
-function updateStatus():void  {
-    var n = document.getElementById('msg');
-    if ( n === null ) return;
+function updateStatus(): void {
+  var n = document.getElementById('msg');
+  if (n === null) return;
 
-    var html = 'Request expires in ' + Math.round(timeout - time()) + ' seconds.';
+  var html = `Request expires in ${Math.round(timeout - time())} seconds.`;
 
-    if ( timeout <= time() ) {
-        html = 'Authentication request has expired.';
-    }
+  if (timeout <= time()) {
+    html = 'Authentication request has expired.';
+  }
 
-    n.innerHTML = html;
+  n.innerHTML = html;
 }
 
 /**
@@ -70,7 +77,7 @@ function updateStatus():void  {
  * @returns number Epoch time
  */
 function time(): number {
-    return Math.round(new Date().getTime() / 1000);
+  return Math.round(new Date().getTime() / 1000);
 }
 
 /**
@@ -79,65 +86,45 @@ function time(): number {
  * If "issued," redirect page to #url input
  */
 function getNonceStatus(): void {
-    var u = document.getElementById('url') as HTMLInputElement;
-    if ( u === null || u.value === null ) return;
+  var u = document.getElementById('url') as HTMLInputElement;
+  if (u === null || u.value === null) return;
 
-    var data = {
-        action: 'state',
-        urlInput: u.value
-    };
+  fetch(jwtstateAjaxUrl('jwtstateState'), jwtstateOptions('state', '', urlInput))
+    .then(result => result.json())
+    .then(state => {
+      var tokenState = state.state;
+      var token = state.token;
 
-    const options = {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-            'Content-Type': 'application/json'
+      if (time() < timeout) {
+        if (tokenState == 'issued') {
+          var redirect = `/index.php?option=com_claw&view=checkin&token=${token}`;
+          window.location.href = redirect;
+        } else if (tokenState != "revoked") {
+          updateStatus();
+          setTimeout(() => {
+            getNonceStatus();
+          }, 5000);
         }
-    };
+      }
+    }).catch(error => {
+      console.log('Fetch error in getNonceStatus');
+      updateStatus();
+      setTimeout(() => {
+        getNonceStatus();
+      }, 10000);
+    });
 
-    fetch('/php/jwt/jwt_link_request_process.php', options)
-        .then(result => result.json())
-        .then(state => {
-            var tokenState = state.state;
-            var token = state.token;
-
-            if ( time() < timeout ) {
-                if ( tokenState == 'issued' ) {
-                    (document.getElementById('token') as HTMLInputElement).value = token;
-                    (document.getElementById('redirect') as HTMLFormElement).submit();
-                    // var url = document.getElementById('url') as HTMLInputElement;
-                    // if ( url !== null && url.value !== null ) {
-                    //     var redirect = '/' + url.value + '?token=' + token;
-                    //     window.location.href = redirect;
-                    // }
-                } else if (tokenState != "revoked") {
-                    updateStatus();
-                    setTimeout(() => {
-                        getNonceStatus();
-                    }, 5000);
-                }
-            }
-        }).catch( error => {
-            console.log('Fetch error in getNonceStatus');
-            updateStatus();
-            setTimeout(() => {
-                getNonceStatus();
-            }, 1000);
-        });
-
-    updateStatus();
+  updateStatus();
 }
 
-jQuery(function() {
-    jQuery(window).on('keydown', function (event) {
-		if (event.key == 'Enter') {
-			event.preventDefault();
-			return false;
-		}
-	});
+window.addEventListener('keydown', function (e) {
+  if (e.key == 'Enter') {
+    e.preventDefault(); return false;
+  }
+}, true);
 
-    jQuery('#submit').on('click', function () {
-        jQuery('#submit').prop("disabled", true);
-		initToken();
-	});
-});
+function submitjwtEmail() {
+  const submitButton = document.getElementById("submit") as HTMLInputElement;
+  submitButton.disabled = true;
+  initToken();
+}
