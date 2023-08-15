@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS `#__claw_jwt` (
   `iat` int(11) DEFAULT NULL,
   `exp` int(11) DEFAULT NULL,
   `nonce` varchar(255) NOT NULL,
-  `state` enum('new','expired','issued','revoked') NOT NULL DEFAULT 'new',
+  `state` enum('init','new','expired','issued','revoked') NOT NULL DEFAULT 'new',
   `secret` varchar(255) NOT NULL,
   `email` varchar(64) NOT NULL,
   `subject` varchar(255) NOT NULL,
