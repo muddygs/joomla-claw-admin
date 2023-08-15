@@ -2,12 +2,12 @@
 <extension type="package" method="upgrade">
 	<name>CLAW</name>
 	<!-- The following elements are optional and free of formatting constraints -->
-	<creationDate>2022-DEC-13</creationDate>
+	<creationDate>2023-AUG-15</creationDate>
 	<author>CLAW Corp.</author>
 	<authorUrl>https://www.clawinfo.org/</authorUrl>
 	<copyright>(c) 2022 CLAW Corp.</copyright>
 	<license>GNU/GPLv2</license>
-	<version>0.0.8</version>
+	<version>0.0.12</version>
 	<description>CLAW Data and Systems Administration</description>
 
 	<packagename>claw</packagename>
