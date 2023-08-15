@@ -212,6 +212,22 @@ class Helpers
     return $groupId != null ? $groupId : 0;
   }
 
+  /**
+   * Get the Joomla user id for an email address
+   * @param string The email address
+   * @return int The id (or null on error)
+   */
+  public static function getUserIdByEmail(DatabaseDriver $db, string $email): int
+  {
+    $query = $db->getQuery(true);
+    $query->select(['id'])
+      ->from('#__users')
+      ->where('email=' . $db->quote($email));
+    $db->setQuery($query);
+    $id = $db->loadResult();
+
+    return ($id == null) ? 0 : intval($id);
+  }
 
   /**
    * Sets a CLAW-specific Joomla session variable.
