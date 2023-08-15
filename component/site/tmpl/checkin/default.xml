@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <layout title="Checkin Link">
+    <message>
+      Displays the check in link for unauthenticated users.
+    </message>
+  </layout>
+</metadata>
