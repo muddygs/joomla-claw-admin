@@ -322,7 +322,7 @@ class Jwtwrapper
 
   public static function redirectOnInvalidToken(string $page, bool $json = false): ?postData
   {
-    $app = Factory::getApplication('site');
+    $app = Factory::getApplication();
 
     $uri_path = \Joomla\CMS\Uri\Uri::getInstance()->getPath();
     if (!$json) Helpers::sessionSet('jwt_redirect', $uri_path);
@@ -538,6 +538,7 @@ class Jwtwrapper
 
     // nonce should be the current Joomla session, unless confirming/revoking the token
     // via the email link
+    /** @var Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
     $session = $app->getSession();
     $sessionId = $session->getId();

@@ -188,8 +188,8 @@ if ( $vipRedirect ) {
   $cart = new EventbookingHelperCart();
   $cart->reset();
 
-  $comboMealsAll = clawEvents::getEventId(Aliases::defaultPrefix.'-meals-combo-all');
-  $vip = clawEvents::getEventId(Aliases::defaultPrefix.'-vip');
+  $comboMealsAll = ClawEvents::getEventId(Aliases::defaultPrefix.'-meals-combo-all');
+  $vip = ClawEvents::getEventId(Aliases::defaultPrefix.'-vip');
   $cart->addEvents([$vip, $comboMealsAll]);
 
   // In case they want to come back, fall back to vip
@@ -352,7 +352,7 @@ HTML;
   function contentMeals(): string
   {
     $result = '';
-    $categoryIds = clawEvents::getCategoryIds([
+    $categoryIds = ClawEvents::getCategoryIds([
       'dinner',
       'buffet',
       'buffet-breakfast',

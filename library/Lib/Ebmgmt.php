@@ -329,7 +329,7 @@ SQL;
     $titles = [];
 
     foreach ( $eventIds as $eventId ) {
-        $row = clawEvents::loadEventRow($eventId);
+        $row = ClawEvents::loadEventRow($eventId);
         $titles[] = $row->title;
     }
 
@@ -381,7 +381,7 @@ SQL;
   static function autoHideShowShifts(): void {
     $db = Factory::getDbo();
 
-    $events = new clawEvents(Aliases::current);
+    $events = new ClawEvents(Aliases::current);
     $eventInfo = $events->getClawEventInfo();
     $prefix = $eventInfo->shiftPrefix;
 
@@ -448,7 +448,7 @@ SQL;
   {
     $db = Factory::getDbo();
 
-    $eventId = clawEvents::getEventId($eventAlias, true);
+    $eventId = ClawEvents::getEventId($eventAlias, true);
     
     if ( 0 == $eventId ) 
     {
@@ -460,7 +460,7 @@ SQL;
 
     $registrants = registrants::byEventId($eventId);
 
-    $fieldId = clawEvents::getFieldId('Z_VOL_GOODSTANDING');
+    $fieldId = ClawEvents::getFieldId('Z_VOL_GOODSTANDING');
     $yes = $db->q('["Yes"]');
     $registrantIds = [];
 

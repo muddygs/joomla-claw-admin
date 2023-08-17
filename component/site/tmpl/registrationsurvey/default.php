@@ -280,7 +280,7 @@ HTML;
 }
 
 function vipHtml(): string {
-  $vipEventId = clawEvents::getEventId(strtolower(strtolower(Aliases::defaultPrefix).'-vip'));
+  $vipEventId = ClawEvents::getEventId(strtolower(strtolower(Aliases::defaultPrefix).'-vip'));
 
   $content = [
     'ticket-alt' => ['Attendee Package','Includes over 150 events and exhibitors'],
@@ -333,8 +333,8 @@ HTML;
 }
 
 function dayPassesHtml(): string {
-  $e = new clawEvents(Aliases::current);
-  $events = $e->getEventsByCategoryId(clawEvents::getCategoryIds(['day-passes']), $e->getClawEventInfo(),'event_date');
+  $e = new ClawEvents(Aliases::current);
+  $events = $e->getEventsByCategoryId(ClawEvents::getCategoryIds(['day-passes']), $e->getClawEventInfo(),'event_date');
 
   date_default_timezone_set(Aliases::timezone);
   $now = date('Y-m-d H:i:s');
@@ -367,8 +367,8 @@ HTML;
 }
 
 function nightPassesHtml(): string {
-  $e = new clawEvents(Aliases::current);
-  $events = $e->getEventsByCategoryId(clawEvents::getCategoryIds(['PASSES']), $e->getClawEventInfo(),'event_date');
+  $e = new ClawEvents(Aliases::current);
+  $events = $e->getEventsByCategoryId(ClawEvents::getCategoryIds(['PASSES']), $e->getClawEventInfo(),'event_date');
 
   date_default_timezone_set(Aliases::timezone);
   $now = date('Y-m-d H:i:s');

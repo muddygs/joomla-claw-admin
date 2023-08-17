@@ -262,11 +262,11 @@ class Checkin
       if ( $tmpOverride != '' ) $this->r->overridePackage = $tmpOverride;
     }
 
-    $shiftCatIds = clawEvents::getCategoryIds(Aliases::shiftCategories);
-    $dinnerCatIds = clawEvents::getCategoryIds(['dinner']);
-    $brunchCatIds = clawEvents::getCategoryIds(['buffet-breakfast']);
-    $buffetCatIds = clawEvents::getCategoryIds(['buffet']);
-    $leatherHeartCatIds = clawEvents::getCategoryIds(['donations-leather-heart']);
+    $shiftCatIds = ClawEvents::getCategoryIds(Aliases::shiftCategories);
+    $dinnerCatIds = ClawEvents::getCategoryIds(['dinner']);
+    $brunchCatIds = ClawEvents::getCategoryIds(['buffet-breakfast']);
+    $buffetCatIds = ClawEvents::getCategoryIds(['buffet']);
+    $leatherHeartCatIds = ClawEvents::getCategoryIds(['donations-leather-heart']);
 
     $this->r->shifts = '';
     $shiftCount = 0;
@@ -274,9 +274,9 @@ class Checkin
 
     // Combo meals events
     $allMealsEventId = false;
-    // $allMealsEventId = clawEvents::getEventId($prefix.'meals-combo-all');
-    //$allDinnersEventId = clawEvents::getEventId($prefix.'meals-combo-dinners');
-    $vipEventId = clawEvents::getEventId($prefix.'vip');
+    // $allMealsEventId = ClawEvents::getEventId($prefix.'meals-combo-all');
+    //$allDinnersEventId = ClawEvents::getEventId($prefix.'meals-combo-dinners');
+    $vipEventId = ClawEvents::getEventId($prefix.'vip');
     
     foreach ($registrant->records() as $r) {
       //$r = $registrant->castRecord($r);
@@ -300,14 +300,14 @@ class Checkin
       //   $this->r->dinners[EventPackageTypes::dinner] = $r->fieldValue->Dinner;
         
       //   $this->r->mealIssueMapping = [
-      //     clawEvents::getEventId($prefix.'fri-breakfast') => $vipEventId,
-      //     clawEvents::getEventId($prefix.'sat-breakfast') => $vipEventId,
-      //     clawEvents::getEventId($prefix.'brunch') => $vipEventId,
-      //     //clawEvents::getEventId($prefix.'wed-buffet') => $vipEventId,
-      //     clawEvents::getEventId($prefix.'thu-buffet') => $vipEventId,
-      //     clawEvents::getEventId($prefix.'fri-buffet') => $vipEventId,
-      //     clawEvents::getEventId($prefix.'sun-buffet') => $vipEventId,
-      //     clawEvents::getEventId($prefix.'dinner') => $vipEventId,
+      //     ClawEvents::getEventId($prefix.'fri-breakfast') => $vipEventId,
+      //     ClawEvents::getEventId($prefix.'sat-breakfast') => $vipEventId,
+      //     ClawEvents::getEventId($prefix.'brunch') => $vipEventId,
+      //     //ClawEvents::getEventId($prefix.'wed-buffet') => $vipEventId,
+      //     ClawEvents::getEventId($prefix.'thu-buffet') => $vipEventId,
+      //     ClawEvents::getEventId($prefix.'fri-buffet') => $vipEventId,
+      //     ClawEvents::getEventId($prefix.'sun-buffet') => $vipEventId,
+      //     ClawEvents::getEventId($prefix.'dinner') => $vipEventId,
       //   ];
       // }
 
@@ -324,14 +324,14 @@ class Checkin
       //   $this->r->dinners[EventPackageTypes::dinner] = $r->fieldValue->Dinner;
 
       //   $this->r->mealIssueMapping = [
-      //     clawEvents::getEventId($prefix.'fri-breakfast') => $allMealsEventId,
-      //     clawEvents::getEventId($prefix.'sat-breakfast') => $allMealsEventId,
-      //     clawEvents::getEventId($prefix.'brunch') => $allMealsEventId,
-      //     //clawEvents::getEventId($prefix.'wed-buffet') => $allMealsEventId,
-      //     clawEvents::getEventId($prefix.'thu-buffet') => $allMealsEventId,
-      //     clawEvents::getEventId($prefix.'fri-buffet') => $allMealsEventId,
-      //     clawEvents::getEventId($prefix.'sun-buffet') => $allMealsEventId,
-      //     clawEvents::getEventId($prefix.'dinner') => $allMealsEventId,
+      //     ClawEvents::getEventId($prefix.'fri-breakfast') => $allMealsEventId,
+      //     ClawEvents::getEventId($prefix.'sat-breakfast') => $allMealsEventId,
+      //     ClawEvents::getEventId($prefix.'brunch') => $allMealsEventId,
+      //     //ClawEvents::getEventId($prefix.'wed-buffet') => $allMealsEventId,
+      //     ClawEvents::getEventId($prefix.'thu-buffet') => $allMealsEventId,
+      //     ClawEvents::getEventId($prefix.'fri-buffet') => $allMealsEventId,
+      //     ClawEvents::getEventId($prefix.'sun-buffet') => $allMealsEventId,
+      //     ClawEvents::getEventId($prefix.'dinner') => $allMealsEventId,
       //   ];
 
       //   continue;
@@ -345,10 +345,10 @@ class Checkin
       //   $this->r->dinners[EventPackageTypes::dinner] = $r->fieldValue->Dinner;
 
       //   $this->r->mealIssueMapping = [
-      //     clawEvents::getEventId($prefix.'thu-buffet') => $allDinnersEventId,
-      //     clawEvents::getEventId($prefix.'fri-buffet') => $allDinnersEventId,
-      //     clawEvents::getEventId($prefix.'sun-buffet') => $allDinnersEventId,
-      //     clawEvents::getEventId($prefix.'dinner') => $allDinnersEventId,
+      //     ClawEvents::getEventId($prefix.'thu-buffet') => $allDinnersEventId,
+      //     ClawEvents::getEventId($prefix.'fri-buffet') => $allDinnersEventId,
+      //     ClawEvents::getEventId($prefix.'sun-buffet') => $allDinnersEventId,
+      //     ClawEvents::getEventId($prefix.'dinner') => $allDinnersEventId,
       //   ];
 
       //   continue;
@@ -366,17 +366,17 @@ class Checkin
       }
 
       if (in_array($r->category->category_id, $brunchCatIds)) {
-        if ($r->event->eventId == clawEvents::getEventId($prefix.'fri-breakfast')) $this->r->brunches[EventPackageTypes::brunch_fri] = 'Fri';
-        if ($r->event->eventId == clawEvents::getEventId($prefix.'sat-breakfast')) $this->r->brunches[EventPackageTypes::brunch_sat] = 'Sat';
-        if ($r->event->eventId == clawEvents::getEventId($prefix.'brunch')) $this->r->brunches[EventPackageTypes::brunch_sun] = 'Sun';
+        if ($r->event->eventId == ClawEvents::getEventId($prefix.'fri-breakfast')) $this->r->brunches[EventPackageTypes::brunch_fri] = 'Fri';
+        if ($r->event->eventId == ClawEvents::getEventId($prefix.'sat-breakfast')) $this->r->brunches[EventPackageTypes::brunch_sat] = 'Sat';
+        if ($r->event->eventId == ClawEvents::getEventId($prefix.'brunch')) $this->r->brunches[EventPackageTypes::brunch_sun] = 'Sun';
         continue;
       }
 
       if (in_array($r->category->category_id, $buffetCatIds)) {
-        //if ($r->event->eventId == clawEvents::getEventId($prefix.'wed-buffet')) $this->r->buffets[EventPackageTypes::buffet_wed] = 'Wed';
-        // if ($r->event->eventId == clawEvents::getEventId($prefix.'thu-buffet')) $this->r->buffets[EventPackageTypes::buffet_thu] = 'Thu';
-        if ($r->event->eventId == clawEvents::getEventId($prefix.'fri-buffet')) $this->r->buffets[EventPackageTypes::buffet_fri] = 'Fri';
-        // if ($r->event->eventId == clawEvents::getEventId($prefix.'sun-buffet')) $this->r->buffets[EventPackageTypes::buffet_sun] = 'Sun';
+        //if ($r->event->eventId == ClawEvents::getEventId($prefix.'wed-buffet')) $this->r->buffets[EventPackageTypes::buffet_wed] = 'Wed';
+        // if ($r->event->eventId == ClawEvents::getEventId($prefix.'thu-buffet')) $this->r->buffets[EventPackageTypes::buffet_thu] = 'Thu';
+        if ($r->event->eventId == ClawEvents::getEventId($prefix.'fri-buffet')) $this->r->buffets[EventPackageTypes::buffet_fri] = 'Fri';
+        // if ($r->event->eventId == ClawEvents::getEventId($prefix.'sun-buffet')) $this->r->buffets[EventPackageTypes::buffet_sun] = 'Sun';
         continue;
       }
 
@@ -411,13 +411,13 @@ class Checkin
     $this->r->dayPassDay = '';
 
     switch($this->r->package_eventId) {
-      case clawEvents::getEventId($prefix.'daypass-fri'):
+      case ClawEvents::getEventId($prefix.'daypass-fri'):
         $this->r->dayPassDay = 'Fri';
         break;
-      case clawEvents::getEventId($prefix.'daypass-sat'):
+      case ClawEvents::getEventId($prefix.'daypass-sat'):
         $this->r->dayPassDay = 'Sat';
         break;
-      case clawEvents::getEventId($prefix.'daypass-sun'):
+      case ClawEvents::getEventId($prefix.'daypass-sun'):
         $this->r->dayPassDay = 'Sun';
         break;
     }
@@ -594,7 +594,7 @@ EOL;
     $e = new clawEvents(Aliases::current);
     $inMainEventIds = implode(',',$e->mainEventIds);
 
-    $issued = clawEvents::getFieldId('Z_BADGE_ISSUED');
+    $issued = ClawEvents::getFieldId('Z_BADGE_ISSUED');
     $search = strtoupper($search);
     
     $db = Factory::getDbo();
@@ -660,7 +660,7 @@ EOT;
    */
   static function getUnprintedBadges(int $limit = 0 ): array
   {
-    $badgeFieldId = clawEvents::getFieldId('Z_BADGE_PRINTED');
+    $badgeFieldId = ClawEvents::getFieldId('Z_BADGE_PRINTED');
     $published = EbPublishedState::published->value;
 
     $db = Factory::getDbo();

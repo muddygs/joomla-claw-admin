@@ -307,7 +307,7 @@ class Authnetprofile {
 //   public static function getProfileCount(int $max = 0): int
 //   {
 //     $db = Factory::getDbo();
-//     $profileId = clawEvents::getFieldId('Z_AUTHNET_PROFILEID');
+//     $profileId = ClawEvents::getFieldId('Z_AUTHNET_PROFILEID');
 //     $published = registrationPublishedState::published;
 //     $partial = registrationPaymentStatus::partial;
 //     $authnet = $db->q(paymentTypes::authnet);
@@ -370,7 +370,7 @@ class Authnetprofile {
 //     $db = Factory::getDbo();
 //     $published = registrationPublishedState::published;
 
-//     $profileIdField = clawEvents::getFieldId("Z_AUTHNET_PROFILEID");
+//     $profileIdField = ClawEvents::getFieldId("Z_AUTHNET_PROFILEID");
 
 //     $hotelEvents = new clawEvents(CLAWALIASES::hotels[0]);
 //     $hotelEventIds = join(',',$hotelEvents->getEventIds());

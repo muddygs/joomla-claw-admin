@@ -343,7 +343,7 @@ HTML;
       return $result;
     }
   
-    $events = new clawEvents($eventSelection);
+    $events = new ClawEvents($eventSelection);
     $query = $db->getQuery(true);
     $query->select('*')
       ->from('#_eb_coupon_events')

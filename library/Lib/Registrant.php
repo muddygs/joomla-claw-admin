@@ -253,7 +253,7 @@ class Registrant
     }
 
     foreach ( $values as $k => $v ) {
-      $fieldId = clawEvents::getFieldId($k);
+      $fieldId = ClawEvents::getFieldId($k);
 
       $q = $db->getQuery(true);
       $q->select(['id','field_value'])
@@ -440,7 +440,7 @@ SQL;
 
 		$uid = $row->user_id;
 
-		$event = clawEvents::loadEventRow($row->event_id);
+		$event = ClawEvents::loadEventRow($row->event_id);
 
 		$prefix = Aliases::defaultPrefix.'-';
 
