@@ -12,6 +12,7 @@ namespace ClawCorp\Component\Claw\Site\Controller;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\JwtStates;
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
@@ -87,12 +88,69 @@ class DisplayController extends BaseController
     $json = new Json();
     $coupon = $json->get('coupon', '', 'string');
 
-    /** @var ClawCorp\Component\Claw\Site\Model\RegistrationsurveyModel */
+    /** @var \ClawCorp\Component\Claw\Site\Model\RegistrationsurveyModel */
     $siteModel = $this->getModel('Registrationsurvey');
     $json = $siteModel->RegistrationSurveyCouponStatus($coupon);
 
     header('Content-Type: application/json');
     echo $json;
   }
+
+  public function jwtstateInit()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    $email = $json->get('email', '', 'string');
+    $url = $json->get('urlInput', '', 'string');
+
+    Helpers::sessionSet('jwt_url', $url);
+
+    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
+    $siteModel = $this->getModel('Checkin');
+    $json = $siteModel->JwtstateInit(email: $email, url: $url);
+
+    header('Content-Type: application/json');
+    echo $json;
+  }
+
+  public function jwtstateState()
+  {
+    $this->checkToken();
+
+    $url = Helpers::sessionGet('jwt_url', '');
+
+    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
+    $siteModel = $this->getModel('Checkin');
+    $json = $siteModel->JwtstateState(url: $url);
+
+    header('Content-Type: application/json');
+    echo $json;
+  }
+
+  public function jwtconfirm()
+  {
+    $token = $this->input->get('token', '', 'string');
+    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
+    $siteModel = $this->getModel('Checkin');
+    $json = $siteModel->JwtConfirm(token: $token);
+    
+    header('Content-Type: application/json');
+    echo $json;
+
+  }
+
+  public function jwtrevoke()
+  {
+
+  }
+
+  public function checkinSearch() {}
+
+  public function checkinValue() {}
+
+  public function checkinIssue() {}
+
+  public function checkingGetCount() {}
 
 }

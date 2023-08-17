@@ -1,6 +1,4 @@
-var badgeToken = "";
-const checkinUrl = '/php/checkin/badgeStationCheckinProcess.php'
-const printUrl = '/php/checkin/badgePrintingProcess.php'
+let badgeToken = '';
 
 window.addEventListener('keydown', function (e) {
   if (e.key == 'Enter') {
@@ -102,13 +100,16 @@ function formatRecord(r: any): checkinRecord {
   };
 }
 
+function checkinAjaxUrl(task: string) {
+	return '/administrator/index.php?option=com_claw&task=' + task + '&format=raw';
+}
+
 class SearchService {
   async doSearch(search: string): Promise<checkinSearch[]> {
-    var scope = 'single';
+    let scope = 'single';
     if (document.getElementById('submitPrint') != null) scope = 'any';
 
-    var data = {
-      action: "search",
+    const data = {
       search: search,
       token: badgeToken,
       scope: scope
@@ -118,11 +119,12 @@ class SearchService {
       method: 'POST',
       body: JSON.stringify(data),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': Joomla.getOptions('csrf.token')
       }
     };
 
-    const res = await fetch(checkinUrl, options);
+    const res = await fetch(checkinAjaxUrl('checkinSearch'), options);
     const res_1 = await res.json();
     return res_1.map((s: any) => formatSearch(s));
   }
@@ -131,7 +133,6 @@ class SearchService {
 class RecordService {
   async doSearch(registration_code: string): Promise<checkinRecord> {
     var data = {
-      action: "value",
       registration_code: registration_code,
       token: badgeToken
     };
@@ -140,11 +141,12 @@ class RecordService {
       method: 'POST',
       body: JSON.stringify(data),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': Joomla.getOptions('csrf.token')
       }
     };
 
-    const recordResult = await fetch(checkinUrl, options);
+    const recordResult = await fetch(checkinAjaxUrl('checkinValue'), options);
     const recordResult_1 = await recordResult.json();
     return formatRecord(recordResult_1);
   }
@@ -222,7 +224,6 @@ function doCheckin() {
   if (registration_code == null || registration_code === '') return;
 
   var data = {
-    action: "checkin",
     registration_code: registration_code,
     token: badgeToken
   };
@@ -231,11 +232,12 @@ function doCheckin() {
     method: 'POST',
     body: JSON.stringify(data),
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': Joomla.getOptions('csrf.token')
     }
   };
 
-  fetch(checkinUrl, options)
+  fetch(checkinAjaxUrl('checkinIssue'), options)
     .then(result => result.json())
     .then(html => {
       show('status');
@@ -279,7 +281,6 @@ function clearDisplay() {
 
 function getBatchCount() {
   var data = {
-    action: "getcount",
     token: badgeToken
   };
 
@@ -287,11 +288,12 @@ function getBatchCount() {
     method: 'POST',
     body: JSON.stringify(data),
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': Joomla.getOptions('csrf.token')
     }
   };
 
-  fetch(printUrl, options)
+  fetch(checkinAjaxUrl('checkinGetCount'), options)
     .then(result => result.text())
     .then(html => {
       document.getElementById('badgeCount').innerHTML = html;

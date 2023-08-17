@@ -42,7 +42,43 @@
       "attributes": {
         "defer": true
       }
+    },
+    {
+      "name": "com_claw.refunds",
+      "type": "script",
+      "uri": "com_claw/refund_events.js",
+      "dependencies": [
+        "core",
+        "bootstrap.popover"
+      ],
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_claw.jwtdashboard",
+      "type": "script",
+      "uri": "com_claw/jwt_dashboard.js",
+      "dependencies": [
+        "core"
+      ],
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_claw.jwtlink",
+      "type": "script",
+      "uri": "com_claw/jwt.js",
+      "dependencies": [
+        "core"
+      ],
+      "attributes": {
+        "defer": true
+      }
     }
+
+
 
   ]
 }
