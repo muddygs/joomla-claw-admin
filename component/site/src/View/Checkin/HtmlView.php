@@ -41,9 +41,9 @@ class HtmlView extends BaseHtmlView
       $jwt = new Jwtwrapper($nonce);
       $payload = $jwt->confirmToken($token, JwtStates::issued );
 
-      if ( $payload != null ) {
-        $tpl = $payload->subject;
-      }
+      if ($payload && property_exists($payload, 'state') && array_key_exists($payload->subject, Jwtwrapper::jwt_token_pages)) {
+          $tpl = $payload->subject;
+      }    
     }
 
     parent::display($tpl);
