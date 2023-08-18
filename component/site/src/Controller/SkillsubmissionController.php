@@ -23,6 +23,7 @@ use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\Aliases;
+use Joomla\CMS\Router\Route;
 
 /**
  * Controller for a single skill record
@@ -96,7 +97,8 @@ class SkillsubmissionController extends FormController
     $result = $adminModel->save($data);
 
     if ($result) {
-      $app->enqueueMessage('Class submission save successful.');
+      // $app->enqueueMessage('Class submission save successful.');
+      $this->setRedirect(Route::_('index.php?option=com_claw&view=skillssubmissions', 'Class submission save successful.'));
     }
     return $result;
   }

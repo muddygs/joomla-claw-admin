@@ -88,10 +88,10 @@ class SkillModel extends AdminModel
 
     $data['presenters'] = implode(',', $data['presenters'] ?? []);
 
-    if ( !$data['location']) {
-      $data['location'] = Locations::$blankLocation;
+    if (!isset($data['location']) || !$data['location']) {
+        $data['location'] = Locations::$blankLocation;
     }
-
+    
     // If we're coming from the front end controller, email will be defined
     if ( array_key_exists('email', $data)) {
       $this->email(new: $data['id'] == 0, data: $data);

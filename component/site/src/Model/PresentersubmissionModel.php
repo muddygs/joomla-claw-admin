@@ -26,6 +26,12 @@ use Joomla\CMS\Router\Route;
  */
 class PresentersubmissionModel extends AdminModel
 {
+  public function __construct()
+  {
+    parent::__construct();
+    Helpers::sessionSet('skills.submission.tab', 'Biography');
+  }
+
   public function getForm($data = [], $loadData = true)
   {
     // Get the form.

@@ -33,6 +33,7 @@ class SkillsubmissionModel extends AdminModel
   {
     parent::__construct();
     $this->db = $this->getDatabase();
+    Helpers::sessionSet('skills.submission.tab', 'Classes');
   }
 
   public function getForm($data = [], $loadData = true)

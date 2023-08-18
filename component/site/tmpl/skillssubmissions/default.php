@@ -6,6 +6,7 @@ use Joomla\CMS\Router\Route;
 
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Bootstrap;
+use ClawCorpLib\Helpers\Helpers;
 
 // Get menu heading information
 echo $this->params->get('heading') ?? '<h1>Presenter Submissions</h1>';
@@ -30,7 +31,8 @@ $content = [
   $classesHtml
 ];
 
-Bootstrap::writePillTabs($tabs, $content);
+$activeTab = Helpers::sessionGet('skills.submission.tab', 'Biography');
+Bootstrap::writePillTabs($tabs, $content, $activeTab);
 
 ?>
 <form action="<?php echo Route::_('index.php?option=com_claw&view=skillssubmissions') ?>" method="post" name="skilllssubmissions" id="skillssubmissions-form" class="form-validate" enctype="multipart/form-data">

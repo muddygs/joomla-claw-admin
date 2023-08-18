@@ -22,6 +22,7 @@ use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
+use Joomla\CMS\Router\Route;
 
 /**
  * Controller for a single sponsor record
@@ -112,9 +113,9 @@ class PresentersubmissionController extends FormController
     $result = $adminModel->save($data);
 
     if ( $result ) {
-      $app->enqueueMessage('Biography save successful.');
       // Redirect to the main submission page
-      $app->redirect('index.php?option=com_claw&view=skillssubmissions');
+      $this->setRedirect(Route::_('index.php?option=com_claw&view=skillssubmissions', 'Biography save successful.'));
+      ;
     }
     return $result;
   }
