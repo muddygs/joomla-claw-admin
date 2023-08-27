@@ -16,6 +16,9 @@ use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\HTML\HTMLHelper;
 
+// Use session info first, otherwise, check URL for event alias
+$eventAlias = Helpers::sessionGet('eventAlias', '');
+
 // Parse URL to determine what the registrant is trying to do:
 $url = strtolower(substr(Uri::getInstance()->getPath(), 1));
 $prefix = strtolower(Aliases::defaultPrefix);
