@@ -44,8 +44,8 @@ Bootstrap::writeGrid($content, $tags);
 <h2>Skills &amp; Education</h2>
 <?php
 $content = [
-    'ticket-alt' => ['Presenter Submissions','LINK'],
-    'user-tag' => ['Class Submissions','LINK'],
+    'ticket-alt' => ['Presenters','<a href="/administrator/index.php?option=com_claw&view=presenters" role="button" class="btn btn-danger">Launch</a>'],
+    'user-tag' => ['Classes','<a href="/administrator/index.php?option=com_claw&view=classes" role="button" class="btn btn-danger">Launch</a>'],
   ];
   
 Bootstrap::writeGrid($content, $tags);
