@@ -49,6 +49,7 @@ endif;
   </div>
 
   <div class="row">
+    <?php echo $this->form->renderField('av'); ?>
     <?php echo $this->form->renderField('equipment_info'); ?>
     <?php echo $this->form->renderField('copresenter_info'); ?>
     <?php echo $this->form->renderField('requirements_info'); ?>
