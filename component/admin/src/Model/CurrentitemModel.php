@@ -63,6 +63,7 @@ class CurrentitemModel extends AdminModel
 	protected function loadFormData()
 	{
 		// Check the session for previously entered form data.
+		/** @var $app AdministratorApplication */
 		$app = Factory::getApplication();
 		$data = $app->getUserState('com_claw.edit.currentitem.data', array());
 
