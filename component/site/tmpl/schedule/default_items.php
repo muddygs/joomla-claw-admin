@@ -36,7 +36,7 @@ foreach ($this->items AS $item) {
     $event_description = $item->event_description;
   }
 
-  $fee_event = $item->fee_event;
+  $fee_event = explode(',',$item->fee_event);
   $event_id = $item->event_id;
   $location = Locations::GetLocationById($item->location);
   if ( $locationView == 'd-none' ) {
@@ -79,16 +79,17 @@ HTML;
 
   $payHtml = '';
 
-  if ($fee_event == 1 || $fee_event == 3) {
+  if (count(array_intersect($fee_event, ['preorder','dooronly']))>0) {
   	if ($event_id != 0) {
   		$payHtml = "<a href=\"/index.php?option=com_eventbooking&view=event&id={$event_id}\" data-toggle=\"tooltip\" title=\"Purchase Ticket\"";
   	}
-  	$payHtml .= '<span style="color:red;"><i class="fa fa-ticket fa-2x align-middle"></i></span>';
+  	$payHtml .= '<span style="color:red;"><i class="fa fa-ticket-alt fa-2x align-middle"></i></span>';
   	if ($event_id != 0) {
   		$payHtml .= "</a>";
   	}
   }
-  if ($fee_event == 2 || $fee_event == 3) {
+
+  if (count(array_intersect($fee_event, ['door', 'dooronly']))>0) {
   	$payHtml .= '<span style="color:red;"><i class="fa fa-door-open fa-2x align-middle"></i></span>';
   }
 
