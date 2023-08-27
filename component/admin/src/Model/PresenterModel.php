@@ -93,7 +93,9 @@ class PresenterModel extends AdminModel
       $new = true;
     }
 
+    // Handle checkboxes storage
     if ( array_key_exists('arrival', $data)) $data['arrival'] = implode(',',$data['arrival']);
+    if ( array_key_exists('phone_info', $data)) $data['phone_info'] = implode(',',$data['phone_info']);
 
     $input = $app->input;
     $files = $input->files->get('jform');
@@ -139,8 +141,8 @@ class PresenterModel extends AdminModel
       }
     }
 
-    // If we're coming from the front end controller, email will be defined
-    if ( array_key_exists('email', $data)) {
+    // Email if coming from the front end site
+    if ( $app->isClient('site') && array_key_exists('email', $data)) {
       $data['orig'] = $orig;
       $this->email(new: $new, data: $data);
     }
@@ -226,6 +228,7 @@ class PresenterModel extends AdminModel
   private function email(bool $new, array $data)
   {
     // Get notification configuration
+    /** @var $app AdministratorApplication */
     $app = Factory::getApplication();
     $params = $app->getParams();
     $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
