@@ -12,7 +12,7 @@
   <field
     name="name"
     type="text"
-    label="Public Name"
+    label="Public Name:"
     required="true"
     maxLength="30"
     filter="string"
@@ -21,7 +21,7 @@
   <field
     name="legal_name"
     type="text"
-    label="Legal Name"
+    label="Legal Name:"
     required="true"
     maxLength="30"
     filter="string"
@@ -30,7 +30,7 @@
   <field
     name="event"
     type="ClawEventsList"
-    label="Event Selection"
+    label="Event Selection:"
     required="true"
     multiple="false"
     default=""
@@ -41,7 +41,7 @@
   <field
     name="social_media"
     type="text"
-    label="Social Media Tags"
+    label="Social Media Tags:"
     description="@twitter, @instagram, etc."
     required="false"
     maxLength="255"
@@ -51,7 +51,7 @@
   <field
     name="phone"
     type="text"
-    label="Phone Number"
+    label="Phone Number:"
     required="false"
     maxLength="255"
     filter="string"
@@ -60,12 +60,20 @@
   <field
     name="phone_info"
     type="checkboxes"
-    label="Phone Info"
+    label="Phone Info:"
     >
     <option value="Cell">This is a cell phone number</option>
     <option value="SMS">It is OK to SMS (text) this number</option>
-    <option value="xxx">Need manual checkbox handling</option>
   </field>
+
+  <field
+    name="email"
+    type="text"
+    label="Email:"
+    required="true"
+    maxLength="255"
+    filter="string"
+  />
 
   <field 
     name="bio"
@@ -131,7 +139,7 @@
   <field
     name="uid"
     type="user"
-    label="Account"
+    label="Account (read only):"
     required="true"
     readonly="false"
     filter="uint"
@@ -139,7 +147,7 @@
   
   <field
     name="uid_readonly_name"
-    label="Account"
+    label="Account (read only):"
     type="text"
     readonly="true"
     default="0"
