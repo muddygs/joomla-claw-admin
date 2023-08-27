@@ -74,7 +74,7 @@ class ScheduleModel extends AdminModel
 
 		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
 		$parentField = $form->getField('day');
-		$days = Helpers::getDateArray($info->start_date);
+		$days = Helpers::getDateArray($info->start_date, true);
 		foreach(['Wed','Thu','Fri','Sat','Sun'] AS $day) {
 			$parentField->addOption($day, ['value' => $days[$day]]);
 
@@ -120,12 +120,9 @@ class ScheduleModel extends AdminModel
 		$app = Factory::getApplication();
 		$data = $app->getUserState('com_claw.edit.schedule.data', array());
 
-		if (empty($data))
-		{
+		if (empty($data)) {
 			$data = $this->getItem();
 		}
-
-		// Expand checkboxes
 
 		return $data;
 	}
