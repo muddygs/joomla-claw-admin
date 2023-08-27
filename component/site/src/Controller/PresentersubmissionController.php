@@ -53,10 +53,10 @@ class PresentersubmissionController extends FormController
     // Check for request forgeries.
     $this->checkToken();
 
-    /** @var Joomla\CMS\MVC\Model\AdminModel */
+    /** @var \Joomla\CMS\MVC\Model\AdminModel */
     $siteModel = $this->getModel();
     $form = $siteModel->getForm();
-    /** @var Joomla\CMS\Application\SiteApplication */
+    /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
 
     $input = $app->input;
