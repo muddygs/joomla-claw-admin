@@ -17,7 +17,6 @@ use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Enums\SkillsTracks;
 use ClawCorpLib\Helpers\Locations;
 use ClawCorpLib\Helpers\Mailer;
 use ClawCorpLib\Helpers\Skills;
