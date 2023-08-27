@@ -15,9 +15,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\ListModel;
 
-use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
 use Joomla\Database\ParameterType;
 
 /**
