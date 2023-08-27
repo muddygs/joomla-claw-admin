@@ -5,8 +5,10 @@ namespace ClawCorpLib\Helpers;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Image\Image;
 use Joomla\CMS\User\UserHelper;
 use Joomla\Database\DatabaseDriver;
+use LogicException;
 
 class Helpers
 {
@@ -124,7 +126,7 @@ class Helpers
     return $db->loadObjectList('value');
   }
 
-
+#region User Helpers
   public static function getUsersByGroupName(DatabaseDriver $db, string $groupname): array
   {
     $groupId = Helpers::getGroupId($db, $groupname);
@@ -228,7 +230,9 @@ class Helpers
 
     return ($id == null) ? 0 : intval($id);
   }
+#endregion User Helpers
 
+#region Session
   /**
    * Sets a CLAW-specific Joomla session variable.
    * @param string $key Key to variable
@@ -261,12 +265,12 @@ class Helpers
 
     return null;
   }
-
+#endregion Session
 
   /**
    * Pass in some data - it gets emailed to webmaster for debugging
    */
-  static function sendErrorNotification(string $path, $data)
+  public static function sendErrorNotification(string $path, $data)
   {
     $mailer = Factory::getMailer();
 
@@ -282,9 +286,59 @@ class Helpers
     $mailer->Send();
   }
 
-  static function StringCleanup(string $s, bool $lower = false): string
+  public static function StringCleanup(string $s, bool $lower = false): string
   {
     $s = preg_replace('/[\x00-\x20\x7F-\xFF]/', '', $s);
     return $lower ? strtolower($s) : $s;
+  }
+
+  public static function ProcessImageUpload(
+    string $source,
+    string $thumbnail,
+    int $resize = 300,
+    string $copyto = '',
+    bool $deleteSource = false,
+    int $quality = 80
+  ): bool {
+    if (file_exists($source)) {
+      $result = true;
+      if ($copyto != '') $result = copy($source, $copyto);
+
+      if (!$result) {
+        //echo('Unable to save original photo file: '. $orig);
+        return false;
+      } else {
+        try {
+          $image = new Image();
+          $image->loadFile($source);
+          $exif = @exif_read_data($source);
+          $image->resize($resize, $resize, false);
+
+          if ($exif && array_key_exists('Orientation', $exif)) {
+            switch ($exif['Orientation']) {
+              case 3:
+                $image->rotate(angle: 180.0, createNew: false);
+                break;
+              case 6:
+                $image->rotate(angle: -90.0, createNew: false);
+                break;
+              case 8:
+                $image->rotate(angle: 90.0, createNew: false);
+                break;
+            }
+          }
+          $image->toFile($thumbnail, IMAGETYPE_JPEG, ['quality' => $quality]);
+        } catch (LogicException $ex) {
+          //echo('Unable to save web photo file: '. $web);
+          return false;
+        }
+      }
+    } else {
+      return false;
+    }
+
+    if ( $deleteSource ) unlink($source);
+
+    return true;
   }
 }
