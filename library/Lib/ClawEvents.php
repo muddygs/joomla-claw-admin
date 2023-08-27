@@ -29,10 +29,9 @@ class ClawEvents
   private static $categoryIds = null;
   private static $fieldIds = null;
 
-  public function __construct(string $clawEventAlias, bool $enablePastEvents = false)
+  public function __construct(string $clawEventAlias)
   {
-    $eventAliases = Aliases::active;
-    if ($enablePastEvents) $eventAliases = array_merge($eventAliases, Aliases::past);
+    $eventAliases = array_merge(Aliases::active, Aliases::past);
 
     if (!in_array($clawEventAlias, $eventAliases)) {
       die(__FILE__ . ': Invalid event request: ' . $clawEventAlias);
