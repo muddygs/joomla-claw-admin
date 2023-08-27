@@ -35,15 +35,27 @@
   <field 
     name="description"
     type="editor"
-    label="Class Description (please exclude information from above)"
+    label="Class Description (please exclude information from above) - MAX LENGTH 1000 CHARACTERS"
     filter="safehtml"
     maxLength="1000"
   />
 
   <field
+    name="av"
+    label="A/V Equipment Needed?"
+    description="Let us know if you need A/V Equipment. We will follow up on details."
+    type="radio"
+    layout="joomla.form.field.radio.switcher"
+    default="0"
+    >
+    <option value="0">JNO</option>
+    <option value="1">JYES</option>
+  </field>
+
+  <field
     name="equipment_info"
     type="textarea"
-    label="Equipment"
+    label="Class Equipment"
     description="List needed equipment (e.g., sling, rigging)"
     required="false"
     maxLength="255"
@@ -67,7 +79,7 @@
   <field
     name="requirements_info"
     type="textarea"
-    label="Requirements"
+    label="Requirements (prerequisites, gear to bring, etc.)"
     description="Describe class prerequisites and/or equipment/gear attendees should bring to class"
     required="false"
     maxLength="255"
