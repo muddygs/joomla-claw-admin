@@ -60,8 +60,20 @@ $view = 'presenter';
       else:
         echo $this->form->renderField('uid_readonly_name');
         echo $this->form->renderField('uid_readonly_uid');
-      endif; ?>
-      <?php echo $this->form->renderField('phone'); ?>
+      endif;
+      echo $this->form->renderField('email');
+      ?>
+    </div>
+
+    <div class="row">
+      <div class="col-6">
+        <?php echo $this->form->renderField('phone'); ?>
+      </div>
+      <div class="col-6">
+        <?php echo $this->form->renderField('phone_info'); ?>
+      </div>
+    </div>
+    <div class="row">
       <?php echo $this->form->renderField('bio'); ?>
     </div>
     
