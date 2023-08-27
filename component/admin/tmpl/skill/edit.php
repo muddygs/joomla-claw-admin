@@ -69,6 +69,7 @@ $view = 'skill';
 		<?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'notes', 'Notes'); ?>
 
 		<div class="row">
+			<?php echo $this->form->renderField('av'); ?>
 			<?php echo $this->form->renderField('equipment_info'); ?>
 			<?php echo $this->form->renderField('copresenter_info'); ?>
 			<?php echo $this->form->renderField('requirements_info'); ?>
