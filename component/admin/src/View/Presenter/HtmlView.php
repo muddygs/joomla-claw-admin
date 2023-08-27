@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -17,17 +17,6 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\User\User;
 
-/**
- * @package     Joomla.Administrator
- * @subpackage  com_claw
- *
- * @copyright   Copyright (C) 2020 John Smith. All rights reserved.
- * @license     GNU General Public License version 3; see LICENSE
- */
-
-/**
- * Main "Hello World" Admin View
- */
 class HtmlView extends BaseHtmlView
 {
   /**
@@ -108,9 +97,6 @@ class HtmlView extends BaseHtmlView
     $this->form  = $this->get('Form');
     $this->item  = $this->get('Item');
 
-    /** @var Joomla\CMS\Application\AdministratorApplication */
-    $app = Factory::getApplication();
-
     // Check for errors.
     if (count($errors = $this->get('Errors'))) {
       throw new GenericDataException(implode("\n", $errors), 500);
@@ -132,6 +118,17 @@ class HtmlView extends BaseHtmlView
       $field = $this->form->getField('uid_readonly_uid');
       $this->form->setFieldAttribute($field->getAttribute('name'), 'default', $this->form->uid);
     }
+
+        /** @var $parentField \Joomla\CMS\Form\Field\CheckboxesField */
+		// $parentField = $form->getField('phone_info');
+    // $parentField->checkedOptions = json_decode($data['phone_info']) ?? [];
+
+    // $field = $this->form->getField('phone_info');
+    // $this->form->setFieldAttribute($field->getAttribute('value'), 'value', '');
+    // // unset($field->value);
+    // $field->checkedOptions = json_decode($field->value) ?? [];
+
+
 
     parent::display($tpl);
   }

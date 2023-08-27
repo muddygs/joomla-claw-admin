@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -20,17 +20,6 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Registrants;
 
-/**
- * @package     Joomla.Administrator
- * @subpackage  com_claw
- *
- * @copyright   Copyright (C) 2020 John Smith. All rights reserved.
- * @license     GNU General Public License version 3; see LICENSE
- */
-
-/**
- * Main "Hello World" Admin View
- */
 class HtmlView extends BaseHtmlView
 {
 	/**

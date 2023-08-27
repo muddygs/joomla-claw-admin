@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -14,14 +14,6 @@ defined('_JEXEC') or die;
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
-
-/**
- * @package     Joomla.Administrator
- * @subpackage  com_claw
- *
- * @copyright   Copyright (C) 2020 John Smith. All rights reserved.
- * @license     GNU General Public License version 3; see LICENSE
- */
 
 class HtmlView extends BaseHtmlView
 {
