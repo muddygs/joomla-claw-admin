@@ -7,6 +7,20 @@ use ClawCorpLib\Lib\Aliases;
 
 \defined('_JEXEC') or die;
 
+$locationView = $this->params->get('ShowLocation') ? '' : 'd-none';
+
+?>
+  <div class="container">
+    <div class="row row-striped g-0">
+      <div class="col-9 col-lg-10 row">
+        <div class="col-12 col-lg-2 pt-lg-2 pb-lg-2 mt-2 mb-2 font-weight-bold tight">Time</div>
+        <div class="col-12 col-lg-8 pt-lg-2 pb-lg-2 mt-0 mt-lg-1 mb-0 mb-lg-1 font-weight-bold tight">Event</div>
+        <div class="col-12 col-lg-2 pt-lg-2 pb-lg-2 mt-0 mt-lg-1 mb-2 mb-lg-1 font-weight-bold tight <?= $locationView ?>">Location</div>
+      </div>
+      <div class="col-3 col-lg-2 order-last pt-2 pb-2 mt-2 mb-2 font-weight-bold text-center g-0">Sponsor</div>
+    </div>
+<?php
+
 foreach ($this->items AS $item) {
   $stime = $item->start_time;
   $stime = Helpers::formatTime($stime);
@@ -25,6 +39,9 @@ foreach ($this->items AS $item) {
   $fee_event = $item->fee_event;
   $event_id = $item->event_id;
   $location = Locations::GetLocationById($item->location);
+  if ( $locationView == 'd-none' ) {
+    $location->value = '';
+  }
 
   if ( Aliases::onsiteActive == true ) {
     $event_description = $item->onsite_description == '' ?  $item->event_description : $item->onsite_description;
@@ -133,8 +150,8 @@ HTML;
         ?>
         <div class="col-12 col-lg-8 pt-lg-2 pb-lg-2 mt-2 mb-2">
           <div class="row">
-          <div class="col-9"><?=$eventHtml?></div>
-          <div class="col-3 align-middle text-end"><?=$thumb?></div>
+          <div class="col-8"><?=$eventHtml?></div>
+          <div class="col-4 align-middle text-end"><?=$thumb?></div>
           </div>
         </div>
         <?php 
@@ -144,9 +161,11 @@ HTML;
         <?php
       endif;
       ?>
-      <div class="col-12 col-lg-2 pt-lg-2 pb-lg-2 mt-2 mt-lg-1 mb-2 mb-lg-1"><?=$location->value?></div>
+      <div class="col-12 col-lg-2 pt-lg-2 pb-lg-2 mt-2 mt-lg-1 mb-2 mb-lg-1 <?= $locationView ?>"><?=$location->value?></div>
     </div>
     <div class="col-3 col-lg-2 order-last pt-lg-2 pb-lg-2 mt-2 mb-2 g-0"><?=$sponsor_logos?></div>
   </div>
   <?php
 }
+?>
+  </div>
