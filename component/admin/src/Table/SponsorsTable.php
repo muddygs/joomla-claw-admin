@@ -21,7 +21,7 @@ use Joomla\Database\DatabaseDriver;
  */
 class SponsorsTable extends Table
 {
-	protected $jsonEncode = ['fee_event'];
+	protected $_jsonEncode = ['fee_event'];
 	/**
 	 * Constructor
 	 *
