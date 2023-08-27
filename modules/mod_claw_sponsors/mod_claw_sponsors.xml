@@ -8,7 +8,7 @@
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2023 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>0.1.2</version>
+  <version>0.1.3</version>
   <description>Displays sponsor logos</description>
 
   <namespace path="src">ClawCorp\Module\Sponsors</namespace>

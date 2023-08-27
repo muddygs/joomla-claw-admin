@@ -65,7 +65,7 @@ class SponsorsHelper
     SponsorsHelper::writeSponsorTable($sponsors[SponsorshipType::Legacy_Master->value],'legacymaster','Legacy Master Sponsors',true);
     SponsorsHelper::writeSponsorTable($sponsors[SponsorshipType::Master->value],'master','Master Sponsors',true);
     SponsorsHelper::writeSponsorTable($sponsors[SponsorshipType::Legacy_Sustaining->value],'legacysus','Legacy Sustaining Sponsors',true);
-    SponsorsHelper::writeSponsorTable($sponsors[SponsorshipType::Sustaining->value],'sus','Legacy Sustaining Sponsors',true);
+    SponsorsHelper::writeSponsorTable($sponsors[SponsorshipType::Sustaining->value],'sus','Sustaining Sponsors',true);
     SponsorsHelper::writeSponsorTable($sponsors[SponsorshipType::Sponsor->value],'sus','Event Sponsors',true);
     SponsorsHelper::writeSponsorTable($sponsors[SponsorshipType::Media->value],'sus','Media Sponsors',true);
   }
