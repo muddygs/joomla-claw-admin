@@ -28,7 +28,7 @@ class EbCart
   public bool $show_error = false;
   public bool $show_warning = false;
   public string $warning_msg = '';
-  public string $clawlink = '';
+  public string $options_link = '';
   public bool $non_invoice_event = false;
   public bool $invoice_event = false;
   public string $regtype = '';
@@ -42,13 +42,11 @@ class EbCart
 <input type="submit" class="{$this->btnPrimary}" name="btn-submit" id="btn-submit" value="${!${''} = Text::_('EB_PROCESS_REGISTRATION')}">
 HTML;
 
-    $this->regtype = Helpers::sessionGet('regtype');
+    $this->options_link = Helpers::sessionGet('regtype');
     $this->referrer = Helpers::sessionGet('referrer');
 
-    Helpers::sessionSet('clawlink', '');
     if ( $this->referrer ) {
-      $this->clawlink = $this->clawlink . '?referrer=' . $this->referrer;
-      Helpers::sessionSet('clawlink', $this->clawlink);
+      $this->options_link = $this->options_link . '?referrer=' . $this->referrer;
     }
 
     $app = Factory::getApplication();
