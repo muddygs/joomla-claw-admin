@@ -17,12 +17,12 @@ use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\HTML\HTMLHelper;
 
 // Use session info first, otherwise, check URL for event alias
-$eventAlias = Helpers::sessionGet('eventAlias', '');
+$eventAlias = Helpers::sessionGet('eventAlias', Aliases::current); // TODO: Document session keys
 
 // Parse URL to determine what the registrant is trying to do:
 $url = strtolower(substr(Uri::getInstance()->getPath(), 1));
 $prefix = strtolower(Aliases::defaultPrefix);
-$eventPackageType = EventPackageTypes::none;
+$clawPackageType = EventPackageTypes::none;
 
 Helpers::sessionSet('regtype', $url);
 Helpers::sessionSet('filter_duration','');
@@ -37,7 +37,7 @@ $vipRedirect = false;
 
 switch ($url) {
   case $prefix . '-reg-att':
-    $eventPackageType = EventPackageTypes::attendee;
+    $clawPackageType = EventPackageTypes::attendee;
     break;
   case $prefix . '-reg-vip':
       $clawPackageType = EventPackageTypes::vip;
@@ -47,49 +47,49 @@ switch ($url) {
     $vipRedirect = true;
     break;
   case $prefix . '-reg-vol1':
-    $eventPackageType = EventPackageTypes::volunteer1;
+    $clawPackageType = EventPackageTypes::volunteer1;
     $tab = 'Shifts';
     break;
   case $prefix . '-reg-vol':
   case $prefix . '-reg-vol2':
-    $eventPackageType = EventPackageTypes::volunteer2;
+    $clawPackageType = EventPackageTypes::volunteer2;
     $tab = 'Shifts';
     break;
   case $prefix . '-reg-vol3':
-    $eventPackageType = EventPackageTypes::volunteer3;
+    $clawPackageType = EventPackageTypes::volunteer3;
     $tab = 'Shifts';
     break;
   case $prefix . '-reg-super':
-    $eventPackageType = EventPackageTypes::volunteersuper;
+    $clawPackageType = EventPackageTypes::volunteersuper;
     $tab = 'Shifts';
     break;
   case $prefix . '-reg-sta':
-    $eventPackageType = EventPackageTypes::event_staff;
+    $clawPackageType = EventPackageTypes::event_staff;
     break;
   case $prefix . '-reg-tal':
-    $eventPackageType = EventPackageTypes::event_talent;
+    $clawPackageType = EventPackageTypes::event_talent;
     break;
   case $prefix . '-reg-claw':
-    $eventPackageType = EventPackageTypes::claw_staff;
+    $clawPackageType = EventPackageTypes::claw_staff;
     break;
   case $prefix . '-reg-ven':
-    $eventPackageType = EventPackageTypes::vendor_crew;
+    $clawPackageType = EventPackageTypes::vendor_crew;
     break;
   case $prefix . '-reg-edu':
-    $eventPackageType = EventPackageTypes::educator;
+    $clawPackageType = EventPackageTypes::educator;
     break;
   case $prefix . '-reg-addons';
-    $eventPackageType = EventPackageTypes::none;
+    $clawPackageType = EventPackageTypes::none;
     $addons = true;
     break;
   case $prefix . '-daypass-fri';
-    $eventPackageType = EventPackageTypes::day_pass_fri;
+    $clawPackageType = EventPackageTypes::day_pass_fri;
     break;
   case $prefix . '-daypass-sat';
-    $eventPackageType = EventPackageTypes::day_pass_sat;
+    $clawPackageType = EventPackageTypes::day_pass_sat;
     break;
   case $prefix . '-daypass-sun';
-    $eventPackageType = EventPackageTypes::day_pass_sun;
+    $clawPackageType = EventPackageTypes::day_pass_sun;
     break;
   default:
     echo 'Unhandled menu item. Contact the administrator to fix.';
@@ -103,7 +103,7 @@ if ( !Aliases::onsiteActive ) {
     EventPackageTypes::day_pass_sun,
   ];
 
-  if (in_array($eventPackageType, $blockedPackageTypes)) {
+  if (in_array($clawPackageType, $blockedPackageTypes)) {
     echo "Day passes are not available at this time.";
     return;
   }
@@ -117,7 +117,6 @@ if (!$uid) {
 }
 
 $registrant = new registrant(Aliases::current, $uid);
-Helpers::sessionSet('clawEventAlias', Aliases::current);
 
 /** @var ClawCorpLib\Lib\Registrant\RegistrantRecord */
 $mainEvent = $registrant->getMainEvent();
@@ -130,7 +129,7 @@ if ($addons == true && $mainEvent == null && !$vipRedirect) :
   return;
 endif;
 
-if ($addons == false && $mainEvent != null && $mainEvent->registrant->eventPackageType != $eventPackageType) :
+if ($addons == false && $mainEvent != null && $mainEvent->registrant->eventPackageType != $clawPackageType) :
 ?>
   <p>You cannot register for this event because you are already registered for <b><?= $mainEvent->event->title ?></b>.</p>
   <p><span class="fa fa-info-circle fa-2x"></span><a href="/help?category_id=11">&nbsp;Contact Guest Services for assistance.</a></p>
@@ -144,9 +143,9 @@ $app = Factory::getApplication();
 /** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
 $wa = $app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.toast');
+// TODO: Load properly
 ?>
 
-<!-- TODO: Load properly -->
 <div class="position-fixed top-50 start-50 translate-middle p-3" style="z-index: 11">
   <div id="liveToast" class="toast rounded-pill" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header rounded-pill">
@@ -159,7 +158,7 @@ $wa->useScript('com_claw.toast');
 #endregion Toast
 
 $clawEvents = new ClawEvents(Aliases::current);
-$regEvent = $clawEvents->getEventByKey('clawPackageType', $eventPackageType);
+$regEvent = $clawEvents->getEventByKey('clawPackageType', $clawPackageType);
 
 // Auto add this registration to the cart
 // Remove any other main events that might be in cart
@@ -173,6 +172,9 @@ if ($addons == false && $mainEvent == null) {
     $cart->addEvents($items);
     $items = $cart->getItems();
   }
+
+  // In case there are any oddball nulls, clean them out
+  $cart->remove(null);
 
   $cartMainEvents = array_intersect($items, $clawEvents->mainEventIds);
 
@@ -256,7 +258,7 @@ endif;
   if ( Aliases::onsiteActive ) {
     $content[] = contentShiftsOnsite();
   } else {
-    $content[] = contentShifts($eventPackageType);
+    $content[] = contentShifts($clawPackageType);
   }
   
   $headings[] = 'Meals';
