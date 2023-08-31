@@ -19,6 +19,7 @@ use ClawCorpLib\Helpers\Locations;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use Joomla\CMS\Factory;
+use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Router\Route;
 use Joomla\Database\Exception\DatabaseNotFoundException;
 
@@ -59,30 +60,29 @@ class SkillsubmissionModel extends AdminModel
    * Given the ID of a record, attempt to copy it to the current
    * event while setting the old record to achived.
    * @param int $id 
-   * @return int|false 
+   * @return array [ status, data ]
    * @throws DatabaseNotFoundException 
    */
-  public function duplicate(int $id)
+  public function duplicate(int $id): array
   {
     /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
     $db = $this->getDatabase();
     $uid = $app->getIdentity()->id;
+    $email = $app->getIdentity()->email;
 
     $query = $db->getQuery(true);
     $query->select('*')
       ->from('#__claw_skills')
       ->where('id = :id')
       ->bind(':id', $id);
-
     $db->setQuery($query);
     $record = $db->loadObject();
 
     // Is this user the owner of the record?
     if ( $record == null || $record->owner != $uid ) {
       $app->enqueueMessage('Permission denied.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      $skillRoute = Route::_('index.php?option=com_claw&view=skillssubmissions');
-      $app->redirect($skillRoute);
+      return [ false, [] ];
     }
 
     $success = false;
@@ -110,7 +110,6 @@ class SkillsubmissionModel extends AdminModel
         ->bind(':idx', $record->id);
       $db->setQuery($query);
       $db->execute();
-      
   
       $success = true;
     }
@@ -121,9 +120,9 @@ class SkillsubmissionModel extends AdminModel
       $app->enqueueMessage('Class copy failed.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
     }
 
-    $skillRoute = Route::_('index.php?option=com_claw&view=skillssubmissions');
-    $app->redirect($skillRoute);
-
+    $record->email = $email;
+    
+    return [ $success, (array)$record ];
   }
 
   protected function loadFormData()

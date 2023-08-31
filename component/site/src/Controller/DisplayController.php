@@ -60,7 +60,15 @@ class DisplayController extends BaseController
     $id = $this->input->get('id');
     /** @var \ClawCorp\Component\Claw\Site\Model\SkillsubmissionModel */
     $siteModel = $this->getModel('Skillsubmission', 'Site');
-    $siteModel->duplicate($id);
+    [$status, $data] = $siteModel->duplicate($id);
+
+    // Email via admin model
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\SkillModel */
+    $adminModel = $this->getModel('Skill', 'Administrator');
+    if ( $status) $adminModel->email(true, $data);
+
+    $skillRoute = Route::_('index.php?option=com_claw&view=skillssubmissions');
+    $this->redirect($skillRoute);
   }
 
 
@@ -128,6 +136,11 @@ class DisplayController extends BaseController
     echo $json;
   }
 
+  /**
+   * Process token confirmation from email link
+   *
+   * @return void
+   */
   public function jwtconfirm()
   {
     $token = $this->input->get('token', '', 'string');
@@ -137,15 +150,38 @@ class DisplayController extends BaseController
     
     header('Content-Type: application/json');
     echo $json;
-
   }
 
+  /**
+   * Process token revocation from email link
+   *
+   * @return void
+   */
   public function jwtrevoke()
   {
-
+    $token = $this->input->get('token', '', 'string');
+    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
+    $siteModel = $this->getModel('Checkin');
+    $json = $siteModel->JwtRevoke(token: $token);
+    
+    header('Content-Type: application/json');
+    echo $json;
   }
 
-  public function checkinSearch() {}
+  public function checkinSearch()
+  {
+    $this->checkToken();
+
+    $search = $this->input->get('search', '', 'string');
+    $token = $this->input->get('token', '', 'string');
+
+    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
+    $siteModel = $this->getModel('Checkin');
+    $json = $siteModel->JwtSearch(token: $token, search: $search, scope: true);
+		header('Content-Type: application/json');
+		echo json_encode($json);
+
+  }
 
   public function checkinValue() {}
 
