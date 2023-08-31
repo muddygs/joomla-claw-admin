@@ -188,7 +188,7 @@ function ClassesHtml(object &$__this)
   <?php
   if ($canSubmit && $bioIsCurrent):
   ?>
-    <a name="add-class" id="add-class" class="btn btn-danger" href="<?php echo $skillRoute ?>" role="button">Add Class</a>
+    <a name="add-class" id="add-class" class="btn btn-danger" href="<?php echo $skillRoute ?>&id=0" role="button">Add Class</a>
   <?php
   endif;
 }
