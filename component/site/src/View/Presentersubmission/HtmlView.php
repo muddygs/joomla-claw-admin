@@ -35,7 +35,7 @@ class HtmlView extends BaseHtmlView
     // Validate ownership of the record
     if (property_exists($this->item, 'id')) {
       if ($this->item->id > 0) {
-        if ($this->item->owner != $uid) {
+        if ($this->item->uid != $uid) {
           throw new GenericDataException('You do not have permission to edit this record.', 403);
         }
       }
