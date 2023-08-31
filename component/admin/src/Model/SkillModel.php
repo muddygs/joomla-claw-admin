@@ -24,7 +24,7 @@ use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 
 /**
- * Methods to handle a list of records.
+ * Methods to handle processing a skill submission
  *
  * @since  1.6
  */
@@ -72,6 +72,8 @@ class SkillModel extends AdminModel
  
   public function save($data)
   {
+    $app = Factory::getApplication();
+
     $data['mtime'] = Helpers::mtime();
     $e = new ClawEvents($data['event']);
     $info = $e->getClawEventInfo();
@@ -92,7 +94,7 @@ class SkillModel extends AdminModel
     }
     
     // If we're coming from the front end controller, email will be defined
-    if ( array_key_exists('email', $data)) {
+    if ( $app->isClient('site') && array_key_exists('email', $data)) {
       $this->email(new: $data['id'] == 0, data: $data);
     }
 
@@ -174,7 +176,7 @@ class SkillModel extends AdminModel
     throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
   }
 
-  private function email(bool $new, array $data)
+  public function email(bool $new, array $data)
   {
     /** @var Joomla\CMS\Application\AdministratorApplication */
     $app = Factory::getApplication();
