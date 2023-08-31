@@ -22,9 +22,24 @@ class HtmlView extends BaseHtmlView
 {
   public function display($tpl = null)
   {
+    // Check that user is in the submission group
+    /** @var \Joomla\CMS\Application\SiteApplication */
+    $app = Factory::getApplication();
+    $groups = $app->getIdentity()->getAuthorisedGroups();
+    $uid = $app->getIdentity()->id;
+
     $this->state = $this->get('State');
     $this->form  = $this->get('Form');
     $this->item  = $this->get('Item');
+
+    // Validate ownership of the record
+    if (property_exists($this->item, 'id')) {
+      if ($this->item->id > 0) {
+        if ($this->item->owner != $uid) {
+          throw new GenericDataException('You do not have permission to edit this record.', 403);
+        }
+      }
+    }
 
     // Check for errors.
     $errors = $this->get('Errors');
@@ -34,11 +49,6 @@ class HtmlView extends BaseHtmlView
 
     $params = $this->params = $this->state->get('params');
     $temp = clone ($params);
-
-    // Check that user is in the submission group
-    /** @var \Joomla\CMS\Application\SiteApplication */
-    $app = Factory::getApplication();
-    $groups = $app->getIdentity()->getAuthorisedGroups();
 
     $controllerMenuId = (int)Helpers::sessionGet('menuid');
     $menu = $app->getMenu()->getActive();

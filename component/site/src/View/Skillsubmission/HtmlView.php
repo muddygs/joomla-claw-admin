@@ -17,14 +17,29 @@ use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Helpers\Helpers;
 
-/** @package ClawCorp\Component\Claw\Site\Controller */
+/** @package ClawCorp\Component\Claw\View\Skillsubmission */
 class HtmlView extends BaseHtmlView
 {
   public function display($tpl = null)
   {
+    // Check that user is in the submission group
+    /** @var \Joomla\CMS\Application\SiteApplication */
+    $app = Factory::getApplication();
+    $groups = $app->getIdentity()->getAuthorisedGroups();
+    $uid = $app->getIdentity()->id;
+
     $this->state = $this->get('State');
     $this->form  = $this->get('Form');
     $this->item  = $this->get('Item');
+
+    // Validate ownership of the record
+    if (property_exists($this->item, 'id')) {
+      if ($this->item->id > 0) {
+        if ($this->item->owner != $uid) {
+          throw new GenericDataException('You do not have permission to edit this record.', 403);
+        }
+      }
+    }
 
     // Put the record id in the session
     Helpers::sessionSet('recordid', $this->item->id ?? 0);
