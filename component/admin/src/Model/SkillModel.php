@@ -121,7 +121,7 @@ class SkillModel extends AdminModel
     }
 
 		$event = $form->getField('event')->value;
-		$e = new ClawEvents( !empty($event) ? $event : Aliases::current);
+		$e = new ClawEvents( !empty($event) ? $event : Aliases::current());
 		$info = $e->getEvent()->getInfo();
 
 		/** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */

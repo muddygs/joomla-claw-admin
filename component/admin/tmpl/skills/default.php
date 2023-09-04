@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -16,7 +16,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Button\PublishedButton;
 
-use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Helpers\Config;
 
 /** @var \Joomla\CMS\WebAsset\WebAssetManager $wa */
 $wa = $this->document->getWebAssetManager();
@@ -73,7 +73,7 @@ $user = $app->getIdentity();
           </td>
 
           <td>
-            <?php echo Aliases::eventTitleMapping[$item->event] ?>
+            <?= Config::getTitleMapping()[$item->event] ?? 'TBD' ?>
           </td>
 
           <td>

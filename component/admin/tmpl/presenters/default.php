@@ -11,6 +11,7 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 
+use ClawCorpLib\Helpers\Config;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -85,7 +86,7 @@ $user = $app->getIdentity();
               </td>
 
               <td>
-                <?php echo Aliases::eventTitleMapping[$item->event] ?? 'TBD' ?>
+                <?php echo Config::getTitleMapping()[$item->event] ?? 'TBD' ?>
               </td>
 
               <td>

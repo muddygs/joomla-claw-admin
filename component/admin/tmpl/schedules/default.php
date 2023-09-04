@@ -13,10 +13,9 @@ defined('_JEXEC') or die('Restricted Access');
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
-
-use ClawCorpLib\Helpers\Sponsors;
-use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\Button\PublishedButton;
+
+use ClawCorpLib\Helpers\Config;
 
 $wa = $this->document->getWebAssetManager();
 $wa->useScript('table.columns');
@@ -73,7 +72,7 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
                 ?>
               </td>
           <td>
-            <?=Aliases::eventTitleMapping[$item->event] ?? 'TBD' ?>
+            <?=Config::getTitleMapping()[$item->event] ?? 'TBD' ?>
           </td>
           <td>
             <?= $item->day_text ?? '' ?>

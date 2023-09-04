@@ -151,7 +151,7 @@ class VendorsModel extends ListModel
     }
 
     if ( $event != null ) {
-      if ( $event == '_current_' ) $event = Aliases::current;
+      if ( $event == '_current_' ) $event = Aliases::current();
       $query->where('a.event = :event')->bind(':event', $event);
     }
 

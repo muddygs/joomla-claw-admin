@@ -69,7 +69,7 @@ class ScheduleModel extends AdminModel
 		}
 
 		$event = $form->getField('event')->value;
-		$e = new ClawEvents( !empty($event) ? $event : Aliases::current);
+		$e = new ClawEvents( !empty($event) ? $event : Aliases::current());
 		$info = $e->getEvent()->getInfo();
 
 		/** @var $parentField \Joomla\CMS\Form\Field\ListField */

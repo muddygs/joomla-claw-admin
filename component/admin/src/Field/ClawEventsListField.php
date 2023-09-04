@@ -2,6 +2,7 @@
 
 namespace ClawCorp\Component\Claw\Administrator\Field;
 
+use ClawCorpLib\Helpers\Config;
 use Joomla\CMS\Form\Field\ListField;
 use ClawCorpLib\Lib\Aliases;
 
@@ -42,7 +43,7 @@ class ClawEventsListField extends ListField
         // VALID for other menus -- future reference $db = $this->getDatabase();
         $currentValue = $this->__get('value');
         if ( empty($currentValue) ) {
-            $data['value'] = Aliases::current;
+            $data['value'] = Aliases::current();
         }
 
         return $this->getRenderer($this->layout)->render($data);
@@ -61,7 +62,7 @@ class ClawEventsListField extends ListField
 
         // TODO: Fix so that _current_ isn't necessary; this code is missing checks for selected/checked/disable
         // TODO: See LocationListField.php for example
-        foreach(Aliases::eventTitleMapping AS $alias => $title ) {
+        foreach(Config::getTitleMapping() AS $alias => $title ) {
             $options[] = (object)[
                 'value'    => $alias,
                 'text'     => $title,

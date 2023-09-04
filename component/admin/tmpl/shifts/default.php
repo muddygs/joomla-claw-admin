@@ -3,20 +3,21 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
  // No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 
-use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Button\PublishedButton;
 use Joomla\CMS\User\UserFactoryInterface;
+
+use ClawCorpLib\Helpers\Config;
 
 /** @var \Joomla\CMS\WebAsset\WebAssetManager $wa */
 $wa = $this->document->getWebAssetManager();
@@ -92,7 +93,7 @@ $user = $app->getIdentity();
             <?php echo $item->shift_area ?>
           </td>
           <td>
-            <?php echo Aliases::eventTitleMapping[$item->event] ?>
+            <?= Config::getTitleMapping()[$item->event] ?>
           </td>
           <td>
             <?php echo $item->id ?>

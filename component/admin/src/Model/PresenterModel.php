@@ -102,8 +102,9 @@ class PresenterModel extends AdminModel
     $tmp_name = $files['photo_upload']['tmp_name'];
     $mime = $files['photo_upload']['type'];
     $error = $files['photo_upload']['error'];
+    $presentersDir = Aliases::presentersDir();
   
-    $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, Aliases::presentersdir, 'orig', $data['uid'].'.jpg']);
+    $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'orig', $data['uid'].'.jpg']);
     
     if ( 0 == $error ) {
       // Copy original out of tmp
@@ -113,7 +114,7 @@ class PresenterModel extends AdminModel
         return false;
       }
 
-      $upload = implode(DIRECTORY_SEPARATOR, ['..', Aliases::presentersdir, 'orig', $data['uid']]);
+      $upload = implode(DIRECTORY_SEPARATOR, ['..', $presentersDir, 'orig', $data['uid']]);
 
       $upload .= match($mime) {
         'image/jpeg' => '.jpg',
@@ -123,13 +124,13 @@ class PresenterModel extends AdminModel
       if ( File::upload($tmp_name, $upload))
       {
         try {
-          $output = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, Aliases::presentersdir, 'web', $data['uid'].'.jpg']);
+          $output = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'web', $data['uid'].'.jpg']);
           $image = new Image();
           $image->loadFile($orig);
           $image->resize(300, 300, false);
           $image->toFile($output, IMAGETYPE_JPEG, ['quality' => 80]);
 
-          $data['photo'] = implode(DIRECTORY_SEPARATOR, [Aliases::presentersdir, 'web', $data['uid'].'.jpg']);
+          $data['photo'] = implode(DIRECTORY_SEPARATOR, [$presentersDir, 'web', $data['uid'].'.jpg']);
         } catch(LogicException $ex)
         {
           $app->enqueueMessage('Unable to save photo file.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
@@ -243,7 +244,7 @@ class PresenterModel extends AdminModel
       fromname: 'CLAW Skills and Education',
       frommail: $notificationEmail,
       subject: $subject,
-      attachments: [implode(DIRECTORY_SEPARATOR, [Aliases::presentersdir, 'orig', $data['uid'].'.jpg'])]
+      attachments: [implode(DIRECTORY_SEPARATOR, [Aliases::presentersDir(), 'orig', $data['uid'].'.jpg'])]
     );
 
     $header = <<< HTML

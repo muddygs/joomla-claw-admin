@@ -156,7 +156,7 @@ class PresentersModel extends ListModel
     switch ($event) {
       case '':
       case '_current_':
-        $event = Aliases::current;
+        $event = Aliases::current();
         break;
       case '_all_':
         $event = '';

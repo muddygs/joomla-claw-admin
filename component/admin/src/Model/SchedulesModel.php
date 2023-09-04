@@ -189,7 +189,7 @@ class SchedulesModel extends ListModel
     $event = $this->getState('filter.event', '_current_');
 
     if ($day != null) {
-      // $e = new ClawEvents(Aliases::current);
+      // $e = new ClawEvents(Aliases::current());
       // $info = $e->getEvent()->getInfo();
       // $days = Helpers::getDateArray($info->start_date, true);
       // if (array_key_exists($day, $days)) {
@@ -206,7 +206,7 @@ class SchedulesModel extends ListModel
     }
 
     if ( $event != null ) {
-      if ( $event == '_current_' ) $event = Aliases::current;
+      if ( $event == '_current_' ) $event = Aliases::current();
       $query->where('a.event = :event')->bind(':event', $event);
     }
 
