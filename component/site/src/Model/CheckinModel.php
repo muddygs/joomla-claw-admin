@@ -73,4 +73,30 @@ class CheckinModel extends BaseDatabaseModel
     $jwt->closeWindow();
     return json_encode($jsonValues);
   }
+  
+  public function JwtRevoke($token): string
+  {
+    $jsonValues = [
+      'state' => 'error',
+      'token' => ''
+    ];
+
+    $nonce = Jwtwrapper::getNonce();
+    $jwt = new Jwtwrapper($nonce);
+    $payload = $jwt->confirmToken($token, JwtStates::revoked);
+
+    if ( $payload != null ) {
+      $jwt->updateDatabaseState($payload, JwtStates::revoked);
+			$jsonValues['state'] = $payload->state;
+		}
+		$jwt->closeWindow();
+    return json_encode($jsonValues);
+  }
+
+  public function JwtSearch(string $token, string $search, bool $scope)
+  {
+    $postData = jwtwrapper::redirectOnInvalidToken('badge', true);
+    if (null == $postData || null == $postData->decoded) return;
+    
+  }
 }
