@@ -206,6 +206,20 @@ class Helpers
     return $groupId != null ? $groupId : 0;
   }
 
+  public static function getAccessId(DatabaseDriver $db, $accessName): int
+  {
+    $query = $db->getQuery(true);
+    $query->select($db->qn(['id']))
+      ->from($db->qn('#__viewlevels'))
+      ->where($db->qn('title') . ' LIKE ' . $db->q($accessName));
+
+    $db->setQuery($query);
+    $groupId = $db->loadResult();
+
+    return $groupId != null ? $groupId : 0;
+  }
+
+
   /**
    * Get the Joomla user id for an email address
    * @param string The email address
