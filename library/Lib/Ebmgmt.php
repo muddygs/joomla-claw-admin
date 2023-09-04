@@ -381,7 +381,8 @@ SQL;
   static function autoHideShowShifts(): void {
     $db = Factory::getDbo();
 
-    $events = new ClawEvents(Aliases::current);
+    // TODO: run over all active events, just not current event
+    $events = new ClawEvents(Aliases::current());
     $eventInfo = $events->getClawEventInfo();
     $prefix = $eventInfo->shiftPrefix;
 

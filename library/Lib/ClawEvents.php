@@ -7,6 +7,7 @@ use Joomla\CMS\Factory;
 
 use ClawCorpLib\Events\AbstractEvent;
 use ClawCorpLib\Enums\EventTypes;
+use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Lib\EventInfo;;
 
 use ClawCorpLib\Lib\Aliases;
@@ -20,7 +21,7 @@ class ClawEvents
   public array $mainEventIds = [];
   var $couponRequired = [];
   var $overlapEventCategories = [];
-  var $shiftCategories = [];
+  var $shiftCategoryIds = [];
   // private string $clawEventAlias = '';
 
   private AbstractEvent $event;
@@ -28,10 +29,11 @@ class ClawEvents
   private static $eventIds = null;
   private static $categoryIds = null;
   private static $fieldIds = null;
+  private static $_EventList = [];
 
   public function __construct(string $clawEventAlias)
   {
-    $eventAliases = array_merge(Aliases::active, Aliases::past);
+    $eventAliases = array_merge(Aliases::active(), Aliases::inactive());
 
     if (!in_array($clawEventAlias, $eventAliases)) {
       die(__FILE__ . ': Invalid event request: ' . $clawEventAlias);
@@ -61,12 +63,12 @@ class ClawEvents
     $this->couponRequired = array_unique($this->couponRequired);
 
 
-    foreach (Aliases::overlapCategories as $v) {
+    foreach (Aliases::overlapCategories() as $v) {
       $this->overlapEventCategories[] = self::$categoryIds[$v]->id;
     }
 
-    foreach (Aliases::shiftCategories as $v) {
-      $this->shiftCategories[] = self::$categoryIds[$v]->id;
+    foreach (Aliases::shiftCategories() as $v) {
+      $this->shiftCategoryIds[] = self::$categoryIds[$v]->id;
     }
   }
 
@@ -403,6 +405,37 @@ SQL;
     die('Could not determine CLAW event alias: ' . $eventId);
   }
 
+  public static function GetEventList(): array
+  {
+    if ( count(self::$_EventList) > 0 ) return self::$_EventList;
+
+    $EventList = [];
+
+    // Load directory of event classes
+    $dir = JPATH_LIBRARIES . '/claw/Events';
+    $files = scandir($dir);
+    if ($files === false) return [];
+
+    $files = preg_grep('/^([^.])/', $files);
+    $files = preg_grep('/\.php$/', $files);
+
+    foreach ( $files AS $file ) {
+      // Basename of file is the class
+      $class = basename($file, '.php');
+
+      // Ignore known AbstractEvent
+      if ( $class == 'AbstractEvent' ) continue;
+
+      $classname = "\\ClawCorpLib\\Events\\$class";
+      $event = new $classname($class);
+
+      $EventList[$class] = $event->getInfo();
+    }
+
+    self::$_EventList = $EventList;
+    return $EventList;
+  }
+
   private function LoadEventClass(string $alias): void
   {
     // $loader = new \Composer\Autoload\ClassLoader();
@@ -442,7 +475,7 @@ SQL;
     $clawEventInfo = $this->event->getInfo();
 
     $events = [];
-    foreach(array_merge(Aliases::active, Aliases::past) AS $alias ) {
+    foreach(array_merge(Aliases::active(), Aliases::inactive()) AS $alias ) {
       if ( $alias == 'refunds' ) continue;
 
       $classname = "\\ClawCorpLib\\Events\\$alias";
@@ -490,11 +523,8 @@ SQL;
 
   public static function eventAliasToTitle(string $eventAlias): string
   {
-    if (array_key_exists($eventAlias, Aliases::eventTitleMapping)) {
-      return Aliases::eventTitleMapping[$eventAlias];
-    }
-
-    return $eventAlias;
+    $titleList = Config::getTitleMapping();
+    return array_key_exists($eventAlias, $titleList) ? $titleList[$eventAlias] : $eventAlias;
   }
 
   /**

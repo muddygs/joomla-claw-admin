@@ -2,13 +2,17 @@
 
 namespace ClawCorpLib\Helpers;
 
+use InvalidArgumentException;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Image\Image;
 use Joomla\CMS\User\UserHelper;
 use Joomla\Database\DatabaseDriver;
+use Joomla\Database\Exception\UnsupportedAdapterException;
+use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
 use LogicException;
+use RuntimeException;
 
 class Helpers
 {
@@ -113,18 +117,6 @@ class Helpers
   }
 
 #endregion Date/Time functions
-
-  public static function getClawFieldValues(DatabaseDriver $db, string $section): array
-  {
-    $query = $db->getQuery(true);
-    $query->select(['value', 'text'])
-      ->from('#__claw_field_values')
-      ->where('fieldname = :fieldname')
-      ->order('value')
-      ->bind(':fieldname', $section);
-    $db->setQuery($query);
-    return $db->loadObjectList('value');
-  }
 
 #region User Helpers
   public static function getUsersByGroupName(DatabaseDriver $db, string $groupname): array
@@ -274,9 +266,10 @@ class Helpers
   {
     $mailer = Factory::getMailer();
 
-    $mailer->setSender(['webmaster@clawinfo.org', 'CLAW']);
+    $email = Config::getConfigValuesText('config_debug_email', 'email');
+    $mailer->setSender([$email, 'CLAW']);
     $mailer->setSubject('Some Error Has Occurred');
-    $mailer->addRecipient('webmaster@clawinfo.org');
+    $mailer->addRecipient($email);
 
     $body = 'PATH: ' . $path . "\n";
     $body .= "DATA FOLLOWS:\n";

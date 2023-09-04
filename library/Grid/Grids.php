@@ -5,6 +5,7 @@ namespace ClawCorpLib\Grid;
 // This class enforces data format for received form data
 
 use ClawCorpLib\Grid\GridItem;
+use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use Joomla\Database\DatabaseDriver;
@@ -30,20 +31,20 @@ class Grids
   {
     $days = Helpers::getDays();
 
-    $events = new ClawEvents(Aliases::current);
+    $events = new ClawEvents(Aliases::current());
     $eventInfo = $events->getClawEventInfo();
 
     $event_count = 0;
-    $this->loadGridsByEventAlias(Aliases::current);
+    $this->loadGridsByEventAlias(Aliases::current());
 
     // ===== Update these for new imports =====
     $basetime = strtotime($eventInfo->start_date);
     $prefix = $eventInfo->shiftPrefix;
     $cutoffdate = $eventInfo->start_date;
 
-    $location = ClawEvents::getLocationId(Aliases::location);
+    $location = ClawEvents::getLocationId($eventInfo->location);
 
-    $shiftAreas = Helpers::getClawFieldValues($this->db, 'shift_shift_area');
+    $shiftAreas = Config::getColumn('shift_shift_area');
 
     foreach ( $shiftAreas AS $k => $o ) {
       if ( $k == 'tbd') continue;
@@ -205,27 +206,27 @@ class Grids
     $coordinators = json_decode($data['coordinators']);
 
     /** @var \ClawCorpLib\Grid\GridItem */
-    foreach ($grids as $gid => $g) {
+    foreach ($grids AS $g) {
       // Loop over set days
       foreach ($days as $day) {
         $pri = $day . 'pri';
         $event = $day . 'pri_eventid';
 
         $this->grids[] = new GridItem(
-          $data['id'],
-          $g->grid_id,
-          $g->time,
-          $g->length,
-          $data['title'],
-          $data['description'],
-          Aliases::current,
-          $data['shift_area'],
-          $data['requirements'],
-          $coordinators,
-          $data['published'],
-          $day,
-          (int)($g->$pri),
-          $g->$event
+          id: $data['id'],
+          grid_id: $g->grid_id,
+          time: $g->time,
+          length: $g->length,
+          title: $data['title'],
+          description: $data['description'],
+          event: Aliases::current(),
+          shift_area: $data['shift_area'],
+          requirements: $data['requirements'],
+          coordinators: $coordinators,
+          published: $data['published'],
+          day: $day,
+          needed: (int)($g->$pri),
+          event_id: $g->$event
         );
       }
     }

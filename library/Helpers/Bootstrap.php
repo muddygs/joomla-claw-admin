@@ -19,7 +19,7 @@ class Bootstrap
       $tag = "<a href=\"$link\" alt=\"$sponsorName\" title=\"$sponsorName\" target=\"_blank\">";
     }
 
-    $img = Aliases::imagedir . $sponsorImg;
+    $img = Aliases::sponsorIconDir() . $sponsorImg;
     $tag = $tag . "<img src=\"$img\" class=\"img-fluid mx-auto\"/>";
     if (!empty($link)) {
       $tag = $tag . '</a>';

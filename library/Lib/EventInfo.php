@@ -17,6 +17,8 @@ class EventInfo
   public string $shiftPrefix = '';
   public bool $mainAllowed = false;
   public string $cancelBy = '';
+  public string $timezone = '';
+  public bool $active = true;
   public EventTypes $eventType = EventTypes::none;
 
   /**

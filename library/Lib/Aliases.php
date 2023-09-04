@@ -4,59 +4,48 @@ namespace ClawCorpLib\Lib;
 
 \defined('_JEXEC') or die;
 
-class Aliases {
-  const current='l1123';
-  const active = [\ClawCorpLib\Lib\Aliases::current, 'virtualclaw', 'refunds'];
-  const location = 'westin-bonaventure';
+use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Helpers\Helpers;
+use Joomla\CMS\Factory;
 
+class Aliases {
+  static function current() {
+    // Is the session setting for alias set?
+    // Only check when not in admin
+    $app = Factory::getApplication();
+    $siteAlias = Helpers::sessionGet('eventAlias');
+    if ( $app->isClient('site') && $siteAlias != '' ) {
+      return $siteAlias;
+    }
+
+    return Config::getCurrentEventAlias();
+  }
+
+  static function active() {
+    return Config::getActiveEventAliases();
+  }
+  static function inactive() {
+    return Config::getInactiveEventAliases();
+  }
+  
   // For refunds, allow past events to be identified
   // Also used for checking if volunteer is in good starting in registrationsurvey.php
-  const past = ['c0423'];
-
-  // Day, night, etc passes
-  const passesAliases = [];
+  // TODO: Probably need to fix getInactiveEventAliases const past = ['c0423'];
 
   // For event info display
   #const timezone = 'America/New_York';
-  const timezone = 'America/Los_Angeles';
 
-  // For database, based on service provider
-  const timezonedb = 'American/Chicago';
-  
   const defaultPrefix = 'L23'; // Use C for CLAW, L for Leather Getaway, V for Virtual CLAW
   const onsiteActive = false;
   const onsiteCoupon = 'ONSITE-CASH'; // TODO: Remove all usage of this
   
-  const shiftCategories = [
-    'shifts-artshow',
-    'shifts-badgecheck',
-    'shifts-events',
-    'shifts-facilities',
-    'shifts-float',
-    'shifts-guestservices',
-    'shifts-hospitality',
-    'shifts-se',
-    'shifts-silentauction',
-    'shifts-specialty',
-  ];
+  static function shiftCategories() {
+    return Config::getConfigValuesText('config_shift_category');
+  }
 
-  const overlapCategories = 
-  [
-    'shifts-artshow',
-    'shifts-badgecheck',
-    'shifts-events',
-    'shifts-facilities',
-    'shifts-float',
-    'shifts-guestservices',
-    'shifts-hospitality',
-    'shifts-se',
-    'shifts-silentauction',
-
-    'speed-dating',
-    'dinner',
-    'buffet',
-    'buffet-breakfast',
-  ];
+  static function overlapCategories() {
+    return Config::getConfigValuesText('config_overlap_category');
+  }
 
   const invoiceCategories = [
 		'sponsorships',
@@ -95,24 +84,17 @@ class Aliases {
   ];
 
   // Events listing sponsor icons
-  const imagedir = '/images/0_static_graphics/sponsors/100';
+  static function sponsorIconDir() {
+    return Config::getConfigValuesText('config_images', 'sponsor_icons');
+  }
 
-  // Events listing ad base (ads/thumbs use for preview)
-  const adsdir = '/images/0_static_graphics/ads';
-
-  // VendorMart icons
-  const vendordir = '/images/0_static_graphics/vendors';
+  // Events listing ad base (ads/thumbs used for preview)
+  static function adsDir() {
+    return Config::getConfigValuesText('config_images', 'ads');
+  }
 
   // S&E Presenter Images
-  const presentersdir = '/images/skills/presenters';
-
-  // TODO: Pull from event data directly
-  const eventTitleMapping = [
-    'virtualclaw' => 'Virtual CLAW',
-    'c1121' => 'CLAW 21',
-    'c0422' => 'CLAW 22',
-    'l1122' => 'Leather Getaway 22',
-    'c0423' => 'CLAW 23',
-    'l1123' => 'Leather Getaway 23',
-  ];
+  static function presentersDir() {
+    return Config::getConfigValuesText('config_images', 'presenters');
+  }
 }

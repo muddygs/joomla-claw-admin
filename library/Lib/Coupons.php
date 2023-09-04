@@ -4,6 +4,7 @@ namespace ClawCorpLib\Lib;
 use \Joomla\CMS\Factory;
 use ClawCorpLib\Enums\EbCouponTypes;
 use ClawCorpLib\Enums\EbCouponAssignments;
+use ClawCorpLib\Helpers\Helpers;
 
 /** @package ClawCorpLib\Lib\Coupons */
 class Coupons
@@ -29,6 +30,10 @@ class Coupons
    */
   public function __construct(float $discount, string $prefix, string $note, string $tracker = '' )
   {
+    $db = Factory::getContainer()->get('DatabaseDriver');
+
+    $this->access = Helpers::getGroupId($db, 'Registered');
+
     $this->discount = $discount;
     $this->note = preg_replace("/[^A-Za-z0-9_]/", '', $note);
 
@@ -42,7 +47,6 @@ class Coupons
     // If the tracker is an email address, is there an account associated with that email?
     if ( filter_var($tracker, FILTER_VALIDATE_EMAIL) )
     {
-      $db = Factory::getDbo();
       $query = $db->getQuery(true)
           ->select($db->quoteName('id'))
           ->from($db->quoteName('#__users'))

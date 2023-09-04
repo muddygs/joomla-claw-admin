@@ -197,7 +197,7 @@ class Checkin
       'PRONOUNS'
     ];
 
-    $registrant = new registrant(Aliases::current, $this->uid);
+    $registrant = new registrant(Aliases::current(), $this->uid);
     $registrant->loadCurrentEvents();
     $mainEvent = null;
 
@@ -214,7 +214,7 @@ class Checkin
 
     //$mainEvent = $registrant->castRecord($mainEvent);
 
-    $events = new clawEvents(Aliases::current);
+    $events = new clawEvents(Aliases::current());
     $event = $events->getEventByPackageType($mainEvent->registrant->clawPackageType);
 
     $this->r->package_eventId = $mainEvent->event->eventId;
@@ -262,7 +262,7 @@ class Checkin
       if ( $tmpOverride != '' ) $this->r->overridePackage = $tmpOverride;
     }
 
-    $shiftCatIds = ClawEvents::getCategoryIds(Aliases::shiftCategories);
+    $shiftCatIds = ClawEvents::getCategoryIds(Aliases::shiftCategories());
     $dinnerCatIds = ClawEvents::getCategoryIds(['dinner']);
     $brunchCatIds = ClawEvents::getCategoryIds(['buffet-breakfast']);
     $buffetCatIds = ClawEvents::getCategoryIds(['buffet']);
@@ -439,7 +439,7 @@ class Checkin
   }
 
   public function doCheckin() {
-    $registrant = new registrant(Aliases::current, $this->r->uid);
+    $registrant = new registrant(Aliases::current(), $this->r->uid);
     $registrant->loadCurrentEvents();
     $mainEvent = $registrant->getMainEvent();
 
@@ -448,7 +448,7 @@ class Checkin
 
   public function doMarkPrinted()
   {
-    $registrant = new registrant(Aliases::current, $this->r->uid);
+    $registrant = new Registrant(Aliases::current(), $this->r->uid);
     $registrant->loadCurrentEvents();
     $mainEvent = $registrant->getMainEvent();
 
@@ -466,11 +466,11 @@ class Checkin
     }
 
     // Does this badge have this meal?
-    $events = new clawEvents(Aliases::current);
+    $events = new clawEvents(Aliases::current());
 
     $e = $events->getEventByKey('eventId',$eventId, false);
     if (null == $e) {
-      return $this->htmlMsg('Unknown event id '.$eventId.' in '.Aliases::current, 'btn-dark');
+      return $this->htmlMsg('Unknown event id '.$eventId.' in '.Aliases::current(), 'btn-dark');
     }
 
     $ticketEventId = $eventId;
@@ -567,7 +567,7 @@ EOL;
 
   private function issueMealTicket(int $mealEventId, int $ticketEventId)
   {
-    $registrant = new registrant(Aliases::current, $this->r->uid, [$ticketEventId]);
+    $registrant = new registrant(Aliases::current(), $this->r->uid, [$ticketEventId]);
     $registrant->loadCurrentEvents();
     $registrant->mergeFieldValues(['Z_TICKET_SCANNED']);
 
@@ -591,7 +591,7 @@ EOL;
     $results = [];
     $byName = false;
 
-    $e = new clawEvents(Aliases::current);
+    $e = new clawEvents(Aliases::current());
     $inMainEventIds = implode(',',$e->mainEventIds);
 
     $issued = ClawEvents::getFieldId('Z_BADGE_ISSUED');
@@ -665,7 +665,7 @@ EOT;
 
     $db = Factory::getDbo();
 
-    $events = new clawEvents(Aliases::current);
+    $events = new clawEvents(Aliases::current());
     //$prefix = strtolower(Aliases::defaultPrefix).'-';
 
     $mainEvents = $events->mainEventIds;

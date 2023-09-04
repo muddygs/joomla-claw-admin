@@ -69,7 +69,7 @@ HTML;
 
     $prefix = strtolower(Aliases::defaultPrefix);
     $shiftPrefix = $e->getClawEventInfo()->shiftPrefix;
-    $shiftCategories = ClawEvents::getCategoryIds(Aliases::shiftCategories);
+    $shiftCategories = ClawEvents::getCategoryIds(Aliases::shiftCategories());
     $invoiceCategories = ClawEvents::getCategoryIds(Aliases::invoiceCategories);
     $mainRequiredCategories = ClawEvents::getCategoryIds(Aliases::categoriesRequiringMainEvent);
 
@@ -189,7 +189,7 @@ HTML;
       $this->show_error = true;
     }
 
-    $overlap = $registrantData->checkOverlaps(ClawEvents::getCategoryIds(Aliases::overlapCategories));
+    $overlap = $registrantData->checkOverlaps(ClawEvents::getCategoryIds(Aliases::overlapCategories()));
     if (count($overlap) > 0) {
       $this->submit = "<div class=\"alert alert-danger\">You have overlapping or touching events ({$overlap[0]->event->title} and {$overlap[1]->event->title}). Modify your cart to correct this error.</div>";
       $this->show_error = true;

@@ -444,7 +444,7 @@ SQL;
 
 		$prefix = Aliases::defaultPrefix.'-';
 
-		foreach ( Aliases::active AS $alias ) {
+		foreach ( Aliases::active() AS $alias ) {
 			$e = new ClawEvents($alias);
 			$info = $e->getClawEventInfo();
 			if ( !$info->mainAllowed ) continue;
