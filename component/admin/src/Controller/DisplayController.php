@@ -63,9 +63,8 @@ class DisplayController extends BaseController
     /** @var \ClawCorp\Component\Claw\Administrator\Model\CoupongeneratorModel */
     $model = $this->getModel('Coupongenerator');
     $value = $model->couponValue($json);
-    header('Content-Type: application/json');
-    echo json_encode($value);
-
+    header('Content-Type: text/plain');
+    echo $value;
   }
 
   public function createCoupons()
@@ -88,8 +87,8 @@ class DisplayController extends BaseController
     /** @var \ClawCorp\Component\Claw\Administrator\Model\CoupongeneratorModel */
     $model = $this->getModel('Coupongenerator');
     $status = $model->emailStatus($json);
-    header('Content-Type: application/json');
-    echo json_encode($status);
+    header('Content-Type: text/plain');
+    echo $status->msg;
   }
 #endregion Coupon Tasks
 

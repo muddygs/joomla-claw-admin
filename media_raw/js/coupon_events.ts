@@ -1,20 +1,20 @@
 function getQuantity(): number {
-	var n = document.getElementById('jform_quantity') as HTMLInputElement;
+	const n = document.getElementById('jform_quantity') as HTMLInputElement;
 	if ( n !== null && n.value !== null ) return parseInt(n.value);
 	return 0; 
 }
 
-function getCouponFormData() {
+function getCouponFormData(): { [k: string]: FormDataEntryValue; } {
 	const data = new FormData(document.getElementById('claw-coupon-generator') as HTMLFormElement);
 	const value = Object.fromEntries(data.entries());
 	return value;
 }
 
-function couponAjaxUrl(task: string) {
+function couponAjaxUrl(task: string): string {
 	return '/administrator/index.php?option=com_claw&task=' + task + '&format=raw';
 }
 
-function couponOptions() {
+function couponOptions(): { method: string; body: string; headers: { 'Content-Type': string; 'X-CSRF-Token': string; }; } {
 	return {
 		method: 'POST',
 		body: JSON.stringify(getCouponFormData()),
@@ -26,8 +26,8 @@ function couponOptions() {
 }
 
 function loadEvent() {
-	var data = getCouponFormData();
-	var task = "couponLoadEvent";
+	const data = getCouponFormData();
+	const task = "couponLoadEvent";
 
 	if (!data.hasOwnProperty("jform[event]") || data["jform[event]"] == "0") return;
 
@@ -51,24 +51,26 @@ function loadEvent() {
 }
 
 function updateTotalValue() {
-	var task = "couponValue";
+	const task = "couponValue";
+	const n = document.getElementById('jform_value') as HTMLInputElement;
+	n.value = '0';
 
 	fetch(couponAjaxUrl(task), couponOptions() )
 		.then(result => result.text())
 		.then(html => {
-			var n = document.getElementById('jform_value') as HTMLInputElement;
 			if ( n !== null ) n.value = html;
 		});
 }
 
 function getEmailStatus() {
-	var task = "emailStatus";
+	const task = "emailStatus";
+	const n = document.getElementById('emailstatus');
+	n.innerHTML = '';
 
 	fetch(couponAjaxUrl(task), couponOptions() )
 		.then(result => result.text())
-		.then(html => {
-			var n = document.getElementById('emailstatus');
-			if ( n !== null ) n.innerHTML = html;
+		.then(msg => {
+			if ( n !== null ) n.innerHTML = msg;
 		});
 }
 

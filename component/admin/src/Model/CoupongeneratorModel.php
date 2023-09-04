@@ -309,7 +309,7 @@ HTML;
       return $result;
     }
   
-    $emails = array_filter(explode("\n", str_replace("\r", "", $json->getString('jform_email',''))));
+    $emails = array_filter(explode("\n", str_replace("\r", "", $json->getString('jform[email]',''))));
     $emails = array_map('trim', $emails);
     $regex = ':' . implode('|:', $emails );
   
@@ -318,7 +318,8 @@ HTML;
     $query->select('id,code,used,note')
       ->from('#__eb_coupons')
       ->where('published=1')
-      ->where('note REGEXP '.$db->quote($regex));
+      ->where('note REGEXP '.$db->quote($regex))
+      ->setLimit(10);
     $db->setQuery($query);
     $coupons = $db->loadObjectList('id');
   
@@ -372,9 +373,9 @@ HTML;
   
           if ( $c->used > 0 )
           {
-            $result->msg .= 'An event coupon('.$c->code.') for '.$email.' has already been used to register<br>';
+            $result->msg .= $c->code.' for '.$email.' has been used<br>';
           } else {
-            $result->msg .= 'An unused event coupon ('.$c->code.') has already been generated for '.$email.'<br>';
+            $result->msg .= 'Unused coupon '.$c->code.' exists for '.$email.'<br>';
           }
         }
       }

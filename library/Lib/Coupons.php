@@ -16,7 +16,7 @@ class Coupons
   private int $times = 0;
   private int $max_usage_per_user = 0; // non-0 special handling in helper/override/registration.php
   private string $note = '';
-  private int $access = 14; // always "registered" until further notice
+  private int $access = 0; // defaults to "registered" until further notice
   private $prefix = '';
   private int $userId = 0;
 
@@ -32,7 +32,7 @@ class Coupons
   {
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $this->access = Helpers::getGroupId($db, 'Registered');
+    $this->access = Helpers::getAccessId($db, 'Registered');
 
     $this->discount = $discount;
     $this->note = preg_replace("/[^A-Za-z0-9_]/", '', $note);
