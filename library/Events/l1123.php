@@ -34,7 +34,7 @@ class l1123 extends AbstractEvent
   public function PopulateEvents(string $prefix)
   {
     $prefix = strtolower($prefix);
-    $base = 239;
+    $base = 249;
 
     $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'D',
