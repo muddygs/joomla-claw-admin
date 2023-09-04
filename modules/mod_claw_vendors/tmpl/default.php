@@ -13,5 +13,5 @@ defined('_JEXEC') or die;
 use ClawCorp\Module\Vendors\Site\Helper\VendorsHelper;
 use ClawCorpLib\Lib\Aliases;
 
-$event = $params->get('event', Aliases::current);
+$event = $params->get('event', Aliases::current());
 VendorsHelper::echoVendors($event);
