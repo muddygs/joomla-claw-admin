@@ -7,7 +7,7 @@ defined('_JEXEC') or die;
 
 // Get menu heading information
 echo $this->params->get('heading') ?? '';
-$eventAlias = $this->params->get('event_alias') ?? Aliases::current;
+$eventAlias = $this->params->get('event_alias') ?? Aliases::current();
 $listType = $this->params->get('list_type') ?? 'simple';
 
 

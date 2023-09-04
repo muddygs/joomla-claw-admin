@@ -8,6 +8,7 @@ use ClawCorpLib\Lib\Aliases;
 \defined('_JEXEC') or die;
 
 $locationView = $this->params->get('ShowLocation') ? '' : 'd-none';
+$adsdir = Aliases::adsDir();
 
 ?>
   <div class="container">
@@ -30,7 +31,7 @@ foreach ($this->items AS $item) {
   $id = $item->id;
   $event = $item->event_title;
 
-  if ( Aliases::onsiteActive == true ) {
+  if ( Aliases::onsiteActive ) {
     $event_description = $item->onsite_description == '' ?  $item->event_description : $item->onsite_description;
   } else {
     $event_description = $item->event_description;
@@ -43,7 +44,7 @@ foreach ($this->items AS $item) {
     $location->value = '';
   }
 
-  if ( Aliases::onsiteActive == true ) {
+  if ( Aliases::onsiteActive ) {
     $event_description = $item->onsite_description == '' ?  $item->event_description : $item->onsite_description;
   } else {
     $event_description = $item->event_description;
@@ -57,7 +58,6 @@ foreach ($this->items AS $item) {
   $poster = $item->poster;
   $thumb = '';
   if ( !empty($poster)) {
-    $adsdir = Aliases::adsdir;
     $thumb = $adsdir. '/thumb/' . $poster;
     $thumb = <<<HTML
 <button id="show-img-$id" type="button" class="btn btn-default p-0 align-top" data-bs-toggle="modal" data-bs-target="#modal-$id"><img src="$thumb"/></button>

@@ -17,7 +17,7 @@ use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\HTML\HTMLHelper;
 
 // Use session info first, otherwise, check URL for event alias
-$eventAlias = Helpers::sessionGet('eventAlias', Aliases::current); // TODO: Document session keys
+$eventAlias = Helpers::sessionGet('eventAlias', Aliases::current()); // TODO: Document session keys
 
 // Parse URL to determine what the registrant is trying to do:
 $url = strtolower(substr(Uri::getInstance()->getPath(), 1));
@@ -116,7 +116,7 @@ if (!$uid) {
   return;
 }
 
-$registrant = new registrant(Aliases::current, $uid);
+$registrant = new registrant(Aliases::current(), $uid);
 
 /** @var ClawCorpLib\Lib\Registrant\RegistrantRecord */
 $mainEvent = $registrant->getMainEvent();
@@ -157,7 +157,7 @@ $wa->useScript('com_claw.toast');
 <?php
 #endregion Toast
 
-$clawEvents = new ClawEvents(Aliases::current);
+$clawEvents = new ClawEvents(Aliases::current());
 $regEvent = $clawEvents->getEventByKey('clawPackageType', $clawPackageType);
 
 // Auto add this registration to the cart
@@ -289,7 +289,7 @@ endif;
     }
   }
 
-  function categoryLinkButtons(array $categoryAliases, string $urlPrefix = '/claw-all-events/'): string
+  function categoryLinkButtons(array $categoryAliases, string $urlPrefix): string
   {
     $categoryInfo = ClawEvents::getCategoryNames($categoryAliases);
 
@@ -342,12 +342,13 @@ HTML;
 </div>
 HTML;
 
-    $c = Aliases::shiftCategories;
+    $c = Aliases::shiftCategories();
 
     if ( $EventPackageType != EventPackageTypes::volunteersuper )
     {
       $c = array_diff($c, ['shifts-float']);
     }
+
 
     $result .= categoryLinkButtons($c, '/claw-all-events/shifts/');
 
@@ -392,7 +393,7 @@ HTML;
 
   function contentParties(): string
   {
-    $categoryIds = ClawEvents::getCategoryIds([Aliases::current . '-parties']);
+    $categoryIds = ClawEvents::getCategoryIds([Aliases::current() . '-parties']);
     $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
     return HTMLHelper::_('content.prepare', $content);
   }
@@ -424,57 +425,4 @@ HTML;
     return $result;
   }
 
-#endregion
-
-#region event tables
-
-  function eventTableHtml(array $eventIds): string
-  {
-    $result = <<< HTML
-    <table class="table table-dark table-striped table-bordered table-condensed eb-responsive-table">
-      <thead>
-        <tr>
-          <th>
-            Event </th>
-          <th class="date_col">
-            Event Date </th>
-          <th class="center actions-col">
-            Register </th>
-        </tr>
-      </thead>
-      <tbody>
-HTML;
-
-    foreach ( $eventIds AS $eventId )
-    {
-      $raw = ClawEvents::loadEventRow($eventId);
-
-      // no waiting list:
-      //  no limits
-      //  full (total_registrants >= event_capacity)
-      // waiting list:
-      //  waiting list available ( total_registrants < ??? )
-      // 
-
-
-
-      if ( $raw != null ) {
-        $result .= <<< HTML
-          <tr>
-            <td>$raw->title</td>
-            <td>date</td>
-            <td><button class="center btn btn-primary" onclick="cartAdd($eventId);">Add to Cart</button>
-      </tr>
-HTML;
-      }
-    }
-
-
-  $result .= <<< HTML
-      </tbody>
-    </table>
-HTML;
-
-    return $result;
-  }
 #endregion

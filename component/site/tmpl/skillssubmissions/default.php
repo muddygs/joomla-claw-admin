@@ -6,6 +6,7 @@ use Joomla\CMS\Router\Route;
 
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Bootstrap;
+use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
 
 // Get menu heading information
@@ -78,7 +79,7 @@ function BioHtml(object &$__this)
   };
 
   $event = ClawCorpLib\Lib\ClawEvents::eventAliasToTitle($__this->bio->event);
-  if ($__this->bio->event == Aliases::current) {
+  if ($__this->bio->event == Aliases::current()) {
     $event .= ' <span class="badge bg-danger">Current</span>';
   } else {
     $event .= ' <span class="badge bg-info">Previous</span>';
@@ -133,12 +134,12 @@ function BioHtml(object &$__this)
     <h3 class="text-warning">Submissions are open for <?php echo $__this->eventInfo->description ?>.
       You may add/edit your biography.</h3>
     <?php
-    if ($__this->bio->event == Aliases::current) {
+    if ($__this->bio->event == Aliases::current()) {
       $buttonRoute = Route::_('index.php?option=com_claw&view=presentersubmission&id=' . $__this->bio->id);
       $msg = 'Edit Biography';
     } else {
       $buttonRoute = Route::_('index.php?option=com_claw&task=copybio&id=' . $__this->bio->id);
-      $msg = 'Resubmit for ' . Aliases::eventTitleMapping[Aliases::current];
+      $msg = 'Resubmit for ' . Config::getTitleMapping()[Aliases::current()];
     }
     ?>
     <a name="add-biography" id="add-biography" class="btn btn-danger" href="<?= $buttonRoute ?>" role="button"><?= $msg ?></a>
@@ -152,7 +153,7 @@ function ClassesHtml(object &$__this)
   $skillRoute = Route::_('index.php?option=com_claw&view=skillsubmission');
 
   $canSubmit = $__this->params->get('se_submissions_open') != 0;
-  $bioIsCurrent = property_exists($__this, 'bio') && property_exists($__this->bio, 'event') && $__this->bio->event == Aliases::current;
+  $bioIsCurrent = property_exists($__this, 'bio') && property_exists($__this->bio, 'event') && $__this->bio->event == Aliases::current();
 
   // var_dump($__this->classes);
 
@@ -198,12 +199,12 @@ function ClassRow(object $row, bool $canSubmit)
   $button = '';
 
   if ($canSubmit) {
-    if ($row->event == Aliases::current) {
+    if ($row->event == Aliases::current()) {
       $buttonRoute = Route::_('index.php?option=com_claw&view=skillsubmission&id=' . $row->id);
       $msg = 'View/Edit Class';
     } else {
       $buttonRoute = Route::_('index.php?option=com_claw&task=copyskill&id=' . $row->id);
-      $msg = 'Resubmit for ' . Aliases::eventTitleMapping[Aliases::current];
+      $msg = 'Resubmit for ' . Config::getTitleMapping()[Aliases::current()];
     }
 
     $button = <<< HTML
