@@ -27,51 +27,6 @@ class HtmlView extends BaseHtmlView
 		$this->form  = $this->get('Form');
 		$this->avl   = Helpers::getUserViewLevelsByName(Factory::getContainer()->get('DatabaseDriver'));
 
-		// // Check for errors.
-		// if (count($errors = $this->get('Errors'))) {
-		// 	throw new GenericDataException(implode("\n", $errors), 500);
-		// }
-
-		// $this->addToolbar();
-
 		parent::display($tpl);
 	}
-
-		/**
-	 * Add the page title and toolbar.
-	 *
-	 * @return  void
-	 *
-	 * @throws \Exception
-	 * @since   1.6
-	 */
-	// protected function addToolbar()
-	// {
-	// 	Factory::getApplication()->input->set('hidemainmenu', true);
-	// 	$isNew      = ($this->item->id == 0);
-
-	// 	// $canDo = ContentHelper::getActions('com_countrybase');
-
-	// 	$toolbar = Toolbar::getInstance();
-
-	// 	ToolbarHelper::title(
-	// 		'CLAW Sponsor ' . ($isNew ? 'Add' : 'Edit')
-	// 	);
-
-	// 	if (true /*$canDo->get('core.create')*/)
-	// 	{
-	// 		if ($isNew)
-	// 		{
-	// 			$toolbar->apply('sponsor.save');
-	// 		}
-	// 		else
-	// 		{
-	// 			$toolbar->apply('sponsor.apply');
-	// 		}
-	// 		$toolbar->save('sponsor.save');
-
-	// 	}
-	// 	$toolbar->cancel('sponsor.cancel', 'JTOOLBAR_CLOSE');
-	// }
-
 }
