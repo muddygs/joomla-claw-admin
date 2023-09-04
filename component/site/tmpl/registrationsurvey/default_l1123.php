@@ -37,7 +37,7 @@ if ( !Aliases::onsiteActive )
     $app->redirect($url);  
   }
 
-  $registrant = new Registrant(Aliases::current, $uid);
+  $registrant = new Registrant(Aliases::current(), $uid);
   $registrant->loadCurrentEvents();
   $mainEvent = $registrant->getMainEvent();
 
@@ -45,7 +45,7 @@ if ( !Aliases::onsiteActive )
 
   if ( '' == $coupon && null == $mainEvent  )
   {
-    $events = new ClawEvents(Aliases::current);
+    $events = new ClawEvents(Aliases::current());
     $eventIds = $events->getEventIds();
     $couponInfo = Coupons::getAssignedCoupon($uid, $eventIds);
 
@@ -333,10 +333,11 @@ HTML;
 }
 
 function dayPassesHtml(): string {
-  $e = new ClawEvents(Aliases::current);
-  $events = $e->getEventsByCategoryId(ClawEvents::getCategoryIds(['day-passes']), $e->getClawEventInfo(),'event_date');
+  $e = new ClawEvents(Aliases::current());
+  $eventInfo = $e->getClawEventInfo();
+  $events = $e->getEventsByCategoryId(ClawEvents::getCategoryIds(['day-passes']), $eventInfo,'event_date');
 
-  date_default_timezone_set(Aliases::timezone);
+  date_default_timezone_set($eventInfo->timezone);
   $now = date('Y-m-d H:i:s');
   $buttons = '';
 
@@ -367,10 +368,11 @@ HTML;
 }
 
 function nightPassesHtml(): string {
-  $e = new ClawEvents(Aliases::current);
-  $events = $e->getEventsByCategoryId(ClawEvents::getCategoryIds(['PASSES']), $e->getClawEventInfo(),'event_date');
+  $e = new ClawEvents(Aliases::current());
+  $eventInfo = $e->getClawEventInfo();
+  $events = $e->getEventsByCategoryId(ClawEvents::getCategoryIds(['PASSES']), $eventInfo,'event_date');
 
-  date_default_timezone_set(Aliases::timezone);
+  date_default_timezone_set($eventInfo->timezone);
   $now = date('Y-m-d H:i:s');
   $buttons = '';
 
