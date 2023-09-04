@@ -39,7 +39,7 @@ class HtmlView extends BaseHtmlView
     $this->params = $menu->getParams();
 
     $db = Factory::getContainer()->get('DatabaseDriver');
-    $eventAlias =  $this->params->get('ScheduleEvent') ?? Aliases::current;
+    $eventAlias =  $this->params->get('ScheduleEvent') ?? Aliases::current();
 
     $this->locations = \ClawCorpLib\Helpers\Locations::GetLocationsList();
     $this->sponsors = new Sponsors();

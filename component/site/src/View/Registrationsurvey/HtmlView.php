@@ -29,7 +29,7 @@ class HtmlView extends BaseHtmlView
     /** @var Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
     $this->params = $params = $app->getParams();
-    $eventAlias = $params->get('eventAlias', Aliases::current);
+    $eventAlias = $params->get('eventAlias', Aliases::current());
     Helpers::sessionSet('eventAlias', $eventAlias);
     
     parent::display($tpl ?? $eventAlias);

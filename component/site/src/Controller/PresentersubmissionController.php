@@ -98,11 +98,11 @@ class PresentersubmissionController extends FormController
     // If it's not the current event, we want to clear the ID and create
     // a new record.
 
-    if ( $data['event'] != Aliases::current ) {
+    if ( $data['event'] != Aliases::current() ) {
       $data['id'] = 0;
     }
 
-    $data['event'] = Aliases::current;
+    $data['event'] = Aliases::current();
     
     if ( $data['id'] == 0 ) {
       $data['published'] = 3; // New submission

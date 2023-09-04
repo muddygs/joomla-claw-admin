@@ -14,6 +14,7 @@ defined('_JEXEC') or die;
 use ClawCorpLib\Helpers\Helpers;
 
 use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\ClawEvents;
 
@@ -24,14 +25,14 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
  */
 class SkillslistModel extends BaseDatabaseModel
 {
-  public function GetConsolidatedList(string $event = Aliases::current): object
+  public function GetConsolidatedList(string $event = Aliases::current()): object
   {
     $db = $this->getDatabase();
     $presenters = Skills::GetPresenterList($db, $event);
     $classes = Skills::GetClassList($db, $event);
 
-    $classTypes = Helpers::getClawFieldValues($this->getDatabase(), 'skill_class_type');
-    $classCategories = Helpers::getClawFieldValues($this->getDatabase(), 'skill_category');
+    $classTypes = Config::getColumn('skill_class_type');
+    $classCategories = Config::getColumn('skill_category');
 
     // Prepare data for views
 
@@ -140,7 +141,7 @@ class SkillslistModel extends BaseDatabaseModel
     ];
   }
 
-  public function GetPresenter(int $uid, string $event = Aliases::current): object
+  public function GetPresenter(int $uid, string $event = Aliases::current()): object
   {
     $db = $this->getDatabase();
     $presenter = Skills::GetPresenter($db, $uid, $event);
@@ -156,7 +157,7 @@ class SkillslistModel extends BaseDatabaseModel
     };
   }
 
-  public function GetEventInfo(string $alias = Aliases::current) : \ClawCorpLib\Lib\EventInfo
+  public function GetEventInfo(string $alias = Aliases::current()) : \ClawCorpLib\Lib\EventInfo
   {
     $events = new ClawEvents(clawEventAlias: $alias);
 

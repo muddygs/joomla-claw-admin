@@ -56,7 +56,7 @@ class HtmlView extends BaseHtmlView
     $this->bio = (object)[];
 
     // Try to get the most current bio for this user
-    $bio = $model->GetPresenterBios(Aliases::current);
+    $bio = $model->GetPresenterBios(Aliases::current());
     if (count($bio) == 0) {
       $bio = $model->GetPresenterBios();
       if (count($bio) != 0) {

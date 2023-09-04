@@ -60,7 +60,7 @@ class RegistrationsurveyModel extends BaseModel
     $coupon = $db->loadRow();
 
     if ($coupon != null) {
-      $events = new ClawEvents(Aliases::current);
+      $events = new ClawEvents(Aliases::current());
 
       /** @var \ClawCorpLib\Lib\ClawEvent $e */
       foreach ($events->getEvents() as $e) {

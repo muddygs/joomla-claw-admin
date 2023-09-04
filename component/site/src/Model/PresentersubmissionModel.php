@@ -76,9 +76,9 @@ class PresentersubmissionModel extends AdminModel
 
     $success = false;
 
-    if ( $record->event != Aliases::current ) {
+    if ( $record->event != Aliases::current() ) {
       $record->id = 0;
-      $record->event = Aliases::current;
+      $record->event = Aliases::current();
       $record->published = 3;
       $record->submission_date = date("Y-m-d");
       $record->archive_state = '';
@@ -134,7 +134,7 @@ class PresentersubmissionModel extends AdminModel
     $mtime = 0;
 
     foreach ( $bios AS $bio ) {
-      if ( $bio->event == Aliases::current ) {
+      if ( $bio->event == Aliases::current() ) {
         $id = $bio->id;
         break;
       }
@@ -178,7 +178,7 @@ class PresentersubmissionModel extends AdminModel
 
   public function GetEventInfo(): \ClawCorpLib\Lib\EventInfo
   {
-    $events = new ClawEvents(Aliases::current);
+    $events = new ClawEvents(Aliases::current());
 
     $info = $events->getClawEventInfo();
     return $info;

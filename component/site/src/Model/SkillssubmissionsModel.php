@@ -66,7 +66,7 @@ class SkillssubmissionsModel extends BaseDatabaseModel
 
   public function GetEventInfo() : \ClawCorpLib\Lib\EventInfo
   {
-    $events = new ClawEvents(Aliases::current);
+    $events = new ClawEvents(Aliases::current());
 
     $info = $events->getClawEventInfo();
     return $info;

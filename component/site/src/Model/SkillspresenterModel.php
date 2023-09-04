@@ -25,7 +25,7 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
  */
 class SkillsPresenterModel extends BaseDatabaseModel
 {
-  public function GetPresenter(int $uid, string $event = Aliases::current): ?object
+  public function GetPresenter(int $uid, string $event = Aliases::current()): ?object
   {
     $db = $this->getDatabase();
     $presenter = Skills::GetPresenter($db, $uid, $event);

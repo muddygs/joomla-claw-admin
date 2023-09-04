@@ -87,9 +87,9 @@ class SkillsubmissionModel extends AdminModel
 
     $success = false;
 
-    if ( $record->event != Aliases::current ) {
+    if ( $record->event != Aliases::current() ) {
       $record->id = 0;
-      $record->event = Aliases::current;
+      $record->event = Aliases::current();
       $record->published = 3;
       $record->day = $db->getNullDate();
       $record->submission_date = date("Y-m-d");
@@ -164,7 +164,7 @@ class SkillsubmissionModel extends AdminModel
 
   public function GetEventInfo(): \ClawCorpLib\Lib\EventInfo
   {
-    $events = new ClawEvents(Aliases::current);
+    $events = new ClawEvents(Aliases::current());
 
     $info = $events->getClawEventInfo();
     return $info;

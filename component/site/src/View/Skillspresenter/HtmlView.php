@@ -51,7 +51,7 @@ class HtmlView extends BaseHtmlView
 
     /** @var \ClawCorp\Component\Claw\Site\Model\SkillslistModel */
     $model = $this->getModel();
-    $this->presenter = $model->GetPresenter($uid, $this->params->get('event_alias', Aliases::current));
+    $this->presenter = $model->GetPresenter($uid, $this->params->get('event_alias', Aliases::current()));
     parent::display($tpl);
   }
 }
