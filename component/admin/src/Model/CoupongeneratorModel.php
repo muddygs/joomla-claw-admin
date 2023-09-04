@@ -73,7 +73,7 @@ class CoupongeneratorModel extends FormModel
   public function populateCodeTypes(Json $json): array
   {
     $groups = array_keys(Helpers::getUserGroupsByName($this->getDatabase()));
-    $eventAlias = $json->get('jform[event]', Aliases::current, 'string');
+    $eventAlias = $json->get('jform[event]', Aliases::current(), 'string');
 
     $e = new ClawEvents($eventAlias);
 
@@ -117,7 +117,7 @@ HTML;
    */
   public function couponValue(Json $json): float
   {
-    $eventAlias = $json->get('jform[event]', Aliases::current, 'string');
+    $eventAlias = $json->get('jform[event]', Aliases::current(), 'string');
     $events = new ClawEvents($eventAlias);
 
     $package = $json->get('jform[packagetype]', '', 'string');
@@ -213,7 +213,7 @@ HTML;
     }
   
   
-    $e = new ClawEvents($json->getString('jform[event]',Aliases::current));
+    $e = new ClawEvents($json->getString('jform[event]',Aliases::current()));
   
     $value = $this->couponValue($json);
   
@@ -301,7 +301,7 @@ HTML;
       'msg' => ''
     ];
 
-    if ( !$json->exists('jform_email') || trim($json->getString('jform_email','')) == '')
+    if ( !$json->exists('jform[email]') || trim($json->getString('jform[email]','')) == '')
     {
       $result->error = true;
       $result->msg = 'Email address must be provided.';
@@ -335,9 +335,9 @@ HTML;
       return $result;
     }
   
-    $eventSelection = $json->getString('jform_eventSelection','');
+    $eventSelection = $json->getString('jform[event]','');
   
-    if ( !in_array($eventSelection, Aliases::active) )
+    if ( !in_array($eventSelection, Aliases::active()) )
     {
       $result->msg = 'Please select an event.';
       return $result;
@@ -346,14 +346,15 @@ HTML;
     $events = new ClawEvents($eventSelection);
     $query = $db->getQuery(true);
     $query->select('*')
-      ->from('#_eb_coupon_events')
+      ->from('#__eb_coupon_events')
       ->where('event_id IN ('.implode(',', $events->mainEventIds).')');
     $db->setQuery($query);
     $eventAssignments = $db->loadObjectList();
   
     if ( $eventAssignments == null || sizeof($eventAssignments) == 0 )
     {
-      return 'Coupon found but not assigned to a specific main event';
+      $result->msg = 'Coupon found but not assigned to a specific main event';
+      return $result;
     }
   
     foreach ( $coupons AS $c )
