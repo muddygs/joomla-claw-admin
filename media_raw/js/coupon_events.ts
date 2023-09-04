@@ -34,8 +34,8 @@ function loadEvent() {
 	fetch(couponAjaxUrl(task), couponOptions() )
 		.then(result => result.json())
 		.then(html => {
-			var p = document.getElementById('jform_packagetype');
-			var a = document.getElementById('jform_addons');
+			const p = document.getElementById('jform_packagetype');
+			const a = document.getElementById('jform_addons');
 
 			if ( p == null || a == null ) return;
 			if ( html.length == 2 ) {
@@ -43,14 +43,14 @@ function loadEvent() {
 				p.innerHTML = html[0];
 				a.innerHTML = html[1];
 
-				var n = document.getElementById('jform_value') as HTMLInputElement;
+				const n = document.getElementById('jform_value') as HTMLInputElement;
 				if (n !== null) n.value = "0";
 			}
 		});
 
 }
 
-function updateTotalValue() {
+function updateTotalValue(): void {
 	const task = "couponValue";
 	const n = document.getElementById('jform_value') as HTMLInputElement;
 	n.value = '0';
@@ -62,7 +62,7 @@ function updateTotalValue() {
 		});
 }
 
-function getEmailStatus() {
+function getEmailStatus(): void {
 	const task = "emailStatus";
 	const n = document.getElementById('emailstatus');
 	n.innerHTML = '';
@@ -74,10 +74,9 @@ function getEmailStatus() {
 		});
 }
 
-function copyCoupons() {
-	var coupons = document.querySelectorAll("[data-coupon]");
-
-	var text: string = '';
+function copyCoupons(): void {
+	const coupons = document.querySelectorAll("[data-coupon]");
+	let text: string = '';
 
 	[...coupons].forEach((e) => {
 		text += (e as HTMLElement).dataset.coupon + "\n";
@@ -92,33 +91,34 @@ function copyCoupons() {
 		});
 }
 
-function createCoupons() {
-	var task = "createCoupons";
+function createCoupons(): void {
+	const task = "createCoupons";
+	const n = document.getElementById('results');
 
 	fetch(couponAjaxUrl(task), couponOptions() )
 		.then(result => result.text())
 		.then(html => {
-			var n = document.getElementById('results');
 			if ( n !== null ) n.innerHTML = html;
 		});
 }
 
 function submitCoupons() {
-	var result = document.getElementById('results');
+	const result = document.getElementById('results');
 	result.textContent = '';
 
-	var error = '';
-	var name = document.getElementById('jform_name') as HTMLInputElement;
-	var regExp = /[a-zA-Z]/g;
+	let error = '';
+	const name = document.getElementById('jform_name') as HTMLInputElement;
+	const regExp = /[a-zA-Z]/g;
+
 	if ( ! regExp.test(name.value)) error = 'Please set the name.';
 
-	var quantity = parseInt((document.getElementById('jform_quantity') as HTMLInputElement).value);
+	const quantity = parseInt((document.getElementById('jform_quantity') as HTMLInputElement).value);
 	if ( ! Number.isInteger(quantity)) error = 'Please set an integer quantity.';
 
 	if ( error != '' )
 	{
-		var node = document.createElement("p");
-		var note = document.createTextNode(error);
+		const node = document.createElement("p");
+		const note = document.createTextNode(error);
 		node.appendChild(note);
 		result.appendChild(node);
 	}
