@@ -38,15 +38,15 @@ $allowOverride = array_key_exists('Special', $this->avl ?? []) ? true: false;
 
 
   <div class="row">
-    <div class="col-4">
+    <div class="col-12 col-lg-4">
       <?php echo $this->form->renderField('packagetype'); ?>
     </div>
 
-    <div class="col-4">
+    <div class="col-12 col-lg-4">
       <?php echo $this->form->renderField('addons'); ?>
     </div>
 
-    <div class="col-4">
+    <div class="col-12 col-lg-4">
       <?php echo $this->form->renderField('value'); ?>
     </div>
   </div>
@@ -58,11 +58,14 @@ $allowOverride = array_key_exists('Special', $this->avl ?? []) ? true: false;
 
     <div class="col-6">
       <?php echo $this->form->renderField('email'); ?>
-      <div id="emailstatus" class="text-info"></div>
+      <div id="emailstatus" class="text-info text-end"></div>
+      <div class="text-end">
+       <input name="checkEmail" id="checkEmail" type="button" value="Check Email(s)" class="btn btn-info w-50" onclick="getEmailStatus()"/>
+      </div>
       <?php if ($allowOverride): ?>
       <div class="form-check float-end">
         <input class="form-check-input" type="checkbox" value="1" id="emailOverride" name="emailOverride">
-        <label class="form-check-label" for="emailOverride">Ignore email</label>
+        <label class="form-check-label" for="emailOverride">Ignore email(s)</label>
       </div>
       <?php endif; ?>
     </div>
