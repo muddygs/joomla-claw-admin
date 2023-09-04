@@ -26,6 +26,8 @@ class c0423 extends AbstractEvent
     $info->mainAllowed = true;
     $info->cancelBy = '2023-04-01 00:00:00'; // Varies too much to calculate
     $info->eventType = EventTypes::main;
+    $info->timezone = 'America/New_York';
+    $info->active = true;
     return $info;
   }
 

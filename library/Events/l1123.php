@@ -26,6 +26,8 @@ class l1123 extends AbstractEvent
     $info->mainAllowed = true;
     $info->cancelBy = '2023-11-19 00:00:00'; // Varies too much to calculate
     $info->eventType = EventTypes::main;
+    $info->timezone = 'America/Los_Angeles';
+    $info->active = true;
     return $info;
   }
 

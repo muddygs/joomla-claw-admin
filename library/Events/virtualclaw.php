@@ -26,6 +26,8 @@ class virtualclaw extends AbstractEvent
     $info->mainAllowed = false;
     $info->cancelBy = '2023-04-01 00:00:00'; // Varies too much to calculate
     $info->eventType = EventTypes::vc;
+    $info->timezone = 'America/New_York';
+    $info->active = true;
     return $info;
   }
 

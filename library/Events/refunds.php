@@ -22,6 +22,8 @@ class refunds extends AbstractEvent
     $info->mainAllowed = false;
     $info->cancelBy = '2023-04-01 00:00:00'; // Varies too much to calculate
     $info->eventType = EventTypes::refunds;
+    $info->timezone = 'America/New_York';
+    $info->active = true;
     return $info;
   }
 
