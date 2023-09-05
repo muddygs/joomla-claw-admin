@@ -11,12 +11,13 @@ class Registrants
   /**
    * Returns array of registrant records for a specific event id
    * @param int $eventId Event ID
-   * @param array $publishedStatus Array of EbPublishedState values
+   * @param array $publishedStatus Array of EbPublishedState (default: published)
    * @return array Registrant records
    */
-  public static function byEventId(int $eventId, array $publishedStatus = [EbPublishedState::published->value]): array
+  public static function byEventId(int $eventId, array $publishedStatus = []): array
   {
     $results = [];
+    $publishedStatus = $publishedStatus ?: [EbPublishedState::published];
 
     $db = Factory::getContainer()->get('DatabaseDriver');
 
