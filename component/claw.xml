@@ -93,6 +93,7 @@
       in this section are copied from /admin/ in the package -->
 
     <files folder="admin/">
+      <folder>cron</folder>
       <folder>forms</folder>
       <folder>language</folder>
       <folder>layouts</folder>
