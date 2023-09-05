@@ -15,9 +15,9 @@ require_once JPATH_ROOT . '/../authnet_constants.php';
 use net\authorize\api\contract\v1 as AnetAPI;
 use net\authorize\api\controller as AnetController;
 
-use CLawCorpLib\Lib\Registrant;
-use CLawCorpLib\Lib\Registrants;
-use CLawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\Registrant;
+use ClawCorpLib\Lib\Registrants;
+use ClawCorpLib\Lib\ClawEvents;
 
 class Authnetprofile {
   private registrant $_r;
@@ -30,7 +30,7 @@ class Authnetprofile {
     $this->_r->mergeFieldValues($fields);
     $this->cron = $cron;
 
-    authnetprofile::getCredentials();
+    Authnetprofile::getCredentials();
   }
 
   public function chargeCustomerProfile(RegistrantRecord $record, string $profileId, string $paymentProfileId, float $amount, string $subject): array
@@ -38,7 +38,7 @@ class Authnetprofile {
     $amount = number_format($amount, 2, '.', '');
 
     echo '<pre style="color:black;">';
-    list($merchantId, $transactionKey) = authnetprofile::getCredentials();
+    list($merchantId, $transactionKey) = Authnetprofile::getCredentials();
 
     $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
     $merchantAuthentication->setName($merchantId);
@@ -123,7 +123,7 @@ class Authnetprofile {
     return [$status, $transactionId, $errorMsg];
   }
   
-  public function createProfiles(bool $cron = false): int
+  public function createProfiles(): int
   {
     $msg = [];
     $count = 0;
@@ -185,7 +185,7 @@ class Authnetprofile {
     $f = $transactionRecord->registrant->first_name;
     $l = $transactionRecord->registrant->last_name;
 
-    list($merchantId, $transactionKey) = authnetprofile::getCredentials();
+    list($merchantId, $transactionKey) = Authnetprofile::getCredentials();
 
     /* Create a merchantAuthenticationType object with authentication details
        retrieved from the constants file */
@@ -233,13 +233,11 @@ class Authnetprofile {
     require_once JPATH_ROOT . '/../authnet_constants.php';
 
     $uri_path = Uri::getInstance()->getHost();
-    if ( strpos($uri_path, 'clawinfo') !== false) {
-      if ( !defined('ANET_URL')) define('ANET_URL', \net\authorize\api\constants\ANetEnvironment::PRODUCTION);
+    if (strpos($uri_path, 'clawinfo') !== false) {
+      if (!defined('ANET_URL')) define('ANET_URL', \net\authorize\api\constants\ANetEnvironment::PRODUCTION);
       $merchantId = \Constants::MERCHANT_LOGIN_ID;
       $key = \Constants::MERCHANT_TRANSACTION_KEY;
-    }
-    else
-    {
+    } else {
       if (!defined('ANET_URL')) define('ANET_URL', \net\authorize\api\constants\ANetEnvironment::SANDBOX);
       $merchantId = \Constants::MERCHANT_LOGIN_ID_SANDBOX;
       $key = \Constants::MERCHANT_TRANSACTION_KEY_SANDBOX;
@@ -410,20 +408,20 @@ class Authnetprofile {
 
 
   /**
-   * @param string $eventCode 
+   * @param string $eventAlias 
    * @param int $maximum_records
    * @param bool $cron 
-   * @return int 
+   * @return int Count of records created
    * @throws RuntimeException 
    */
-  public static function create(string $eventCode, int $maximum_records = 10, bool $cron=false): int
+  public static function create(string $eventAlias, int $maximum_records = 10, bool $cron=false): int
   {
     set_time_limit(0);
 
     // Used for generic registrant access
-    $registrants = new registrants('refunds');
+    $registrants = new \ClawCorpLib\Lib\Registrants('refunds');
 
-    $e = new ClawEvents($eventCode);
+    $e = new ClawEvents($eventAlias);
     $events = $e->GetEvents();
 
     $count = 0;
@@ -437,10 +435,10 @@ class Authnetprofile {
 
       /** @var \ClawCorpLib\Lib\Registrant $registrant */
       foreach ($recordsByEventId as $registrant) {
-        $profile = new authnetprofile($registrant, $cron);
+        $profile = new Authnetprofile($registrant, $cron);
         if ( !$description ) {
           $description = $event->description;
-          $profile->profilelog([$description], 'h1', $cron);
+          $profile->profilelog([$description], 'h1');
         }
 
         $count += $profile->createProfiles();
@@ -466,7 +464,7 @@ class Authnetprofile {
 
   // public static function getListOfSubscriptionIds(int $limit = 1000, int $offset = 1)
   // {
-  //   list($merchantId, $transactionKey) = authnetprofile::getCredentials();
+  //   list($merchantId, $transactionKey) = Authnetprofile::getCredentials();
 
   //   /* Create a merchantAuthenticationType object with authentication details
   //      retrieved from the constants file */
@@ -520,7 +518,7 @@ class Authnetprofile {
 
   // public static function cancelSubscription($subscriptionId)
   // { 
-  //   list($merchantId, $transactionKey) = authnetprofile::getCredentials();
+  //   list($merchantId, $transactionKey) = Authnetprofile::getCredentials();
 
   //   /* Create a merchantAuthenticationType object with authentication details
   //      retrieved from the constants file */
