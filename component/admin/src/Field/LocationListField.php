@@ -31,7 +31,7 @@ class LocationListField extends ListField
     $data['options'] = (array) $this->getOptions();
 
     $currentValue = $this->__get('value');
-    if ($currentValue === '') {
+    if ($currentValue === '' || $currentValue === 0) {
       $data['value'] = Locations::$blankLocation;
     }
 
@@ -62,7 +62,7 @@ class LocationListField extends ListField
         $this->listItems[] = (object)[
           'value'    => $value,
           'text'     => $text,
-          'disable'  => true,
+          'disable'  => false,
           'class'    => '',
           'selected' => $value == $currentValue,
           'checked'  => $value == $currentValue,
@@ -89,11 +89,11 @@ class LocationListField extends ListField
     return $this->listItems;
   }
 
-  public function populateOptions(string $rootEventAlias = '')
+  public function populateOptions(string $parentAlias = '', bool $rootOnly = false)
   {
-    $locations = Locations::GetLocationsList($rootEventAlias);
+    $locations = Locations::GetLocationsList($parentAlias, $rootOnly);
 
-    if ( $rootEventAlias != '' ) {
+    if ( $parentAlias != '' ) {
       $this->addOption(htmlentities('TBD'), ['value' => Locations::$blankLocation]);
     }
 
