@@ -88,6 +88,11 @@ class LocationModel extends AdminModel
       return false;
     }
 
+    /** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
+		$parentField = $form->getField('catid');
+		$parentField->populateOptions(rootOnly: true);
+
+
     return $form;
   }
 
