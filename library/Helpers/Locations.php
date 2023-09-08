@@ -8,7 +8,7 @@ class Locations {
 
   public static int $blankLocation = -1;
 
-  public static function GetLocationsList(string $parentAlias = ''): array {
+  public static function GetLocationsList(string $parentAlias = '', bool $rootOnly = false): array {
     if ( $parentAlias == '' ) $parentAlias = '_all_';
     if ( array_key_exists($parentAlias, Locations::$cache) ) return Locations::$cache[$parentAlias];
 
@@ -28,6 +28,15 @@ class Locations {
 
     $db->setQuery($query);
     $parents = $db->loadObjectList('id') ?? [];
+
+    if ( $rootOnly ) {
+      $root = [];
+      foreach ( $parents AS $p) {
+        $root[] = (object)['id' => $p->id, 'value' => $p->value];
+      }
+
+      return $root;
+    }
 
     foreach ( $parents AS $p) {
       // push on the parent
