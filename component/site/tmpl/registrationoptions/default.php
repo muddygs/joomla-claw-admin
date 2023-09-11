@@ -282,13 +282,6 @@ endif;
 
   // end output
 
-  function ebevents(array $eventIds)
-  {
-    foreach ($eventIds as $e) {
-      echo "{ebevent $e->id}";
-    }
-  }
-
   function categoryLinkButtons(array $categoryAliases, string $urlPrefix): string
   {
     $categoryInfo = ClawEvents::getCategoryNames($categoryAliases);
