@@ -383,56 +383,56 @@ class l1123 extends AbstractEvent
       'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr']
     ]));
     
-    // $this->AppendEvent(new ClawEvent((object)[
-    //   'couponKey' => 'FRI',
-    //   'link' => 'onsite',
-    //   'description' => 'Friday Day Pass',
-    //   'clawPackageType' => EventPackageTypes::day_pass_fri,
-    //   'isMainEvent' => true,
-    //   'couponValue' => 0,
-    //   'fee' => 150,
-    //   'start' => 'friday 9am',
-    //   'end' => 'saturday 2am',
-    //   'eventId' => ClawEvents::getEventId($prefix.'-daypass-fri'),
-    //   'category' => ClawEvents::getCategoryId('day-passes'),
-    //   'minShifts' => 0,
-    //   'requiresCoupon' => false,
-    //   'couponAccessGroups' => []
-    // ]));
+    $this->AppendEvent(new ClawEvent((object)[
+      'couponKey' => 'FRI',
+      'link' => 'onsite',
+      'description' => 'Friday Day Pass',
+      'clawPackageType' => EventPackageTypes::day_pass_fri,
+      'isMainEvent' => true,
+      'couponValue' => 0,
+      'fee' => 150,
+      'start' => 'friday 9am',
+      'end' => 'saturday 2am',
+      'eventId' => ClawEvents::getEventId($prefix.'-daypass-fri'),
+      'category' => ClawEvents::getCategoryId('day-passes'),
+      'minShifts' => 0,
+      'requiresCoupon' => false,
+      'couponAccessGroups' => []
+    ]));
     
-    // $this->AppendEvent(new ClawEvent((object)[
-    //   'couponKey' => 'SAT',
-    //   'link' => 'onsite',
-    //   'description' => 'Saturday Day Pass',
-    //   'clawPackageType' => EventPackageTypes::day_pass_sat,
-    //   'isMainEvent' => true,
-    //   'couponValue' => 0,
-    //   'fee' => 150,
-    //   'start' => 'saturday 9am',
-    //   'end' => 'sunday 2am',
-    //   'eventId' => ClawEvents::getEventId($prefix.'-daypass-sat'),
-    //   'category' => ClawEvents::getCategoryId('day-passes'),
-    //   'minShifts' => 0,
-    //   'requiresCoupon' => false,
-    //   'couponAccessGroups' => []
-    // ]));
+    $this->AppendEvent(new ClawEvent((object)[
+      'couponKey' => 'SAT',
+      'link' => 'onsite',
+      'description' => 'Saturday Day Pass',
+      'clawPackageType' => EventPackageTypes::day_pass_sat,
+      'isMainEvent' => true,
+      'couponValue' => 0,
+      'fee' => 150,
+      'start' => 'saturday 9am',
+      'end' => 'sunday 2am',
+      'eventId' => ClawEvents::getEventId($prefix.'-daypass-sat'),
+      'category' => ClawEvents::getCategoryId('day-passes'),
+      'minShifts' => 0,
+      'requiresCoupon' => false,
+      'couponAccessGroups' => []
+    ]));
     
-    // $this->AppendEvent(new ClawEvent((object)[
-    //   'couponKey' => 'SUN',
-    //   'link' => 'onsite',
-    //   'description' => 'Sunday Day Pass',
-    //   'clawPackageType' => EventPackageTypes::day_pass_sun,
-    //   'isMainEvent' => true,
-    //   'couponValue' => 0,
-    //   'fee' => 80,
-    //   'start' => 'sunday 9am',
-    //   'end' => 'next monday 2am',
-    //   'eventId' => ClawEvents::getEventId($prefix.'-daypass-sun'),
-    //   'category' => ClawEvents::getCategoryId('day-passes'),
-    //   'minShifts' => 0,
-    //   'requiresCoupon' => false,
-    //   'couponAccessGroups' => []
-    // ]));
+    $this->AppendEvent(new ClawEvent((object)[
+      'couponKey' => 'SUN',
+      'link' => 'onsite',
+      'description' => 'Sunday Day Pass',
+      'clawPackageType' => EventPackageTypes::day_pass_sun,
+      'isMainEvent' => true,
+      'couponValue' => 0,
+      'fee' => 80,
+      'start' => 'sunday 9am',
+      'end' => 'next monday 2am',
+      'eventId' => ClawEvents::getEventId($prefix.'-daypass-sun'),
+      'category' => ClawEvents::getCategoryId('day-passes'),
+      'minShifts' => 0,
+      'requiresCoupon' => false,
+      'couponAccessGroups' => []
+    ]));
     
   }
 }
