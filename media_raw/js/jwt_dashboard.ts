@@ -5,13 +5,12 @@ window.addEventListener('keydown', function (e) {
 }, true);
 
 function jwtdashboardAjaxUrl(task: string) {
-	return '/administrator/index.php?option=com_claw&task=' + task + '&format=raw';
+  return `/index.php?option=com_claw&view=checkin&task=${task}&format=raw`;
 }
 
-function jwtdashboardOptions(action: string, id: number) {
-  var data = {
-    action: action,
-    id: id
+function jwtdashboardOptions(id: number) {
+  const data = {
+    tokenid: id
   };
 
   return {
@@ -25,19 +24,21 @@ function jwtdashboardOptions(action: string, id: number) {
 }
 
 function doConfirm(id: number) {
-  fetch(jwtdashboardAjaxUrl('jwtdashboardConfirm'), jwtdashboardOptions('confirm', id))
+  fetch(jwtdashboardAjaxUrl('jwtdashboardConfirm'), jwtdashboardOptions(id))
     .then(result => result.json())
     .then(html => {
-      var b = document.getElementById('dbrdc' + html.id) as HTMLInputElement;
-      if ( b != null ) b.remove();
+      if ( html.id == id ) {
+        const b = document.getElementById('dbrdc' + id) as HTMLInputElement;
+        if ( b != null ) b.remove();
+      }
     });
 }
 
 function doRevoke(id: number) {
-  fetch(jwtdashboardAjaxUrl('jwtdashboardRevoke'), jwtdashboardOptions('revoke', id))
+  fetch(jwtdashboardAjaxUrl('jwtdashboardRevoke'), jwtdashboardOptions(id))
     .then(result => result.json())
     .then(html => {
-      var b = document.getElementById('dbrdc' + html.id) as HTMLInputElement;
+      let b = document.getElementById('dbrdc' + html.id) as HTMLInputElement;
       if (b != null) b.remove();
       b = document.getElementById('dbrdr' + html.id) as HTMLInputElement;
       if (b != null) b.remove();

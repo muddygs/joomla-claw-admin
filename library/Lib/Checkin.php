@@ -62,7 +62,7 @@ class CheckinRecord
     // Keeping separate since we need to separate these out for badge printing
 
     $dinners = [ 
-      EventPackageTypes::dinner 
+      EventPackageTypes::dinner->value
     ];
 
     foreach ( $dinners AS $b ) {
@@ -70,9 +70,9 @@ class CheckinRecord
     }
 
     $brunchTypes = [
-      EventPackageTypes::brunch_fri,
-      EventPackageTypes::brunch_sat,
-      EventPackageTypes::brunch_sun
+      EventPackageTypes::brunch_fri->value,
+      EventPackageTypes::brunch_sat->value,
+      EventPackageTypes::brunch_sun->value
     ];
 
     foreach ( $brunchTypes as $b ) {
@@ -80,10 +80,10 @@ class CheckinRecord
     }
 
     $buffets = [
-      EventPackageTypes::buffet_wed,
-      EventPackageTypes::buffet_thu,
-      EventPackageTypes::buffet_fri,
-      EventPackageTypes::buffet_sun
+      EventPackageTypes::buffet_wed->value,
+      EventPackageTypes::buffet_thu->value,
+      EventPackageTypes::buffet_fri->value,
+      EventPackageTypes::buffet_sun->value
     ];
 
     foreach ( $buffets AS $b ) {
@@ -110,7 +110,7 @@ class CheckinRecord
   }
 
   /**
-   * Object expect by checkin_events.ts
+   * Object expected by checkin_events.ts
    */
   public function toObject(): object
   {
@@ -157,7 +157,9 @@ class CheckinRecord
     $result->issued = $this->issued ? 'Issued' : 'New';
     $result->printed = $this->printed ? 'Printed' : 'Need to Print';
 
-    $result->clawPackage = $this->overridePackage == '' ? EventPackageTypes::toString($this->clawPackage) : $this->overridePackage;
+    $package = EventPackageTypes::FindValue($this->clawPackage);
+
+    $result->clawPackage = $this->overridePackage == '' ? $package->toString() : $this->overridePackage;
     if ( $this->dayPassDay != '' ) $result->clawPackage .= ' ('.$this->dayPassDay.')';
 
     return $result;
@@ -172,7 +174,7 @@ class Checkin
 
   public function __construct(string $registration_code)
   {
-    $this->uid = registrant::getUserIdFromInvoice($registration_code);
+    $this->uid = Registrant::getUserIdFromInvoice($registration_code);
     $this->isValid = false;
 
     if ( $this->uid != 0 ) {
@@ -188,8 +190,6 @@ class Checkin
 
     $this->r = new CheckinRecord($this->uid);
 
-    $prefix = strtolower(Aliases::defaultPrefix).'-';
-
     $fieldValues = [
       'BADGE', 'Z_BADGE_SPECIAL', 'Z_BADGE_ISSUED', 'Z_BADGE_PRINTED', 'Dinner',
       'CONDUCT_AGREEMENT', 'PHOTO_PERMISSION', 'TSHIRT', 'TSHIRT_VOL', 'Z_TICKET_SCANNED',
@@ -197,7 +197,7 @@ class Checkin
       'PRONOUNS'
     ];
 
-    $registrant = new registrant(Aliases::current(), $this->uid);
+    $registrant = new Registrant(Aliases::current(), $this->uid);
     $registrant->loadCurrentEvents();
     $mainEvent = null;
 
@@ -214,8 +214,11 @@ class Checkin
 
     //$mainEvent = $registrant->castRecord($mainEvent);
 
-    $events = new clawEvents(Aliases::current());
-    $event = $events->getEventByPackageType($mainEvent->registrant->clawPackageType);
+    $events = new ClawEvents(Aliases::current());
+    $eventInfo = $events->getClawEventInfo();
+    $prefix = strtolower($eventInfo->prefix).'-';
+
+    $event = $events->getEventByPackageType($mainEvent->registrant->eventPackageType);
 
     $this->r->package_eventId = $mainEvent->event->eventId;
     $this->r->id = $mainEvent->registrant->id;
@@ -240,7 +243,7 @@ class Checkin
     }
 
     $this->r->overridePackage = $mainEvent->fieldValue->Z_BADGE_SPECIAL;
-    $this->r->clawPackage = $mainEvent->registrant->clawPackageType;
+    $this->r->clawPackage = $mainEvent->registrant->eventPackageType->value;
     $this->r->badgeId = $registrant->badgeId;
     $this->r->registration_code = $mainEvent->registrant->registration_code;
 
@@ -270,7 +273,7 @@ class Checkin
 
     $this->r->shifts = '';
     $shiftCount = 0;
-    $this->r->dinners[EventPackageTypes::dinner] = 'None';
+    $this->r->dinners[EventPackageTypes::dinner->value] = 'None';
 
     // Combo meals events
     $allMealsEventId = false;
@@ -366,16 +369,16 @@ class Checkin
       }
 
       if (in_array($r->category->category_id, $brunchCatIds)) {
-        if ($r->event->eventId == ClawEvents::getEventId($prefix.'fri-breakfast')) $this->r->brunches[EventPackageTypes::brunch_fri] = 'Fri';
-        if ($r->event->eventId == ClawEvents::getEventId($prefix.'sat-breakfast')) $this->r->brunches[EventPackageTypes::brunch_sat] = 'Sat';
-        if ($r->event->eventId == ClawEvents::getEventId($prefix.'brunch')) $this->r->brunches[EventPackageTypes::brunch_sun] = 'Sun';
+        if ($r->event->eventId == ClawEvents::getEventId($prefix.'fri-breakfast')) $this->r->brunches[EventPackageTypes::brunch_fri->value] = 'Fri';
+        if ($r->event->eventId == ClawEvents::getEventId($prefix.'sat-breakfast')) $this->r->brunches[EventPackageTypes::brunch_sat->value] = 'Sat';
+        if ($r->event->eventId == ClawEvents::getEventId($prefix.'brunch')) $this->r->brunches[EventPackageTypes::brunch_sun->value] = 'Sun';
         continue;
       }
 
       if (in_array($r->category->category_id, $buffetCatIds)) {
         //if ($r->event->eventId == ClawEvents::getEventId($prefix.'wed-buffet')) $this->r->buffets[EventPackageTypes::buffet_wed] = 'Wed';
         // if ($r->event->eventId == ClawEvents::getEventId($prefix.'thu-buffet')) $this->r->buffets[EventPackageTypes::buffet_thu] = 'Thu';
-        if ($r->event->eventId == ClawEvents::getEventId($prefix.'fri-buffet')) $this->r->buffets[EventPackageTypes::buffet_fri] = 'Fri';
+        if ($r->event->eventId == ClawEvents::getEventId($prefix.'fri-buffet')) $this->r->buffets[EventPackageTypes::buffet_fri->value] = 'Fri';
         // if ($r->event->eventId == ClawEvents::getEventId($prefix.'sun-buffet')) $this->r->buffets[EventPackageTypes::buffet_sun] = 'Sun';
         continue;
       }
@@ -452,7 +455,7 @@ class Checkin
     $registrant->loadCurrentEvents();
     $mainEvent = $registrant->getMainEvent();
 
-    $registrant->updateFieldValues($mainEvent->registrant->id, ['Z_BADGE_PRINTED' => Helpers::sqlTime()]);
+    $registrant->updateFieldValues($mainEvent->registrant->id, ['Z_BADGE_PRINTED' => Helpers::mtime()]);
   }
 
   public function doMealCheckin(int $eventId): string
@@ -586,12 +589,12 @@ EOL;
     $registrant->updateFieldValues($rowId, $fieldValues, true);
   }
 
-  static function search(string $search, bool $any = false): array
+  static function search(string $search, string $page): array
   {
     $results = [];
     $byName = false;
 
-    $e = new clawEvents(Aliases::current());
+    $e = new ClawEvents(Aliases::current());
     $inMainEventIds = implode(',',$e->mainEventIds);
 
     $issued = ClawEvents::getFieldId('Z_BADGE_ISSUED');
@@ -605,19 +608,20 @@ EOL;
 
     $search = $db->q('%' . $search . '%');
 
-    $query = <<<EOT
-    SELECT r.user_id, r.registration_code, r.first_name, r.last_name, r.city, r.invoice_number as badgeId
-    FROM #__eb_registrants r
-    LEFT OUTER JOIN #__eb_field_values v ON v.registrant_id = r.id AND v.field_id = $issued
-    WHERE r.published = 1 AND (r.invoice_number LIKE $search OR r.last_name LIKE $search) AND r.event_id IN ($inMainEventIds)
-EOT;
+    $query = $db->getQuery(true);
+    $query->select(['r.user_id','r.registration_code','r.first_name','r.last_name','r.city','r.invoice_number'], [null, null, null, null, null, 'badgeId'])
+      ->from($db->qn('#__eb_registrants', 'r'))
+      ->join('LEFT OUTER', $db->qn('#__eb_field_values', 'v'). ' ON '. 
+        $db->qn('v.registrant_id') .' = '. $db->qn('r.id'). ' AND ' . $db->qn('v.field_id'). '=' . $db->q($issued))
+      ->where('r.published = 1')
+      ->where('(r.invoice_number LIKE '.$search. ' OR r.last_name LIKE '.$search.')')
+      ->where('r.event_id IN ('.$inMainEventIds.')')
+      ->order('r.first_name')
+      ->setLimit(20);
 
-    if ($any != true) {
-      $query .= ' AND (v.field_value IS NULL OR v.field_value != 1)';
+    if ( $page == 'badge-print') {
+      $query->where('(v.field_value IS NULL OR v.field_value != 1)');
     }
-
-    $query .= $byName ? ' ORDER BY r.first_name' : ' ORDER BY r.user_id';
-    $query .= ' LIMIT 20';
 
     $db->setQuery($query);
     $rows = $db->loadObjectList();

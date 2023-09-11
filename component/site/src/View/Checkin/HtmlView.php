@@ -34,16 +34,24 @@ class HtmlView extends BaseHtmlView
     $this->state = $this->get('State');
  
     $app = Factory::getApplication();
-    $token = $app->input->get('token','','STRING');
+    $this->token = $app->input->get('token','','STRING');
 
-    if ( $token != '' ) {
+    if ( $this->token != '' ) {
       $nonce = Jwtwrapper::getNonce();
       $jwt = new Jwtwrapper($nonce);
-      $payload = $jwt->confirmToken($token, JwtStates::issued );
+      $payload = $jwt->confirmToken($this->token, JwtStates::issued );
 
       if ($payload && property_exists($payload, 'state') && array_key_exists($payload->subject, Jwtwrapper::jwt_token_pages)) {
           $tpl = $payload->subject;
       }    
+    }
+
+    // If the user is super admin, allow database controls
+    $user = $app->getIdentity();
+
+    if ( $user->authorise('core.admin') ) {
+      $this->state->set('user.admin', true);
+      $this->records = Jwtwrapper::getJwtRecords();
     }
 
     parent::display($tpl);

@@ -79,11 +79,6 @@ class Jwtwrapper
   ) {
     # nonce cannot resolve empty
     if (trim($this->nonce) == '') die('Invalid nonce name');
-
-    if ($this->nonce == 'stub') {
-      Helpers::sessionSet('jwt_token_page', '');
-    }
-
     $payload['nonce'] = $this->nonce;
   }
 
@@ -320,51 +315,20 @@ class Jwtwrapper
     return [$confirmToken, $revokeToken];
   }
 
-  public static function redirectOnInvalidToken(string $page, bool $json = false): ?postData
+  public static function redirectOnInvalidToken(string $page, string $token): void
   {
     $app = Factory::getApplication();
 
-    $uri_path = \Joomla\CMS\Uri\Uri::getInstance()->getPath();
-    if (!$json) Helpers::sessionSet('jwt_redirect', $uri_path);
-    Helpers::sessionSet('jwt_token_page', $page);
-
-    $post = file_get_contents("php://input");
-    $form = json_decode($post, true);
-
-    $token = '';
-
-    if ($form != null && array_key_exists('token', $form)) {
-      $token = $form['token'];
-    } else {
-      $token = trim($app->input->get('token', '', 'string'));
-    }
-
     if ('' == $token) {
-      if ($json) return null;
-      $app->redirect('/getlink');
-      return null;
+      $app->redirect('/link');
     }
 
-    $jwt = new jwtwrapper('stub');
+    $jwt = new Jwtwrapper('stub');
     $decoded = $jwt->loadFromToken($token);
 
-    if (null == $decoded) {
-      if ($json) return null;
-      $app->redirect('/getlink');
-      return null;
+    if (null == $decoded || $decoded->subject != $page ) {
+      $app->redirect('/link');
     }
-
-    $result = new postData($token);
-    $result->decoded = $decoded;
-
-    if ($form != null) {
-      foreach ($form as $k => $v) {
-        if ($k == 'token') continue;
-        $result->addPost($k, $v);
-      }
-    }
-
-    return $result;
   }
 
   public static function updateDatabaseState(object $payload, JwtStates $state)
@@ -433,6 +397,20 @@ class Jwtwrapper
     return $result;
   }
 
+  public static function setDatabaseState(int $rowId, JwtStates $state): bool
+  {
+    $db = Factory::getDbo();
+
+    $query = $db->getQuery(true);
+    $s = $state->value;
+    
+    $query->update('#__claw_jwt')
+      ->set('state=:state')->bind(':state', $s)
+      ->where('id=:id')->bind(':id', $rowId);
+    $db->setQuery($query);
+    return $db->execute();
+  }
+
   /**
    * Retrieves array of all non-expired JWT tracking rows in the database
    * @return array Array of db objects
@@ -440,19 +418,22 @@ class Jwtwrapper
   public static function getJwtRecords(): array
   {
     $db = Factory::getDbo();
+    $time = time();
+
+    $revoked = JwtStates::revoked->value;
 
     // TODO: used multiple times, so make a function
     // Cleanup old tokens
     $query = $db->getQuery(true);
     $query->delete('#__claw_jwt')
-      ->where('exp < :exp')->bind(':exp', time());
+      ->where('exp < :exp')->bind(':exp', $time);
     $db->setQuery($query);
     $db->execute();
 
     $query = $db->getQuery(true);
     $query->select('*')
       ->from('#__claw_jwt')
-      ->where(1);
+      ->where('state != :state')->bind(':state', $revoked);
     $db->setQuery($query);
     $results = $db->loadObjectList();
 
@@ -480,8 +461,6 @@ class Jwtwrapper
     $query->delete('#__claw_jwt')
       ->where('nonce=:nonce')->bind(':nonce', $nonce)
       ->where('subject=:subject')->bind(':subject', $subject);
-    $db->setQuery($query);
-    $db->execute();
     $db->setQuery($query);
     $db->execute();
 

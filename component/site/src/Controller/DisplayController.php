@@ -14,14 +14,13 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\JwtStates;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\Jwtwrapper;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormFactoryInterface;
-use Joomla\CMS\Helper\ContentHelper;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Session\Session;
 use Joomla\Input\Input;
 use Joomla\Input\Json;
 
@@ -116,7 +115,7 @@ class DisplayController extends BaseController
 
     /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
     $siteModel = $this->getModel('Checkin');
-    $json = $siteModel->JwtstateInit(email: $email, url: $url);
+    $json = $siteModel->JwtstateInit(email: $email, subject: $url);
 
     header('Content-Type: application/json');
     echo $json;
@@ -130,12 +129,13 @@ class DisplayController extends BaseController
 
     /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
     $siteModel = $this->getModel('Checkin');
-    $json = $siteModel->JwtstateState(url: $url);
+    $json = $siteModel->JwtstateState(subject: $url);
 
     header('Content-Type: application/json');
-    echo $json;
+    echo json_encode($json);
   }
 
+#region email token response processing
   /**
    * Process token confirmation from email link
    *
@@ -167,26 +167,99 @@ class DisplayController extends BaseController
     header('Content-Type: application/json');
     echo $json;
   }
+#endregion
+
+#region jwtmon
+  public function jwtTokenCheck()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    $token = $json->get('token', '', 'string');
+    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
+    $siteModel = $this->getModel('Checkin');
+    $result = $siteModel->JwtmonValidate(token: $token);
+
+    header('Content-Type: application/json');
+    echo json_encode($result);
+  }
+#endregion
+
+#region jwt_dashboard
+  public function jwtdashboardConfirm(JwtStates $state = JwtStates::issued)
+  {
+    $this->checkToken();
+
+    $result = [ 'id' => 0 ];
+
+    $json = new Json();
+    $id = $json->get('tokenid', [], 'int');
+
+    // Verify user permissions
+    $user = $this->app->getIdentity();
+    if ( $user->authorise('core.admin') && $id > 0) {
+      $return = Jwtwrapper::setDatabaseState($id, $state);
+      if ( $return) $result['id'] = $id;
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($result);
+  }
+
+  public function jwtdashboardRevoke()
+  {
+    $this->jwtdashboardConfirm(JwtStates::revoked);
+  }
+
+  #endregion
 
   public function checkinSearch()
   {
     $this->checkToken();
 
-    $search = $this->input->get('search', '', 'string');
-    $token = $this->input->get('token', '', 'string');
+    $json = new Json();
+    $search = $json->get('search', '', 'string');
+    $token = $json->get('token', '', 'string');
+    $page = $json->get('page', '', 'string');
 
     /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
     $siteModel = $this->getModel('Checkin');
-    $json = $siteModel->JwtSearch(token: $token, search: $search, scope: true);
+    $result = $siteModel->JwtSearch(token: $token, search: $search, page: $page);
 		header('Content-Type: application/json');
-		echo json_encode($json);
-
+		echo json_encode($result);
   }
 
-  public function checkinValue() {}
+  public function checkinValue()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    $search = $json->get('registration_code', '', 'string');
+    $token = $json->get('token', '', 'string');
+    $page = $json->get('page', '', 'string');
+
+    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
+    $siteModel = $this->getModel('Checkin');
+    $result = $siteModel->JwtValue(token: $token, registration_code: $search, page: $page);
+		header('Content-Type: application/json');
+		echo json_encode($result);
+  }
 
   public function checkinIssue() {}
 
-  public function checkingGetCount() {}
+  public function checkinGetCount()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    $token = $json->get('token', '', 'string');
+
+    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
+    $siteModel = $this->getModel('Checkin');
+    $text = $siteModel->JwtGetCount(token: $token);
+
+    header('Content-Type: text/plain');
+    echo $text;
+  }
 
 }

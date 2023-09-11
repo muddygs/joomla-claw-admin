@@ -12,6 +12,7 @@ namespace ClawCorp\Component\Claw\Site\Model;
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\JwtStates;
+use ClawCorpLib\Lib\Checkin;
 use ClawCorpLib\Lib\Jwtwrapper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
@@ -22,7 +23,7 @@ use Joomla\CMS\Router\Route;
  */
 class CheckinModel extends BaseDatabaseModel
 {
-  public function JwtstateInit($email, $url)
+  public function JwtstateInit($email, $subject)
   {
     $nonce = Jwtwrapper::getNonce();
     $email = trim($email);
@@ -32,25 +33,25 @@ class CheckinModel extends BaseDatabaseModel
       'token' => ''
     ];
 
-    if ( filter_var($email, FILTER_VALIDATE_EMAIL) && array_key_exists($url, Jwtwrapper::jwt_token_pages)) {
+    if ( filter_var($email, FILTER_VALIDATE_EMAIL) && array_key_exists($subject, Jwtwrapper::jwt_token_pages)) {
       $jwt = new Jwtwrapper($nonce);
-			$result = $jwt->initTokenRequest($email, $nonce, $url);
+			$result = $jwt->initTokenRequest($email, $nonce, $subject);
 			$jsonValues['state'] = $result ? JwtStates::init->value : JwtStates::error->value;
 		}
 
     return json_encode($jsonValues);
   }
 
-  public function JwtstateState($url): string
+  public function JwtstateState($subject): array
   {
     $jsonValues = [];
     $nonce = Jwtwrapper::getNonce();
     $jwt = new Jwtwrapper($nonce);
-    list($state, $token) = $jwt->getDatabaseState($nonce, $url);
+    list($state, $token) = $jwt->getDatabaseState($nonce, $subject);
 		$jsonValues['state'] = $state;
 		$jsonValues['token'] = $token;
 
-    return json_encode($jsonValues);
+    return $jsonValues;
   }
 
   public function JwtConfirm($token): string
@@ -93,10 +94,46 @@ class CheckinModel extends BaseDatabaseModel
     return json_encode($jsonValues);
   }
 
-  public function JwtSearch(string $token, string $search, bool $scope)
+  public function JwtmonValidate(string $token): array
   {
-    $postData = jwtwrapper::redirectOnInvalidToken('badge', true);
-    if (null == $postData || null == $postData->decoded) return;
-    
+    $result = [
+      'time_remaining' => 0,
+      'state' => JwtStates::error->value
+    ];
+
+		$payload = Jwtwrapper::confirmToken($token, JwtStates::issued);
+		if ($payload != null ) {
+			$exp = intval($payload->exp);
+			$remaining = max(0, $exp-time());
+			$result['state'] = $payload->state;
+			$result['time_remaining'] = $remaining;
+    }
+
+    return $result;
   }
+
+  public function JwtSearch(string $token, string $search, string $page)
+  {
+    Jwtwrapper::redirectOnInvalidToken(page: $page, token: $token);
+
+    $searchResults = Checkin::search($search, $page);
+		header('Content-Type: application/json');
+		return $searchResults;
+  }
+
+  public function JwtValue(string $token, string $registration_code, string $page)
+  {
+    Jwtwrapper::redirectOnInvalidToken(page: $page, token: $token);
+
+    $checkinRecord = new Checkin($registration_code);
+		$r = $checkinRecord->r->toObject();
+    return $r;
+  }
+
+  public function JwtGetCount(string $token)
+  {
+    Jwtwrapper::redirectOnInvalidToken(page: 'badge-print', token: $token);
+    return Checkin::getUnprintedBadgeCount();
+  }
+
 }

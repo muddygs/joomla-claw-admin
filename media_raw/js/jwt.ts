@@ -81,15 +81,15 @@ function time(): number {
 }
 
 /**
- * Check the jwt state every 5 seconds
+ * Check the jwt state for the originally requested "url" every 5 seconds
  * until timeout occurs (default 5 minutes) or token is issued or revoked.
- * If "issued," redirect page to #url input
+ * If "issued," redirect page to #url input (contained in the token).
  */
 function getNonceStatus(): void {
   var u = document.getElementById('url') as HTMLInputElement;
   if (u === null || u.value === null) return;
 
-  fetch(jwtstateAjaxUrl('jwtstateState'), jwtstateOptions('state', '', urlInput))
+  fetch(jwtstateAjaxUrl('jwtstateState'), jwtstateOptions('', '', ''))
     .then(result => result.json())
     .then(state => {
       var tokenState = state.state;

@@ -7,7 +7,6 @@ function jwtmonAjaxUrl(task: string) {
 
 function tokencheck() {
   const data = {
-    action: 'validate',
     token: jwttoken
   };
 

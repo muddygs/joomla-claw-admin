@@ -6,13 +6,10 @@ use Joomla\CMS\Factory;
 use ClawCorpLib\Lib\Jwtwrapper;
 use ClawCorpLib\Lib\Checkin;
 
-$decoded = Jwtwrapper::redirectOnInvalidToken('badge-print');
+Jwtwrapper::redirectOnInvalidToken('badge-print', $this->token);
 
 // TO DO LIST
 // Probably will want to remove form action from badgeStationCheckin.php
-
-// Determine count of badges to print for batch printing
-$toPrint = Checkin::getUnprintedBadgeCount();
 
 /** @var Joomla\CMS\Application\SiteApplication */
 $app = Factory::getApplication();
@@ -24,7 +21,7 @@ $wa->useScript('com_claw.checkin');
 ?>
 <div class="mb-2 p-1 bg-info text-white" id="jwtstatus"></div>
 <h1>Batch Printing</h1>
-<p>Badges to print: <b id="badgeCount"><?php echo $toPrint ?></b></p>
+<p>Badges to print: <b id="badgeCount"></b></p>
 <form method="post" name="claw-process-badge-batch" id="claw-process-badge-batch" class="row g-3">
   <div class="col-3">
     <label for="batchcount" class="form-label">Enter # of Badges to Print (1-50)</label>
@@ -151,7 +148,7 @@ $wa->useScript('com_claw.checkin');
     </div>
   </div>
 
-  <input type="hidden" name="token" id="token" value="<?= $decoded->token ?>" />
+  <input type="hidden" name="token" id="token" value="<?= $this->token ?>" />
 </form>
 
 <div id="status"></div>

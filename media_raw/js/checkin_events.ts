@@ -1,4 +1,6 @@
 let badgeToken = '';
+let page = 'badge-checkin';
+
 
 window.addEventListener('keydown', function (e) {
   if (e.key == 'Enter') {
@@ -15,11 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
   hide('submitPrintIssue');
 
   // If batch printing, start auto update on available quantity
-  var badgeCount = document.getElementById('badgeCount') as HTMLElement;
+  const badgeCount = document.getElementById('badgeCount') as HTMLElement;
   if ( badgeCount !== null ) {
-    setTimeout(() => {
-      getBatchCount();
-    }, 60000);
+    getBatchCount();
   }
 
   (document.getElementById("search") as HTMLInputElement)?.addEventListener("change",searchChange);
@@ -27,6 +27,8 @@ document.addEventListener("DOMContentLoaded", function () {
   (document.getElementById("submit") as HTMLInputElement)?.addEventListener('click',doCheckin);
   (document.getElementById("submitPrint") as HTMLInputElement)?.addEventListener('click',function(){doPrint()});
   (document.getElementById("submitPrintIssue") as HTMLInputElement)?.addEventListener('click',function(){doPrint(true)});
+
+  if (document.getElementById('submitPrint') != null) page = 'badge-print';
 });
 
 
@@ -101,30 +103,30 @@ function formatRecord(r: any): checkinRecord {
 }
 
 function checkinAjaxUrl(task: string) {
-	return '/administrator/index.php?option=com_claw&task=' + task + '&format=raw';
+	return '/index.php?option=com_claw&task=' + task + '&format=raw';
 }
+
+function checkinOptions(data: object) {
+  return {
+		method: 'POST',
+		body: JSON.stringify(data),
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRF-Token': Joomla.getOptions('csrf.token')
+		}
+	}
+}
+
 
 class SearchService {
   async doSearch(search: string): Promise<checkinSearch[]> {
-    let scope = 'single';
-    if (document.getElementById('submitPrint') != null) scope = 'any';
-
     const data = {
       search: search,
       token: badgeToken,
-      scope: scope
+      page: page
     };
 
-    const options = {
-      method: 'POST',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': Joomla.getOptions('csrf.token')
-      }
-    };
-
-    const res = await fetch(checkinAjaxUrl('checkinSearch'), options);
+    const res = await fetch(checkinAjaxUrl('checkinSearch'), checkinOptions(data));
     const res_1 = await res.json();
     return res_1.map((s: any) => formatSearch(s));
   }
@@ -132,21 +134,13 @@ class SearchService {
 
 class RecordService {
   async doSearch(registration_code: string): Promise<checkinRecord> {
-    var data = {
+    const data = {
       registration_code: registration_code,
-      token: badgeToken
+      token: badgeToken,
+      page: page
     };
 
-    const options = {
-      method: 'POST',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': Joomla.getOptions('csrf.token')
-      }
-    };
-
-    const recordResult = await fetch(checkinAjaxUrl('checkinValue'), options);
+    const recordResult = await fetch(checkinAjaxUrl('checkinValue'), checkinOptions(data));
     const recordResult_1 = await recordResult.json();
     return formatRecord(recordResult_1);
   }
@@ -156,14 +150,14 @@ const apiClient = new SearchService();
 const apiRecordClient = new RecordService();
 
 function loadRecord() {
-  var s = document.getElementById('searchresults') as HTMLSelectElement;
-  var v = (s.selectedOptions)[0].value;
-  var error:boolean = false;
+  const s = document.getElementById('searchresults') as HTMLSelectElement;
+  const v = (s.selectedOptions)[0].value;
+  let error:boolean = false;
   hide('submit');
 
   apiRecordClient.doSearch(v).then(results => {
     if ( results.error != '' ) {
-      var e = (document.getElementById("errorMsg") as HTMLElement);
+      const e = (document.getElementById("errorMsg") as HTMLElement);
       if ( e != null ) {
         e.innerText = results.error;
         show('errorMsg');
@@ -172,7 +166,7 @@ function loadRecord() {
     }
 
     if ( results.info != '' ) {
-      var e = (document.getElementById("infoMsg") as HTMLElement);
+      const e = (document.getElementById("infoMsg") as HTMLElement);
       if ( e != null ) {
         e.innerText = results.info;
         show('infoMsg');
@@ -181,7 +175,7 @@ function loadRecord() {
 
     Object.keys(results).forEach(element => {
       if (element != 'registration_code') {
-        var e = document.getElementById(element);
+        const e = document.getElementById(element);
         if (e !== null) {
           e.innerText = results[element as keyof checkinRecord];
 
@@ -196,7 +190,7 @@ function loadRecord() {
         }
       }
       else {
-        var x = document.getElementById('registration_code') as HTMLInputElement;
+        const x = document.getElementById('registration_code') as HTMLInputElement;
         x.value = results[element as keyof checkinRecord];
 
         if ( !error ) {
@@ -220,24 +214,16 @@ function doCheckin() {
   document.getElementById('searchresults').innerHTML = "";
   (document.getElementById('search') as HTMLInputElement).value = "";
 
-  var registration_code = (document.getElementById('registration_code') as HTMLInputElement).value;
+  const registration_code = (document.getElementById('registration_code') as HTMLInputElement).value;
   if (registration_code == null || registration_code === '') return;
 
-  var data = {
+  const data = {
     registration_code: registration_code,
     token: badgeToken
   };
 
-  const options = {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': Joomla.getOptions('csrf.token')
-    }
-  };
 
-  fetch(checkinAjaxUrl('checkinIssue'), options)
+  fetch(checkinAjaxUrl('checkinIssue'), checkinOptions(data))
     .then(result => result.json())
     .then(html => {
       show('status');
@@ -255,17 +241,19 @@ function doPrint(mode:boolean = false) {
   document.getElementById('searchresults').innerHTML = "";
   (document.getElementById('search') as HTMLInputElement).value = "";
 
-  var registration_code = (document.getElementById('registration_code') as HTMLInputElement).value;
+  const registration_code = (document.getElementById('registration_code') as HTMLInputElement).value;
   if (registration_code == null || registration_code === '') return;
 
-  var codes = [registration_code];
-  var action = mode ? 'printissue' : 'print'
+  const codes = [registration_code];
+  const action = mode ? 'printissue' : 'print'
 
+  const printUrl = checkinAjaxUrl('checkinPrint');
   window.open(printUrl + '?action=' + action + '&registration_code=' + JSON.stringify(codes) + '&token=' + badgeToken, '_blank');
 }
 
 function doBatchPrint() {
-  var batch_quantity = (document.getElementById('batchcount') as HTMLInputElement).value;
+  const batch_quantity = (document.getElementById('batchcount') as HTMLInputElement).value;
+  const printUrl = checkinAjaxUrl('checkinPrint');
   window.open(printUrl + '?action=printbatch&quantity=' + batch_quantity + '&token=' + badgeToken, '_blank');
 }
 
@@ -284,16 +272,7 @@ function getBatchCount() {
     token: badgeToken
   };
 
-  const options = {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': Joomla.getOptions('csrf.token')
-    }
-  };
-
-  fetch(checkinAjaxUrl('checkinGetCount'), options)
+  fetch(checkinAjaxUrl('checkinGetCount'), checkinOptions(data))
     .then(result => result.text())
     .then(html => {
       document.getElementById('badgeCount').innerHTML = html;
@@ -307,7 +286,7 @@ function getBatchCount() {
 
 
 function searchChange() {
-  var searchField = document.getElementById('search') as HTMLInputElement;
+  const searchField = document.getElementById('search') as HTMLInputElement;
   if (searchField === null) return;
 
   clearDisplay();
@@ -315,9 +294,9 @@ function searchChange() {
   hide('submitPrint');
   hide('submitPrintIssue');
 
-  var searchValue = searchField.value;
+  const searchValue = searchField.value;
   apiClient.doSearch(searchValue).then(results => {
-    var resultField = document.getElementById('searchresults') as HTMLSelectElement;
+    const resultField = document.getElementById('searchresults') as HTMLSelectElement;
     if (resultField === null) return;
 
     resultField.removeEventListener('change', loadRecord )
@@ -326,10 +305,10 @@ function searchChange() {
     resultField.innerHTML = "";
 
     results.forEach(s => {
-      var k = s.id;
-      var t = s.name;
+      const k = s.id;
+      const t = s.name;
 
-      var o = new Option(t, k);
+      const o = new Option(t, k);
       resultField.append(o);
     });
   })
