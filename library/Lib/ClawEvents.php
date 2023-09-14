@@ -185,7 +185,7 @@ class ClawEvents
 
   /**
    * Converts event alias to its id
-   * @param string $eventAlias Event alias
+   * @param string $eventAlias Event alias in Event Booking
    * @param bool $quiet Quietly return 0 if alias does not exist
    * @return int Event ID
    */
@@ -207,7 +207,7 @@ class ClawEvents
 
   /**
    * Given a category alias, return its category id
-   * @param string Category alias
+   * @param string Category alias in Event Booking
    * @return int Category ID
    */
   public static function getCategoryId(string $categoryAlias): int
@@ -438,29 +438,8 @@ SQL;
 
   private function LoadEventClass(string $alias): void
   {
-    // $loader = new \Composer\Autoload\ClassLoader();
-
-    // $loader->loadClass("\\ClawCorpLib\\Events\\$alias");
-
     $classname = "\\ClawCorpLib\\Events\\$alias";
     $this->event = new $classname($alias);
-
-    // $events = [];
-    // $info = (object)[];
-    // include(JPATH_LIBRARIES.'/claw/Lib/events_'.$this->clawEventAlias.'.php');
-
-    // $clawEventInfo = new EventInfo();
-
-    // foreach ( array_keys(get_class_vars("ClawCorpLib\Lib\EventInfo")) AS $k ) {
-    //     if ( !property_exists($info, $k )) {
-    //         var_dump($info);
-    //         die("Event description lacks: $k\n");
-    //     }
-    //     $clawEventInfo->$k = $info->$k;
-    // }
-
-    // $this->event->events = $events;
-    // $this->clawEventInfo = $clawEventInfo;
   }
 
   /**
