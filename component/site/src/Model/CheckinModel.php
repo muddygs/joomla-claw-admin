@@ -136,4 +136,21 @@ class CheckinModel extends BaseDatabaseModel
     return Checkin::getUnprintedBadgeCount();
   }
 
+  public function JwtMealCheckin(string $token, string $registration_code, string $meal)
+  {
+    Jwtwrapper::redirectOnInvalidToken(page: 'meals-checkin', token: $token);
+
+    $checkinRecord = new Checkin($registration_code);
+
+    if ( !$checkinRecord->isValid ) {
+      return [
+        'state' => 'error',
+        'message' => 'Invalid registration code'
+      ];
+    }
+
+    $msg = $checkinRecord->doMealCheckin($meal);
+    return $msg;
+  }
+
 }

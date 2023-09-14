@@ -17,6 +17,7 @@ use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Jwtwrapper;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
@@ -52,6 +53,33 @@ class HtmlView extends BaseHtmlView
     if ( $user->authorise('core.admin') ) {
       $this->state->set('user.admin', true);
       $this->records = Jwtwrapper::getJwtRecords();
+    }
+
+    // Prepare data for meals checkin
+    if ( 'meals-checkin' == $tpl ) {
+      $event = new ClawEvents(Aliases::current());
+      $events = $event->getEvents();
+
+      // Categories of interest
+      $mealCategories = [
+        'dinner' => 'International Leather Family Dinner', 
+        'buffet' => 'Buffets', 
+        'buffet-breakfast' => 'Brunches'
+      ];
+
+      $this->meals = [];
+
+      # TODO: could process to eliminate past events
+      foreach ( $mealCategories AS $catAlias => $desc ) {
+        $catId = ClawEvents::getCategoryId($catAlias);
+        $this->meals[-$catId] = $desc;
+        foreach ( $events AS $e ) {
+          if ( $e->category == $catId ) {
+            $this->meals[$e->eventId] = '- '.$e->description;
+          }
+        }
+      }
+
     }
 
     parent::display($tpl);

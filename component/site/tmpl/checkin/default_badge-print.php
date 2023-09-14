@@ -4,7 +4,6 @@
 
 use Joomla\CMS\Factory;
 use ClawCorpLib\Lib\Jwtwrapper;
-use ClawCorpLib\Lib\Checkin;
 
 Jwtwrapper::redirectOnInvalidToken('badge-print', $this->token);
 
@@ -135,7 +134,7 @@ $wa->useScript('com_claw.checkin');
 
   <input type="hidden" id="registration_code" value="" />
 
-  <h2 id='errorMsg'></h2>
+  <h4 id="errorMsg"></h4>
 
   <div class="form-group" id="form-print-buttons">
     <div class="row">

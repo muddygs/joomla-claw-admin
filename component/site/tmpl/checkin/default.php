@@ -3,7 +3,6 @@
 \defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\JwtStates;
-use ClawCorpLib\Helpers\Bootstrap;
 use Joomla\CMS\Factory;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Jwtwrapper;
@@ -11,16 +10,6 @@ use Joomla\CMS\HTML\HTMLHelper;
 
 $uri = Helpers::sessionGet('jwt_redirect','');
 if (substr($uri, 0, 1) == '/') $uri = substr($uri, 1);
-
-/*
-if ( '' == $uri ):
-?>
-<h1>Authentication Request</h1>
-<p class="text-danger">Direct access not permitted. Please use coordinator/manager page directly.</p>
-<?php
-	return;
-endif;
-*/
 
 /** @var Joomla\CMS\Application\SiteApplication */
 $app = Factory::getApplication();
