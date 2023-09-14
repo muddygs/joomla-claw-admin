@@ -1,34 +1,49 @@
-var mealToken = "";
-const mealCheckinUrl = "/php/checkin/mealsProcess.php"
+let token = "";
 
-function doMealCheckin() {
-  var registration_code = (document.getElementById('badgecode') as HTMLInputElement).value;
-  if ( registration_code == null || registration_code === '' ) return;
+window.addEventListener('keydown', function (e) {
+  if (e.key == 'Enter') {
+    e.preventDefault(); return false;
+  }
+}, true);
 
-  var mealEvent = (document.getElementById('mealEvent') as HTMLSelectElement).value;
-  if ( mealEvent == null || mealEvent === '' ) return;
+document.addEventListener("DOMContentLoaded", function () {
+  token = (document.getElementById('token') as HTMLInputElement).value;
+});
 
-  var data = {
-    action: "checkin",
-    registration_code: registration_code,
-    mealEvent: mealEvent,
-    token: mealToken
-  };
+function mealsAjaxUrl(task: string) {
+  return '/index.php?option=com_claw&task=' + task + '&format=raw';
+}
 
-  const options = {
+function mealsOptions(data: object) {
+  return {
     method: 'POST',
     body: JSON.stringify(data),
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': Joomla.getOptions('csrf.token')
     }
+  }
+}
+
+function doMealCheckin() {
+  const registration_code = (document.getElementById('badgecode') as HTMLInputElement).value;
+  if (registration_code == null || registration_code === '') return;
+
+  const mealEvent = (document.getElementById('mealEvent') as HTMLSelectElement).value;
+  if (mealEvent == null || mealEvent === '') return;
+
+  const data = {
+    registration_code: registration_code,
+    mealEvent: mealEvent,
+    token: token
   };
 
-  fetch(mealCheckinUrl, options)
+  fetch(mealsAjaxUrl('mealCheckin'), mealsOptions(data))
     .then(result => result.json())
     .then(html => {
       document.getElementById('status').innerHTML = html.msg;
       (document.getElementById('badgecode') as HTMLInputElement).value = html.badge;
-    }).catch( error => {
+    }).catch(error => {
       console.log("Fetch error in doMealCheckin");
       setTimeout(() => {
         doMealCheckin();
@@ -36,22 +51,6 @@ function doMealCheckin() {
     })
 }
 
-jQuery(function () {
-  jQuery(window).on('keydown', function (event) {
-    if (event.key == 'Enter') {
-      event.preventDefault();
-      return false;
-    }
-  });
-
-  mealToken = (document.getElementById('token') as HTMLInputElement).value;
-
-  jQuery('#badgecode').on('change', function() {
-    doMealCheckin();
-  });
-
-  jQuery('#badgecode').on('click', function() {
-    (document.getElementById('badgecode') as HTMLInputElement).value = '';
-  });
-});
-
+function clearcode() {
+  (document.getElementById('badgecode') as HTMLInputElement).value = '';
+}
