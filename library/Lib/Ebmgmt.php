@@ -26,7 +26,7 @@ class Ebmgmt
     $this->set('title', $title);
   }
 
-  function insert($force = false): int
+  function insert(bool $force = false): int
   {
     $db = Factory::getDbo();
 
@@ -93,9 +93,9 @@ class Ebmgmt
    * Sets a database column value, defaults to quoting value
    * @param $key Column name
    * @param $value Value to set
-   * @param $q (optional) Default: true, set to false to NOT quote
+   * @param $quoted (optional) Default: true
    */
-  function set(string $key, $value, bool $q = true): void
+  function set(string $key, $value, bool $quoted = true): void
   {
     $db = Factory::getDbo();
 
@@ -104,7 +104,7 @@ class Ebmgmt
       die('Unknown column name: '.$key);
     }
 
-    $this->defaults[$key] = $q ? $db->q($value) : $value;
+    $this->defaults[$key] = $quoted ? $db->q($value) : $value;
   }
 
   function addAdditionalCategoryId(int $categoryId)
@@ -144,16 +144,7 @@ class Ebmgmt
   private function setDefaults(): void
   {
     $db = Factory::getDbo();
-
-    # TODO: fix hard-coded table name and schema
-    $q = <<<SQL
-    SELECT `COLUMN_NAME`
-    FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_NAME = 's1fi8_eb_events' AND TABLE_SCHEMA = 'clawinfo_td7iAz07zZAglPSe'
-    ORDER BY `COLUMNS`.`COLUMN_NAME` ASC
-SQL;
-    $db->setQuery($q);
-    $this->ebEventColumns = $db->loadColumn();
+    $this->ebEventColumns = array_keys($db->getTableColumns('#__eb_events'));
 
     $this->defaults = [
       'access'=>	1,
@@ -304,15 +295,15 @@ SQL;
     sort($defaultKeys);
     sort($this->ebEventColumns);
 
-    if ( $defaultKeys != $this->ebEventColumns )
-    {?>
-    <table>
-      <tr>
-        <td style="vertical-align:top;"><pre><?php print_r($defaultKeys) ?></pre></td>
-        <td style="vertical-align:top;"><pre><?php print_r($this->ebEventColumns) ?></pre></td>
-      </tr>
-    </table>
-<?php
+    if ( $defaultKeys != $this->ebEventColumns ) {
+    ?>
+      <table>
+        <tr>
+          <td style="vertical-align:top;"><pre><?php print_r($defaultKeys) ?></pre></td>
+          <td style="vertical-align:top;"><pre><?php print_r($this->ebEventColumns) ?></pre></td>
+        </tr>
+      </table>
+    <?php
       die('Database schema out of sync with default event column values.');
     }
   }
