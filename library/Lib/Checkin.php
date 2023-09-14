@@ -469,7 +469,7 @@ class Checkin
     }
 
     // Does this badge have this meal?
-    $events = new clawEvents(Aliases::current());
+    $events = new ClawEvents(Aliases::current());
 
     $e = $events->getEventByKey('eventId',$eventId, false);
     if (null == $e) {
@@ -552,11 +552,11 @@ class Checkin
 
   private function htmlMsg(string $msg, string $classes): string
   {
-    $msg = <<< EOL
+    $msg = <<< HTML
     <div class="d-grid gap-2">
   <button class="btn btn-lg $classes" type="button">$msg</button>
 </div>
-EOL;
+HTML;
 
     $b = property_exists($this, 'r') ? $this->r->badgeId : 'error';
 
