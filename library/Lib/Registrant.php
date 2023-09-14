@@ -142,8 +142,8 @@ class Registrant
       ->from($db->qn('#__eb_registrants', 'r'))
       ->join('LEFT OUTER', $db->qn('#__eb_events', 'e') . ' ON ' . $db->qn('e.id') . ' = ' . $db->qn('r.event_id'))
       ->join('LEFT OUTER', $db->qn('#__eb_event_categories', 'c') . ' ON ' . $db->qn('c.event_id') . ' = ' . $db->qn('r.event_id'))
-      ->where($db->qn('user_id') . ' = ' . $db->quote($this->uid))
-      ->where($db->qn('invoice_number') . '!=' . $db->q('0'));
+      ->where($db->qn('r.user_id') . ' = ' . $db->quote($this->uid))
+      ->where($db->qn('r.invoice_number') . '!=' . $db->q('0'));
 
     if ( $info->mainAllowed == true && $this->enablePastEvents == false ) {
       $q->where($db->qn('e.event_end_date') . '<' . $db->q($endDate))
@@ -151,10 +151,6 @@ class Registrant
       ->where($db->qn('r.published') . '=' . EbPublishedState::published->value);
     }
 
-    if ( $info->description == 'refunds') {
-      $q->where($db->qn('r.published') . '=' . EbPublishedState::published->value);
-    }
-  
     if ( count($this->eventIdFilter) > 0 ) {
       $in = implode(',',$db->quote($this->eventIdFilter));
       $q->where($db->qn('r.event_id') . ' IN (' . $in . ')');
@@ -164,6 +160,7 @@ class Registrant
     }
 
     if ($info->description == 'refunds') {
+      $q->where('('.$db->qn('r.published') . '=' . EbPublishedState::published->value.' OR '.$db->qn('r.published') . '=' . EbPublishedState::cancelled->value.')');
       $q->order($db->qn(['r.transaction_id']));
     }
 
