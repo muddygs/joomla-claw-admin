@@ -27,11 +27,11 @@ class c0423 extends AbstractEvent
     $info->cancelBy = '2023-04-01 00:00:00'; // Varies too much to calculate
     $info->eventType = EventTypes::main;
     $info->timezone = 'America/New_York';
-    $info->active = true;
+    $info->active = false;
     return $info;
   }
 
-  public function PopulateEvents(string $prefix)
+  public function PopulateEvents(string $prefix, bool $quiet = false)
   {
     $prefix = strtolower($prefix);
 
@@ -42,6 +42,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::dinner,
       'isMainEvent' => false,
       'couponValue' => 95,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-dinner'),
       'category' => ClawEvents::getCategoryId('dinner'),
       'minShifts' => 0,
@@ -56,6 +57,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::brunch_sun,
       'isMainEvent' => false,
       'couponValue' => 65,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-brunch'),
       'category' => ClawEvents::getCategoryId('buffet-breakfast'),
       'minShifts' => 0,
@@ -70,6 +72,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::buffet_fri,
       'isMainEvent' => false,
       'couponValue' => 90,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-fri-buffet'),
       'category' => ClawEvents::getCategoryId('buffet'),
       'minShifts' => 0,
@@ -85,6 +88,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::attendee,
       'isMainEvent' => true,
       'couponValue' => 239,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-attendee'),
       'category' => ClawEvents::getCategoryId('attendee'),
       'minShifts' => 0,
@@ -99,6 +103,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::vip,
       'isMainEvent' => true,
       'couponValue' => 0,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-vip'),
       'category' => ClawEvents::getCategoryId('vip'),
       'minShifts' => 0,
@@ -113,6 +118,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::claw_staff,
       'isMainEvent' => true,
       'couponValue' => 100,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-staff-coordinator'),
       'category' => ClawEvents::getCategoryId('staff-coordinator'),
       'minShifts' => 0,
@@ -127,6 +133,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::event_staff,
       'isMainEvent' => true,
       'couponValue' => 100,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-staff-onsite'),
       'category' => ClawEvents::getCategoryId('staff-onsite'),
       'minShifts' => 0,
@@ -141,6 +148,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::event_talent,
       'isMainEvent' => true,
       'couponValue' => 100,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-staff-recruited'),
       'category' => ClawEvents::getCategoryId('staff-recruited'),
       'minShifts' => 0,
@@ -155,6 +163,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::volunteer2,
       'isMainEvent' => true,
       'couponValue' => 0,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-volunteer-2'),
       'category' => ClawEvents::getCategoryId('volunteer'),
       'minShifts' => 2,
@@ -170,6 +179,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::volunteer3,
       'isMainEvent' => true,
       'couponValue' => 0,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-volunteer-3'),
       'category' => ClawEvents::getCategoryId('volunteer'),
       'minShifts' => 3,
@@ -185,6 +195,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::volunteersuper,
       'isMainEvent' => true,
       'couponValue' => 1,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-volunteer-super'),
       'category' => ClawEvents::getCategoryId('volunteer'),
       'minShifts' => 6,
@@ -200,6 +211,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::vendor_crew,
       'isMainEvent' => true,
       'couponValue' => 239,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-vendorcrew'),
       'category' => ClawEvents::getCategoryId('vendorcrew'),
       'minShifts' => 0,
@@ -214,6 +226,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::educator,
       'isMainEvent' => true,
       'couponValue' => 100,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-educator'),
       'category' => ClawEvents::getCategoryId('educator'),
       'minShifts' => 0,
@@ -228,6 +241,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::attendee,
       'isMainEvent' => false,
       'couponValue' => 80,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-attendee'),
       'category' => ClawEvents::getCategoryId('attendee'),
       'minShifts' => 0,
@@ -242,6 +256,7 @@ class c0423 extends AbstractEvent
       'clawPackageType' => EventPackageTypes::attendee,
       'isMainEvent' => false,
       'couponValue' => 239,
+      'fee' => 0,
       'eventId' => ClawEvents::getEventId($prefix . '-attendee'),
       'category' => ClawEvents::getCategoryId('attendee'),
       'minShifts' => 0,
@@ -249,46 +264,46 @@ class c0423 extends AbstractEvent
       'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr']
     ]));
 
-    $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => 'FRI',
-      'link' => 'onsite',
-      'description' => 'Friday Day Pass',
-      'clawPackageType' => EventPackageTypes::day_pass_fri,
-      'isMainEvent' => true,
-      'couponValue' => 0,
-      'eventId' => ClawEvents::getEventId($prefix . '-daypass-fri'),
-      'category' => ClawEvents::getCategoryId('day-passes'),
-      'minShifts' => 0,
-      'requiresCoupon' => false,
-      'couponAccessGroups' => []
-    ]));
+    // $this->AppendEvent(new ClawEvent((object)[
+    //   'couponKey' => 'FRI',
+    //   'link' => 'onsite',
+    //   'description' => 'Friday Day Pass',
+    //   'clawPackageType' => EventPackageTypes::day_pass_fri,
+    //   'isMainEvent' => true,
+    //   'couponValue' => 0,
+    //   'eventId' => ClawEvents::getEventId($prefix . '-daypass-fri'),
+    //   'category' => ClawEvents::getCategoryId('day-passes'),
+    //   'minShifts' => 0,
+    //   'requiresCoupon' => false,
+    //   'couponAccessGroups' => []
+    // ]));
 
-    $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => 'SAT',
-      'link' => 'onsite',
-      'description' => 'Saturday Day Pass',
-      'clawPackageType' => EventPackageTypes::day_pass_sat,
-      'isMainEvent' => true,
-      'couponValue' => 0,
-      'eventId' => ClawEvents::getEventId($prefix . '-daypass-sat'),
-      'category' => ClawEvents::getCategoryId('day-passes'),
-      'minShifts' => 0,
-      'requiresCoupon' => false,
-      'couponAccessGroups' => []
-    ]));
+    // $this->AppendEvent(new ClawEvent((object)[
+    //   'couponKey' => 'SAT',
+    //   'link' => 'onsite',
+    //   'description' => 'Saturday Day Pass',
+    //   'clawPackageType' => EventPackageTypes::day_pass_sat,
+    //   'isMainEvent' => true,
+    //   'couponValue' => 0,
+    //   'eventId' => ClawEvents::getEventId($prefix . '-daypass-sat'),
+    //   'category' => ClawEvents::getCategoryId('day-passes'),
+    //   'minShifts' => 0,
+    //   'requiresCoupon' => false,
+    //   'couponAccessGroups' => []
+    // ]));
 
-    $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => 'SUN',
-      'link' => 'onsite',
-      'description' => 'Sunday Day Pass',
-      'clawPackageType' => EventPackageTypes::day_pass_sun,
-      'isMainEvent' => true,
-      'couponValue' => 0,
-      'eventId' => ClawEvents::getEventId($prefix . '-daypass-sun'),
-      'category' => ClawEvents::getCategoryId('day-passes'),
-      'minShifts' => 0,
-      'requiresCoupon' => false,
-      'couponAccessGroups' => []
-    ]));
+    // $this->AppendEvent(new ClawEvent((object)[
+    //   'couponKey' => 'SUN',
+    //   'link' => 'onsite',
+    //   'description' => 'Sunday Day Pass',
+    //   'clawPackageType' => EventPackageTypes::day_pass_sun,
+    //   'isMainEvent' => true,
+    //   'couponValue' => 0,
+    //   'eventId' => ClawEvents::getEventId($prefix . '-daypass-sun'),
+    //   'category' => ClawEvents::getCategoryId('day-passes'),
+    //   'minShifts' => 0,
+    //   'requiresCoupon' => false,
+    //   'couponAccessGroups' => []
+    // ]));
   }
 }

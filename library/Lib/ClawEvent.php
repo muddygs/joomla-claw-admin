@@ -10,10 +10,12 @@ use ClawCorpLib\Enums\EventPackageTypes;
 class ClawEvent
 {
     public string $description = '';
+    public string $alias = '';
     public EventPackageTypes $clawPackageType = EventPackageTypes::none;
     public bool $isMainEvent = false;
     public string $couponKey = '';
     public int $couponValue = 0;
+    public int $fee = 0;
     public int $eventId = 0;
     public int $category = 0;
     public int $minShifts = 0;
@@ -35,6 +37,7 @@ class ClawEvent
             'clawPackageType',
             'isMainEvent',
             'couponValue',
+            'fee',
             'eventId',
             'category',
             'minShifts',
@@ -43,6 +46,7 @@ class ClawEvent
         ];
 
         $optionalKeys = [
+            'alias',
             'isAddon',
             'link',
             'authNetProfile',

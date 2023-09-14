@@ -6,6 +6,7 @@ defined('_JEXEC') or die('Restricted access');
 
 use ClawCorpLib\Lib\ClawEvent;
 use ClawCorpLib\Lib\EventInfo;
+use ReflectionClass;
 
 abstract class AbstractEvent
 {
@@ -13,7 +14,7 @@ abstract class AbstractEvent
   private array $events;
 
   public function __construct(
-    public string $alias
+    public string $alias,
   )
   {
     $this->events = [];
@@ -50,5 +51,5 @@ abstract class AbstractEvent
   }
 
   abstract public function PopulateInfo();
-  abstract public function PopulateEvents(string $prefix);
+  abstract public function PopulateEvents(string $prefix, bool $quiet = false);
 }

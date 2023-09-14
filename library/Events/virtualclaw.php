@@ -31,7 +31,7 @@ class virtualclaw extends AbstractEvent
     return $info;
   }
 
-  public function PopulateEvents(string $prefix)
+  public function PopulateEvents(string $prefix, bool $quiet = false)
   {
     $prefix = strtolower($prefix);
 
