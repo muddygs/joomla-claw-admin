@@ -50,6 +50,7 @@ class EventInfo
       }
 
       $enddate = $date->modify($this->end_date);
+      $enddate->setTime(23, 59, 59);
       $this->end_date = $enddate->toSql();
 
       // Validate location exists in eventbooking
