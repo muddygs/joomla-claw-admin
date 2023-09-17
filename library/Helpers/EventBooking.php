@@ -48,7 +48,7 @@ class EventBooking
     // Ignore mailchimp subscription if not on clawinfo.org (i.e., dev site)
     $uri_path = Uri::getInstance()->getHost();
     if (strpos($uri_path, 'clawinfo') === false) {
-      return;
+      // return;
     }
 
     // TODO: use DIRECTORY_SEPARATOR
@@ -56,13 +56,12 @@ class EventBooking
     require_once JPATH_ROOT . '/../mailchimp_constants.php';
     require_once JPATH_LIBRARIES . '/claw/External/mailchimp-marketing-php/vendor/autoload.php';
 
-    $client = new MailchimpMarketing\ApiClient();
+    $client = new \MailchimpMarketing\ApiClient();
 
     $client->setConfig([
       'apiKey' => \Constants::MAILCHIMP_APIKEY,
       'server' => \Constants::MAILCHIMP_SERVER,
     ]);
-
 
     $list_id = \Constants::MAILCHIMP_LISTID;
 
@@ -74,8 +73,6 @@ class EventBooking
 
     try {
       $response = $client->lists->getListMember($list_id, $email_hash);
-
-      print_r($response);
 
       foreach ($response->interests as $id => $value) {
         $interests[$id] = $value == 1 ? true : false;
