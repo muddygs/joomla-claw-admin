@@ -97,6 +97,17 @@
       "attributes": {
         "defer": true
       }
+    },
+    {
+      "name": "com_claw.meals",
+      "type": "script",
+      "uri": "com_claw/mealcheckin_events.js",
+      "dependencies": [
+        "core"
+      ],
+      "attributes": {
+        "defer": true
+      }
     }
 
 
