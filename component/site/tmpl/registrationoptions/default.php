@@ -157,7 +157,13 @@ $wa->useScript('com_claw.toast');
 <?php
 #endregion Toast
 
-$clawEvents = new ClawEvents(Aliases::current());
+$clawEvents = new ClawEvents($eventAlias);
+$eventInfo = $clawEvents->getClawEventInfo();
+
+// Cache date limits for this event to filter in .../model/list.php
+Helpers::sessionSet('filter_start' , $eventInfo->start_date);
+Helpers::sessionSet('filter_end' , $eventInfo->end_date);
+
 $regEvent = $clawEvents->getEventByKey('clawPackageType', $clawPackageType);
 
 // Auto add this registration to the cart
