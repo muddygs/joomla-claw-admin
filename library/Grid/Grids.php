@@ -22,7 +22,7 @@ class Grids
   private DatabaseDriver $db;
 
   public function __construct(
-    public array $coodinators = []
+    private string $eventAlias
   ) {
     $this->db = Factory::getContainer()->get('DatabaseDriver');
   }
@@ -31,18 +31,19 @@ class Grids
   {
     $days = Helpers::getDays();
 
-    $events = new ClawEvents(Aliases::current());
+    $events = new ClawEvents($this->eventAlias);
     $eventInfo = $events->getClawEventInfo();
 
-    $event_count = 0;
-    $this->loadGridsByEventAlias(Aliases::current());
+    $newEvents = 0;
+    $possibleEvents = 0;
+    $this->loadGridsByEventAlias();
 
     // ===== Update these for new imports =====
     $basetime = strtotime($eventInfo->start_date);
     $prefix = $eventInfo->shiftPrefix;
     $cutoffdate = $eventInfo->start_date;
 
-    $location = ClawEvents::getLocationId($eventInfo->location);
+    $location = ClawEvents::getLocationId($eventInfo->locationAlias);
 
     $shiftAreas = Config::getColumn('shift_shift_area');
 
@@ -76,13 +77,14 @@ class Grids
       if ( $currentGid != $grid->id ) {
         if ( count($currentGriditems) ) {
           $this->updateGrids($currentGid, $currentGriditems);
-          break;
         }
 
         $currentGid = $grid->id;
         $currentGriditems = [];
       }
 
+      if ( $grid->needed > 0 ) $possibleEvents++;
+      
       if ( $grid->event_id != 0 || $grid->needed < 1 || $grid->shift_area == 'tbd' ) {
         continue;
       }
@@ -135,7 +137,7 @@ class Grids
 
       <?php
         $currentGriditems[] = $grid;
-        $event_count++;
+        $newEvents++;
       endif;
 
     }
@@ -143,9 +145,13 @@ class Grids
     ?>
       </tbody>
     </table>
+    <pre>Events added <?= $newEvents ?> of <?= $possibleEvents ?> configured.</pre>
     <?php
 
-    echo "<pre>Events Added: $event_count</pre>";
+    if ( count($currentGriditems) ) {
+      $this->updateGrids($currentGid, $currentGriditems);
+    }
+    
   } 
 
   private function updateGrids(int $shift_id, array $gridItems)
@@ -178,14 +184,14 @@ class Grids
     $query = $this->db->updateObject('#__claw_shifts', $shift, 'id', true);
   }
 
-  private function loadGridsByEventAlias(string $eventAlias)
+  private function loadGridsByEventAlias(): void
   {
     $query = $this->db->getQuery(true);
     $query->select('*')
       ->from('#__claw_shifts')
       ->where('event = :event')
       ->where('published = 1')
-      ->bind(':event', $eventAlias)
+      ->bind(':event', $this->eventAlias)
       ->order('id');
     $this->db->setQuery($query);
 
@@ -201,6 +207,8 @@ class Grids
     $days = Helpers::getDays();
 
     $grids = json_decode($shift->grid);
+
+    // var_dump($grids);
 
     $data = get_object_vars($shift);
     $coordinators = json_decode($data['coordinators']);
@@ -219,7 +227,7 @@ class Grids
           length: $g->length,
           title: $data['title'],
           description: $data['description'],
-          event: Aliases::current(),
+          event: $this->eventAlias,
           shift_area: $data['shift_area'],
           requirements: $data['requirements'],
           coordinators: $coordinators,
