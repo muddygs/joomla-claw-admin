@@ -14,6 +14,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Helper\ContentHelper;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 
@@ -125,25 +126,19 @@ class HtmlView extends BaseHtmlView
 		);
 
 		$toolbarButtons = [];
+		$user = Factory::getApplication()->getIdentity();
 
-		// If not checked out, can save the item.
-		if (true /*!$checkedOut && ($canDo->get('core.edit') || \count($user->getAuthorisedCategories('com_claw', 'core.create')) > 0)*/) {
-				ToolbarHelper::apply('skill.apply');
-				$toolbarButtons[] = ['save', 'skill.save'];
+		if ( $user->authorise('claw.skills', 'com_claw') ) {
+			ToolbarHelper::apply('skill.apply');
+			$toolbarButtons[] = ['save', 'skill.save'];
 
-				if (true /*$canDo->get('core.create')*/) {
-						$toolbarButtons[] = ['save2new', 'skill.save2new'];
-				}
-		}
-
-		// If an existing item, can save to a copy.
-		if (!$isNew /*&& $canDo->get('core.create')*/) {
-				$toolbarButtons[] = ['save2copy', 'skill.save2copy'];
+				$toolbarButtons[] = ['save2new', 'skill.save2new'];
+			// $toolbarButtons[] = ['save2copy', 'skill.save2copy'];
 		}
 
 		ToolbarHelper::saveGroup(
-				$toolbarButtons,
-				'btn-success'
+			$toolbarButtons,
+			'btn-success'
 		);
 
 
