@@ -8,8 +8,8 @@
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2023 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>0.1.0</version>
-  <description>Displays sponsor logos</description>
+  <version>0.1.1</version>
+  <description>Displays cart icon</description>
 
   <namespace path="src">ClawCorp\Module\Cart</namespace>
 
