@@ -23,7 +23,7 @@ INSERT INTO `#__claw_field_values` (`id`, `fieldname`, `value`, `text`) VALUES
 (0, 'shift_shift_area', 'se', 'Skills & Education'),
 (0, 'shift_shift_area', 'badgecheck', 'Badge Check'),
 (0, 'shift_shift_area', 'events', 'Events'),
-(0, 'shift_shift_area', 'volhosp', 'Volunteer Hospitality'),
+(0, 'shift_shift_area', 'hospitality', 'Volunteer Hospitality'),
 (0, 'shift_shift_area', 'silentauction', 'Silent Auction'),
 (0, 'shift_shift_area', 'artshow', 'Art Show'),
 (0, 'shift_shift_area', 'specialty', 'Specialty'),
