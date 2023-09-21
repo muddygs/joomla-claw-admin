@@ -11,7 +11,7 @@ function getCouponFormData(): { [k: string]: FormDataEntryValue; } {
 }
 
 function couponAjaxUrl(task: string): string {
-	return '/administrator/index.php?option=com_claw&task=' + task + '&format=raw';
+	return `/administrator/index.php?option=com_claw&task=${task}&format=raw`;
 }
 
 function couponOptions(): { method: string; body: string; headers: { 'Content-Type': string; 'X-CSRF-Token': string; }; } {
