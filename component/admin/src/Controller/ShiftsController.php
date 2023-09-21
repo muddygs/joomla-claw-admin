@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -13,23 +13,30 @@ namespace ClawCorp\Component\Claw\Administrator\Controller;
 \defined('_JEXEC') or die;
 
 use ClawCorpLib\Grid\Grids;
-use Joomla\CMS\Application\CMSApplication;
-use Joomla\CMS\Factory;
-// use Joomla\CMS\Language\Text;
+use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\MVC\Controller\AdminController;
-use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\Input\Input;
 
 /**
  * Shifts list controller class.
- *
- * @since  1.6
  */
 class ShiftsController extends AdminController
 {
 	public function process()
 	{
-		$grid = new Grids();
+		$filter = $this->app->getInput()->get('filter', '', 'string');
+
+		$event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
+
+    switch ($event) {
+      case '':
+      case '_current_':
+        $event = Aliases::current();
+        break;
+      case '_all_':
+        $event = '';
+    }
+
+		$grid = new Grids($event);
 		$grid->createEvents();
 	}
 
