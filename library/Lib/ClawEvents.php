@@ -11,6 +11,8 @@ use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Lib\EventInfo;;
 
 use ClawCorpLib\Lib\Aliases;
+use ReflectionClass;
+use ReflectionException;
 use UnexpectedValueException;
 
 \defined('_JEXEC') or die;
@@ -33,9 +35,7 @@ class ClawEvents
 
   public function __construct(string $clawEventAlias)
   {
-    $eventAliases = array_merge(Aliases::active(), Aliases::inactive());
-
-    if (!in_array($clawEventAlias, $eventAliases)) {
+    if (!in_array($clawEventAlias, Aliases::active())) {
       die(__FILE__ . ': Invalid event request: ' . $clawEventAlias);
     }
 
@@ -427,13 +427,30 @@ SQL;
       if ( $class == 'AbstractEvent' ) continue;
 
       $classname = "\\ClawCorpLib\\Events\\$class";
-      $event = new $classname($class);
 
-      $EventList[$class] = $event->getInfo();
+      $reflection = new ReflectionClass($classname);
+      /** @var \ClawCorpLib\Event\AbstractEvent */
+      $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
+      $info = new EventInfo($instance->PopulateInfo());
+      if ( !$info->active ) continue;
+
+      $EventList[$class] = $info;
     }
 
     self::$_EventList = $EventList;
     return $EventList;
+  }
+
+  /**
+   * Validates if the event alias is from a valid and active event
+   * @param string $alias 
+   * @return bool 
+   * @throws ReflectionException 
+   */
+  public static function isValidEventAlias(string $alias): bool
+  {
+    $EventList = self::GetEventList();
+    return array_key_exists($alias, $EventList);
   }
 
   private function LoadEventClass(string $alias): void
@@ -444,17 +461,14 @@ SQL;
 
   /**
    * This is a special case, used only for refunds, to identify all events that
-   * uses the arrays Aliases::active and Aliases::past
+   * pulls in all "active" events and merges them into a meta event
    */
   private function defineHistoricEventMapping(): void
   {
     $classname = "\\ClawCorpLib\\Events\\refunds";
     $this->event = new $classname('refunds');
 
-    $clawEventInfo = $this->event->getInfo();
-
-    $events = [];
-    foreach(array_merge(Aliases::active(), Aliases::inactive()) AS $alias ) {
+    foreach(Aliases::active() AS $alias ) {
       if ( $alias == 'refunds' ) continue;
 
       $classname = "\\ClawCorpLib\\Events\\$alias";

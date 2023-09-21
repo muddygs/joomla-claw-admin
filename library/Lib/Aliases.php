@@ -24,9 +24,6 @@ class Aliases {
   static function active() {
     return Config::getActiveEventAliases();
   }
-  static function inactive() {
-    return Config::getInactiveEventAliases();
-  }
   
   // For refunds, allow past events to be identified
   // Also used for checking if volunteer is in good starting in registrationsurvey.php

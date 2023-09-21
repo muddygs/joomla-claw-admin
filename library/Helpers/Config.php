@@ -119,16 +119,4 @@ class Config
     }
     return array_keys($eventList);
   }
-
-  public static function getInactiveEventAliases(): array
-  {
-    $eventList = ClawEvents::GetEventList();
-    foreach ( $eventList AS $alias => $eventInfo ) {
-      if ( $eventInfo->active ) {
-        unset($eventList[$alias]);
-      }
-    }
-    return array_keys($eventList);
-  }
-
 }
