@@ -56,8 +56,8 @@ Bootstrap::writeGrid($content, $tags);
 <?php
 $content = [
     'ticket-alt' => ['Coupon Generator','<a href="/administrator/index.php?option=com_claw&view=coupongenerator&layout=edit" role="button" class="btn btn-danger">Launch</a>'],
-    'user-tag' => ['Refunds','<a href="/administrator/index.php?option=com_claw&view=refunds&layout=edit" role="button" class="btn btn-danger">Launch</a>'],
-    #'user-tag' => ['CLAW Nation','Please enter your CLAW Nation coupon code above and click Start Registration or contact <a href="/planning/guest-services?category_id=10">guest services</a> to obtain your registration coupon - CLAW NATION ONLY.'],
+    'user-tag'   => ['Refunds','<a href="/administrator/index.php?option=com_claw&view=refunds&layout=edit" role="button" class="btn btn-danger">Launch</a>'],
+    'copy'       => ['Event Copy','<a href="/administrator/index.php?option=com_claw&view=eventcopy&layout=edit" role="button" class="btn btn-danger">Launch</a>'],
   ];
 
 Bootstrap::writeGrid($content, $tags);
