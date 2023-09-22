@@ -27,13 +27,6 @@ return new class implements ServiceProviderInterface
 
   public function register(Container $container): void
   {
-    // Require the CLAW Libraries
-    if (!defined('CLAW_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/claw/init.php')) {
-      throw new RuntimeException('CLAW library is not installed', 500);
-    }
-
-
-
     $container->registerServiceProvider(new CategoryFactory('\\ClawCorp\\Component\\Claw'));
     $container->registerServiceProvider(new MVCFactory('\\ClawCorp\\Component\\Claw'));
     $container->registerServiceProvider(new ComponentDispatcherFactory('\\ClawCorp\\Component\\Claw'));
