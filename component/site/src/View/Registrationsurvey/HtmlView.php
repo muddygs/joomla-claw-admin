@@ -16,11 +16,14 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Coupon;
-use ClawCorpLib\Lib\Coupons;
 use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ReflectionClass;
+
+require_once(JPATH_ROOT . '/components/com_eventbooking/helper/cart.php');
+require_once(JPATH_ROOT . '/components/com_eventbooking/helper/database.php');
+require_once(JPATH_ROOT . '/components/com_eventbooking/helper/helper.php');
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
@@ -43,6 +46,17 @@ class HtmlView extends BaseHtmlView
     
     $this->params = $params = $this->app->getParams();
     $this->eventAlias = $params->get('eventAlias', Aliases::current());
+
+    // Do we need to clear the cart (i.e., when switching events)?
+    $oldEventAlias = Helpers::sessionGet('eventAlias');
+    if ( $oldEventAlias != $this->eventAlias ) {
+      $cart = new \EventbookingHelperCart();
+      $cart->reset();
+    }
+
+    /**************************************************************
+     * SET EVENT ALIAS
+     **************************************************************/
     Helpers::sessionSet('eventAlias', $this->eventAlias);
     
     $this->events = new ClawEvents($this->eventAlias);
