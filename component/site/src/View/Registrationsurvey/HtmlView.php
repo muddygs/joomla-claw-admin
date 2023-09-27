@@ -70,7 +70,10 @@ class HtmlView extends BaseHtmlView
 
       $registrant = new Registrant($this->eventAlias, $this->uid);
       $registrant->loadCurrentEvents();
-      $this->mainEvent = $registrant->getMainEvent();
+      $mainEvent = $registrant->getMainEvent();
+      if ( $mainEvent ) {
+        $this->mainEvent = $mainEvent;
+      } 
 
       $this->autoCoupon = $this->getUserCoupon();
     }
