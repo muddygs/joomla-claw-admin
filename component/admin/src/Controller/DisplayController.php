@@ -129,7 +129,7 @@ class DisplayController extends BaseController
   }
 #endregion Refunds
 
-#region Copy Event
+#region Copy/Create Events
   public function doCopyEvent()
   {
     $this->checkToken();
@@ -138,6 +138,42 @@ class DisplayController extends BaseController
     /** @var \ClawCorp\Component\Claw\Administrator\Model\EventcopyModel */
     $model = $this->getModel('Eventcopy');
     $text = $model->doCopyEvent($json);
+    header('Content-Type: text/plain');
+    echo $text;
+  }
+
+  public function doCreateEvents()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\EventcopyModel */
+    $model = $this->getModel('Eventcopy');
+    $text = $model->doCreateEvents($json);
+    header('Content-Type: text/plain');
+    echo $text;
+  }
+
+  public function doCreateSpeedDating()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\EventcopyModel */
+    $model = $this->getModel('Eventcopy');
+    $text = $model->doCreateSpeedDating($json);
+    header('Content-Type: text/plain');
+    echo $text;
+  }
+
+  public function doCreateSponsorships()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\EventcopyModel */
+    $model = $this->getModel('Eventcopy');
+    $text = $model->doCreateSponsorships($json);
     header('Content-Type: text/plain');
     echo $text;
   }

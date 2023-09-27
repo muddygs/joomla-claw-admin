@@ -33,11 +33,25 @@ $wa->useScript('com_claw.copyevent');
       <input name="submit" id="submit" type="button" value="Copy Event" class="btn btn-info mb-2" onclick="copyEvent()"/>
     </div>
   </div>
+  <hr/>
+  <h2>Select "To Event" and click an action button to create the events in Event Booking</h2>
+  <div class="row">
+    <div class="col-12 col-lg-4">
+      <input name="submit" id="submit" type="button" value="Create Events" class="btn btn-danger mb-2" onclick="createEvents()"/>
+    </div>
+    <div class="col-12 col-lg-4">
+      <input name="submit" id="submit" type="button" value="Create Speed Dating" class="btn btn-warning mb-2" onclick="createSpeeddating()"/>
+    </div>
+    <div class="col-12 col-lg-4">
+      <input name="submit" id="submit" type="button" value="Create Sponsorships" class="btn btn-warning mb-2" onclick="createSponsorships()"/>
+    </div>
+  </div>
+
 </form>
 
 
 <hr/>
-<h2>Results of Copy:</h2>
+<h2>Action Results:</h2>
 <div id="results"></div>
 
 <?php echo HTMLHelper::_('form.token'); ?>
