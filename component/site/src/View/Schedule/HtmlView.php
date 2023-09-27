@@ -23,6 +23,7 @@ use ClawCorpLib\Lib\ClawEvents;
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
 {
+  public \ClawCorpLib\Lib\EventInfo $eventInfo;
   
   public function display($tpl = null)
   {
@@ -45,9 +46,9 @@ class HtmlView extends BaseHtmlView
     $this->sponsors = new Sponsors();
     $schedule = new Schedule($eventAlias, $db);
     $event = new ClawEvents($eventAlias);
-    $eventInfo = $event->getClawEventInfo();
+    $this->eventInfo = $event->getClawEventInfo();
 
-    $dates = Helpers::getDateArray($eventInfo->start_date, true);
+    $dates = Helpers::getDateArray($this->eventInfo->start_date, true);
 
     $this->events = [];
     $this->start_date = '';
@@ -75,7 +76,7 @@ class HtmlView extends BaseHtmlView
     }
 
     // Set default tab
-    if ( Aliases::onsiteActive ) {
+    if ( $this->eventInfo->onsiteActive ) {
       $this->start_tab = date('D', strtotime($dates[date('D')]));
     } else {
       $this->start_tab = date('D', strtotime($this->start_date));

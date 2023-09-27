@@ -31,7 +31,7 @@ foreach ($this->items AS $item) {
   $id = $item->id;
   $event = $item->event_title;
 
-  if ( Aliases::onsiteActive ) {
+  if ( $this->eventInfo->onsiteActive ) {
     $event_description = $item->onsite_description == '' ?  $item->event_description : $item->onsite_description;
   } else {
     $event_description = $item->event_description;
@@ -44,7 +44,7 @@ foreach ($this->items AS $item) {
     $location->value = '';
   }
 
-  if ( Aliases::onsiteActive ) {
+  if ( $this->eventInfo->onsiteActive ) {
     $event_description = $item->onsite_description == '' ?  $item->event_description : $item->onsite_description;
   } else {
     $event_description = $item->event_description;
