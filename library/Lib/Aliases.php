@@ -33,7 +33,6 @@ class Aliases {
   #const timezone = 'America/New_York';
 
   const defaultPrefix = 'L23'; // Use C for CLAW, L for Leather Getaway, V for Virtual CLAW
-  const onsiteActive = false;
   const onsiteCoupon = 'ONSITE-CASH'; // TODO: Remove all usage of this
   
   static function shiftCategories() {

@@ -233,7 +233,7 @@ class Authnetprofile {
     require_once JPATH_ROOT . '/../authnet_constants.php';
 
     $uri_path = Uri::getInstance()->getHost();
-    if (strpos($uri_path, 'clawinfo') !== false) {
+    if (str_contains($uri_path, 'clawinfo') && !str_contains($uri_path, 'sandbox')) {
       if (!defined('ANET_URL')) define('ANET_URL', \net\authorize\api\constants\ANetEnvironment::PRODUCTION);
       $merchantId = \Constants::MERCHANT_LOGIN_ID;
       $key = \Constants::MERCHANT_TRANSACTION_KEY;

@@ -20,6 +20,7 @@ class EventInfo
   public string $timezone = '';
   public bool $active = true;
   public EventTypes $eventType = EventTypes::none;
+  public bool $onsiteActive = false;
 
   /**
    * Event info object with simple date validation if main events are allowed

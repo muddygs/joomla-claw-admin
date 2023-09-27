@@ -32,6 +32,10 @@ enum EventPackageTypes: int
   case pass = 18;
   case vip = 20;
 
+  // Additional options for registration options
+  case addons = 27;
+  case vip2 = 28;
+
   public function toString(): string
   {
     return match ($this) {
@@ -62,7 +66,7 @@ enum EventPackageTypes: int
       if ( $c->value == $key ) return $c;
     }
 
-    die('Cannot find EventPackageTypes');
+    throw(new \Exception("Invalid EventPackageTypes value: $key"));
   }
 
 }

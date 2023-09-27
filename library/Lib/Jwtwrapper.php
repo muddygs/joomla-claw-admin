@@ -467,7 +467,7 @@ class Jwtwrapper
     $id = Helpers::getUserIdByEmail($db, $email);
     if (0 == $id) return false;
 
-    $groups = Helpers::getUserGroupsByName($db, $id);
+    $groups = Helpers::getUserGroupsByName($id);
     if (count($groups) == 0) return false;
 
     if (!array_key_exists('Super Users', $groups) && !array_key_exists(Jwtwrapper::jwt_token_pages[$subject]['group'], $groups)) return false;

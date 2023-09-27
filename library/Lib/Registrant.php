@@ -7,6 +7,7 @@ use Joomla\CMS\Factory;
 
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EbRecordIndexType;
+use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Lib\Aliases;
 use UnexpectedValueException;
 
@@ -15,27 +16,23 @@ class Registrant
   private array $_records = [];
   private $indexType = '';
 
-  private int $uid = 0;
-  private $eventIdFilter;
-  private bool $enablePastEvents = false;
   var $badgeId = '';
 
   private $clawEvents = null;
   public int $count = 0;
 
-  public function __construct(string $clawEventAlias, int $uid, array $eventIdFilter = [], bool $enablePastEvents = false)
+  public function __construct(
+    private string $clawEventAlias, 
+    private int $uid, 
+    private array $eventIdFilter = [], 
+    private bool $enablePastEvents = false)
   {
     if ( 0 == $uid ) {
       throw(new UnexpectedValueException('User ID cannot be zero when retrieving registrant record'));
     }
 
-    $this->clawEvents = new ClawEvents($clawEventAlias, $enablePastEvents);
-
-    $this->uid=$uid;
-    $this->eventIdFilter = $eventIdFilter;
-
+    $this->clawEvents = new ClawEvents($clawEventAlias);
     $this->badgeId = $this->clawEvents->getClawEventInfo()->prefix.'-'. str_pad($uid, 5, '0', STR_PAD_LEFT);
-    $this->enablePastEvents = $enablePastEvents;
   }
 
   /**
@@ -67,6 +64,24 @@ class Registrant
     }
 
     return null;
+  }
+
+  public static function getMainEvents(int $uid): array
+  {
+    // Array of registrant records
+    $result = [];
+
+    // Get list of active events with mainAllowed = true
+    $aliases = Config::getActiveEventAliases(mainOnly: true);
+
+    foreach ( $aliases as $alias ) {
+      $r = new Registrant($alias, $uid);
+      /** @var \ClawCorpLib\Lib\RegistrantRecord */
+      $main = $r->getMainEvent();
+      if ( !is_null($main) ) $result[$main->event->eventId] = $main;
+    }
+
+    return $result;
   }
 
   /**
@@ -176,7 +191,7 @@ class Registrant
         $r->link = $event->link;
       }
 
-      $this->_records[$k] = new RegistrantRecord($r);
+      $this->_records[$k] = new RegistrantRecord($this->clawEventAlias, $r);
     }
 
     $this->count = count($this->_records);
@@ -367,7 +382,7 @@ SQL;
    */
   public function addRecord(int $key, object $record): void
   {
-    $this->_records[$key] = new RegistrantRecord($record);
+    $this->_records[$key] = new RegistrantRecord($this->clawEventAlias, $record);
   }
 
   public function checkOverlaps(array $categoryIds): array

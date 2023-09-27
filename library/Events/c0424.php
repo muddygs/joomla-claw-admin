@@ -10,10 +10,12 @@ use ClawCorpLib\Lib\ClawEvent;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Lib\EventInfo;
+use Joomla\Input\Json;
 
 class c0424 extends AbstractEvent
 {
-  public function PopulateInfo()
+  public function PopulateInfo(): EventInfo
   {
     $info = (object)[];
     $info->description = 'CLAW 24';
@@ -28,7 +30,9 @@ class c0424 extends AbstractEvent
     $info->timezone = 'America/New_York';
     $info->eventType = EventTypes::main;
     $info->active = true;
-    return $info;
+    $info->onsiteActive = false;
+    
+    return new EventInfo($info);
   }
 
   public function PopulateEvents(string $prefix, $quiet = false)
@@ -46,7 +50,7 @@ class c0424 extends AbstractEvent
       'isMainEvent' => true,
       'couponValue' => $base,
       'fee' => $base,
-      'eventId' => ClawEvents::getEventId($prefix . '-attendee', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-attendee', $quiet),
       'category' => ClawEvents::getCategoryId('attendee'),
       'minShifts' => 0,
       'requiresCoupon' => false,
@@ -62,7 +66,7 @@ class c0424 extends AbstractEvent
       'isMainEvent' => true,
       'couponValue' => 0,
       'fee' => 750,
-      'eventId' => ClawEvents::getEventId($prefix . '-vip', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-vip', $quiet),
       'category' => ClawEvents::getCategoryId('vip'),
       'minShifts' => 0,
       'requiresCoupon' => false,
@@ -75,14 +79,15 @@ class c0424 extends AbstractEvent
       'link' => $prefix . '-reg-claw',
       'description' => 'Coordinator',
       'clawPackageType' => EventPackageTypes::claw_staff,
+      'isVolunteer' => true,
       'isMainEvent' => true,
       'couponValue' => 100,
       'fee' => 100,
-      'eventId' => ClawEvents::getEventId($prefix . '-staff-coordinator', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-staff-coordinator', $quiet),
       'category' => ClawEvents::getCategoryId('staff-coordinator'),
       'minShifts' => 0,
       'requiresCoupon' => true,
-      'couponAccessGroups' => ['Super Users', 'Administrator']
+      'couponAccessGroups' => ['Super Users', 'Administrator'],
     ]));
 
     $this->AppendEvent(new ClawEvent((object)[
@@ -91,10 +96,11 @@ class c0424 extends AbstractEvent
       'link' => $prefix . '-reg-sta',
       'description' => 'Onsite Staff',
       'clawPackageType' => EventPackageTypes::event_staff,
+      'isVolunteer' => true,
       'isMainEvent' => true,
       'couponValue' => 100,
       'fee' => 100,
-      'eventId' => ClawEvents::getEventId($prefix . '-staff-onsite', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-staff-onsite', $quiet),
       'category' => ClawEvents::getCategoryId('staff-onsite'),
       'minShifts' => 0,
       'requiresCoupon' => true,
@@ -107,10 +113,11 @@ class c0424 extends AbstractEvent
       'link' => $prefix . '-reg-tal',
       'description' => 'Recruited Volunteer',
       'clawPackageType' => EventPackageTypes::event_talent,
+      'isVolunteer' => true,
       'isMainEvent' => true,
       'couponValue' => 100,
       'fee' => 100,
-      'eventId' => ClawEvents::getEventId($prefix . '-staff-recruited', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-staff-recruited', $quiet),
       'category' => ClawEvents::getCategoryId('staff-recruited'),
       'minShifts' => 0,
       'requiresCoupon' => true,
@@ -123,10 +130,11 @@ class c0424 extends AbstractEvent
       'link' => $prefix . '-reg-vol2',
       'description' => 'Volunteer 2 Shifts',
       'clawPackageType' => EventPackageTypes::volunteer2,
+      'isVolunteer' => true,
       'isMainEvent' => true,
       'couponValue' => 0,
       'fee' => 99,
-      'eventId' => ClawEvents::getEventId($prefix . '-volunteer-2', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-volunteer-2', $quiet),
       'category' => ClawEvents::getCategoryId('volunteer'),
       'minShifts' => 2,
       'requiresCoupon' => false,
@@ -140,10 +148,11 @@ class c0424 extends AbstractEvent
       'link' => $prefix . '-reg-vol3',
       'description' => 'Volunteer 3 Shifts',
       'clawPackageType' => EventPackageTypes::volunteer3,
+      'isVolunteer' => true,
       'isMainEvent' => true,
       'couponValue' => 0,
       'fee' => 1,
-      'eventId' => ClawEvents::getEventId($prefix . '-volunteer-3', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-volunteer-3', $quiet),
       'category' => ClawEvents::getCategoryId('volunteer'),
       'minShifts' => 3,
       'requiresCoupon' => false,
@@ -157,10 +166,11 @@ class c0424 extends AbstractEvent
       'link' => $prefix . '-reg-super',
       'description' => 'Super Volunteer',
       'clawPackageType' => EventPackageTypes::volunteersuper,
+      'isVolunteer' => true,
       'isMainEvent' => true,
       'couponValue' => 1,
       'fee' => 1,
-      'eventId' => ClawEvents::getEventId($prefix . '-volunteer-super', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-volunteer-super', $quiet),
       'category' => ClawEvents::getCategoryId('volunteer'),
       'minShifts' => 6,
       'requiresCoupon' => true,
@@ -177,7 +187,7 @@ class c0424 extends AbstractEvent
       'isMainEvent' => true,
       'couponValue' => $base,
       'fee' => $base,
-      'eventId' => ClawEvents::getEventId($prefix . '-vendorcrew', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-vendorcrew', $quiet),
       'category' => ClawEvents::getCategoryId('vendorcrew'),
       'minShifts' => 0,
       'requiresCoupon' => true,
@@ -190,10 +200,11 @@ class c0424 extends AbstractEvent
       'link' => $prefix . '-reg-edu',
       'description' => 'Educator',
       'clawPackageType' => EventPackageTypes::educator,
+      'isVolunteer' => true,
       'isMainEvent' => true,
       'couponValue' => 100,
       'fee' => 100,
-      'eventId' => ClawEvents::getEventId($prefix . '-educator', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-educator', $quiet),
       'category' => ClawEvents::getCategoryId('educator'),
       'minShifts' => 0,
       'requiresCoupon' => true,
@@ -208,7 +219,7 @@ class c0424 extends AbstractEvent
       'isMainEvent' => false,
       'couponValue' => $base,
       'fee' => $base,
-      'eventId' => ClawEvents::getEventId($prefix . '-attendee', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-attendee', $quiet),
       'category' => ClawEvents::getCategoryId('attendee'),
       'minShifts' => 0,
       'requiresCoupon' => false,
@@ -227,9 +238,10 @@ class c0424 extends AbstractEvent
       'isMainEvent' => false,
       'couponValue' => 95,
       'fee' => 95,
+      'bundleDiscount' => 20,
       'start' => 'saturday 7pm',
       'end' => 'saturday 9pm',
-      'eventId' => ClawEvents::getEventId($prefix . '-dinner', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-dinner', $quiet),
       'category' => ClawEvents::getCategoryId('dinner'),
       'minShifts' => 0,
       'requiresCoupon' => false,
@@ -245,31 +257,14 @@ class c0424 extends AbstractEvent
       'isMainEvent' => false,
       'couponValue' => 65,
       'fee' => 65,
+      'bundleDiscount' => 15,
       'start' => 'sunday noon',
       'end' => 'sunday 2pm',
-      'eventId' => ClawEvents::getEventId($prefix . '-brunch', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-brunch', $quiet),
       'category' => ClawEvents::getCategoryId('buffet-breakfast'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => ['Super Users', 'Administrator'],
-      'isAddon' => true
-    ]));
-
-    $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => '',
-      'alias' => $prefix . '-sat-breakfast',
-      'description' => 'Saturday Breakfast Seminar',
-      'clawPackageType' => EventPackageTypes::brunch_sat,
-      'isMainEvent' => false,
-      'couponValue' => 0,
-      'fee' => 50,
-      'start' => 'saturday 11am',
-      'end' => 'saturday 1pm',
-      'eventId' => ClawEvents::getEventId($prefix . '-sat-breakfast', $quiet),
-      'category' => ClawEvents::getCategoryId('buffet-breakfast'),
-      'minShifts' => 0,
-      'requiresCoupon' => false,
-      'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr'],
       'isAddon' => true
     ]));
 
@@ -281,15 +276,35 @@ class c0424 extends AbstractEvent
       'isMainEvent' => false,
       'couponValue' => 0,
       'fee' => 50,
+      'bundleDiscount' => 10,
       'start' => 'friday 11am',
       'end' => 'friday 1pm',
-      'eventId' => ClawEvents::getEventId($prefix . '-fri-breakfast', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-fri-breakfast', $quiet),
       'category' => ClawEvents::getCategoryId('buffet-breakfast'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr'],
       'isAddon' => true
     ]));
+
+    $this->AppendEvent(new ClawEvent((object)[
+      'couponKey' => '',
+      'alias' => $prefix . '-sat-breakfast',
+      'description' => 'Saturday Breakfast Seminar',
+      'clawPackageType' => EventPackageTypes::brunch_sat,
+      'isMainEvent' => false,
+      'couponValue' => 0,
+      'fee' => 50,
+      'bundleDiscount' => 10,
+      'start' => 'saturday 11am',
+      'end' => 'saturday 1pm',
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-sat-breakfast', $quiet),
+      'category' => ClawEvents::getCategoryId('buffet-breakfast'),
+      'minShifts' => 0,
+      'requiresCoupon' => false,
+      'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr'],
+      'isAddon' => true
+    ]));  
 
     $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'G',
@@ -299,9 +314,10 @@ class c0424 extends AbstractEvent
       'isMainEvent' => false,
       'couponValue' => 90,
       'fee' => 90,
+      'bundleDiscount' => 15,
       'start' => 'friday 7pm',
       'end' => 'friday 9pm',
-      'eventId' => ClawEvents::getEventId($prefix . '-fri-buffet', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-fri-buffet', $quiet),
       'category' => ClawEvents::getCategoryId('buffet'),
       'minShifts' => 0,
       'requiresCoupon' => false,
@@ -317,9 +333,10 @@ class c0424 extends AbstractEvent
       'isMainEvent' => false,
       'couponValue' => 90,
       'fee' => 90,
+      'bundleDiscount' => 15,
       'start' => 'sunday 7pm',
       'end' => 'sunday 9pm',
-      'eventId' => ClawEvents::getEventId($prefix.'-sun-buffet', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-sun-buffet', $quiet),
       'category' => ClawEvents::getCategoryId('buffet'),
       'minShifts' => 0,
       'requiresCoupon' => false,
@@ -335,7 +352,8 @@ class c0424 extends AbstractEvent
       'isMainEvent' => false,
       'couponValue' => 0,
       'fee' => 500,
-      'eventId' => ClawEvents::getEventId($prefix.'-meals-combo-all', $quiet),
+      'bundleDiscount' => 50,
+      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-meals-combo-all', $quiet),
       'category' => ClawEvents::getCategoryId('meal-combos'),
       'minShifts' => 0,
       'requiresCoupon' => false,
@@ -351,7 +369,8 @@ class c0424 extends AbstractEvent
       'isMainEvent' => false,
       'couponValue' => 0,
       'fee' => 300,
-      'eventId' => ClawEvents::getEventId($prefix.'-meals-combo-dinners', $quiet),
+      'bundleDiscount' => 30,
+      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-meals-combo-dinners', $quiet),
       'category' => ClawEvents::getCategoryId('meal-combos'),
       'minShifts' => 0,
       'requiresCoupon' => false,
@@ -373,7 +392,7 @@ class c0424 extends AbstractEvent
       'fee' => 150,
       'start' => 'friday 9am',
       'end' => 'saturday 2am',
-      'eventId' => ClawEvents::getEventId($prefix . '-daypass-fri', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-daypass-fri', $quiet),
       'category' => ClawEvents::getCategoryId('day-passes'),
       'minShifts' => 0,
       'requiresCoupon' => false,
@@ -391,7 +410,7 @@ class c0424 extends AbstractEvent
       'fee' => 150,
       'start' => 'saturday 9am',
       'end' => 'sunday 2am',
-      'eventId' => ClawEvents::getEventId($prefix . '-daypass-sat', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-daypass-sat', $quiet),
       'category' => ClawEvents::getCategoryId('day-passes'),
       'minShifts' => 0,
       'requiresCoupon' => false,
@@ -409,13 +428,403 @@ class c0424 extends AbstractEvent
       'fee' => 80,
       'start' => 'sunday 9am',
       'end' => 'next monday 2am',
-      'eventId' => ClawEvents::getEventId($prefix . '-daypass-sun', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-daypass-sun', $quiet),
       'category' => ClawEvents::getCategoryId('day-passes'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => []
     ]));
     #endregion
+  }
 
+  public function ConfigsJson(): Json
+  {
+    $json = new Json();
+
+    $events = (object)[
+      'Fisting' => (object)[
+          'description' => 'Fill That Hole',
+          'types' => [ 'Fister', 'Fistee'],
+          'date' => 'Thursday 5PM',
+      ],
+      'Ass Play' => (object)[
+          'description' => 'Let\'s Get Cheeky',
+          'types' => [ 'Top', 'Bottom'],
+          'date' => 'Friday 6PM',
+      ],
+      // 'Assplay 3' => (object)[
+      //     'description' => 'Fill That Hole',
+      //     'types' => [ 'Top', 'Bottom'],
+      //     'date' => 'Friday 5PM',
+      // ],
+      'BDSM 1' => (object)[
+          'description' => 'What\'s Your Kink?',
+          'types' => [ 'Top', 'Bottom'],
+          'date' => 'Thursday 5PM'
+      ],
+      'BDSM 2' => (object)[
+          'description' => 'What\'s Your Kink?',
+          'types' => [ 'Top', 'Bottom'],
+          'date' => 'Friday 7PM'
+      ],
+      // 'BDSM 3' => (object)[
+      //     'description' => 'Meet & Beat',
+      //     'types' => [ 'Top', 'Bottom'],
+      //     'date' => $friday,
+      //     'time' => 1800
+      // ],
+      // 'Gear Pigs' => (object)[
+      //     'description' => 'Wear Your Gear',
+      //     'types' => [ 'Top', 'Bottom'],
+      //     'date' => 'Friday 5PM'
+      // ],
+      // 'Couples & Thirds' => (object)[
+      //     'description' => 'The more, the merrier',
+      //     'types' => [ 'Couple', 'Third' ],
+      //     'date' => 'Friday 6PM'
+      // ],
+      // 'LTR' => (object)[
+      //     'description' => 'More than tonight',
+      //     'types' => [ 'Top', 'Bottom'],
+      //     'date' => 'Friday 5PM'
+      // ],
+      // 'CLAW Virgins' => (object)[
+      //     'description' => 'Explore together',
+      //     'types' => [ 'Top', 'Bottom'],
+      //     'date' => $friday,
+      //     'time' => 1900
+      // ],
+      'Pets & Handlers' => (object)[
+          'description' => 'Wags & Paws',
+          'types' => [ 'Pet', 'Handler'],
+          'date' => 'Thursday 8PM'
+      ],
+      'Smokers' => (object)[
+          'description' => 'Hot Ash',
+          'types' => [ 'Top', 'Bottom'],
+          'date' => 'Thursday 8PM'
+      ],
+      // 'Spanking' => (object)[
+      //     'description' => 'Find the whammie',
+      //     'types' => [ 'Top', 'Bottom'],
+      //     'date' => 'Friday 6PM',
+      // ],
+      'ABDL' => (object)[
+          'description' => 'Welcome to My Crib',
+          'types' => [ 'Big', 'little'],
+          'date' => 'Thursday 7PM',
+      ],
+      'Daddy & Boy' => (object)[
+          'description' => 'Nurture is Nature',
+          'types' => [ 'Daddy', 'boy'],
+          'date' => 'Thursday 7PM',
+      ],
+      'Impact Play' => (object)[
+          'description' => 'Meet & Beat',
+          'types' => [ 'Top', 'Bottom'],
+          'date' => 'Friday 6PM',
+      ],
+      'Rope Bondage' => (object)[
+          'description' => 'Bound to Have Fun',
+          'types' => [ 'Rigger', 'Bunny'],
+          'date' => 'Thursday 6PM',
+      ],
+      'Uniforms' => (object)[
+          'description' => 'Ready For Inspection',
+          'types' => [ 'Top', 'Bottom'],
+          'date' => 'Thursday 6PM',
+      ],
+      'Rubber' => (object)[
+          'description' => 'Shiny or Matte?',
+          'types' => [ 'Top', 'Bottom'],
+          'date' => 'Thursday 7PM',
+      ],
+    ];
+
+    $json->set('speeddating', $events);
+
+    $events = (object)[
+      'Equipment Delivery' => (object)[
+          'description' => 'Please note: Renaissance guests only. You are still responsible for returning equipment.',
+          'price' => 50,
+          'pricetext' => '',
+          'capacity' => 0,
+      ],
+      // 'Heavy Steel Cage Rental' => (object)[
+      //     'description' => '',
+      //     'price' => 200,
+      //     'pricetext' => '',
+      //     'capacity' => 3,
+      // ],
+      'Rim Seat Rental' => (object)[
+          'description' => '',
+          'price' => 125,
+          'pricetext' => '$50 + $75 deposit',
+          'capacity' => 10,
+      ],
+      // 'Handled T-Leg Rim Seat Rental' => (object)[
+      //     'description' => '',
+      //     'price' => 175,
+      //     'pricetext' => '$75 + $100 deposit',
+      //     'capacity' => 0,
+      // ],
+      'Sling Kit Rental' => (object)[
+          'description' => 'Rental Includes:Portable sling frame, deluxe canvas sling, chain, 2 stirrups, carrying bag, cleaning kit, 10 disposable liners.',
+          'price' => 250,
+          'pricetext' => '$100 + $150 deposit',
+          'capacity' => 20,
+      ],
+    ];
+
+    $json->set('rentals', $events);
+
+    $advertisingCategoryId = ClawEvents::getCategoryId('sponsorships-advertising');
+    $logoPlacementCategoryId = ClawEvents::getCategoryId('sponsorships-logo');
+    $masterSustainingCategoryId = ClawEvents::getCategoryId('sponsorships-master-sustaining');
+    $blackCategoryId = ClawEvents::getCategoryId('sponsorships-black');
+    $blueCategoryId = ClawEvents::getCategoryId('sponsorships-blue');
+    $goldCategoryId = ClawEvents::getCategoryId('sponsorships-gold');
+
+    $eventsJson = <<< JSON
+{
+  "1": {
+    "main_category_id": $advertisingCategoryId,
+    "event_capacity": 0,
+    "individual_price": 250,
+    "price_text": null,
+    "title": "Full Page Ad",
+    "description": "Full page ad (8\"H x 5\"W) in CLAW 23 Yearbook. Registration email contains full specifications."
+  },
+  "2": {
+    "main_category_id": $advertisingCategoryId,
+    "event_capacity": 1,
+    "individual_price": 1200,
+    "price_text": null,
+    "title": "Outside Rear Cover (Color)",
+    "description": "Same dimensions as Full Page Ad"
+  },
+  "3": {
+    "main_category_id": $advertisingCategoryId,
+    "event_capacity": 1,
+    "individual_price": 550,
+    "price_text": null,
+    "title": "Inside Front Cover (Color)",
+    "description": "Same dimensions as Full Page Ad"
+  },
+  "4": {
+    "main_category_id": $advertisingCategoryId,
+    "event_capacity": 1,
+    "individual_price": 550,
+    "price_text": null,
+    "title": "Page 3 (Color)",
+    "description": "Same dimensions as Full Page Ad"
+  },
+  "5": {
+    "main_category_id": $advertisingCategoryId,
+    "event_capacity": 1,
+    "individual_price": 450,
+    "price_text": null,
+    "title": "Inside Back Cover (Color)",
+    "description": "Same dimensions as Full Page Ad"
+  },
+  "23": {
+    "main_category_id": $advertisingCategoryId,
+    "event_capacity": 2,
+    "individual_price": 400,
+    "price_text": null,
+    "title": "Page 5 or 7 (Color)",
+    "description": "Same dimensions as Full Page Ad"
+  },
+  "24": {
+    "main_category_id": $advertisingCategoryId,
+    "event_capacity": 2,
+    "individual_price": 350,
+    "price_text": null,
+    "title": "Page 4 or 6 (Color)",
+    "description": "Same dimensions as Full Page Ad"
+  },
+  "6": {
+    "main_category_id": $advertisingCategoryId,
+    "event_capacity": 1,
+    "individual_price": 350,
+    "price_text": null,
+    "title": "Page Opposite Inside Back Cover",
+    "description": "Same dimensions as Full Page Ad"
+  },
+  "7": {
+    "main_category_id": $advertisingCategoryId,
+    "event_capacity": 1,
+    "individual_price": 750,
+    "price_text": null,
+    "title": "Two-Page Centerfold",
+    "description": "Requires 2 Full Page Ad graphics"
+  },
+  "8": {
+    "main_category_id": $advertisingCategoryId,
+    "event_capacity": 0,
+    "individual_price": 500,
+    "price_text": null,
+    "title": "Two-Page Spread",
+    "description": "Requires 2 Full Page Ad graphics"
+  },
+  "9": {
+    "main_category_id": $advertisingCategoryId,
+    "event_capacity": 0,
+    "individual_price": 200,
+    "price_text": null,
+    "title": "Additional Pages",
+    "description": "Full page ad (8\"H x 5\"W) in CLAW Yearbook."
+  },
+  "10": {
+    "main_category_id": $advertisingCategoryId,
+    "event_capacity": 0,
+    "individual_price": 150,
+    "price_text": null,
+    "title": "Half Page Ad",
+    "description": "Half Page: 3 7/8;\" H x 5\" W"
+  },
+  "11": {
+    "main_category_id": $advertisingCategoryId,
+    "event_capacity": 0,
+    "individual_price": 100,
+    "price_text": null,
+    "title": "Quarter Page Ad",
+    "description": "Quarter Page: 3 7/8;\" H x 2 3/8;\" W"
+  },
+  "14": {
+    "main_category_id": $logoPlacementCategoryId,
+    "event_capacity": 0,
+    "individual_price": 100,
+    "price_text": null,
+    "title": "Run Bag Inserts (Commercial)",
+    "description": "2,500 pieces (to be received by April 1, 2023)"
+  },
+  "15": {
+    "main_category_id": $logoPlacementCategoryId,
+    "event_capacity": 0,
+    "individual_price": 40,
+    "price_text": null,
+    "title": "Run Bag Inserts (Non-Profit)",
+    "description": "2,500 pieces (to be received by April 1, 2023)"
+  },
+  "16": {
+    "main_category_id": $logoPlacementCategoryId,
+    "event_capacity": 0,
+    "individual_price": 300,
+    "price_text": null,
+    "title": "Website Banner (6 months)",
+    "description": "Your banner ad on the clawinfo.org homepage for 6 months<br /><strong>Image specifications:</strong> 940x200, jpg"
+  },
+  "17": {
+    "main_category_id": $logoPlacementCategoryId,
+    "event_capacity": 0,
+    "individual_price": 500,
+    "price_text": null,
+    "title": "Website Banner (12 months)",
+    "description": "Your banner ad on the clawinfo.org homepage for 12 months<br /><strong>Image specifications:</strong> 940x200, jpg"
+  },
+  "18": {
+    "main_category_id": $logoPlacementCategoryId,
+    "event_capacity": 0,
+    "individual_price": 600,
+    "price_text": null,
+    "title": "CLAW Mobile App (YAPP)",
+    "description": "Sponsor the official CLAW mobile app. Over 900 downloads and 10,000 views a day during the event.<br /><strong>Image specifications:</strong> 600x200, jpg"
+  },
+  "19": {
+    "main_category_id": $logoPlacementCategoryId,
+    "event_capacity": 0,
+    "individual_price": 500,
+    "price_text": null,
+    "title": "Three e-blast Banner Ads",
+    "description": "Your banner ad on three CLAW/Getaway eblasts (sent to more than 10,000 great addresses)<br /> <strong>Image specifications:</strong> 600x125, jpg"
+  },
+  "20": {
+    "main_category_id": $logoPlacementCategoryId,
+    "event_capacity": 0,
+    "individual_price": 400,
+    "price_text": null,
+    "title": "Ad Combo 1",
+    "description": "Save $250 with this Bundle! Includes Yearbook full page ad, run bag inserts, and website banner ad (6 months)<p><small>2,500 run bag inserts (to be received by April 1)</small></p>"
+  },
+  "21": {
+    "main_category_id": $logoPlacementCategoryId,
+    "event_capacity": 0,
+    "individual_price": 750,
+    "price_text": null,
+    "title": "Ad Combo 2",
+    "description": "Save $400 with This Bundle! Includes Yearbook full page ad, run bag inserts, and website banner ad (6 months), and Banner ads in three e-blasts.<p><small>2,500 run bag insert (to be received by April 1)</small></p>"
+  },
+  "22": {
+    "main_category_id": $logoPlacementCategoryId,
+    "event_capacity": 0,
+    "individual_price": 1200,
+    "price_text": null,
+    "title": "Ad Combo 3",
+    "description": "Save $1000 with this Bundle: Includes full page ad in both Yearbooks (L.A. Leather Getaway and CLAW 23), run bag inserts at both events, website banner ad (12 months), and Banner ads in six e-blasts.<p><small>2,500 run bag inserts (to be received by April 1 for CLAW 23)</small></p>"
+  },
+  "23": {
+    "main_category_id": $masterSustainingCategoryId,
+    "event_capacity": 0,
+    "individual_price": 5000,
+    "price_text": null,
+    "title": "Master Sponsorship One Event",
+    "description": "Please see the sponsorship page for details."
+  },
+  "24": {
+    "main_category_id": $masterSustainingCategoryId,
+    "event_capacity": 0,
+    "individual_price": 1500,
+    "price_text": null,
+    "title": "Sustaining Sponsorship One Event",
+    "description": "Please see the sponsorship page for details."
+  },
+  "25": {
+    "main_category_id": $masterSustainingCategoryId,
+    "event_capacity": 0,
+    "individual_price": 7000,
+    "price_text": null,
+    "title": "Master Sponsorship Year Round",
+    "description": "Please see the sponsorship page for details."
+  },
+  "26": {
+    "main_category_id": $masterSustainingCategoryId,
+    "event_capacity": 0,
+    "individual_price": 2200,
+    "price_text": null,
+    "title": "Sustaining Sponsorship Year Round",
+    "description": "Please see the sponsorship page for details."
+  },
+  "27": {
+    "main_category_id": $blackCategoryId,
+    "event_capacity": 0,
+    "individual_price": 2000,
+    "price_text": null,
+    "title": "Black-Level Sponsorship",
+    "description": "Partner Event Sponsorship - We Work with You to Create <i>CLAW 23</i>"
+  },
+  "28": {
+    "main_category_id": $blueCategoryId,
+    "event_capacity": 0,
+    "individual_price": 400,
+    "price_text": null,
+    "title": "Blue-Level Sponsorship",
+    "description": "Partner Event Sponsorship - We Work with You to Create <i>CLAW 23</i>"
+  },
+  "29": {
+    "main_category_id": $goldCategoryId,
+    "event_capacity": 0,
+    "individual_price": 800,
+    "price_text": null,
+    "title": "Gold-Level Sponsorship",
+    "description": "Partner Event Sponsorship - We Work with You to Create <i>CLAW 23</i>"
+  }
+}
+JSON;
+
+    $events = json_decode($eventsJson);
+    $json->set('sponsorships', $events);
+    
+    return $json;
   }
 }

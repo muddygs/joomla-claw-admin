@@ -4,9 +4,10 @@ namespace ClawCorpLib\Events;
 
 defined('_JEXEC') or die('Restricted access');
 
+use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Lib\ClawEvent;
 use ClawCorpLib\Lib\EventInfo;
-use ReflectionClass;
+use UnexpectedValueException;
 
 abstract class AbstractEvent
 {
@@ -14,7 +15,7 @@ abstract class AbstractEvent
   private array $events;
 
   public function __construct(
-    public string $alias,
+    public string $alias
   )
   {
     $this->events = [];
@@ -32,6 +33,24 @@ abstract class AbstractEvent
     sort($ids);
     return $ids;
   }
+
+  /**
+   * Returns the Event Booking event ID for a given EventPackageTypes enum
+   * @param EventPackageTypes $eventAlias Event alias in Event Booking
+   * @return int Event ID
+   */
+  public function getEventId(EventPackageTypes $eventAlias): int
+  {
+    /** @var \ClawInfoLib\Lib\ClawEvent */
+    foreach ( $this->events as $e ) {
+      if ($e->clawPackageType == $eventAlias) {
+        return $e->eventId;
+      }
+    }
+
+    throw new UnexpectedValueException(__FILE__ . ': Unknown eventAlias: ' . $eventAlias->value);
+  }
+
 
   public function getInfo(): \ClawCorpLib\Lib\EventInfo {
     return $this->info;

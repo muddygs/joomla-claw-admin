@@ -24,6 +24,7 @@ class refunds extends AbstractEvent
     $info->eventType = EventTypes::refunds;
     $info->timezone = 'America/New_York';
     $info->active = true;
+    $info->onsiteActive = false;
     return $info;
   }
 

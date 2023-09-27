@@ -5,6 +5,7 @@ use \Joomla\CMS\Factory;
 use ClawCorpLib\Enums\EbCouponTypes;
 use ClawCorpLib\Enums\EbCouponAssignments;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\Coupon;
 
 /** @package ClawCorpLib\Lib\Coupons */
 class Coupons
@@ -214,32 +215,4 @@ class Coupons
 
     return $rows == null ? true : false;
   }
-
-  /**
-   * Find a coupon for a signed in user that falls within the event ids
-   * @param int $uid User ID
-   * @param array $eventIds Array of event ids
-   * @return object null or coupon info (code and event_id)
-   */
-
-  public static function getAssignedCoupon( int $uid = 0, array $eventIds = [] ): ?object
-  {
-    if ( 0 == $uid || count($eventIds) == 0 ) return null;
-
-    $db = Factory::getDbo();
-    $events = join(',',$eventIds);
-
-    $query = $db->getQuery(true);
-    $query->select('c.code, e.event_id')
-        ->from('#__eb_coupons c')
-        ->leftJoin('#__eb_coupon_events e ON e.coupon_id = c.id')
-        ->where('c.user_id = ' . $uid)
-        ->where('c.published = 1')
-        ->where('e.event_id IN (' . $events . ')');
-    $db->setQuery($query);
-    $result = $db->loadObject();
-
-    return $result;
-  }
-
 }

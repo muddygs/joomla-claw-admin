@@ -26,6 +26,8 @@ class ClawEvent
     public bool $authNetProfile = false;
     public string $start = '';
     public string $end = '';
+    public bool $isVolunteer = false;
+    public int $bundleDiscount = 0;
 
 
     // TODO: Rewrite with named parameters and remove above public properties
@@ -51,7 +53,9 @@ class ClawEvent
             'link',
             'authNetProfile',
             'start',
-            'end'
+            'end',
+            'isVolunteer',
+            'bundleDiscount'
         ];
 
         foreach ($requiredKeys as $k) {

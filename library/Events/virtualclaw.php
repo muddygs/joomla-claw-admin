@@ -28,6 +28,7 @@ class virtualclaw extends AbstractEvent
     $info->eventType = EventTypes::vc;
     $info->timezone = 'America/New_York';
     $info->active = true;
+    $info->onsiteActive = false;
     return $info;
   }
 

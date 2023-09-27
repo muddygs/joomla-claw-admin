@@ -109,11 +109,14 @@ class Config
     return self::$_current;
   }
 
-  public static function getActiveEventAliases(): array
+  public static function getActiveEventAliases(bool $mainOnly = false): array
   {
     $eventList = ClawEvents::GetEventList();
     foreach ( $eventList AS $alias => $eventInfo ) {
       if ( !$eventInfo->active ) {
+        unset($eventList[$alias]);
+      }
+      if ( $mainOnly && !$eventInfo->mainAllowed ) {
         unset($eventList[$alias]);
       }
     }

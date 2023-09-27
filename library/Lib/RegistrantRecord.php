@@ -11,6 +11,7 @@ class RegistrantRecordEvent
   public string $title = '';
   public string $event_date = '';
   public string $event_end_date = '';
+  public string $clawEventAlias = '';
 }
 
 class RegistrantRecordCategory
@@ -57,12 +58,14 @@ class RegistrantRecord
   public registrantRecordRegistrant $registrant;
   public $fieldValue;
 
-  function __construct(object $r)
+  function __construct(string $clawEventAlias, object $r)
   {
     $this->event = new registrantRecordEvent();
     $this->category = new registrantRecordCategory();
     $this->registrant = new registrantRecordRegistrant();
     $this->fieldValue = (object)[];
+
+    $this->event->clawEventAlias = $clawEventAlias;
 
     foreach (get_class_vars('ClawCorpLib\Lib\RegistrantRecordEvent') AS $k => $v) {
       if ( property_exists($r, $k) ) {

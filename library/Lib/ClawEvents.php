@@ -21,9 +21,9 @@ class ClawEvents
 {
   // private $events = [];
   public array $mainEventIds = [];
-  var $couponRequired = [];
-  var $overlapEventCategories = [];
-  var $shiftCategoryIds = [];
+  private array  $couponRequired = [];
+  private array $overlapEventCategories = [];
+  private array $shiftCategoryIds = [];
   // private string $clawEventAlias = '';
 
   private AbstractEvent $event;
@@ -46,7 +46,8 @@ class ClawEvents
     // $this->clawEventAlias = $clawEventAlias;
 
     if ($clawEventAlias != 'refunds') {
-      $this->LoadEventClass($clawEventAlias);
+      $classname = "\\ClawCorpLib\\Events\\$clawEventAlias";
+      $this->event = new $classname($clawEventAlias);
     } else {
       $this->defineHistoricEventMapping();
     }
@@ -152,9 +153,15 @@ class ClawEvents
    * Returns an array of all the enrolled events in this class when initialized
    * @return array List of event IDs
    */
-  public function getEventIds(): array
+  public function getEventIds(bool $mainOnly = false): array
   {
-    return $this->event->getEventIds();
+    if ( !$mainOnly) return $this->event->getEventIds();
+
+    $result = [];
+    foreach ($this->event->getEvents() as $e) {
+      if ($e->isMainEvent) $result[] = $e->eventId;
+    }
+    return $result;
   }
 
   /**
@@ -188,6 +195,7 @@ class ClawEvents
    * @param string $eventAlias Event alias in Event Booking
    * @param bool $quiet Quietly return 0 if alias does not exist
    * @return int Event ID
+   * @deprecated Use AbstractEvent->getEventId() instead
    */
   public static function getEventId(string $eventAlias, bool $quiet = false): int
   {
@@ -204,6 +212,29 @@ class ClawEvents
       throw new UnexpectedValueException(__FILE__ . ': Unknown eventAlias: ' . $eventAlias);
     }
   }
+
+  /**
+   * Converts event alias to its id
+   * @param string $eventAlias Event alias in Event Booking
+   * @param bool $quiet Quietly return 0 if alias does not exist
+   * @return int Event ID
+   */
+  public static function getEventIdByAlias(string $eventAlias, bool $quiet = false): int
+  {
+    $eventAlias = strtolower(trim($eventAlias));
+
+    if ('' == $eventAlias) die(__FILE__ . ': event alias cannot be blank');
+
+    if (null == self::$eventIds) self::mapEventAliases();
+
+    if (array_key_exists($eventAlias, self::$eventIds)) {
+      return intval(self::$eventIds[$eventAlias]->id);
+    } else {
+      if ($quiet) return 0;
+      throw new UnexpectedValueException(__FILE__ . ': Unknown eventAlias: ' . $eventAlias);
+    }
+  }
+
 
   /**
    * Given a category alias, return its category id
@@ -360,33 +391,17 @@ SQL;
    */
   public static function eventIdToClawEventAlias(int $eventId): string|bool
   {
-    $event = self::loadEventRow($eventId);
-
+    // TODO: Why are these two lines here?
     self::mapCategoryAliases();
     self::mapEventAliases();
 
-    $dir = JPATH_LIBRARIES . '/claw/Events';
-    $files = scandir($dir);
-    if ($files === false) return false;
+    $activeAliases = Config::getActiveEventAliases(mainOnly: true);
 
-    $files = preg_grep('/[cl][0-9]{4}\.php/i', $files);
-    if ($files === false) return false;
-
-    foreach ($files as $file) {
-      $info = (object)[];
-      $aliasMatch = preg_match('/([a-z0-9]+)\.php/i', $file, $matches);
-
-      if ($aliasMatch != 1) continue;
-      $alias = $matches[1];
-
-      if ('events_current.php' == $file) continue;
-
+    foreach ($activeAliases AS $alias) {
       $classname = "\\ClawCorpLib\\Events\\$alias";
       /** @var \ClawCorpLib\Events\AbstractEvent */
       $eventlib = new $classname($alias);
       $info = $eventlib->getInfo();
-
-      if ($info->mainAllowed == false) continue;
 
       // Specific -- failover to date (might not need this loop)
       foreach ($eventlib->getEvents() as $e) {
@@ -394,10 +409,8 @@ SQL;
       }
 
       // Now try to match on date
-      // Need to process end_date relative to start_date
-      $date = Factory::getDate($info->start_date);
-      $enddate = $date->modify($info->end_date)->toSql();
-      if ($event->event_date >= $info->start_date  && $event->event_end_date <= $enddate) {
+      $event = self::loadEventRow($eventId);
+      if ($event->event_date >= $info->start_date  && $event->event_end_date <= $info->end_date) {
         return $alias;
       }
     }
@@ -405,6 +418,11 @@ SQL;
     die('Could not determine CLAW event alias: ' . $eventId);
   }
 
+  /**
+   * This is the "raw" search for event aliases that parses filenames in the Events library directory
+   * @return array 
+   * @throws ReflectionException 
+   */
   public static function GetEventList(): array
   {
     if ( count(self::$_EventList) > 0 ) return self::$_EventList;
@@ -430,7 +448,7 @@ SQL;
 
       $reflection = new ReflectionClass($classname);
       /** @var \ClawCorpLib\Event\AbstractEvent */
-      $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
+      $instance = $reflection->newInstanceWithoutConstructor();
       $info = new EventInfo($instance->PopulateInfo());
       if ( !$info->active ) continue;
 
@@ -451,12 +469,6 @@ SQL;
   {
     $EventList = self::GetEventList();
     return array_key_exists($alias, $EventList);
-  }
-
-  private function LoadEventClass(string $alias): void
-  {
-    $classname = "\\ClawCorpLib\\Events\\$alias";
-    $this->event = new $classname($alias);
   }
 
   /**

@@ -4,6 +4,7 @@ namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Enums\EbRecordIndexType;
 use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
@@ -42,13 +43,9 @@ class EbCart
 <input type="submit" class="{$this->btnPrimary}" name="btn-submit" id="btn-submit" value="${!${''} = Text::_('EB_PROCESS_REGISTRATION')}">
 HTML;
 
-    $this->options_link = Helpers::sessionGet('regtype');
-    $this->referrer = Helpers::sessionGet('referrer');
+    $this->options_link = EventBooking::getRegistrationLink();
 
-    if ( $this->referrer ) {
-      $this->options_link = $this->options_link . '?referrer=' . $this->referrer;
-    }
-
+    /** @var Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
 
     if ($app->getIdentity() == null || $app->getIdentity()->id == 0) {
@@ -62,6 +59,7 @@ HTML;
 
     $clawEventAlias = ClawEvents::eventIdToClawEventAlias($this->items[0]->id);
     $e = new ClawEvents($clawEventAlias);
+    $onsiteActive = $e->getClawEventInfo()->onsiteActive;
 
     $registrantData = new registrant($clawEventAlias, $app->getIdentity()->id);
     $registrantData->loadCurrentEvents(EbRecordIndexType::eventid);
@@ -77,7 +75,7 @@ HTML;
     foreach ($records as $r) {
       if (substr_compare($r->event->alias, $shiftPrefix, 0, strlen($shiftPrefix)) === 0) {
         // For onsite, we don't count -- later we block any shifts in the cart
-        if (!Aliases::onsiteActive) $shift_count++;
+        if (!$onsiteActive) $shift_count++;
         continue;
       }
 
@@ -85,7 +83,7 @@ HTML;
       if (in_array($r->event->eventId, $e->mainEventIds)) {
         if (0 == $package_event) {
           $package_event = $r->event->eventId;
-          $regType = Helpers::sessionGet('regtype');
+          $action = Helpers::sessionGet('eventAction');
           if ($regType == '') {
             $tempE = $e->getEventByKey('eventId', $r->event->eventId);
             Helpers::sessionSet('regtype', $tempE->link);
@@ -126,11 +124,11 @@ HTML;
         } else {
           $package_event = $item->id;
           $this->non_invoice_event = true;
-          $regType = Helpers::sessionGet('regtype');
-          if ($regType == '') {
-            $tempE = $e->getEventByKey('eventId', $item->id);
-            Helpers::sessionSet('regtype', $tempE->link);
-          }
+          // $regType = Helpers::sessionGet('regtype');
+          // if ($regType == '') {
+          //   $tempE = $e->getEventByKey('eventId', $item->id);
+          //   Helpers::sessionSet('regtype', $tempE->link);
+          // }
         }
       }
 
@@ -157,7 +155,7 @@ HTML;
     } // End cart items loop
 
     // Shift count check ignored for onsite
-    if (!Aliases::onsiteActive) {
+    if (!$onsiteActive) {
       /** @var ClawCorpLib\Lib\ClawEvent */
       foreach ($e->getEvents() as $event) {
         if ($event->eventId == $package_event && $shift_count < $event->minShifts) {
@@ -196,7 +194,7 @@ HTML;
     }
 
     $shiftCategoryCount = $registrantData->categoryCounts($shiftCategories);
-    if (!Aliases::onsiteActive && !$this->show_error && $shiftCategoryCount > 1 && $package_event != ClawEvents::getEventId($prefix . '-volunteer-super')) {
+    if (!$onsiteActive && !$this->show_error && $shiftCategoryCount > 1 && $package_event != ClawEvents::getEventId($prefix . '-volunteer-super')) {
       $this->submit = "<div class=\"alert alert-danger\">Shifts must all come from the same category (e.g., all Guest Services or Badge Check). Modify your cart to correct this error.</div>";
       $this->show_error = true;
     }
@@ -246,6 +244,6 @@ HTML;
       $this->show_warning = true;
     }
 
-    if (Aliases::onsiteActive) $this->non_invoice_event = true;
+    if ($onsiteActive) $this->non_invoice_event = true;
   }
 }

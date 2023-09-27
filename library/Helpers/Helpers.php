@@ -169,8 +169,10 @@ class Helpers
    * 
    * @return array groups indexed by group name
    */
-  public static function getUserGroupsByName(DatabaseDriver $db, int $userId = 0): array
+  public static function getUserGroupsByName(int $userId = 0): array
   {
+    $db = Factory::getContainer()->get('DatabaseDriver');
+
     if (!$userId) {
       $identity = Factory::getApplication()->getIdentity();
 

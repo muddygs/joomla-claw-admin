@@ -2,10 +2,12 @@
 
 namespace ClawCorpLib\Helpers;
 
+use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use Exception;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 
 class EventBooking
@@ -33,14 +35,28 @@ class EventBooking
    */
   static function getRegistrationLink(): string
   {
-    $clawLink = Helpers::sessionGet('regtype');
-    $referrer = Helpers::sessionGet('referrer');
+    $eventAlias = Helpers::sessionGet('eventAlias', Aliases::current());
+    $regAction  = Helpers::sessionGet('eventAction', EventPackageTypes::none->value);
+    $referrer   = Helpers::sessionGet('referrer');
+
+    $route = Route::_('index.php?option=com_claw&view=registrationoptions&event=' . $eventAlias . '&action='. $regAction);
 
     if ('' != $referrer) {
-      $clawLink = $clawLink . '?referrer=' . $referrer;
+      $route .= '?referrer=' . $referrer;
     }
 
-    return $clawLink;
+    return $route;
+  }
+
+  static function buildRegistrationLink(string $eventAlias, EventPackageTypes $eventAction, string $referrer = ''): string
+  {
+    $route = Route::_('index.php?option=com_claw&view=registrationoptions&event=' . $eventAlias . '&action='. $eventAction->value);
+    if ('' != $referrer) {
+      $route .= '?referrer=' . $referrer;
+    }
+
+    return $route;
+
   }
 
   static function subscribeByRegistrantId($row)
