@@ -183,11 +183,11 @@ if ($addons == false && $mainEvent == null) {
 }
 
 if ( $vipRedirect ) {
-  $cart = new EventbookingHelperCart();
+  $cart = new \EventbookingHelperCart();
   $cart->reset();
 
-  $comboMealsAll = $this->events->getEvents()->getEventId(EventPackageTypes::meal_combo_all);
-  $vip = $this->events->getEvents()->getEventId(EventPackageTypes::vip);
+  $comboMealsAll = $this->events->getEvent()->getEventId(EventPackageTypes::meal_combo_all);
+  $vip = $this->events->getEvent()->getEventId(EventPackageTypes::vip);
   $cart->addEvents([$vip, $comboMealsAll]);
 
   // In case they want to come back, fall back to vip
