@@ -2,61 +2,24 @@
 
 \defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\EventPackageTypes;
 use Joomla\CMS\Factory;
 use ClawCorpLib\Helpers\Bootstrap;
+use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
-use ClawCorpLib\Lib\Registrant;
-use ClawCorpLib\Lib\Coupons;
 
 Helpers::sessionSet('clawcoupon','');
 Helpers::sessionSet('clawcouponrequest','');
+
+/** @var \ClawCorp\Component\Claw\Site\View\Registrationsurvey\HtmlView $this */
 
 /** @var Joomla\CMS\Application\SiteApplication */
 $app = Factory::getApplication();
 /** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
 $wa = $app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.registrationsurvey');
-
-$coupon = trim($app->input->get('coupon', '', 'string'));
-$mainEvent = null;
-$uid = 0;
-
-$couponInfo = null;
-
-if ( !Aliases::onsiteActive )
-{
-  // Let's see if already registered
-  $uid = $app->getIdentity()->id;
-
-  if (!$uid) {
-    $return = \Joomla\CMS\Uri\Uri::getInstance()->toString();
-    $url    = 'index.php?option=com_users&view=login';
-    $url   .= '&return='.base64_encode($return);
-    $app->redirect($url);  
-  }
-
-  $registrant = new Registrant(Aliases::current(), $uid);
-  $registrant->loadCurrentEvents();
-  $mainEvent = $registrant->getMainEvent();
-
-  // Has a coupon already been generated for this registrant?
-
-  if ( '' == $coupon && null == $mainEvent  )
-  {
-    $events = new ClawEvents(Aliases::current());
-    $eventIds = $events->getEventIds();
-    $couponInfo = Coupons::getAssignedCoupon($uid, $eventIds);
-
-    if ( $couponInfo != null ) $coupon = $couponInfo->code;
-  }
-}
-else
-{
-  if ( $app->getIdentity()->id != 0 ) $app->logout();
-}
-
 ?>
 <div style="text-align: center;">
   <p><img alt="Registration Banner" src="images/<?=strtolower(Aliases::defaultPrefix)?>/banners/Registration.png" class="img-fluid mx-auto d-block" /></p>
@@ -74,28 +37,28 @@ if ( $ref == 'CARAS' ):?>
 </div>
 
 <?php
-if ( $mainEvent != null ):
+if ( $this->hasMainEvent ):
 ?>
 <h1>You are already registered</h1>
 <div class="d-grid gap-2 col-6 mx-auto mb-3">
     <a href="/planning/my-reg" role="button" class="btn btn-danger">View Registrations</a>
-    <a href="/<?=strtolower(Aliases::defaultPrefix)?>-reg-addons" role="button" class="btn btn-success">Get Addons</a>
+    <a href="<?= EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::addons) ?>" role="button" class="btn btn-success">Get Addons</a>
 </div>
 <p>If you are trying to register another person, please SIGN OUT (under the Registration menu) and start again using that person's account.</p>
 <?php
-$groups = Helpers::getUserGroupsByName(Factory::getContainer()->get('DatabaseDriver'));
+$groups = Helpers::getUserGroupsByName();
 if (!array_key_exists('Super Users', $groups)) {
   return;
 }
 endif;
 
-if ( !Aliases::onsiteActive ) {
+if ( !$this->onsiteActive ) {
   # no actions here yet
 } else {
   ?>
     <h1>Already Registered?</h1>
     <div class="d-grid mb-3">
-    <a href="/<?=strtolower(Aliases::defaultPrefix) ?>-reg-addons" class="btn btn-success btn-lg" role="button">
+    <a href="<?= EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::addons) ?>" class="btn btn-success btn-lg" role="button">
       Click Here To Get Add Ons
     </a>
     </div>
@@ -106,12 +69,12 @@ if ( !Aliases::onsiteActive ) {
 <form action="/php/pages/registrationsurvey.php" method="post" name="Coupon Validator" id="registration-survey-coupon" class="row">
 <?php
 
-if ( null == $couponInfo ):
+if ( 0 == $this->autoCoupon->eventId ):
 ?>
   <h1>Have a coupon?</h1>
     <?php
 else:
-      $databaseRow = ClawEvents::loadEventRow($couponInfo->event_id);
+      $databaseRow = ClawEvents::loadEventRow($this->autoCoupon->eventId);
     ?>
       <h1>You have a coupon assigned to your account</h1>
       <p>Coupon Event Assignment: <strong><?=$databaseRow->title ?></strong></p>  
@@ -127,13 +90,13 @@ endif;
     case sensitive.
   </label>
   <div class="input-group mb-3">
-    <input type="text" class="form-control" name="coupon" value="<?=$coupon ?>" id="coupon" placeholder="?-ABCD-EFGH" aria-label="Coupon Entry FIeld">
+    <input type="text" class="form-control" name="coupon" value="<?=$this->autoCoupon->code ?>" id="coupon" placeholder="?-ABCD-EFGH" aria-label="Coupon Entry FIeld">
     <button class="btn btn-danger" type="button" onclick="validateCoupon()">START REGISTRATION</button>
   </div>
   <div id="couponerror" class="bg-danger text-light rounded-2 d-none">
     That coupon is not valid. Please verify your entry.
 <?php
-  if ( Aliases::onsiteActive ):
+  if ( $this->onsiteActive ):
 ?>
     Go to the registration help desk for assistance.
 <?php
@@ -151,15 +114,15 @@ endif;
 <?php
 $tabs = ['Attendee','Volunteer','VIP'];
 $html = [];
-$html[] = attendeeHtml();
-$html[] = volunteerHtml($uid);
-$html[] = vipHtml();
+$html[] = attendeeHtml($this->onsiteActive, $this->eventAlias);
+$html[] = volunteerHtml($this->onsiteActive, $this->eventAlias);
+$html[] = vipHtml($this->events);
 
-if ( Aliases::onsiteActive ) {
+if ( $this->onsiteActive ) {
   $tabs[] = 'Day Passes';
-  $html[] = dayPassesHtml();
+  $html[] = dayPassesHtml($this->events);
   $tabs[] = 'Passes';
-  $html[] = nightPassesHtml();
+  $html[] = nightPassesHtml($this->events);
 }
 else
 {
@@ -169,11 +132,11 @@ else
 
 Bootstrap::writePillTabs($tabs, $html, 'none');
 
-function attendeeHtml(): string
+function attendeeHtml(bool $onsiteActive, string $eventAlias): string
 {
-  $link = '/'.strtolower(Aliases::defaultPrefix).'-reg-att';
+  $link = EventBooking::buildRegistrationLink($eventAlias, EventPackageTypes::attendee);
 
-  if ( Aliases::onsiteActive ) {
+  if ( $onsiteActive ) {
     return <<<HTML
   <div class="container">
     <div class="d-grid">
@@ -200,12 +163,12 @@ HTML;
 
 }
 
-function volunteerHtml(int $uid = 0): string
+function volunteerHtml(bool $onsiteActive, string $eventAlias): string
 {
-  $link2 = '/'.strtolower(Aliases::defaultPrefix).'-reg-vol2';
-  $link3 = '/'.strtolower(Aliases::defaultPrefix).'-reg-vol3';
+  $link2 = EventBooking::buildRegistrationLink($eventAlias, EventPackageTypes::volunteer2);
+  $link3 = EventBooking::buildRegistrationLink($eventAlias, EventPackageTypes::volunteer3);
 
-  if ( Aliases::onsiteActive ) {
+  if ( $onsiteActive ) {
     return <<<HTML
   <div class="container">
     <ul>
@@ -279,8 +242,15 @@ HTML;
   return $result;
 }
 
-function vipHtml(): string {
-  $vipEventId = ClawEvents::getEventId(strtolower(strtolower(Aliases::defaultPrefix).'-vip'));
+function vipHtml(ClawEvents &$clawEvents): string
+{
+  $event = $clawEvents->getEvent();
+  $vipEventId = $event->getEventId(EventPackageTypes::vip);
+
+  $eventAlias = $event->alias;
+  $linkFull = EventBooking::buildRegistrationLink($eventAlias, EventPackageTypes::vip);
+  $linkMeals = EventBooking::buildRegistrationLink($eventAlias, EventPackageTypes::vip2);
+
 
   $content = [
     'ticket-alt' => ['Attendee Package','Includes over 150 events and exhibitors'],
@@ -303,7 +273,7 @@ HTML;
 
   $result .= Bootstrap::writeGrid($content, $tags, true);
 
-  if ( Aliases::onsiteActive ) {
+  if ( $clawEvents->getClawEventInfo()->onsiteActive ) {
     $result .= '<div class="d-grid">
     <a role="button" href="javascript:;" class="btn btn-danger btn-lg">Come to Onsite Guest Services for Priority Registration</a>
     </div>';
@@ -313,8 +283,8 @@ HTML;
     <div class="d-grid gap-2">
       <p class="text-center">Click 'Express' for quickest checkout. For more options (meals, equipment rental, and speed dating) use 'Add Ons' button.</p>
       <a role="button" href="/index.php?option=com_eventbooking&view=register&event_id=$vipEventId" class="btn btn-danger btn-lg">Express VIP Checkout (no meals, $750)</a>
-      <a role="button" href="/l23-reg-vip2" class="btn btn-danger btn-lg">Express VIP Checkout (with all 7 meals, $1,250)</a>
-      <a role="button" href="/l23-reg-vip" class="btn btn-danger btn-lg">VIP Package with Manual Add Ons Selection ($750+)</a>
+      <a role="button" href="$linkMeals" class="btn btn-danger btn-lg">Express VIP Checkout (with all 7 meals, $1,250)</a>
+      <a role="button" href="$linkFull" class="btn btn-danger btn-lg">VIP Package with Manual Add Ons Selection ($750+)</a>
     </div>
 HTML;
   }
@@ -332,20 +302,19 @@ function otherHtml(): string {
 HTML;
 }
 
-function dayPassesHtml(): string {
-  $e = new ClawEvents(Aliases::current());
-  $eventInfo = $e->getClawEventInfo();
-  $events = $e->getEventsByCategoryId(ClawEvents::getCategoryIds(['day-passes']), $eventInfo,'event_date');
+function dayPassesHtml(ClawEvents &$clawEvents): string {
+  $eventInfo = $clawEvents->getClawEventInfo();
+  $events = $clawEvents->getEventsByCategoryId(ClawEvents::getCategoryIds(['day-passes']), $eventInfo,'event_date');
 
   date_default_timezone_set($eventInfo->timezone);
   $now = date('Y-m-d H:i:s');
   $buttons = '';
 
-  foreach( $events AS $e ) {
-    if ( $now > $e->event_end_date ) continue;
-    $eventAlias = $e->alias;
-    $price = '$'. number_format($e->individual_price);
-    $title = $e->title. '('.$price.')';
+  foreach( $events AS $clawEvents ) {
+    if ( $now > $clawEvents->event_end_date ) continue;
+    $eventAlias = $clawEvents->alias;
+    $price = '$'. number_format($clawEvents->individual_price);
+    $title = $clawEvents->title. '('.$price.')';
   
     $buttons .= <<< HTML
     <a role="button" href="/$eventAlias" class="btn btn-danger btn-lg">$title</a>
@@ -367,20 +336,19 @@ return <<<HTML
 HTML;
 }
 
-function nightPassesHtml(): string {
-  $e = new ClawEvents(Aliases::current());
-  $eventInfo = $e->getClawEventInfo();
-  $events = $e->getEventsByCategoryId(ClawEvents::getCategoryIds(['PASSES']), $eventInfo,'event_date');
+function nightPassesHtml(ClawEvents &$clawEvents): string {
+  $eventInfo = $clawEvents->getClawEventInfo();
+  $events = $clawEvents->getEventsByCategoryId(ClawEvents::getCategoryIds(['PASSES']), $eventInfo,'event_date');
 
   date_default_timezone_set($eventInfo->timezone);
   $now = date('Y-m-d H:i:s');
   $buttons = '';
 
-  foreach( $events AS $e ) {
-    if ( $now > $e->event_end_date ) continue;
-    $eventId = $e->id;
-    $price = '$'. number_format($e->individual_price);
-    $title = $e->title. '('.$price.')';
+  foreach( $events AS $clawEvents ) {
+    if ( $now > $clawEvents->event_end_date ) continue;
+    $eventId = $clawEvents->id;
+    $price = '$'. number_format($clawEvents->individual_price);
+    $title = $clawEvents->title. '('.$price.')';
 
     $color = 'btn-success';
     if ( strpos($title, 'Night') !== false ) $color = 'btn-info';

@@ -12,78 +12,53 @@ namespace ClawCorp\Component\Claw\Site\View\Registrationoptions;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Helpers\Config;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Helpers\Schedule;
-use ClawCorpLib\Helpers\Sponsors;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
 {
+  public \Joomla\CMS\Application\SiteApplication $app;
+  public string $eventAlias;
+  public string $action;
+  public string $prefix;
+  public \ClawCorpLib\Lib\ClawEvents $events;
+  public \ClawCorpLib\Lib\EventInfo $eventInfo;
+
   
   public function display($tpl = null)
   {
-    /** @var \Joomla\CMS\Application\SiteApplication */
-    $app = Factory::getApplication();
+    $this->app = Factory::getApplication();
 
-    $controllerMenuId = (int)Helpers::sessionGet('menuid');
-    $menu = $app->getMenu()->getActive();
-    if ($controllerMenuId != $menu->id) {
-      $sitemenu = $app->getMenu();
-      $sitemenu->setActive($controllerMenuId);
-      $menu = $app->getMenu()->getActive();
-    }
-    $this->params = $menu->getParams();
-
-    $db = Factory::getContainer()->get('DatabaseDriver');
-    $eventAlias =  $this->params->get('ScheduleEvent') ?? Aliases::current();
-
-    $this->locations = \ClawCorpLib\Helpers\Locations::GetLocationsList();
-    $this->sponsors = new Sponsors();
-    $schedule = new Schedule($eventAlias, $db);
-    $event = new ClawEvents($eventAlias);
-    $eventInfo = $event->getClawEventInfo();
-
-    $dates = Helpers::getDateArray($eventInfo->start_date, true);
-
-    $this->events = [];
-    $this->start_date = '';
-    $this->end_date = '';
-
-    foreach ( $dates AS $date ) {
-      $this->events[$date] = [];
-
-      $events = $schedule->getScheduleByDate($date);
-
-      foreach ( $events AS $e ) {
-        $this->events[$date][] = $e;
-      }
-
-      // Set start/end dates
-      // TODO: assumes continuous schedule events - is that what I want?
-      if ( count($this->events[$date]) > 0) {
-        if ( !$this->start_date ) {
-          $this->start_date = $date;
-        }
-
-        $this->end_date = $date;
-  
-      }
-    }
-
-    // Set default tab
-    if ( Aliases::onsiteActive ) {
-      $this->start_tab = date('D', strtotime($dates[date('D')]));
-    } else {
-      $this->start_tab = date('D', strtotime($this->start_date));
-    }
-
-    # all caps $this->start_tab
-    $this->start_tab = strtoupper($this->start_tab);
+    $input = $this->app->getInput();
+    $this->eventAlias = $input->get('event', '', 'STRING');
+    $this->action = $input->get('action', '', 'STRING');
     
+    // Validate event and action
+    $activeEvents = Config::getActiveEventAliases(mainOnly: true);
+    if ( !in_array($this->eventAlias, $activeEvents) ) {
+      $this->eventAlias = Aliases::current();
+    }
+    
+    Helpers::sessionSet('eventAlias', $this->eventAlias);
+    Helpers::sessionSet('eventAction', $this->action);
+    $this->events = new ClawEvents($this->eventAlias);
+    $this->eventInfo = $this->events->getClawEventInfo();
+    // $this->prefix = strtolower($this->eventInfo->prefix);
+
+    // Validate action
+    try {
+      EventPackageTypes::FindValue((int)($this->action ?? 0));
+    }
+    catch(\Exception $e) {
+      $this->action = EventPackageTypes::none;
+    }
+
     parent::display($tpl);
   }
 }

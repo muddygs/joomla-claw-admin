@@ -3,7 +3,6 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\EventPackageTypes;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Uri\Uri;
 
 require_once(JPATH_ROOT . '/components/com_eventbooking/helper/cart.php');
 require_once(JPATH_ROOT . '/components/com_eventbooking/helper/database.php');
@@ -16,15 +15,10 @@ use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\HTML\HTMLHelper;
 
-// Use session info first, otherwise, check URL for event alias
-$eventAlias = Helpers::sessionGet('eventAlias', Aliases::current()); // TODO: Document session keys
+/** @var \ClawCorp\Component\Claw\Site\View\Registrationoptions\HtmlView $this */
 
-// Parse URL to determine what the registrant is trying to do:
-$url = strtolower(substr(Uri::getInstance()->getPath(), 1));
-$prefix = strtolower(Aliases::defaultPrefix);
 $clawPackageType = EventPackageTypes::none;
 
-Helpers::sessionSet('regtype', $url);
 Helpers::sessionSet('filter_duration','');
 
 $tab = 'Meals';
@@ -35,68 +29,63 @@ $vipRedirect = false;
 // OR /reg?e=nnn where nnn = $EventPackageTypes::xxx
 // ALSO: is it possible to do /claw22/reg-att ? Maybe with URL rewrite in .htaccess?
 
-switch ($url) {
-  case $prefix . '-reg-att':
+switch ($this->action) {
+  case EventPackageTypes::attendee->value:
     $clawPackageType = EventPackageTypes::attendee;
     break;
-  case $prefix . '-reg-vip':
+  case EventPackageTypes::vip->value:
       $clawPackageType = EventPackageTypes::vip;
     break;
-  case $prefix . '-reg-vip2':
+  case EventPackageTypes::vip2->value:
     $clawPackageType = EventPackageTypes::vip;
     $vipRedirect = true;
     break;
-  case $prefix . '-reg-vol1':
-    $clawPackageType = EventPackageTypes::volunteer1;
-    $tab = 'Shifts';
-    break;
-  case $prefix . '-reg-vol':
-  case $prefix . '-reg-vol2':
+  case EventPackageTypes::volunteer2->value:
     $clawPackageType = EventPackageTypes::volunteer2;
     $tab = 'Shifts';
     break;
-  case $prefix . '-reg-vol3':
+  case EventPackageTypes::volunteer3->value:
     $clawPackageType = EventPackageTypes::volunteer3;
     $tab = 'Shifts';
     break;
-  case $prefix . '-reg-super':
+  case EventPackageTypes::volunteersuper->value:
     $clawPackageType = EventPackageTypes::volunteersuper;
     $tab = 'Shifts';
     break;
-  case $prefix . '-reg-sta':
+  case EventPackageTypes::event_staff->value:
     $clawPackageType = EventPackageTypes::event_staff;
     break;
-  case $prefix . '-reg-tal':
+  case EventPackageTypes::event_talent->value:
     $clawPackageType = EventPackageTypes::event_talent;
     break;
-  case $prefix . '-reg-claw':
+  case EventPackageTypes::claw_staff->value:
     $clawPackageType = EventPackageTypes::claw_staff;
     break;
-  case $prefix . '-reg-ven':
+  case EventPackageTypes::vendor_crew->value:
     $clawPackageType = EventPackageTypes::vendor_crew;
     break;
-  case $prefix . '-reg-edu':
+  case EventPackageTypes::educator->value:
     $clawPackageType = EventPackageTypes::educator;
     break;
-  case $prefix . '-reg-addons';
+  case EventPackageTypes::addons->value:
     $clawPackageType = EventPackageTypes::none;
     $addons = true;
     break;
-  case $prefix . '-daypass-fri';
+  case EventPackageTypes::day_pass_fri->value:
     $clawPackageType = EventPackageTypes::day_pass_fri;
     break;
-  case $prefix . '-daypass-sat';
+  case EventPackageTypes::day_pass_sat->value:
     $clawPackageType = EventPackageTypes::day_pass_sat;
     break;
-  case $prefix . '-daypass-sun';
+  case EventPackageTypes::day_pass_sun->value:
     $clawPackageType = EventPackageTypes::day_pass_sun;
     break;
   default:
-    echo 'Unhandled menu item. Contact the administrator to fix.';
+    echo 'Unknown action. Please try again.';
     return;
 }
 
-if ( !Aliases::onsiteActive ) {
+if ( !$this->eventInfo->onsiteActive ) {
   $blockedPackageTypes = [
     EventPackageTypes::day_pass_fri,
     EventPackageTypes::day_pass_sat,
@@ -116,14 +105,14 @@ if (!$uid) {
   return;
 }
 
-$registrant = new registrant(Aliases::current(), $uid);
+$registrant = new registrant($this->eventAlias, $uid);
 
 /** @var ClawCorpLib\Lib\Registrant\RegistrantRecord */
 $mainEvent = $registrant->getMainEvent();
 
 if ($addons == true && $mainEvent == null && !$vipRedirect) :
 ?>
-  <p>You are not currently registered. Please start your registration <a href="/registration-survey">here</a>.</p>
+  <p class="text-warning">You are not currently registered. Please start your registration <a href="/registration-survey">here</a>.</p>
   <p><span class="fa fa-info-circle fa-2x"></span><a href="/help?category_id=11">&nbsp;Contact Guest Services for assistance.</a></p>
 <?php
   return;
@@ -131,17 +120,15 @@ endif;
 
 if ($addons == false && $mainEvent != null && $mainEvent->registrant->eventPackageType != $clawPackageType) :
 ?>
-  <p>You cannot register for this event because you are already registered for <b><?= $mainEvent->event->title ?></b>.</p>
+  <p class="text-warning">You cannot register for this event because you are already registered for <b><?= $mainEvent->event->title ?></b>.</p>
   <p><span class="fa fa-info-circle fa-2x"></span><a href="/help?category_id=11">&nbsp;Contact Guest Services for assistance.</a></p>
 <?php
   return;
 endif;
 
 #region Toast
-/** @var \Joomla\CMS\Application\SiteApplication */
-$app = Factory::getApplication();
 /** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
-$wa = $app->getDocument()->getWebAssetManager();
+$wa = $this->app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.toast');
 // TODO: Load properly
 ?>
@@ -157,8 +144,8 @@ $wa->useScript('com_claw.toast');
 <?php
 #endregion Toast
 
-$clawEvents = new ClawEvents($eventAlias);
-$eventInfo = $clawEvents->getClawEventInfo();
+$clawEvents = $this->events;
+$eventInfo = $this->eventInfo;
 
 // Cache date limits for this event to filter in .../model/list.php
 Helpers::sessionSet('filter_start' , $eventInfo->start_date);
@@ -199,14 +186,14 @@ if ( $vipRedirect ) {
   $cart = new EventbookingHelperCart();
   $cart->reset();
 
-  $comboMealsAll = ClawEvents::getEventId(Aliases::defaultPrefix.'-meals-combo-all');
-  $vip = ClawEvents::getEventId(Aliases::defaultPrefix.'-vip');
+  $comboMealsAll = $this->events->getEvents()->getEventId(EventPackageTypes::meal_combo_all);
+  $vip = $this->events->getEvents()->getEventId(EventPackageTypes::vip);
   $cart->addEvents([$vip, $comboMealsAll]);
 
   // In case they want to come back, fall back to vip
-  Helpers::sessionSet('regtype', strtolower(Aliases::defaultPrefix.'-reg-vip'));
+  Helpers::sessionSet('eventAction', EventPackageTypes::vip->value);
 
-  $app->redirect('/index.php?option=com_eventbooking&view=cart');
+  $this->app->redirect('/index.php?option=com_eventbooking&view=cart');
 }
 
 $coupon = Helpers::sessionGet('clawcoupon');
@@ -246,7 +233,9 @@ $eventDescription = $addons == false ? $regEvent->description . ' Registration' 
 
 if ($mainEvent != null ) :
 ?>
-  <p>You are already registered. To view all your registrations, click <a href="/planning/my-reg">here</a>.
+  <p class="text-warning">
+    <b>You are already registered. To view all your registrations, click <a href="/planning/my-reg">here</a></b>.
+  </p>
 <?php
 endif;
   ?>
@@ -261,19 +250,19 @@ endif;
   $headings = [];
 
   $headings[] = 'Shifts';
-  if ( Aliases::onsiteActive ) {
+  if ( $this->eventInfo->onsiteActive ) {
     $content[] = contentShiftsOnsite();
   } else {
     $content[] = contentShifts($clawPackageType);
   }
   
   $headings[] = 'Meals';
-  $content[] = contentMeals();
+  $content[] = contentMeals($this->eventInfo->onsiteActive);
 
   $headings[] = 'Speed Dating';
   $content[] = contentSpeedDating();
 
-  if ( !Aliases::onsiteActive ) {
+  if ( !$this->eventInfo->onsiteActive ) {
     $headings[] = 'Rentals';
     $content[] = contentRentals();
   }
@@ -354,7 +343,7 @@ HTML;
     return $result;
   }
 
-  function contentMeals(): string
+  function contentMeals(bool $onsiteActive): string
   {
     $result = '';
     $categoryIds = ClawEvents::getCategoryIds([
@@ -363,7 +352,7 @@ HTML;
       'buffet-breakfast',
     ]);
 
-    if ( !Aliases::onsiteActive ) {
+    if ( !$onsiteActive ) {
       $categoryIds[] = ClawEvents::getCategoryId('meal-combos');
     }
 
@@ -386,13 +375,6 @@ HTML;
   function contentRentals(): string
   {
     $categoryIds = ClawEvents::getCategoryIds(['equipment-rentals']);
-    $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
-    return HTMLHelper::_('content.prepare', $content);
-  }
-
-  function contentParties(): string
-  {
-    $categoryIds = ClawEvents::getCategoryIds([Aliases::current() . '-parties']);
     $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
     return HTMLHelper::_('content.prepare', $content);
   }
