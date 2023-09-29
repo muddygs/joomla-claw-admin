@@ -12,6 +12,7 @@ namespace ClawCorp\Component\Claw\Site\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Helpers\EventBooking;
 use Exception;
 use Joomla\Database\Exception\DatabaseNotFoundException;
 use RuntimeException;
@@ -21,6 +22,7 @@ use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\BaseModel;
+use Joomla\Database\DatabaseDriver;
 
 /**
  * Minimal code for a component to configure state, but do nothing else
@@ -38,8 +40,7 @@ class RegistrationsurveyModel extends BaseModel
   public function RegistrationSurveyCouponStatus(string $coupon): string
   {
     // Get the database
-    $db = Factory::getContainer()->get('DatabaseDriver');
-    // $db = $this->getDatabase();
+    $db = Factory::getDbo();
 
     $result = [
       'error' => 1,
@@ -64,10 +65,12 @@ class RegistrationsurveyModel extends BaseModel
 
       /** @var \ClawCorpLib\Lib\ClawEvent $e */
       foreach ($events->getEvents() as $e) {
-        if (property_exists($e, "link") && substr($couponCode, 0, 1) === $e->couponKey) {
+        if (substr($couponCode, 0, 1) === $e->couponKey) {
+          $action = $e->clawPackageType;
+          Helpers::sessionSet('eventAction', $action->value);
           $result = [
             'error' => 0,
-            'link' => '/' . $e->link,
+            'link' => EventBooking::getRegistrationLink(),
           ];
 
           Helpers::sessionSet('clawcoupon', $couponCode);
