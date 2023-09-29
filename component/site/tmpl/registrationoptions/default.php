@@ -206,13 +206,14 @@ HTML;
 }
 
 $eventDescription = $addons == false ? $regEvent->description . ' Registration' : $mainEvent->event->title. ' Addons';
+$optionslink = Helpers::sessionGet('optionslink','/');
 
 ?>
   <div class="container">
     <div class="row">
       <div class="col-6 col-lg-2">
         <div class="d-grid"> 
-          <a href="/registration-survey" class="btn btn-danger" role="button"><i class="fa fa-chevron-left"></i> Back</a>
+          <a href="<?= $optionslink ?>" class="btn btn-danger" role="button"><i class="fa fa-chevron-left"></i> Back</a>
         </div>
       </div>
       <div class="col-6 col-lg-6">

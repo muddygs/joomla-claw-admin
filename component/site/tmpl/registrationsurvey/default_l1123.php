@@ -11,7 +11,7 @@ use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 
 Helpers::sessionSet('clawcoupon','');
-Helpers::sessionSet('clawcouponrequest','');
+// Helpers::sessionSet('clawcouponrequest','');
 
 /** @var \ClawCorp\Component\Claw\Site\View\Registrationsurvey\HtmlView $this */
 
@@ -102,7 +102,7 @@ endif;
 <?php
   else:
 ?>
-    For assistance, contact <a href="/help?category_id=17">Guest Services</a>.
+    For assistance, contact <a href="/help?category_id=17" style="color:#ffae00">Guest Services</a>.
 <?php
   endif;
 ?>
