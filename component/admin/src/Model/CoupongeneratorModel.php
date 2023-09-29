@@ -72,7 +72,7 @@ class CoupongeneratorModel extends FormModel
    */
   public function populateCodeTypes(Json $json): array
   {
-    $groups = array_keys(Helpers::getUserGroupsByName($this->getDatabase()));
+    $groups = array_keys(Helpers::getUserGroupsByName());
     $eventAlias = $json->get('jform[event]', Aliases::current(), 'string');
 
     $e = new ClawEvents($eventAlias);
