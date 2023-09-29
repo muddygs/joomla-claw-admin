@@ -42,7 +42,7 @@ class EventBooking
     $route = Route::_('index.php?option=com_claw&view=registrationoptions&event=' . $eventAlias . '&action='. $regAction);
 
     if ('' != $referrer) {
-      $route .= '?referrer=' . $referrer;
+      $route .= '&referrer=' . $referrer;
     }
 
     return $route;
@@ -52,7 +52,7 @@ class EventBooking
   {
     $route = Route::_('index.php?option=com_claw&view=registrationoptions&event=' . $eventAlias . '&action='. $eventAction->value);
     if ('' != $referrer) {
-      $route .= '?referrer=' . $referrer;
+      $route .= '&referrer=' . $referrer;
     }
 
     return $route;
