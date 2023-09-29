@@ -110,7 +110,7 @@ class Grids
       //if ( $etitle == '12:00PM' ) $etitle = 'Noon';
       
       $alias = strtolower($prefix.preg_replace('/[^a-z0-9_]+/','_',strtolower($title)).'-'.$grid->id.'-'.$grid->grid_id.'-'.$grid->day);
-      $title .= " ($stitle-$etitle)";
+      $title = implode(' ', [$eventInfo->prefix, $title, "($stitle-$etitle)"]);
 
       $description = implode('<br/>', [$grid->description, $grid->requirements]);
 
