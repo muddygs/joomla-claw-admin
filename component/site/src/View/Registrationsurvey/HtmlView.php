@@ -64,6 +64,9 @@ class HtmlView extends BaseHtmlView
     $this->onsiteActive = $this->events->getClawEventInfo()->onsiteActive;
 
     $this->couponCode = trim($this->app->input->get('coupon', '', 'string'));
+
+    // Remember link back to this menu item
+    Helpers::sessionSet('optionslink', \Joomla\CMS\Uri\Uri::getInstance()->toString());
   }
 
   public function display($tpl = null)
