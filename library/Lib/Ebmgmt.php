@@ -314,8 +314,9 @@ class Ebmgmt
    * @param int Dollar amount
    * @return True if added, False on error or duplicate (by title)
    */
-  public static function addDiscountBundle(array $eventIds, int $dollarAmount, string $startDate = '0000-00-00 00:00:00', string $endDate = '0000-00-00 00:00:00'): bool {
-    $db = Factory::getDbo();
+  public static function addDiscountBundle(array $eventIds, int $dollarAmount, string $startDate = '0000-00-00 00:00:00', string $endDate = '0000-00-00 00:00:00'): string
+  {
+    $db = Factory::getContainer()->get('DatabaseDriver');
     // Create Title
     $titles = [];
 
@@ -324,31 +325,43 @@ class Ebmgmt
         $titles[] = $row->title;
     }
 
-    $title = $db->q(implode('-',$titles));
+    $title = implode('-',$titles);
 
     // Does this title exist? If so, do nothing
     $query = $db->getQuery(true)
         ->select('title')
         ->from('#__eb_discounts')
-        ->where($db->qn('title'). " = " . $title);
+        ->where($db->qn('title'). " = " . $db->q($title));
     $db->setQuery($query);
     $result = $db->loadResult();
 
-    if ( $result != null ) return false;
+    if ( $result != null ) return "Skipping duplicate discount: $title";
 
     $query = $db->getQuery(true);
-    $columns = ['id', 'title', 'event_ids', 'discount_amount', 'from_date', 'to_date', 'times', 'used', 'published', 'number_events', 'discount_type'];
-    $values = [0, $title, $db->q(implode(',',$eventIds)), $db->q($dollarAmount), $db->q($startDate), $db->q($endDate), 0, 0, 1, 0, 1];
+
+    $data = [
+      'id' => 0,
+      'title' => $title,
+      'event_ids' => implode(',',$eventIds),
+      'discount_amount' => $dollarAmount,
+      'from_date' => $startDate,
+      'to_date' => $endDate,
+      'times' => 0,
+      'used' => 0,
+      'published' => 1,
+      'number_events' => 0,
+      'discount_type' => 1
+    ];
+
     $query
     ->insert($db->quoteName('#__eb_discounts'))
-    ->columns($db->quoteName($columns))
-    ->values(implode(',', $values));
+    ->columns($db->quoteName(array_keys($data)))
+    ->values(implode(',', $db->quote($data)));
     $db->setQuery($query);
     $result = $db->execute();
     $rowId = $db->insertid();
 
-
-    if ( $result === false ) return false;
+    if ( $result === false ) return "Error adding discount: $title";
 
     // Add discount indexes
     $columns = ['id', 'discount_id', 'event_id'];
@@ -363,7 +376,7 @@ class Ebmgmt
         $db->execute();
     }
 
-    return true;
+    return "Added discount: $title";
   }
 
   /**
