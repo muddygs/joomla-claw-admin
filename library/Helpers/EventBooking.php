@@ -9,6 +9,7 @@ use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
+use Stripe\Event;
 
 class EventBooking
 {
@@ -39,6 +40,10 @@ class EventBooking
     $regAction  = Helpers::sessionGet('eventAction', EventPackageTypes::none->value);
     $referrer   = Helpers::sessionGet('referrer');
 
+    if ( $regAction == EventPackageTypes::none->value ) {
+      return '/';
+    }
+
     $route = Route::_('index.php?option=com_claw&view=registrationoptions&event=' . $eventAlias . '&action='. $regAction);
 
     if ('' != $referrer) {
@@ -67,7 +72,6 @@ class EventBooking
       // return;
     }
 
-    // TODO: use DIRECTORY_SEPARATOR
     // Load external password file
     require_once JPATH_ROOT . '/../mailchimp_constants.php';
     require_once JPATH_LIBRARIES . '/claw/External/mailchimp-marketing-php/vendor/autoload.php';
