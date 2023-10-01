@@ -190,6 +190,7 @@ class SkillModel extends AdminModel
     $m = new Mailer(
       tomail: [$data['email']],
       toname: [$data['name']],
+      bcc: [$notificationEmail],
       fromname: 'CLAW Skills and Education',
       frommail: $notificationEmail,
       subject: $subject,
