@@ -19,7 +19,7 @@ abstract class AbstractEvent
   )
   {
     $this->events = [];
-    $this->info = new EventInfo($this->PopulateInfo());
+    $this->info = $this->PopulateInfo();
     $this->PopulateEvents($this->info->prefix);
   }
 
@@ -69,6 +69,6 @@ abstract class AbstractEvent
     $this->events[] = $e;
   }
 
-  abstract public function PopulateInfo();
+  abstract public function PopulateInfo(): EventInfo;
   abstract public function PopulateEvents(string $prefix, bool $quiet = false);
 }

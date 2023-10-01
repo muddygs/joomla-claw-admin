@@ -11,28 +11,28 @@ use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Lib\EventInfo;
-use Joomla\Input\Json;
+use stdClass;
 
 class c0424 extends AbstractEvent
 {
   public function PopulateInfo(): EventInfo
   {
-    $info = (object)[];
-    $info->description = 'CLAW 24';
-    $info->location = 'Cleveland, OH';
-    $info->locationAlias = 'renaissance-cleveland';
-    $info->start_date = '2024-04-08 00:00:00'; // Monday
-    $info->end_date = 'next week Tuesday'; // Calculated
-    $info->prefix = 'C24';
-    $info->shiftPrefix = strtolower($info->prefix . '-shift-cle-');
-    $info->mainAllowed = true;
-    $info->cancelBy = '2024-04-01 00:00:00'; // Varies too much to calculate
-    $info->timezone = 'America/New_York';
-    $info->eventType = EventTypes::main;
-    $info->active = true;
-    $info->onsiteActive = false;
-    
-    return new EventInfo($info);
+    return new EventInfo(
+      description: 'CLAW 24',
+      location: 'Cleveland, OH',
+      locationAlias: 'renaissance-cleveland',
+      start_date: '2024-04-08 00:00:00', // Monday
+      end_date: 'next week Tuesday', // Calculated
+      prefix: 'C24',
+      shiftPrefix: strtolower('c24-shift-cle-'),
+      mainAllowed: true,
+      cancelBy: '2024-04-01 00:00:00', // Varies too much to calculate
+      timezone: 'America/New_York',
+      eventType: EventTypes::main,
+      active: true,
+      onsiteActive: false,
+      termsArticleId: 77
+    );
   }
 
   public function PopulateEvents(string $prefix, $quiet = false)
@@ -304,7 +304,7 @@ class c0424 extends AbstractEvent
       'requiresCoupon' => false,
       'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr'],
       'isAddon' => true
-    ]));  
+    ]));
 
     $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'G',
@@ -336,14 +336,14 @@ class c0424 extends AbstractEvent
       'bundleDiscount' => 15,
       'start' => 'sunday 7pm',
       'end' => 'sunday 9pm',
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-sun-buffet', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-sun-buffet', $quiet),
       'category' => ClawEvents::getCategoryId('buffet'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => ['Super Users', 'Administrator'],
       'isAddon' => true
     ]));
-    
+
     $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => '',
       'alias' => $prefix . '-meals-combo-all',
@@ -353,14 +353,14 @@ class c0424 extends AbstractEvent
       'couponValue' => 0,
       'fee' => 500,
       'bundleDiscount' => 50,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-meals-combo-all', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-meals-combo-all', $quiet),
       'category' => ClawEvents::getCategoryId('meal-combos'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => [],
       'isAddon' => true
     ]));
-    
+
     $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => '',
       'alias' => $prefix . '-meals-combo-dinners',
@@ -370,7 +370,7 @@ class c0424 extends AbstractEvent
       'couponValue' => 0,
       'fee' => 300,
       'bundleDiscount' => 30,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-meals-combo-dinners', $quiet),
+      'eventId' => ClawEvents::getEventIdByAlias($prefix . '-meals-combo-dinners', $quiet),
       'category' => ClawEvents::getCategoryId('meal-combos'),
       'minShifts' => 0,
       'requiresCoupon' => false,
@@ -437,118 +437,86 @@ class c0424 extends AbstractEvent
     #endregion
   }
 
-  public function ConfigsJson(): Json
+  public function Configs(): stdClass
   {
-    $json = new Json();
+    $configs = (object)[];
 
     $events = (object)[
       'Fisting' => (object)[
-          'description' => 'Fill That Hole',
-          'types' => [ 'Fister', 'Fistee'],
-          'date' => 'Thursday 5PM',
+        'description' => 'Fill That Hole',
+        'types' => ['Fister', 'Fistee'],
+        'date' => 'Thursday 5PM',
       ],
       'Ass Play' => (object)[
-          'description' => 'Let\'s Get Cheeky',
-          'types' => [ 'Top', 'Bottom'],
-          'date' => 'Friday 6PM',
+        'description' => 'Let\'s Get Cheeky',
+        'types' => ['Top', 'Bottom'],
+        'date' => 'Friday 6PM',
       ],
-      // 'Assplay 3' => (object)[
-      //     'description' => 'Fill That Hole',
-      //     'types' => [ 'Top', 'Bottom'],
-      //     'date' => 'Friday 5PM',
-      // ],
       'BDSM 1' => (object)[
-          'description' => 'What\'s Your Kink?',
-          'types' => [ 'Top', 'Bottom'],
-          'date' => 'Thursday 5PM'
+        'description' => 'What\'s Your Kink?',
+        'types' => ['Top', 'Bottom'],
+        'date' => 'Thursday 5PM'
       ],
       'BDSM 2' => (object)[
-          'description' => 'What\'s Your Kink?',
-          'types' => [ 'Top', 'Bottom'],
-          'date' => 'Friday 7PM'
+        'description' => 'What\'s Your Kink?',
+        'types' => ['Top', 'Bottom'],
+        'date' => 'Friday 7PM'
       ],
-      // 'BDSM 3' => (object)[
-      //     'description' => 'Meet & Beat',
-      //     'types' => [ 'Top', 'Bottom'],
-      //     'date' => $friday,
-      //     'time' => 1800
-      // ],
-      // 'Gear Pigs' => (object)[
-      //     'description' => 'Wear Your Gear',
-      //     'types' => [ 'Top', 'Bottom'],
-      //     'date' => 'Friday 5PM'
-      // ],
-      // 'Couples & Thirds' => (object)[
-      //     'description' => 'The more, the merrier',
-      //     'types' => [ 'Couple', 'Third' ],
-      //     'date' => 'Friday 6PM'
-      // ],
-      // 'LTR' => (object)[
-      //     'description' => 'More than tonight',
-      //     'types' => [ 'Top', 'Bottom'],
-      //     'date' => 'Friday 5PM'
-      // ],
-      // 'CLAW Virgins' => (object)[
-      //     'description' => 'Explore together',
-      //     'types' => [ 'Top', 'Bottom'],
-      //     'date' => $friday,
-      //     'time' => 1900
-      // ],
-      'Pets & Handlers' => (object)[
-          'description' => 'Wags & Paws',
-          'types' => [ 'Pet', 'Handler'],
-          'date' => 'Thursday 8PM'
+      'Pets & Handlers 1' => (object)[
+        'description' => 'Wags & Paws',
+        'types' => ['Pet', 'Handler'],
+        'date' => 'Thursday 7PM'
       ],
       'Smokers' => (object)[
-          'description' => 'Hot Ash',
-          'types' => [ 'Top', 'Bottom'],
-          'date' => 'Thursday 8PM'
+        'description' => 'Hot Ash',
+        'types' => ['Top', 'Bottom'],
+        'date' => 'Thursday 8PM'
       ],
-      // 'Spanking' => (object)[
-      //     'description' => 'Find the whammie',
-      //     'types' => [ 'Top', 'Bottom'],
-      //     'date' => 'Friday 6PM',
-      // ],
       'ABDL' => (object)[
-          'description' => 'Welcome to My Crib',
-          'types' => [ 'Big', 'little'],
-          'date' => 'Thursday 7PM',
+        'description' => 'Welcome to My Crib',
+        'types' => ['Big', 'little'],
+        'date' => 'Friday 8PM',
       ],
       'Daddy & Boy' => (object)[
-          'description' => 'Nurture is Nature',
-          'types' => [ 'Daddy', 'boy'],
-          'date' => 'Thursday 7PM',
+        'description' => 'Nurture is Nature',
+        'types' => ['Daddy', 'boy'],
+        'date' => 'Thursday 7PM',
       ],
       'Impact Play' => (object)[
-          'description' => 'Meet & Beat',
-          'types' => [ 'Top', 'Bottom'],
-          'date' => 'Friday 6PM',
+        'description' => 'Meet & Beat',
+        'types' => ['Top', 'Bottom'],
+        'date' => 'Friday 6PM',
       ],
       'Rope Bondage' => (object)[
-          'description' => 'Bound to Have Fun',
-          'types' => [ 'Rigger', 'Bunny'],
-          'date' => 'Thursday 6PM',
+        'description' => 'Bound to Have Fun',
+        'types' => ['Rigger', 'Bunny'],
+        'date' => 'Thursday 7PM',
       ],
       'Uniforms' => (object)[
-          'description' => 'Ready For Inspection',
-          'types' => [ 'Top', 'Bottom'],
-          'date' => 'Thursday 6PM',
+        'description' => 'Ready For Inspection',
+        'types' => ['Top', 'Bottom'],
+        'date' => 'Thursday 6PM',
       ],
       'Rubber' => (object)[
-          'description' => 'Shiny or Matte?',
-          'types' => [ 'Top', 'Bottom'],
-          'date' => 'Thursday 7PM',
+        'description' => 'Shiny or Matte?',
+        'types' => ['Top', 'Bottom'],
+        'date' => 'Friday 8PM',
+      ],
+      'Pets & Handlers 2' => (object)[
+        'description' => 'Wags & Paws',
+        'types' => ['Pet', 'Handler'],
+        'date' => 'Friday 7PM',
       ],
     ];
 
-    $json->set('speeddating', $events);
+    $configs->speeddating = $events;
 
     $events = (object)[
       'Equipment Delivery' => (object)[
-          'description' => 'Please note: Renaissance guests only. You are still responsible for returning equipment.',
-          'price' => 50,
-          'pricetext' => '',
-          'capacity' => 0,
+        'description' => 'Please note: Renaissance guests only. You are still responsible for returning equipment.',
+        'price' => 50,
+        'pricetext' => '',
+        'capacity' => 0,
       ],
       // 'Heavy Steel Cage Rental' => (object)[
       //     'description' => '',
@@ -557,10 +525,10 @@ class c0424 extends AbstractEvent
       //     'capacity' => 3,
       // ],
       'Rim Seat Rental' => (object)[
-          'description' => '',
-          'price' => 125,
-          'pricetext' => '$50 + $75 deposit',
-          'capacity' => 10,
+        'description' => '',
+        'price' => 125,
+        'pricetext' => '$50 + $75 deposit',
+        'capacity' => 10,
       ],
       // 'Handled T-Leg Rim Seat Rental' => (object)[
       //     'description' => '',
@@ -569,14 +537,14 @@ class c0424 extends AbstractEvent
       //     'capacity' => 0,
       // ],
       'Sling Kit Rental' => (object)[
-          'description' => 'Rental Includes:Portable sling frame, deluxe canvas sling, chain, 2 stirrups, carrying bag, cleaning kit, 10 disposable liners.',
-          'price' => 250,
-          'pricetext' => '$100 + $150 deposit',
-          'capacity' => 20,
+        'description' => 'Rental Includes:Portable sling frame, deluxe canvas sling, chain, 2 stirrups, carrying bag, cleaning kit, 10 disposable liners.',
+        'price' => 250,
+        'pricetext' => '$100 + $150 deposit',
+        'capacity' => 20,
       ],
     ];
 
-    $json->set('rentals', $events);
+    $configs->rentals = $events;
 
     $advertisingCategoryId = ClawEvents::getCategoryId('sponsorships-advertising');
     $logoPlacementCategoryId = ClawEvents::getCategoryId('sponsorships-logo');
@@ -585,246 +553,214 @@ class c0424 extends AbstractEvent
     $blueCategoryId = ClawEvents::getCategoryId('sponsorships-blue');
     $goldCategoryId = ClawEvents::getCategoryId('sponsorships-gold');
 
-    $eventsJson = <<< JSON
-{
-  "1": {
-    "main_category_id": $advertisingCategoryId,
-    "event_capacity": 0,
-    "individual_price": 250,
-    "price_text": null,
-    "title": "Full Page Ad",
-    "description": "Full page ad (8\"H x 5\"W) in CLAW 23 Yearbook. Registration email contains full specifications."
-  },
-  "2": {
-    "main_category_id": $advertisingCategoryId,
-    "event_capacity": 1,
-    "individual_price": 1200,
-    "price_text": null,
-    "title": "Outside Rear Cover (Color)",
-    "description": "Same dimensions as Full Page Ad"
-  },
-  "3": {
-    "main_category_id": $advertisingCategoryId,
-    "event_capacity": 1,
-    "individual_price": 550,
-    "price_text": null,
-    "title": "Inside Front Cover (Color)",
-    "description": "Same dimensions as Full Page Ad"
-  },
-  "4": {
-    "main_category_id": $advertisingCategoryId,
-    "event_capacity": 1,
-    "individual_price": 550,
-    "price_text": null,
-    "title": "Page 3 (Color)",
-    "description": "Same dimensions as Full Page Ad"
-  },
-  "5": {
-    "main_category_id": $advertisingCategoryId,
-    "event_capacity": 1,
-    "individual_price": 450,
-    "price_text": null,
-    "title": "Inside Back Cover (Color)",
-    "description": "Same dimensions as Full Page Ad"
-  },
-  "23": {
-    "main_category_id": $advertisingCategoryId,
-    "event_capacity": 2,
-    "individual_price": 400,
-    "price_text": null,
-    "title": "Page 5 or 7 (Color)",
-    "description": "Same dimensions as Full Page Ad"
-  },
-  "24": {
-    "main_category_id": $advertisingCategoryId,
-    "event_capacity": 2,
-    "individual_price": 350,
-    "price_text": null,
-    "title": "Page 4 or 6 (Color)",
-    "description": "Same dimensions as Full Page Ad"
-  },
-  "6": {
-    "main_category_id": $advertisingCategoryId,
-    "event_capacity": 1,
-    "individual_price": 350,
-    "price_text": null,
-    "title": "Page Opposite Inside Back Cover",
-    "description": "Same dimensions as Full Page Ad"
-  },
-  "7": {
-    "main_category_id": $advertisingCategoryId,
-    "event_capacity": 1,
-    "individual_price": 750,
-    "price_text": null,
-    "title": "Two-Page Centerfold",
-    "description": "Requires 2 Full Page Ad graphics"
-  },
-  "8": {
-    "main_category_id": $advertisingCategoryId,
-    "event_capacity": 0,
-    "individual_price": 500,
-    "price_text": null,
-    "title": "Two-Page Spread",
-    "description": "Requires 2 Full Page Ad graphics"
-  },
-  "9": {
-    "main_category_id": $advertisingCategoryId,
-    "event_capacity": 0,
-    "individual_price": 200,
-    "price_text": null,
-    "title": "Additional Pages",
-    "description": "Full page ad (8\"H x 5\"W) in CLAW Yearbook."
-  },
-  "10": {
-    "main_category_id": $advertisingCategoryId,
-    "event_capacity": 0,
-    "individual_price": 150,
-    "price_text": null,
-    "title": "Half Page Ad",
-    "description": "Half Page: 3 7/8;\" H x 5\" W"
-  },
-  "11": {
-    "main_category_id": $advertisingCategoryId,
-    "event_capacity": 0,
-    "individual_price": 100,
-    "price_text": null,
-    "title": "Quarter Page Ad",
-    "description": "Quarter Page: 3 7/8;\" H x 2 3/8;\" W"
-  },
-  "14": {
-    "main_category_id": $logoPlacementCategoryId,
-    "event_capacity": 0,
-    "individual_price": 100,
-    "price_text": null,
-    "title": "Run Bag Inserts (Commercial)",
-    "description": "2,500 pieces (to be received by April 1, 2023)"
-  },
-  "15": {
-    "main_category_id": $logoPlacementCategoryId,
-    "event_capacity": 0,
-    "individual_price": 40,
-    "price_text": null,
-    "title": "Run Bag Inserts (Non-Profit)",
-    "description": "2,500 pieces (to be received by April 1, 2023)"
-  },
-  "16": {
-    "main_category_id": $logoPlacementCategoryId,
-    "event_capacity": 0,
-    "individual_price": 300,
-    "price_text": null,
-    "title": "Website Banner (6 months)",
-    "description": "Your banner ad on the clawinfo.org homepage for 6 months<br /><strong>Image specifications:</strong> 940x200, jpg"
-  },
-  "17": {
-    "main_category_id": $logoPlacementCategoryId,
-    "event_capacity": 0,
-    "individual_price": 500,
-    "price_text": null,
-    "title": "Website Banner (12 months)",
-    "description": "Your banner ad on the clawinfo.org homepage for 12 months<br /><strong>Image specifications:</strong> 940x200, jpg"
-  },
-  "18": {
-    "main_category_id": $logoPlacementCategoryId,
-    "event_capacity": 0,
-    "individual_price": 600,
-    "price_text": null,
-    "title": "CLAW Mobile App (YAPP)",
-    "description": "Sponsor the official CLAW mobile app. Over 900 downloads and 10,000 views a day during the event.<br /><strong>Image specifications:</strong> 600x200, jpg"
-  },
-  "19": {
-    "main_category_id": $logoPlacementCategoryId,
-    "event_capacity": 0,
-    "individual_price": 500,
-    "price_text": null,
-    "title": "Three e-blast Banner Ads",
-    "description": "Your banner ad on three CLAW/Getaway eblasts (sent to more than 10,000 great addresses)<br /> <strong>Image specifications:</strong> 600x125, jpg"
-  },
-  "20": {
-    "main_category_id": $logoPlacementCategoryId,
-    "event_capacity": 0,
-    "individual_price": 400,
-    "price_text": null,
-    "title": "Ad Combo 1",
-    "description": "Save $250 with this Bundle! Includes Yearbook full page ad, run bag inserts, and website banner ad (6 months)<p><small>2,500 run bag inserts (to be received by April 1)</small></p>"
-  },
-  "21": {
-    "main_category_id": $logoPlacementCategoryId,
-    "event_capacity": 0,
-    "individual_price": 750,
-    "price_text": null,
-    "title": "Ad Combo 2",
-    "description": "Save $400 with This Bundle! Includes Yearbook full page ad, run bag inserts, and website banner ad (6 months), and Banner ads in three e-blasts.<p><small>2,500 run bag insert (to be received by April 1)</small></p>"
-  },
-  "22": {
-    "main_category_id": $logoPlacementCategoryId,
-    "event_capacity": 0,
-    "individual_price": 1200,
-    "price_text": null,
-    "title": "Ad Combo 3",
-    "description": "Save $1000 with this Bundle: Includes full page ad in both Yearbooks (L.A. Leather Getaway and CLAW 23), run bag inserts at both events, website banner ad (12 months), and Banner ads in six e-blasts.<p><small>2,500 run bag inserts (to be received by April 1 for CLAW 23)</small></p>"
-  },
-  "23": {
-    "main_category_id": $masterSustainingCategoryId,
-    "event_capacity": 0,
-    "individual_price": 5000,
-    "price_text": null,
-    "title": "Master Sponsorship One Event",
-    "description": "Please see the sponsorship page for details."
-  },
-  "24": {
-    "main_category_id": $masterSustainingCategoryId,
-    "event_capacity": 0,
-    "individual_price": 1500,
-    "price_text": null,
-    "title": "Sustaining Sponsorship One Event",
-    "description": "Please see the sponsorship page for details."
-  },
-  "25": {
-    "main_category_id": $masterSustainingCategoryId,
-    "event_capacity": 0,
-    "individual_price": 7000,
-    "price_text": null,
-    "title": "Master Sponsorship Year Round",
-    "description": "Please see the sponsorship page for details."
-  },
-  "26": {
-    "main_category_id": $masterSustainingCategoryId,
-    "event_capacity": 0,
-    "individual_price": 2200,
-    "price_text": null,
-    "title": "Sustaining Sponsorship Year Round",
-    "description": "Please see the sponsorship page for details."
-  },
-  "27": {
-    "main_category_id": $blackCategoryId,
-    "event_capacity": 0,
-    "individual_price": 2000,
-    "price_text": null,
-    "title": "Black-Level Sponsorship",
-    "description": "Partner Event Sponsorship - We Work with You to Create <i>CLAW 23</i>"
-  },
-  "28": {
-    "main_category_id": $blueCategoryId,
-    "event_capacity": 0,
-    "individual_price": 400,
-    "price_text": null,
-    "title": "Blue-Level Sponsorship",
-    "description": "Partner Event Sponsorship - We Work with You to Create <i>CLAW 23</i>"
-  },
-  "29": {
-    "main_category_id": $goldCategoryId,
-    "event_capacity": 0,
-    "individual_price": 800,
-    "price_text": null,
-    "title": "Gold-Level Sponsorship",
-    "description": "Partner Event Sponsorship - We Work with You to Create <i>CLAW 23</i>"
-  }
-}
-JSON;
+    $events = [
+      (object)[
+        "main_category_id" => $advertisingCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 250,
+        "title" => "Full Page Ad",
+        "description" => "Full page ad (8\"H x 5\"W) in CLAW 23 Yearbook. Registration email contains full specifications."
+      ],
+      (object)[
+        "main_category_id" => $advertisingCategoryId,
+        "event_capacity" => 1,
+        "individual_price" => 1200,
+        "title" => "Outside Rear Cover (Color)",
+        "description" => "Same dimensions as Full Page Ad"
+      ],
+      (object)[
+        "main_category_id" => $advertisingCategoryId,
+        "event_capacity" => 1,
+        "individual_price" => 550,
+        "title" => "Inside Front Cover (Color)",
+        "description" => "Same dimensions as Full Page Ad"
+      ],
+      (object)[
+        "main_category_id" => $advertisingCategoryId,
+        "event_capacity" => 1,
+        "individual_price" => 550,
+        "title" => "Page 3 (Color)",
+        "description" => "Same dimensions as Full Page Ad"
+      ],
+      (object)[
+        "main_category_id" => $advertisingCategoryId,
+        "event_capacity" => 1,
+        "individual_price" => 450,
+        "title" => "Inside Back Cover (Color)",
+        "description" => "Same dimensions as Full Page Ad"
+      ],
+      (object)[
+        "main_category_id" => $advertisingCategoryId,
+        "event_capacity" => 2,
+        "individual_price" => 400,
+        "title" => "Page 5 or 7 (Color)",
+        "description" => "Same dimensions as Full Page Ad"
+      ],
+      (object)[
+        "main_category_id" => $advertisingCategoryId,
+        "event_capacity" => 2,
+        "individual_price" => 350,
+        "title" => "Page 4 or 6 (Color)",
+        "description" => "Same dimensions as Full Page Ad"
+      ],
+      (object)[
+        "main_category_id" => $advertisingCategoryId,
+        "event_capacity" => 1,
+        "individual_price" => 350,
+        "title" => "Page Opposite Inside Back Cover",
+        "description" => "Same dimensions as Full Page Ad"
+      ],
+      (object)[
+        "main_category_id" => $advertisingCategoryId,
+        "event_capacity" => 1,
+        "individual_price" => 750,
+        "title" => "Two-Page Centerfold",
+        "description" => "Requires 2 Full Page Ad graphics"
+      ],
+      (object)[
+        "main_category_id" => $advertisingCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 500,
+        "title" => "Two-Page Spread",
+        "description" => "Requires 2 Full Page Ad graphics"
+      ],
+      (object)[
+        "main_category_id" => $advertisingCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 200,
+        "title" => "Additional Pages",
+        "description" => "Full page ad (8\"H x 5\"W) in CLAW Yearbook."
+      ],
+      (object)[
+        "main_category_id" => $advertisingCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 150,
+        "title" => "Half Page Ad",
+        "description" => "Half Page: 3 7/8;\" H x 5\" W"
+      ],
+      (object)[
+        "main_category_id" => $advertisingCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 100,
+        "title" => "Quarter Page Ad",
+        "description" => "Quarter Page: 3 7/8;\" H x 2 3/8;\" W"
+      ],
+      (object)[
+        "main_category_id" => $logoPlacementCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 100,
+        "title" => "Run Bag Inserts (Commercial)",
+        "description" => "2,500 pieces (to be received by April 1, 2023)"
+      ],
+      (object)[
+        "main_category_id" => $logoPlacementCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 40,
+        "title" => "Run Bag Inserts (Non-Profit)",
+        "description" => "2,500 pieces (to be received by April 1, 2023)"
+      ],
+      (object)[
+        "main_category_id" => $logoPlacementCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 300,
+        "title" => "Website Banner (6 months)",
+        "description" => "Your banner ad on the clawinfo.org homepage for 6 months<br /><strong>Image specifications:</strong> 940x200, jpg"
+      ],
+      (object)[
+        "main_category_id" => $logoPlacementCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 500,
+        "title" => "Website Banner (12 months)",
+        "description" => "Your banner ad on the clawinfo.org homepage for 12 months<br /><strong>Image specifications:</strong> 940x200, jpg"
+      ],
+      (object)[
+        "main_category_id" => $logoPlacementCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 600,
+        "title" => "CLAW Mobile App (YAPP)",
+        "description" => "Sponsor the official CLAW mobile app. Over 900 downloads and 10,000 views a day during the event.<br /><strong>Image specifications:</strong> 600x200, jpg"
+      ],
+      (object)[
+        "main_category_id" => $logoPlacementCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 500,
+        "title" => "Three e-blast Banner Ads",
+        "description" => "Your banner ad on three CLAW/Getaway eblasts (sent to more than 10,000 great addresses)<br /> <strong>Image specifications:</strong> 600x125, jpg"
+      ],
+      (object)[
+        "main_category_id" => $logoPlacementCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 400,
+        "title" => "Ad Combo 1",
+        "description" => "Save $250 with this Bundle! Includes Yearbook full page ad, run bag inserts, and website banner ad (6 months)<p><small>2,500 run bag inserts (to be received by April 1)</small></p>"
+      ],
+      (object)[
+        "main_category_id" => $logoPlacementCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 750,
+        "title" => "Ad Combo 2",
+        "description" => "Save $400 with This Bundle! Includes Yearbook full page ad, run bag inserts, and website banner ad (6 months), and Banner ads in three e-blasts.<p><small>2,500 run bag insert (to be received by April 1)</small></p>"
+      ],
+      (object)[
+        "main_category_id" => $logoPlacementCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 1200,
+        "title" => "Ad Combo 3",
+        "description" => "Save $1000 with this Bundle: Includes full page ad in both Yearbooks (L.A. Leather Getaway and CLAW 23), run bag inserts at both events, website banner ad (12 months), and Banner ads in six e-blasts.<p><small>2,500 run bag inserts (to be received by April 1 for CLAW 23)</small></p>"
+      ],
+      (object)[
+        "main_category_id" => $masterSustainingCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 5000,
+        "title" => "Master Sponsorship One Event",
+        "description" => "Please see the sponsorship page for details."
+      ],
+      (object)[
+        "main_category_id" => $masterSustainingCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 1500,
+        "title" => "Sustaining Sponsorship One Event",
+        "description" => "Please see the sponsorship page for details."
+      ],
+      (object)[
+        "main_category_id" => $masterSustainingCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 7000,
+        "title" => "Master Sponsorship Year Round",
+        "description" => "Please see the sponsorship page for details."
+      ],
+      (object)[
+        "main_category_id" => $masterSustainingCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 2200,
+        "title" => "Sustaining Sponsorship Year Round",
+        "description" => "Please see the sponsorship page for details."
+      ],
+      (object)[
+        "main_category_id" => $blackCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 2000,
+        "title" => "Black-Level Sponsorship",
+        "description" => "Partner Event Sponsorship - We Work with You to Create <i>CLAW 23</i>"
+      ],
+      (object)[
+        "main_category_id" => $blueCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 400,
+        "title" => "Blue-Level Sponsorship",
+        "description" => "Partner Event Sponsorship - We Work with You to Create <i>CLAW 23</i>"
+      ],
+      (object)[
+        "main_category_id" => $goldCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 800,
+        "title" => "Gold-Level Sponsorship",
+        "description" => "Partner Event Sponsorship - We Work with You to Create <i>CLAW 23</i>"
+      ]
+    ];
 
-    $events = json_decode($eventsJson);
-    $json->set('sponsorships', $events);
-    
-    return $json;
+    $configs->sponsorships = $events;
+
+    return $configs;
   }
 }

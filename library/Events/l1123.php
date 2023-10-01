@@ -10,26 +10,28 @@ use ClawCorpLib\Events\AbstractEvent;
 use ClawCorpLib\Lib\ClawEvent;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Enums\EventTypes;
+use ClawCorpLib\Lib\EventInfo;
 
 class l1123 extends AbstractEvent
 {
-  public function PopulateInfo()
+  public function PopulateInfo(): EventInfo
   {
-    $info = (object)[];
-    $info->description = 'Leather Getaway 23';
-    $info->location = 'Los Angeles, CA';
-    $info->locationAlias = 'westin-bonaventure';
-    $info->start_date = '2023-11-20 00:00:00'; // Monday
-    $info->end_date = 'next week Tuesday'; // Calculated
-    $info->prefix = 'L23';
-    $info->shiftPrefix = strtolower($info->prefix.'-shift-lg-');
-    $info->mainAllowed = true;
-    $info->cancelBy = '2023-11-19 00:00:00'; // Varies too much to calculate
-    $info->eventType = EventTypes::main;
-    $info->timezone = 'America/Los_Angeles';
-    $info->active = true;
-    $info->onsiteActive = false;
-    return $info;
+    return new EventInfo(
+    description: 'Leather Getaway 23',
+    location: 'Los Angeles, CA',
+    locationAlias: 'westin-bonaventure',
+    start_date: '2023-11-20 00:00:00', // Monday
+    end_date: 'next week Tuesday', // Calculated
+    prefix: 'L23',
+    shiftPrefix: strtolower('l23-shift-lg-'),
+    mainAllowed: true,
+    cancelBy: '2023-11-19 00:00:00', // Varies too much to calculate
+    eventType: EventTypes::main,
+    timezone: 'America/Los_Angeles',
+    active: true,
+    onsiteActive: false,
+    termsArticleId: 230,
+    );
   }
 
   public function PopulateEvents(string $prefix, bool $quiet = false)

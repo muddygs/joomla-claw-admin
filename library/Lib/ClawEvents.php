@@ -449,7 +449,7 @@ SQL;
       $reflection = new ReflectionClass($classname);
       /** @var \ClawCorpLib\Event\AbstractEvent */
       $instance = $reflection->newInstanceWithoutConstructor();
-      $info = new EventInfo($instance->PopulateInfo());
+      $info = $instance->PopulateInfo();
       if ( !$info->active ) continue;
 
       $EventList[$class] = $info;
