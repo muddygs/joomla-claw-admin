@@ -132,18 +132,28 @@ class EventcopyModel extends FormModel
 
   public function doCreateEvents(Json $json): string
   {
+    $log = [];
+
+    $to = $json->get('jform[to_event]', '', 'string');
+
+    // Validate events are valid
+    if (!ClawEvents::isValidEventAlias($to)) {
+      return 'Invalid to event: ' . $to;
+    }
+
     // Ignore server-specific timezone information
     date_default_timezone_set('etc/UTC');
 
     $info = (object)[];
     $events = [];
 
-    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\c0424");
+    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$to");
     /** @var \ClawCorpLib\Event\AbstractEvent */
     $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
 
     // Normal constructor does not call with quiet mode set to true
-    $info = new EventInfo($instance->PopulateInfo());
+    /** @var \ClawCorpLib\Lib\EventInfo */
+    $info = $instance->PopulateInfo();
     $instance->PopulateEvents($info->prefix, true);
     $events = $instance->getEvents();
 
@@ -157,8 +167,9 @@ class EventcopyModel extends FormModel
     $registration_start_date = Factory::getDate()->toSql();
     $publish_down = $this->modify($info->start_date, '+8 days');
 
-    $article_id = 77; // Terms & Conditions
+    $article_id = $info->termsArticleId;
 
+    /** @var \ClawCorpLib\Lib\ClawEvent */
     foreach ($events as $event) {
       if ($event->alias == '') continue;
 
@@ -192,22 +203,242 @@ class EventcopyModel extends FormModel
 
       $eventId = $insert->insert();
       if ($eventId == 0) {
-        echo "<p>Skipping existing: $title</p>";
+        $log[] =  "<p>Skipping existing: $title</p>";
       } else {
-        echo "<p>Added: $title at event id $eventId</p>";
+        $log[] =  "<p>Added: $title at event id $eventId</p>";
       }
-      return '';
     }
+    return implode("\n", $log);
   }
 
   public function doCreateSpeedDating(Json $json): string
   {
-    return '';
+    $log = [];
+
+    $to = $json->get('jform[to_event]', '', 'string');
+
+    // Validate events are valid
+    if (!ClawEvents::isValidEventAlias($to)) {
+      return 'Invalid to event: ' . $to;
+    }
+
+    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$to");
+    /** @var \ClawCorpLib\Event\AbstractEvent */
+    $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
+
+    // Normal constructor does not call with quiet mode set to true
+    /** @var \ClawCorpLib\Lib\EventInfo */
+    $info = $instance->PopulateInfo();
+    /** @var stdObject */
+    $config = $instance->Configs();
+
+    // start and ending usability of these events
+    $registration_start_date = Factory::getDate()->toSql();
+    $publish_down = $this->modify($info->start_date, 'Friday 11PM');
+    
+    $article_id = $info->termsArticleId;
+    $main_category_id = ClawEvents::getCategoryId('speed-dating');
+    $capacity = 15;
+    $waiting_list_capacity = 10;
+
+    foreach ($config->speeddating as $key => $params) {
+      foreach ($params->types as $type) {
+        $dateObject = $info->getDate();
+
+        $start = $dateObject->modify($params->date);
+        $event_date = $start->toSql();
+        $title = $info->prefix . ' ' . $key . ' (' . $type . ') ' . substr($params->date, 0, 3) . ' ' . $start->format('g:iA');
+
+        $event_end_date = $start->modify('+45 minutes')->toSql();
+
+        $alias = strtolower($info->prefix . '-' . preg_replace("/[^A-Za-z0-9]/", '', $key) . '-' . $type);
+
+        $description = $params->description;
+        $short_description = $params->description;
+
+        $cut_off_date = $event_date;
+        $cancel_before_date = $event_date;
+
+        $insert = new ebMgmt($main_category_id, $alias, $title, $description);
+        $insert->set('activate_waiting_list', 1, false);
+        $insert->set('article_id', $article_id, false);
+        $insert->set('cancel_before_date', $cancel_before_date);
+        $insert->set('cut_off_date', $cut_off_date);
+        $insert->set('event_capacity', $capacity, false);
+        $insert->set('event_date', $event_date);
+        $insert->set('event_end_date', $event_end_date);
+        $insert->set('publish_down', $publish_down);
+        $insert->set('registration_start_date', $registration_start_date);
+        $insert->set('short_description', $short_description);
+        $insert->set('waiting_list_capacity', $waiting_list_capacity);
+
+        $eventId = $insert->insert();
+        if ($eventId == 0) {
+          $log[] = "Skipping existing: $title";
+        } else {
+          $log[] = "Added: $title at event id $eventId";
+        }
+      }
+    }
+
+    return '<p>'.implode('</p><p>', $log).'</p>';
+  }
+
+  public function doCreateDiscountBundles(Json $json): string
+  {
+    $log = [];
+
+    $to = $json->get('jform[to_event]', '', 'string');
+
+    // Validate events are valid
+    if (!ClawEvents::isValidEventAlias($to)) {
+      return 'Invalid to event: ' . $to;
+    }
+
+    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$to");
+    /** @var \ClawCorpLib\Event\AbstractEvent */
+    $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
+
+    // Normal constructor does not call with quiet mode set to true
+    /** @var \ClawCorpLib\Lib\EventInfo */
+    $info = $instance->PopulateInfo();
+    $instance->PopulateEvents($info->prefix, true);
+    $events = $instance->getEvents();
+
+    /** @var \ClawCorpLib\Lib\ClawEvent */
+    foreach ( $events AS $event ) {
+      if ( !$event->isVolunteer) continue;
+
+      /** @var \ClawCorpLib\Lib\ClawEvent */
+      foreach ( $events AS $mealBundleEvent ) {
+        if ( $mealBundleEvent->bundleDiscount < 1 ) continue;
+
+        $log[] = ebMgmt::addDiscountBundle([$event->eventId, $mealBundleEvent->eventId], $mealBundleEvent->bundleDiscount);
+      }
+    }
+
+    return '<p>'.implode('</p><p>', $log).'</p>';
   }
 
   public function doCreateSponsorships(Json $json): string
   {
-    return '';
+    $log = [];
+
+    $to = $json->get('jform[to_event]', '', 'string');
+
+    // Validate events are valid
+    if (!ClawEvents::isValidEventAlias($to)) {
+      return 'Invalid to event: ' . $to;
+    }
+
+    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$to");
+    /** @var \ClawCorpLib\Event\AbstractEvent */
+    $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
+
+    // Normal constructor does not call with quiet mode set to true
+    /** @var \ClawCorpLib\Lib\EventInfo */
+    $eventInfo = $instance->PopulateInfo();
+    /** @var stdObject */
+    $config = $instance->Configs();
+
+    // start and ending usability of these events
+    $registration_start_date = Factory::getDate()->toSql();
+    $publish_down = $this->modify($eventInfo->start_date, '+8 days');
+
+    $cancel_before_date = $this->modify($eventInfo->start_date, '-21 days');
+    $cut_off_date = $eventInfo->start_date;
+    $event_date = $eventInfo->start_date;
+    $event_end_date = $eventInfo->end_date;
+
+    $cards_due = date_format(date_create($this->modify($eventInfo->start_date, 'last saturday 11:59pm')), 'F j, Y');
+    $graphics_due = date_format(date_create($cut_off_date), 'F j, Y');
+
+    $user_email_body = <<< HTML
+<p><b>INVOICE NUMBER: [INVOICE_NUMBER]</b></p>
+
+<p><b>IMPORTANT DEADLINES</b></p>
+<p><b>Yearbook graphics:</b> Send prepared graphics (see below) to graphics@clawinfo.org by {$graphics_due}</p>
+<p><b>Run Bag Inserts:</b> {$cards_due} (see mailing address below)</p>
+
+<p>Dear <strong>[FIRST_NAME] [LAST_NAME]</strong></p>
+<p>You have just registered for event <strong>[EVENT_TITLE]</strong>. The registration detail is as follow :</p>
+<p>[REGISTRATION_DETAIL]</p>
+<p>Regards,</p>
+<p>CLAW Guest Services</p>
+<p>If you need assistance, contact us at <a href="https://www.clawinfo.org/help">Guest Services Link</a></p>
+
+<p><a href="https://www.clawinfo.org/index.php?option=com_content&view=article&layout=html&id={$eventInfo->termsArticleId}">Terms &amp; Conditions</a></p>
+<hr>
+<h1>Run Bag Inserts</h1>
+<p>Send 2,500 pieces to be received by Saturday, April 1, 2023 to:</p>
+<p>
+CLAW Corp.<br>
+1549 Superior Ave. #1515<br>
+Cleveland, OH 44114
+</p>
+
+<h1>Yearbook Specifications:</h1>
+<p>Preferred formats: ai, jpg, tif, png or pdf format, <b><u>and at least 300 DPI.</u></b></p>
+<p>Send ads to <a href="mailto:graphics@clawinfo.org">graphics@clawinfo.org</a>.</p>
+
+<h2>Full Page Specifications</h2>
+<p>Bleed size - 8 3/4&quot; H x 5 3/4&quot; W (1/8&quot; bleed - this will be the total size)<br />
+Trim size - 8 1/2;&quot; H x 5 1/2;&quot; W (1/4;&quot; margin all around)<br />
+Live area - 8&quot; H x 5&quot; W (Please keep all text and any graphics that you want to show within this area).</p>
+
+<h2>Half Page Specifications</h2>
+<p>3 7/8;&quot; H x 5&quot; W</p>
+
+<h2>Quarter Page Specifications</h2>
+<p>3 7/8;&quot; H x 2 3/8;&quot; W</p>
+
+<h1>Digital Specifications</h1>
+<p>Send graphics to <a href="mailto:graphics@clawinfo.org">graphics@clawinfo.org</a>.</p>
+
+<h2>Website Banner</h2>
+<p>940x200 pixels, jpg only</p>
+
+<h2>E-blast Banner</h2>
+<p>600x125 pixels, jpg only</p>
+
+<h2>Leather Getaway Mobile App</h2>
+<p>600x200 pixels, jpg only</p>
+HTML;
+
+    foreach ($config->sponsorships as $info) {
+      if ($info->main_category_id == 0) continue;
+
+      $alias = strtolower($eventInfo->prefix . '_spo_' . preg_replace("/[^A-Za-z0-9]+/", '_', $info->title));
+      $title = $eventInfo->description . ' Sponsorship - ' . $info->title;
+
+
+      $description = $info->description;
+      $short_description = $info->description;
+
+      $insert = new ebMgmt($info->main_category_id, $alias, $title, $description);
+      $insert->set('article_id', $eventInfo->termsArticleId, false);
+      $insert->set('cancel_before_date', $cancel_before_date);
+      $insert->set('cut_off_date', $cut_off_date);
+      $insert->set('event_capacity', $info->event_capacity, false);
+      $insert->set('event_date', $event_date);
+      $insert->set('event_end_date', $event_end_date);
+      $insert->set('registration_start_date', $registration_start_date);
+      $insert->set('publish_down', $publish_down);
+      $insert->set('short_description', $short_description);
+      $insert->set('individual_price', $info->individual_price);
+
+      $insert->set('user_email_body', $user_email_body);
+      $insert->set('user_email_body_offline', $user_email_body);
+
+      $eventId = $insert->insert();
+      //$eventId = 0;
+      if ($eventId == 0) {
+        $log[] = "Skipping existing: $title";
+      } else {
+        $log[] = "Added: $title at event id $eventId";
+      }
+    }
+    return '<p>' . implode('</p><p>', $log) . '</p>';
   }
 
   private function deltaTime($base, $time, $newbase): string

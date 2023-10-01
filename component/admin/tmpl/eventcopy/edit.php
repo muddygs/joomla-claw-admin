@@ -35,16 +35,11 @@ $wa->useScript('com_claw.copyevent');
   </div>
   <hr/>
   <h2>Select "To Event" and click an action button to create the events in Event Booking</h2>
-  <div class="row">
-    <div class="col-12 col-lg-4">
-      <input name="submit" id="submit" type="button" value="Create Events" class="btn btn-danger mb-2" onclick="createEvents()"/>
-    </div>
-    <div class="col-12 col-lg-4">
-      <input name="submit" id="submit" type="button" value="Create Speed Dating" class="btn btn-warning mb-2" onclick="createSpeeddating()"/>
-    </div>
-    <div class="col-12 col-lg-4">
-      <input name="submit" id="submit" type="button" value="Create Sponsorships" class="btn btn-warning mb-2" onclick="createSponsorships()"/>
-    </div>
+  <div class="d-grid gap-2 d-md-block">
+    <button type="button" value="Create Events" class="btn btn-danger mb-2" onclick="createEvents()">Create Events</button>
+    <button type="button" class="btn btn-warning mb-2" onclick="createSpeeddating()">Create Speed Dating</button>
+    <button type="button" class="btn btn-warning mb-2" onclick="createSponsorships()">Create Sponsorships</button>
+    <button type="button" class="btn btn-warning mb-2" onclick="createDiscountBundles()">Create Discount Bundles</button>
   </div>
 
 </form>

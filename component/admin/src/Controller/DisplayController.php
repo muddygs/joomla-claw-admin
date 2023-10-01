@@ -166,6 +166,18 @@ class DisplayController extends BaseController
     echo $text;
   }
 
+  public function doCreateDiscountBundles()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\EventcopyModel */
+    $model = $this->getModel('Eventcopy');
+    $text = $model->doCreateDiscountBundles($json);
+    header('Content-Type: text/plain');
+    echo $text;
+  }
+
   public function doCreateSponsorships()
   {
     $this->checkToken();
