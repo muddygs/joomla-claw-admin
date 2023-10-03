@@ -22,7 +22,7 @@ $wa = $app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.registrationsurvey');
 ?>
 <div style="text-align: center;">
-  <p><img alt="Registration Banner" src="images/<?=strtolower(Aliases::defaultPrefix)?>/banners/Registration.png" class="img-fluid mx-auto d-block" /></p>
+  <p><img alt="Registration Banner" src="images/<?=strtolower($this->prefix)?>/banners/Registration.png" class="img-fluid mx-auto d-block" /></p>
 </div>
 
 <?php
