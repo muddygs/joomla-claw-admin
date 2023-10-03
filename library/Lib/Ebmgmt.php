@@ -2,6 +2,7 @@
 
 namespace ClawCorpLib\Lib;
 
+use ClawCorpLib\Helpers\Config;
 use Joomla\CMS\Factory;
 use ClawCorpLib\Lib\Aliases;
 use UnexpectedValueException;
@@ -13,12 +14,21 @@ class Ebmgmt
   public $ebEventColumns = [];
   private $defaults;
   private $additionalCategoryIds = [];
+  /** @var \Joomla\Database\DatabaseDriver */
+  private $db;
 
-  function __construct(int $mainCategoryId, string $alias, string $title, string $description = "''")
+  function __construct(
+    public string $eventAlias, 
+    public int $mainCategoryId, 
+    public string $itemAlias, 
+    public string $title, 
+    public string $description = "''")
   {
+    $this->db = Factory::getContainer()->get('DatabaseDriver');
+
     $this->setDefaults();
 
-    $this->set('alias', $alias);
+    $this->set('alias', $itemAlias);
     $this->set('description', $description);
     $this->set('short_description', $description);
     $this->set('main_category_id', $mainCategoryId, false);
@@ -26,30 +36,28 @@ class Ebmgmt
     $this->set('title', $title);
   }
 
-  function insert(bool $force = false): int
+  public function insert(bool $force = false): int
   {
-    $db = Factory::getDbo();
-
     if ( $force == false )
     {
       $query = 'SELECT id FROM #__eb_events WHERE alias = '.$this->get('alias');
-      $db->setQuery($query);
-      $row = $db->loadResult();
+      $this->db->setQuery($query);
+      $row = $this->db->loadResult();
 
       if ( $row != null ) return 0;
     }
 
-    $query = $db->getQuery(true);
+    $query = $this->db->getQuery(true);
     $columns = array_keys($this->defaults);
     $values = array_values($this->defaults);
     $query
-        ->insert($db->quoteName('#__eb_events'))
-        ->columns($db->quoteName($columns))
+        ->insert($this->db->quoteName('#__eb_events'))
+        ->columns($this->db->quoteName($columns))
         ->values(implode(',', $values));
-    $db->setQuery($query);
+    $this->db->setQuery($query);
     //echo '<pre>'.$query->__toString().'</pre>'; return 0;
-    $db->execute();
-    $eventId = $db->insertid();
+    $this->db->execute();
+    $eventId = $this->db->insertid();
 
     $eventCategory = [
       'id' => 0,
@@ -57,15 +65,15 @@ class Ebmgmt
       'category_id' => $this->defaults['main_category_id'],
       'main_category' => 1
     ];
-    $query = $db->getQuery(true);
+    $query = $this->db->getQuery(true);
     $columns = array_keys($eventCategory);
     $values = array_values($eventCategory);
     $query
-        ->insert($db->quoteName('#__eb_event_categories'))
-        ->columns($db->quoteName($columns))
+        ->insert($this->db->quoteName('#__eb_event_categories'))
+        ->columns($this->db->quoteName($columns))
         ->values(implode(',', $values));
-    $db->setQuery($query);
-    $db->execute();
+    $this->db->setQuery($query);
+    $this->db->execute();
 
     foreach ( $this->additionalCategoryIds AS $categoryId )
     {
@@ -75,19 +83,45 @@ class Ebmgmt
         'category_id' => $categoryId,
         'main_category' => 0
       ];
-      $query = $db->getQuery(true);
+      $query = $this->db->getQuery(true);
       $columns = array_keys($eventCategory);
       $values = array_values($eventCategory);
       $query
-          ->insert($db->quoteName('#__eb_event_categories'))
-          ->columns($db->quoteName($columns))
+          ->insert($this->db->quoteName('#__eb_event_categories'))
+          ->columns($this->db->quoteName($columns))
           ->values(implode(',', $values));
-      $db->setQuery($query);
-      $db->execute();
+      $this->db->setQuery($query);
+      $this->db->execute();
     }
+
+    $this->updateMapping($eventId);
 
     return $eventId;
   }
+
+  private function updateMapping(int $eventId): void
+  {
+    $query = $this->db->getQuery(true);
+
+    // Does this entry already exist?
+    $query->select('eventid')
+      ->from('#__claw_eventid_mapping')
+      ->where('eventid = :eventid')
+      ->bind(':eventid', $eventId);
+    $this->db->setQuery($query);
+    $result = $this->db->loadResult();
+
+    if ( $result != null ) return;
+
+    $query = $this->db->getQuery(true);
+    $query
+        ->insert($this->db->quoteName('#__claw_eventid_mapping'))
+        ->columns($this->db->quoteName(['eventid','alias']))
+        ->values(implode(',', $this->db->quote([$eventId, $this->eventAlias])));
+    $this->db->setQuery($query);
+    $this->db->execute();
+  }
+
 
   /**
    * Sets a database column value, defaults to quoting value
@@ -95,19 +129,17 @@ class Ebmgmt
    * @param $value Value to set
    * @param $quoted (optional) Default: true
    */
-  function set(string $key, $value, bool $quoted = true): void
+  public function set(string $key, $value, bool $quoted = true): void
   {
-    $db = Factory::getDbo();
-
     if ( !array_key_exists($key, $this->defaults))
     {
       die('Unknown column name: '.$key);
     }
 
-    $this->defaults[$key] = $quoted ? $db->q($value) : $value;
+    $this->defaults[$key] = $quoted ? $this->db->quote($value) : $value;
   }
 
-  function addAdditionalCategoryId(int $categoryId)
+  public function addAdditionalCategoryId(int $categoryId)
   {
     $this->additionalCategoryIds[] = $categoryId;
   }
@@ -117,7 +149,7 @@ class Ebmgmt
    * @param $key Column name
    * @return string Column Value (quoted if called with set() quoted)
    */
-  function get(string $key): string
+  public function get(string $key): string
   {
     if ( !array_key_exists($key, $this->defaults))
     {
@@ -129,11 +161,9 @@ class Ebmgmt
 
   private function getOrdering(): int
   {
-    $db = Factory::getDbo();
     $query = "SELECT MAX(ordering) FROM `#__eb_events` WHERE 1";
-    $db->setQuery($query);
-    return $db->loadResult() + 1;
-
+    $this->db->setQuery($query);
+    return $this->db->loadResult() + 1;
   }
 
   /**
@@ -143,8 +173,7 @@ class Ebmgmt
    */
   private function setDefaults(): void
   {
-    $db = Factory::getDbo();
-    $this->ebEventColumns = array_keys($db->getTableColumns('#__eb_events'));
+    $this->ebEventColumns = array_keys($this->db->getTableColumns('#__eb_events'));
 
     $this->defaults = [
       'access'=>	1,
@@ -383,7 +412,7 @@ class Ebmgmt
    * cron task to hide/show shifts when they are full or become available
    */
   static function autoHideShowShifts(): void {
-    $db = Factory::getDbo();
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     // TODO: run over all active events, just not current event
     $events = new ClawEvents(Aliases::current());
@@ -441,67 +470,54 @@ SQL;
     echo "; Shifts shown: ".sizeof($fullShifts);
   }
 
-  /**
-   * Warning: This will overwrite any good standing settings for the selected
-   * event. 
-   * @param string $eventAlias 
-   * @return void 
-   * @throws RuntimeException 
-   * @throws UnexpectedValueException 
-   */
-  public static function setGoodStanding(string $eventAlias): int
+  public static function rebuildEventIdMapping()
   {
-    $db = Factory::getDbo();
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $eventId = ClawEvents::getEventId($eventAlias, true);
-    
-    if ( 0 == $eventId ) 
-    {
-      echo "Unknown event alias: $eventAlias";
-      return 0;
+    $db->truncateTable('#__claw_eventid_mapping');
+
+    $aliases = Config::getActiveEventAliases();
+    $dates = [];
+
+    foreach ( $aliases AS $alias ) {
+      $events = new ClawEvents($alias);
+
+      $info = $events->getClawEventInfo();
+
+      if ( 'refunds' == $info->description ) continue;
+
+      $dates[$alias] = (object)[
+        'start' => $info->start_date,
+        'end' => $info->end_date
+      ];
     }
 
-    $insertQuery = [];
-
-    $registrants = registrants::byEventId($eventId);
-
-    $fieldId = ClawEvents::getFieldId('Z_VOL_GOODSTANDING');
-    $yes = $db->q('["Yes"]');
-    $registrantIds = [];
-
-    /** @var \ClawCorpLib\Lib\Registrant */
-    foreach ( $registrants AS $registrant ) 
-    {
-      $records = $registrant->records();
-
-      if ( count($records) == 0 ) continue;
-
-      /** @var \ClawCorpLib\Lib\RegistrantRecord */
-      $record = reset($records);
-
-      if ( $record === false ) continue;
-
-      $insertQuery[] = <<< SQL
-INSERT INTO `#__eb_field_values`(`id`, `registrant_id`, `field_id`, `field_value`)
-VALUES (0, {$record->registrant->id}, $fieldId, $yes);
-
-SQL;
-      $registrantIds[] = $record->registrant->id;
-    }
-
-    // Wipe existing entries for these registrants, and then
-    // Insert all the new values
-
-    $query = "DELETE FROM #__eb_field_values WHERE field_id=$fieldId AND registrant_id IN (".implode(',',$registrantIds).')';
+    // Load all event rows
+    $query = $db->getQuery(true);
+    $query->select(['id', 'event_date', 'event_end_date'])
+      ->from('#__eb_events')
+      ->where('published = 1')
+      ->order('id');
     $db->setQuery($query);
-    $db->execute();
+    $ebEvents = $db->loadObjectList('id');
 
-    foreach ( $insertQuery AS $q )
-    {
-      $db->setQuery($q);
-      $db->execute();
+    foreach ( $ebEvents AS $e ) {
+      if ( $e->event_date == '0000-00-00 00:00:00' ) continue;
+
+      foreach ( $dates AS $alias => $date ) {
+        if ( $e->event_date >= $date->start && $e->event_date <= $date->end ) {
+          $query = $db->getQuery(true);
+          $query
+            ->insert($db->quoteName('#__claw_eventid_mapping'))
+            ->columns($db->quoteName(['eventid','alias']))
+            ->values(implode(',', $db->q([$e->id, $alias])));
+          $db->setQuery($query);
+          $result = $db->execute();
+
+          break;
+        }
+      }
     }
-
-    return count($registrantIds);
   }
 }
