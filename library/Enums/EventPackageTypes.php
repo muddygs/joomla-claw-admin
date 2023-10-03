@@ -36,6 +36,9 @@ enum EventPackageTypes: int
   case addons = 27;
   case vip2 = 28;
 
+  // Virtual CLAW
+  case virtual_claw = 29;
+
   public function toString(): string
   {
     return match ($this) {
@@ -56,6 +59,7 @@ enum EventPackageTypes: int
       EventPackageTypes::day_pass_sun => 'Day Pass',
       EventPackageTypes::pass => 'Pass',
       EventPackageTypes::vip => 'VIP',
+      EventPackageTypes::virtual_claw => 'Virtual CLAW',
       default => ''
     };
   }
