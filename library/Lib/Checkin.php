@@ -596,13 +596,14 @@ HTML;
 
     $e = new ClawEvents(Aliases::current());
     $inMainEventIds = implode(',',$e->mainEventIds);
+    $prefix = $e->getClawEventInfo()->prefix;
 
     $issued = ClawEvents::getFieldId('Z_BADGE_ISSUED');
     $search = strtoupper($search);
     
     $db = Factory::getDbo();
   
-    if ( substr($search,0,3) == Aliases::defaultPrefix ) {
+    if ( substr($search,0,3) == $prefix ) {
       $search = substr($search,1);
     }
 
@@ -628,7 +629,7 @@ HTML;
 
     foreach ( $rows AS $r )
     {
-      $badge = Aliases::defaultPrefix . '-' . str_pad($r->user_id, 5, '0', STR_PAD_LEFT);
+      $badge = $prefix . '-' . str_pad($r->user_id, 5, '0', STR_PAD_LEFT);
 
       $name = mb_convert_case($r->first_name . ' ' . $r->last_name . ' (' . $r->city . ')', MB_CASE_TITLE);
       $description = $byName ? $name.' - '.$badge : $badge.' '.$name;
