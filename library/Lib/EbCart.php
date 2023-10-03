@@ -59,14 +59,15 @@ HTML;
 
     $clawEventAlias = ClawEvents::eventIdToClawEventAlias($this->items[0]->id);
     $e = new ClawEvents($clawEventAlias);
+    $info = $e->getClawEventInfo();
     $onsiteActive = $e->getClawEventInfo()->onsiteActive;
 
     $registrantData = new registrant($clawEventAlias, $app->getIdentity()->id);
     $registrantData->loadCurrentEvents(EbRecordIndexType::eventid);
     $records = $registrantData->records();
 
-    $prefix = strtolower(Aliases::defaultPrefix);
-    $shiftPrefix = $e->getClawEventInfo()->shiftPrefix;
+    $prefix = strtolower($info->prefix);
+    $shiftPrefix = $info->shiftPrefix;
     $shiftCategories = ClawEvents::getCategoryIds(Aliases::shiftCategories());
     $invoiceCategories = ClawEvents::getCategoryIds(Aliases::invoiceCategories);
     $mainRequiredCategories = ClawEvents::getCategoryIds(Aliases::categoriesRequiringMainEvent);
