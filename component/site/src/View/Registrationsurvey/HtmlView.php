@@ -37,6 +37,7 @@ class HtmlView extends BaseHtmlView
   public \ClawCorpLib\Lib\ClawEvents $events;
   public bool $hasMainEvent = false;
   public bool $onsiteActive = false;
+  public string $prefix = '';
 
   public function __construct($config = [])
   {
@@ -62,6 +63,7 @@ class HtmlView extends BaseHtmlView
     $this->events = new ClawEvents($this->eventAlias);
     $this->uid = $this->app->getIdentity()->id;
     $this->onsiteActive = $this->events->getClawEventInfo()->onsiteActive;
+    $this->prefix = $this->events->getClawEventInfo()->prefix;
 
     $this->couponCode = trim($this->app->input->get('coupon', '', 'string'));
 
