@@ -8,6 +8,9 @@ use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 
+/** @package ClawCorpLib\Lib 
+ * @description: Provies dynamic event configuration information
+*/
 class Aliases {
   static function current() {
     // Is the session setting for alias set?
@@ -32,7 +35,6 @@ class Aliases {
   // For event info display
   #const timezone = 'America/New_York';
 
-  const defaultPrefix = 'L23'; // Use C for CLAW, L for Leather Getaway, V for Virtual CLAW
   const onsiteCoupon = 'ONSITE-CASH'; // TODO: Remove all usage of this
   
   static function shiftCategories() {
