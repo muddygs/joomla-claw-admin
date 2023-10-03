@@ -451,38 +451,18 @@ SQL;
 		if (null == $row) die("Whoa! Something bad happened. Sorry. Please let us know how you got here: https://www.clawinfo.org/help");
 
 		$uid = $row->user_id;
+    $alias = ClawEvents::eventIdToClawEventAlias($row->event_id);
 
-		$event = ClawEvents::loadEventRow($row->event_id);
-
-		$prefix = Aliases::defaultPrefix.'-';
-
-		foreach ( Aliases::active() AS $alias ) {
-			$e = new ClawEvents($alias);
-			$info = $e->getClawEventInfo();
-			if ( !$info->mainAllowed ) continue;
-
-			if ( $event->event_date >= $info->start_date && $event->event_end_date <= $info->end_date) {
-				$prefix = $info->prefix.'-';
-				break;
-			}
-		}
-
-		$clawEvents = new ClawEvents('virtualclaw');
-		foreach ($clawEvents->getEvent() as $e) {
-			if ($row->event_id == $e->eventId) {
-				$prefix = $clawEvents->getClawEventInfo()->prefix.'-';
-				break;
-			}
-		}
-
-    return registrant::generateNextInvoiceNumber($prefix, $uid);
+    $e = new ClawEvents($alias);
+    $info = $e->getClawEventInfo();
+    return registrant::generateNextInvoiceNumber($info->prefix.'-', $uid);
   }
 
   public static function generateNextInvoiceNumber(string $prefix, int $uid): string
   {
     $uid = str_pad($uid, 5, '0', STR_PAD_LEFT);
 
-		$db     = Factory::getDbo();
+		$db     = Factory::getContainer()->get('DatabaseDriver');
 		$query  = $db->getQuery(true);
 		$query->select('invoice_number')
 			->where('invoice_number LIKE "' . $prefix . $uid . '%"');
