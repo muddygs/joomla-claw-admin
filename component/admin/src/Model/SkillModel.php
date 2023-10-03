@@ -183,8 +183,12 @@ class SkillModel extends AdminModel
     $params = $app->getParams();
     $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
     
+    $alias = Aliases::current();
+    $clawEvent = new ClawEvents($alias);
+    $info = $clawEvent->getClawEventInfo();
+
     $subject = $new ? '[New] ' : '[Updated] ';
-    $subject .= Aliases::defaultPrefix. ' Class Submission - ';
+    $subject .= $info->description. ' Class Submission - ';
     $subject .= $data['name'];
 
     $m = new Mailer(

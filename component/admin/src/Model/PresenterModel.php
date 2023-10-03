@@ -20,6 +20,7 @@ use Joomla\CMS\Image\Image;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Mailer;
 use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\ClawEvents;
 use LogicException;
 
 /**
@@ -234,8 +235,12 @@ class PresenterModel extends AdminModel
     $params = $app->getParams();
     $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
 
+    $alias = Aliases::current();
+    $clawEvent = new ClawEvents($alias);
+    $info = $clawEvent->getClawEventInfo();
+
     $subject = $new ? '[New] ' : '[Updated] ';
-    $subject .= Aliases::defaultPrefix. ' Presenter Application - ';
+    $subject .= $info->description. ' Presenter Application - ';
     $subject .= $data['name'];
 
     $m = new Mailer(
