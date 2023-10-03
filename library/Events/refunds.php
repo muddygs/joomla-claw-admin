@@ -16,7 +16,7 @@ class refunds extends AbstractEvent
       description: 'refunds',
       location: '',
       locationAlias: '',
-      start_date: '2023-04-03 00:00:00', // Monday
+      start_date: '1999-01-04 00:00:00', // Monday
       end_date: 'next week Tuesday', // Calculated
       prefix: 'XXX',
       shiftPrefix: '',
