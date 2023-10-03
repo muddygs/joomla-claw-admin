@@ -3,7 +3,7 @@ function copyeventAjaxUrl(task: string) {
 }
 
 function getCopyEventFormData(): { [k: string]: FormDataEntryValue; } {
-	const data = new FormData(document.getElementById('claw-copy-event') as HTMLFormElement);
+	const data = new FormData(document.getElementById('adminForm') as HTMLFormElement);
 	const value = Object.fromEntries(data.entries());
 	return value;
 }
