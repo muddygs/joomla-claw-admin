@@ -383,18 +383,43 @@ SQL;
     return $db->loadObject();
   }
 
+  public static function getEventIdMapping(int $eventId): bool|string
+  {
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
+    $query = $db->getQuery(true);
+
+    $query->select('alias')
+      ->from('#__claw_eventid_mapping')
+      ->where('eventid = :eventid')
+      ->bind(':eventid', $eventId);
+    $db->setQuery($query);
+    $result = $db->loadResult();
+    return $result;
+  }
+
   /**
    * Given an event ID, returns the alias that includes that event, except if mainAllowed is false,
    * which does not make sense in this context in order to return specific event
    * @param int $eventId The event ID
-   * @return string Event Aliases
+   * @return string Event Aliases or false if not found
    */
   public static function eventIdToClawEventAlias(int $eventId): string|bool
   {
-    // TODO: Why are these two lines here?
-    self::mapCategoryAliases();
-    self::mapEventAliases();
+    $alias = self::getEventIdMapping($eventId);
 
+    // Rebuild and try again
+    if ( $alias === false ) {
+      Ebmgmt::rebuildEventIdMapping();
+      $alias = self::getEventIdMapping($eventId);
+    } else {
+      return $alias;
+    }
+
+    if ( $alias !== false ) return $alias;
+
+    // TODO: Brute force search - still needed?
+  
     $activeAliases = Config::getActiveEventAliases(mainOnly: true);
 
     foreach ($activeAliases AS $alias) {
@@ -415,7 +440,7 @@ SQL;
       }
     }
 
-    die('Could not determine CLAW event alias: ' . $eventId);
+    return false;
   }
 
   /**
