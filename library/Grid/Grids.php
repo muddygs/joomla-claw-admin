@@ -114,7 +114,7 @@ class Grids
 
       $description = implode('<br/>', [$grid->description, $grid->requirements]);
 
-      $insert = new Ebmgmt($main_category_id, $alias, $title, $description);
+      $insert = new Ebmgmt($this->eventAlias, $main_category_id, $alias, $title, $description);
 
       $insert->set('location_id', $location);
       $insert->set('event_date', $s);
