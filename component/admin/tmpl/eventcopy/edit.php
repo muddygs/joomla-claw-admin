@@ -11,6 +11,7 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Router\Route;
 
 /** @var Joomla\CMS\Application\AdministratorApplication */
 $app = Factory::getApplication();
@@ -21,7 +22,7 @@ $wa->useScript('com_claw.copyevent');
 ?>
 <h1 class="mb-4">Event Copy</h1>
 
-<form action="/blaa.php" method="post" name="Event Copy" id="claw-copy-event" class="row g-3">
+<form action="<?= Route::_('index.php?option=com_claw&view=eventcopy'); ?>" id="adminForm" name="adminForm" method="post">
   <div class="row align-items-center">
     <div class="col-12 col-lg-4">
       <?php echo $this->form->renderField('from_event'); ?>
@@ -41,7 +42,9 @@ $wa->useScript('com_claw.copyevent');
     <button type="button" class="btn btn-warning mb-2" onclick="createSponsorships()">Create Sponsorships</button>
     <button type="button" class="btn btn-warning mb-2" onclick="createDiscountBundles()">Create Discount Bundles</button>
   </div>
-
+  
+  <input type="hidden" name="task" value="">
+  <?php echo HTMLHelper::_('form.token'); ?>
 </form>
 
 
@@ -49,4 +52,3 @@ $wa->useScript('com_claw.copyevent');
 <h2>Action Results:</h2>
 <div id="results"></div>
 
-<?php echo HTMLHelper::_('form.token'); ?>

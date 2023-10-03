@@ -13,6 +13,7 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
+use Joomla\CMS\Toolbar\Toolbar;
 
 class HtmlView extends BaseHtmlView
 {
@@ -35,6 +36,14 @@ class HtmlView extends BaseHtmlView
 			Factory::getApplication()->redirect('/administrator/index.php');
 		}
 
+		// Get the toolbar object instance
+		$toolbar = Toolbar::getInstance('toolbar');
+
+		$toolbar->standardButton('refresh')
+		->text('Rebuild Mappings')
+		->task('eventcopy.repair')
+		->formValidation(false);
+		
 		parent::display($tpl);
 	}
 }

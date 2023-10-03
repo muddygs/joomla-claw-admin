@@ -134,11 +134,11 @@ class EventcopyModel extends FormModel
   {
     $log = [];
 
-    $to = $json->get('jform[to_event]', '', 'string');
+    $eventAlias = $json->get('jform[to_event]', '', 'string');
 
     // Validate events are valid
-    if (!ClawEvents::isValidEventAlias($to)) {
-      return 'Invalid to event: ' . $to;
+    if (!ClawEvents::isValidEventAlias($eventAlias)) {
+      return 'Invalid to event: ' . $eventAlias;
     }
 
     // Ignore server-specific timezone information
@@ -147,7 +147,7 @@ class EventcopyModel extends FormModel
     $info = (object)[];
     $events = [];
 
-    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$to");
+    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$eventAlias");
     /** @var \ClawCorpLib\Event\AbstractEvent */
     $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
 
@@ -188,7 +188,7 @@ class EventcopyModel extends FormModel
         if ($interval->h <= 8) $cutoff = $this->modify($start, '-3 hours');
       }
 
-      $insert = new ebMgmt($event->category, $event->alias, $info->prefix . ' ' . $title, $event->description);
+      $insert = new ebMgmt($eventAlias, $event->category, $event->alias, $info->prefix . ' ' . $title, $event->description);
       $insert->set('article_id', $article_id, false);
       $insert->set('cancel_before_date', $cancel_before_date);
       $insert->set('cut_off_date', $cutoff);
@@ -215,14 +215,14 @@ class EventcopyModel extends FormModel
   {
     $log = [];
 
-    $to = $json->get('jform[to_event]', '', 'string');
+    $eventAlias = $json->get('jform[to_event]', '', 'string');
 
     // Validate events are valid
-    if (!ClawEvents::isValidEventAlias($to)) {
-      return 'Invalid to event: ' . $to;
+    if (!ClawEvents::isValidEventAlias($eventAlias)) {
+      return 'Invalid to event: ' . $eventAlias;
     }
 
-    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$to");
+    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$eventAlias");
     /** @var \ClawCorpLib\Event\AbstractEvent */
     $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
 
@@ -259,7 +259,7 @@ class EventcopyModel extends FormModel
         $cut_off_date = $event_date;
         $cancel_before_date = $event_date;
 
-        $insert = new ebMgmt($main_category_id, $alias, $title, $description);
+        $insert = new ebMgmt($eventAlias, $main_category_id, $alias, $title, $description);
         $insert->set('activate_waiting_list', 1, false);
         $insert->set('article_id', $article_id, false);
         $insert->set('cancel_before_date', $cancel_before_date);
@@ -288,14 +288,14 @@ class EventcopyModel extends FormModel
   {
     $log = [];
 
-    $to = $json->get('jform[to_event]', '', 'string');
+    $eventAlias = $json->get('jform[to_event]', '', 'string');
 
     // Validate events are valid
-    if (!ClawEvents::isValidEventAlias($to)) {
-      return 'Invalid to event: ' . $to;
+    if (!ClawEvents::isValidEventAlias($eventAlias)) {
+      return 'Invalid to event: ' . $eventAlias;
     }
 
-    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$to");
+    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$eventAlias");
     /** @var \ClawCorpLib\Event\AbstractEvent */
     $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
 
@@ -324,14 +324,14 @@ class EventcopyModel extends FormModel
   {
     $log = [];
 
-    $to = $json->get('jform[to_event]', '', 'string');
+    $eventAlias = $json->get('jform[to_event]', '', 'string');
 
     // Validate events are valid
-    if (!ClawEvents::isValidEventAlias($to)) {
-      return 'Invalid to event: ' . $to;
+    if (!ClawEvents::isValidEventAlias($eventAlias)) {
+      return 'Invalid to event: ' . $eventAlias;
     }
 
-    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$to");
+    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$eventAlias");
     /** @var \ClawCorpLib\Event\AbstractEvent */
     $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
 
@@ -415,7 +415,7 @@ HTML;
       $description = $info->description;
       $short_description = $info->description;
 
-      $insert = new ebMgmt($info->main_category_id, $alias, $title, $description);
+      $insert = new ebMgmt($eventAlias, $info->main_category_id, $alias, $title, $description);
       $insert->set('article_id', $eventInfo->termsArticleId, false);
       $insert->set('cancel_before_date', $cancel_before_date);
       $insert->set('cut_off_date', $cut_off_date);

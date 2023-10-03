@@ -191,3 +191,9 @@ CREATE TABLE IF NOT EXISTS `#__claw_field_values` (
   `text` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `#__claw_eventid_mapping` (
+  `eventid` int(11),
+  `alias` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`eventid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
