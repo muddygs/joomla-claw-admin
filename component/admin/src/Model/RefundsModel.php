@@ -31,7 +31,7 @@ class processResult
 {
   public bool $success = false;
   public string $successTransactionId = '';
-  public string $msg = '';
+  public string $msg = 'Unknown error';
 }
 
 /**
@@ -381,7 +381,6 @@ class RefundsModel extends FormModel
     $profileDescription = $json->get('jform[profileDescription]', 'CLAW Charge', 'string');
 
     $result = new processResult();
-    $result->success = false;
   
     $rawRegistrantRow = Registrant::loadRegistrantRow($profileSelect, 'registration_code');
   
@@ -392,8 +391,7 @@ class RefundsModel extends FormModel
       // Lookup event alias
       $alias = ClawEvents::eventIdToClawEventAlias($event_id);
   
-      if ( $alias !== 0 )
-      {
+      if ( $alias !== false ) {
         $registrant = new Registrant($alias, $uid, [$event_id]);
         $registrant->loadCurrentEvents();
   
