@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension type="package" method="upgrade">
 	<name>CLAW</name>
-	<creationDate>2023-SEP-26</creationDate>
+	<creationDate>2023-OCT-02</creationDate>
 	<author>CLAW Corp.</author>
 	<authorUrl>https://www.clawinfo.org/</authorUrl>
 	<copyright>(c) 2023 CLAW Corp.</copyright>
 	<license>GNU/GPLv2</license>
-	<version>0.0.18</version>
+	<version>0.0.19</version>
 	<description>CLAW Data and Systems Administration</description>
 
 	<packagename>claw</packagename>
@@ -16,6 +16,5 @@
 	<files folder="packages">
 		<file type="component" id="com_claw" >com_claw.zip</file>
 		<file type="library" id="claw">lib_claw.zip</file>
-		<!-- <file type="plugin" id="claw" group="system">plg_claw.zip</file> -->
 	</files>
 </extension>
