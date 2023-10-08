@@ -227,7 +227,7 @@ function doCheckin() {
     .then(result => result.json())
     .then(html => {
       show('status');
-      document.getElementById('status').innerHTML = "<h2>Badge Issued</h2>";
+      document.getElementById('status').innerHTML = '<h2>Badge Issued</h2>';
     });
 }
 
@@ -244,17 +244,16 @@ function doPrint(mode:boolean = false) {
   const registration_code = (document.getElementById('registration_code') as HTMLInputElement).value;
   if (registration_code == null || registration_code === '') return;
 
-  const codes = [registration_code];
   const action = mode ? 'printissue' : 'print'
 
   const printUrl = checkinAjaxUrl('checkinPrint');
-  window.open(printUrl + '?action=' + action + '&registration_code=' + JSON.stringify(codes) + '&token=' + badgeToken, '_blank');
+  window.open(`${printUrl}&action=${action}&registration_code=${registration_code}&token=${badgeToken}&page=${page}`, '_blank');
 }
 
 function doBatchPrint() {
   const batch_quantity = (document.getElementById('batchcount') as HTMLInputElement).value;
   const printUrl = checkinAjaxUrl('checkinPrint');
-  window.open(printUrl + '?action=printbatch&quantity=' + batch_quantity + '&token=' + badgeToken, '_blank');
+  window.open(`${printUrl}&action=printbatch&quantity=${batch_quantity}&token=${badgeToken}&page=${page}`, '_blank');
 }
 
 function clearDisplay() {

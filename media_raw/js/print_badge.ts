@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const bottom = middle - height * scaleFactor / 2;
 
-    const t = `rotate(-90deg) translate(${bottom}px,9mm) scaleX(${scaleFactor})`;
+    const t = `transform: rotate(-90deg) translate(${bottom}px,9mm) scaleX(${scaleFactor});`;
     badge.setAttribute("style", t);
   });
 
@@ -31,7 +31,8 @@ document.addEventListener("DOMContentLoaded", function () {
       left = left + (170 - width) / 2;
     }
 
-    const t = `translate(${left}px,20mm) ${scale}`;
+    const t = `transform: translate(${left}px,20mm) ${scale};`;
+
     badge.setAttribute("style", t);
   });
 });

@@ -245,6 +245,20 @@ class DisplayController extends BaseController
 		echo json_encode($result);
   }
 
+  public function checkinPrint()
+  {
+    //* @var \ClawCorp\Component\Claw\Site\View\Badgeprint\RawView */
+    $view = $this->getView('badgeprint', 'raw');
+
+    $view->action = $this->input->get('action', '', 'string');
+    $view->registrationCode = trim($this->input->get('registration_code', '', 'string'));
+    $view->token = $this->input->get('token', '', 'string');
+    $view->page = $this->input->get('page', '', 'string');
+    $view->quantity = $this->input->get('quantity', 0, 'uint');
+
+    $view->display();
+  }
+
   public function checkinIssue() {}
 
   public function checkinGetCount()
