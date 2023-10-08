@@ -91,6 +91,8 @@ class Config
       $endDates[$eventInfo->end_date] = $alias;
     }
 
+    // Find earliest event that has not ended
+    
     ksort($endDates);
 
     foreach ( array_keys($endDates) AS $endDate ) {
