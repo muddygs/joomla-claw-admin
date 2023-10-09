@@ -18,27 +18,32 @@ $wa = $app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.jwtlink');
 ?>
 <h1>Authentication Request</h1>
-<h3>Please enter your CLAW account email. If you are authorized, a link will be sent to your
-email.</h3>
+<p>Please enter your CLAW account email. If you are authorized, a link will be sent to your
+email.</p>
 
 <form action="" method="post" name="Link" id="claw-link-request" class="form-horizontal">
 
-  <div class="input-group mb-3">
-    <select name="url" id="url" class="form-select" aria-label="Select checkin area">
-      <option selected>Make a selection</option>
-      <?php
-      foreach ( Jwtwrapper::jwt_token_pages AS $page => $rules ):
-        echo '<option value="'.$page.'">'.$rules['description'].'</option>';
-      endforeach;
-      ?>
-    </select>
+  <div class="input-group mb-3 row">
+    <div class="col-12 col-lg-4">
+      <label for="url" class="form-label">Select the checkin area:</label>
+      <select name="url" id="url" class="form-select" aria-label="Select checkin area">
+        <option selected>Make a selection</option>
+        <?php
+        foreach ( Jwtwrapper::jwt_token_pages AS $page => $rules ):
+          echo '<option value="'.$page.'">'.$rules['description'].'</option>';
+        endforeach;
+        ?>
+      </select>
+    </div>
+    <div class="col-12 col-lg-8">
+      <label for="email" class="form-label">Enter your coordinator email:</label>
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" name="email" id="email" aria-label="Email Entry Field">
+        <input name="submit" id="submit" type="button" value="Send Validation" class="btn btn-danger" onclick="submitjwtEmail()"/>
+      </div>
+    </div>
   </div>
 
-	<label for="email" class="form-label">Enter your coordinator email</label>
-  <div class="input-group mb-3">
-  	<input type="text" class="form-control" name="email" id="email" aria-label="Email Entry Field">
-		<input name="submit" id="submit" type="button" value="Send Validation" class="btn btn-danger" onclick="submitjwtEmail()"/>
-  </div>
 
   <?php echo HTMLHelper::_('form.token'); ?>
 

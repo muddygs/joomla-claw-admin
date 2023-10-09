@@ -1,0 +1,6 @@
+/* Joomla adds component "com_claw" to the body tag */
+/* We add claw-no-admin to template section tags to hide them when this stylesheet loaded */
+
+.com_claw .claw-no-admin {
+  display:none;
+}

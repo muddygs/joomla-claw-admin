@@ -14,12 +14,9 @@ $app = Factory::getApplication();
 $wa = $app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.jwtmon');
 $wa->useScript('com_claw.meals');
+$wa->useStyle('com_claw.admin');
 
 ?>
-
-<script src="/js/mealcheckin_events.js" type="text/javascript"></script>
-<script type="text/javascript" src="/js/jwtmon.js"></script>
-
 <div class="mb-2 p-1 bg-info text-white" id="jwtstatus"></div>
 <h1>Meal Check In</h1>
 <p>Please scan the badge or enter the Badge ID</p>
@@ -43,7 +40,7 @@ $wa->useScript('com_claw.meals');
 		<div class="row">
 			<legend class="col-form-label col-3">Scan Badge or Enter Badge #:</legend>
 			<div class="col-3">
-				<input name="badgecode" id="badgecode" value="" placeholder="" maxlength="15" size="15" class="" type="text"
+				<input name="badgecode" id="badgecode" value="" placeholder="" maxlength="255" size="15" class="" type="text"
           onclick="clearcode();" onchange="doMealCheckin();"/>
 			</div>
 			<div class="col-6"></div>

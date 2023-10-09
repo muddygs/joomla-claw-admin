@@ -130,6 +130,17 @@ class CheckinModel extends BaseDatabaseModel
     return $r;
   }
 
+  public function JwtCheckin(string $token, string $registration_code, string $page)
+  {
+    Jwtwrapper::redirectOnInvalidToken(page: $page, token: $token);
+
+    $checkinRecord = new Checkin($registration_code);
+    $checkinRecord->doCheckin();
+
+    $r = [ 'result' => '1'];
+    return $r;
+  }
+
   public function JwtGetCount(string $token)
   {
     Jwtwrapper::redirectOnInvalidToken(page: 'badge-print', token: $token);

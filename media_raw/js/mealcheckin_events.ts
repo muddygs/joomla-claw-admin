@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function mealsAjaxUrl(task: string) {
-  return '/index.php?option=com_claw&task=' + task + '&format=raw';
+  return `/index.php?option=com_claw&task=${task}&format=raw`;
 }
 
 function mealsOptions(data: object) {
@@ -40,14 +40,14 @@ function doMealCheckin() {
 
   fetch(mealsAjaxUrl('mealCheckin'), mealsOptions(data))
     .then(result => result.json())
-    .then(html => {
-      document.getElementById('status').innerHTML = html.msg;
-      (document.getElementById('badgecode') as HTMLInputElement).value = html.badge;
+    .then(response => {
+      document.getElementById('status').innerHTML = response.msg;
+      const badgeInput = document.getElementById('badgecode') as HTMLInputElement;
+      if (badgeInput) {
+        badgeInput.value = response.badge;
+      }
     }).catch(error => {
       console.log("Fetch error in doMealCheckin");
-      setTimeout(() => {
-        doMealCheckin();
-      }, 500);
     })
 }
 

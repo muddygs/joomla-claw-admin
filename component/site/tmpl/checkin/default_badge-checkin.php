@@ -13,6 +13,8 @@ $app = Factory::getApplication();
 $wa = $app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.jwtmon');
 $wa->useScript('com_claw.checkin');
+$wa->useStyle('com_claw.admin');
+
 
 ?>
 <div class="mb-2 p-1 bg-info text-white" id="jwtstatus"></div>
@@ -124,7 +126,7 @@ $wa->useScript('com_claw.checkin');
   <div class="form-group" id="form-print-buttons">
     <div class="row">
       <div class="col">
-        <input name="submit" id="submit" type="button" value="Confirm and Issue Badge" class="btn btn-danger mb-2 d-none" />
+        <input name="submit" id="submit" type="button" value="Confirm and Issue Badge" class="btn btn-danger mb-2" style="display:none;" />
       </div>
     </div>
   </div>

@@ -259,7 +259,21 @@ class DisplayController extends BaseController
     $view->display();
   }
 
-  public function checkinIssue() {}
+  public function checkinIssue()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    $registration_code = $json->get('registration_code', '', 'string');
+    $token = $json->get('token', '', 'string');
+    $page = $json->get('page', '', 'string');
+
+    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
+    $siteModel = $this->getModel('Checkin');
+    $result = $siteModel->JwtCheckin(token: $token, registration_code: $registration_code, page: $page);
+		header('Content-Type: application/json');
+		echo json_encode($result);
+  }
 
   public function checkinGetCount()
   {

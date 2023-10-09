@@ -274,6 +274,10 @@ class Checkin
       $this->r->info = implode("\n", $info);
     }
 
+    if ( !$this->r->printed) {
+      $errors[] = 'Badge not printed.';
+    }
+
     if ( sizeof($errors) != 0 ) {
       array_unshift($errors, 'Do not give out the badge:');
       $errors[] = 'Please direct to Guest Services';
@@ -281,11 +285,12 @@ class Checkin
       return false;
     }
 
+
     return true;
   }
 
   public function doCheckin() {
-    $registrant = new registrant(Aliases::current(), $this->r->uid);
+    $registrant = new Registrant(Aliases::current(), $this->r->uid);
     $registrant->loadCurrentEvents();
     $mainEvent = $registrant->getMainEvent();
 
@@ -301,7 +306,7 @@ class Checkin
     $registrant->updateFieldValues($mainEvent->registrant->id, ['Z_BADGE_PRINTED' => Helpers::mtime()]);
   }
 
-  public function doMealCheckin(int $eventId): string
+  public function doMealCheckin(int $eventId): array
   {
     if ( $eventId <= 0 ) return $this->htmlMsg('Event selection error', 'btn-dark');
     if ( $this->uid == 0 ) return $this->htmlMsg('Unknown badge number', 'btn-dark');
@@ -314,6 +319,7 @@ class Checkin
     // Does this badge have this meal?
     $events = new ClawEvents(Aliases::current());
 
+    //* @var /ClawCorpLib/Lib/ClawEvent */
     $e = $events->getEventByKey('eventId',$eventId, false);
     if (null == $e) {
       return $this->htmlMsg('Unknown event id '.$eventId.' in '.Aliases::current(), 'btn-dark');
@@ -324,7 +330,7 @@ class Checkin
 
     if ( array_search($eventId, $this->r->issuedMealTickets) !== false ) {
       if ( $e->clawPackageType == EventPackageTypes::dinner) {
-        return $this->htmlMsg($e->description . ' ticket already issued: '. $this->r->dinners[EventPackageTypes::dinner], 'btn-dark');
+        return $this->htmlMsg($e->description . ' ticket already issued: '. $this->r->dinners[EventPackageTypes::dinner->value], 'btn-dark');
       } else {
         return $this->htmlMsg($e->description . ' ticket already issued', 'btn-dark');
       }
@@ -332,32 +338,49 @@ class Checkin
 
     switch ($e->clawPackageType) {
       case EventPackageTypes::dinner:
-        $meal = strtolower(substr($this->r->dinners[EventPackageTypes::dinner], 0, 4));
+        $meal = strtolower($this->r->dinners[EventPackageTypes::dinner->value]);
 
         if ( $meal == '') {
           return $this->htmlMsg('Dinner not assigned to this badge','btn-dark');
         }
 
-        switch ($meal) {
-          case 'beef':
-            $description = 'Beef';
-            $class = 'meal-beef';
-            break;
-          case 'fish':
-            $description = 'Fish';
-            $class = 'meal-fish';
-            break;
-          case 'chic':
-            $description = 'Chicken';
-            $class = 'meal-chicken';
-            break;
-          case 'vege':
-            $description = 'Vegetarian';
-            $class = 'meal-vegan';
-            break;
-          default:
-            return $this->htmlMsg('Unknown meal selection', 'btn-dark');
-            break;
+        $class = $description = '';
+
+        $mealTypes = [
+          'beef' => [
+            'phrases' => ['beef'],
+            'class' => 'meal-beef',
+            'description' => 'Beef'
+          ],
+          'chicken' => [
+            'phrases' => ['chicken'],
+            'class' => 'meal-chicken',
+            'description' => 'Chicken'
+          ],
+          'fish' => [
+            'phrases' => ['fish', 'sea bass'],
+            'class' => 'meal-fish',
+            'description' => 'Fish'
+          ],
+          'vega' => [
+            'phrases' => ['vege', 'vegan', 'ravioli'],
+            'class' => 'meal-vegan',
+            'description' => 'Vegetarian'
+          ]
+        ];
+
+        foreach ( $mealTypes AS $type => $info ) {
+          foreach ( $info['phrases'] AS $phrase ) {
+            if ( str_contains($meal, $phrase) ) {
+              $description = $type;
+              $class = $info['class'];
+              break 2;
+            }
+          }
+        }
+
+        if ( $description == '' ) {
+            return $this->htmlMsg('Unknown meal selection: '. $meal, 'btn-dark');
         }
 
         $this->issueMealTicket($eventId,$ticketEventId);
@@ -393,7 +416,7 @@ class Checkin
     }
   }
 
-  private function htmlMsg(string $msg, string $classes): string
+  private function htmlMsg(string $msg, string $classes): array
   {
     $msg = <<< HTML
     <div class="d-grid gap-2">
@@ -408,7 +431,7 @@ HTML;
       'msg' => $msg
     ];
 
-    return json_encode($result);
+    return $result;
   }
 
   private function issueMealTicket(int $mealEventId, int $ticketEventId)

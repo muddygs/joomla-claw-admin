@@ -119,6 +119,11 @@
       "attributes": {
         "defer": true
       }
+    },
+    {
+      "name": "com_claw.admin",
+      "type": "style",
+      "uri": "com_claw/claw_admin.css"
     }
 
 
