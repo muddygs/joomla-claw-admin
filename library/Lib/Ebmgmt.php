@@ -5,7 +5,6 @@ namespace ClawCorpLib\Lib;
 use ClawCorpLib\Helpers\Config;
 use Joomla\CMS\Factory;
 use ClawCorpLib\Lib\Aliases;
-use UnexpectedValueException;
 
 \defined('_JEXEC') or die;
 

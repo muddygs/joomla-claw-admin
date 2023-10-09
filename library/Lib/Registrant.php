@@ -2,13 +2,11 @@
 
 namespace ClawCorpLib\Lib;
 
-use ClawCorpLib\Enums\EbPaymentStatus;
 use Joomla\CMS\Factory;
 
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EbRecordIndexType;
 use ClawCorpLib\Helpers\Config;
-use ClawCorpLib\Lib\Aliases;
 use UnexpectedValueException;
 
 class Registrant
@@ -298,14 +296,18 @@ class Registrant
     }
   }
 
-  public static function invoiceToUid(string $invoice): int 
+  public static function invoiceToUid(string $invoice): int
   {
     $exp = "/([cl]\d\d-)(\d{4,})-?\d*$/i";
 
-    if ( preg_match($exp, $invoice, $matches) > 0 ) 
-    {   
-        return $matches[2];
-    }   
+    if (preg_match($exp, $invoice, $matches) > 0) {
+      return $matches[2];
+    }
+
+    if ( is_numeric($invoice) && strlen($invoice) == 5 ) {
+      return $invoice;
+    }
+
 
     return 0;
   }
@@ -323,23 +325,20 @@ class Registrant
 
     $uidCandidate = registrant::invoiceToUid($regid);
 
-    $invoiceWhere = '';
-    if ( $uidCandidate > 0 && strlen($regid) <= 12 ) {
-      $l = $db->q('%-'.str_pad($uidCandidate, 4, '0', STR_PAD_LEFT).'-%');
-      $invoiceWhere  = 'invoice_number LIKE '.$l.' OR ';
+    $invoiceWhereOr = '';
+    if ( $uidCandidate > 0 && $uidCandidate < 100000 ) {
       $l = $db->q('%-'.str_pad($uidCandidate, 5, '0', STR_PAD_LEFT).'-%');
-      $invoiceWhere .= 'invoice_number LIKE '.$l.' OR ';
+      $invoiceWhereOr .= 'invoice_number LIKE '.$l.' OR ';
     }
+    $invoiceWhereOr .= 'registration_code = '.$db->q($regid);
 
-    $r = $db->q($regid);
+    $q = $db->getQuery(true);
+    $q->select('user_id')
+      ->from('#__eb_registrants')
+      ->where('('.$invoiceWhereOr.')');
 
-    $q = <<< SQL
-    SELECT user_id FROM #__eb_registrants
-    WHERE ( $invoiceWhere registration_code = $r )
-SQL;
-    
-    if ( false == $any ) {
-      $q .= ' AND published = '. EbPublishedState::published->value;
+    if ( !$any ) {
+      $q->where('published = '. EbPublishedState::published->value);
     }
 
     $db->setQuery($q);
