@@ -219,9 +219,9 @@ function doCheckin() {
 
   const data = {
     registration_code: registration_code,
-    token: badgeToken
+    token: badgeToken,
+    page: page
   };
-
 
   fetch(checkinAjaxUrl('checkinIssue'), checkinOptions(data))
     .then(result => result.json())
