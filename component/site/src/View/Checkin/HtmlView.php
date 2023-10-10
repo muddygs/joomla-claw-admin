@@ -79,7 +79,27 @@ class HtmlView extends BaseHtmlView
           }
         }
       }
+    }
 
+    if ( 'volunteer-roll-call' == $tpl ) {
+      $shiftCatIds = ClawEvents::getCategoryIds(Aliases::shiftCategories());
+      $event = new ClawEvents(Aliases::current());
+      $rows = ClawEvents::getEventsByCategoryId($shiftCatIds, $event->getClawEventInfo());
+
+      $this->shifts = [];
+      foreach ( $rows AS $row ) {
+        $this->shifts[] = [
+          'id' => $row->id,
+          'title' => $row->title . " - {$row->total_registrants} / {$row->event_capacity}",
+          'time' => $row->event_date,
+          'total_registrants' => $row->total_registrants,
+          'event_capacity' => $row->event_capacity
+        ];
+      }
+
+      usort( $this->shifts, function($a, $b) {
+        return strcmp($a['time'], $b['time']);
+      });
     }
 
     parent::display($tpl);

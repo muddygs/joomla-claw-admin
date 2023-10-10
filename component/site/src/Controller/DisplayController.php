@@ -218,15 +218,15 @@ class DisplayController extends BaseController
     $this->checkToken();
 
     $json = new Json();
-    $search = $json->get('search', '', 'string');
     $token = $json->get('token', '', 'string');
+    $search = $json->get('search', '', 'string');
     $page = $json->get('page', '', 'string');
 
     /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
     $siteModel = $this->getModel('Checkin');
     $result = $siteModel->JwtSearch(token: $token, search: $search, page: $page);
-		header('Content-Type: application/json');
-		echo json_encode($result);
+    header('Content-Type: application/json');
+    echo json_encode($result);
   }
 
   public function checkinValue()
@@ -234,15 +234,15 @@ class DisplayController extends BaseController
     $this->checkToken();
 
     $json = new Json();
-    $search = $json->get('registration_code', '', 'string');
     $token = $json->get('token', '', 'string');
+    $search = $json->get('registration_code', '', 'string');
     $page = $json->get('page', '', 'string');
 
     /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
     $siteModel = $this->getModel('Checkin');
     $result = $siteModel->JwtValue(token: $token, registration_code: $search, page: $page);
-		header('Content-Type: application/json');
-		echo json_encode($result);
+    header('Content-Type: application/json');
+    echo json_encode($result);
   }
 
   public function checkinPrint()
@@ -264,15 +264,15 @@ class DisplayController extends BaseController
     $this->checkToken();
 
     $json = new Json();
-    $registration_code = $json->get('registration_code', '', 'string');
     $token = $json->get('token', '', 'string');
+    $registration_code = $json->get('registration_code', '', 'string');
     $page = $json->get('page', '', 'string');
 
     /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
     $siteModel = $this->getModel('Checkin');
     $result = $siteModel->JwtCheckin(token: $token, registration_code: $registration_code, page: $page);
-		header('Content-Type: application/json');
-		echo json_encode($result);
+    header('Content-Type: application/json');
+    echo json_encode($result);
   }
 
   public function checkinGetCount()
@@ -295,16 +295,64 @@ class DisplayController extends BaseController
     $this->checkToken();
 
     $json = new Json();
-    $search = $json->get('registration_code', '', 'string');
     $token = $json->get('token', '', 'string');
+    $search = $json->get('registration_code', '', 'string');
     $meal = $json->get('mealEvent', '', 'string');
 
     /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
     $siteModel = $this->getModel('Checkin');
     $result = $siteModel->JwtMealCheckin(token: $token, registration_code: $search, meal: $meal);
-		header('Content-Type: application/json');
-		echo json_encode($result);
+    header('Content-Type: application/json');
+    echo json_encode($result);
 
   }
 
+  public function volunteerSearch()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    $token = $json->get('token', '', 'string');
+    $regid = $json->get('regid', '', 'string');
+
+    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
+    $siteModel = $this->getModel('Checkin');
+    $result = $siteModel->volunteerSearch(token: $token, regid: $regid);
+    header('Content-Type: application/json');
+    echo json_encode($result);
+  }
+
+  public function volunteerUpdate()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    $token = $json->get('token', '', 'string');
+    $regid = $json->get('regid', '', 'uint');
+    $action = $json->get('action', '', 'string');
+    $currentValue = $json->get('currentValue', '', 'boolean');
+
+    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
+    $siteModel = $this->getModel('Checkin');
+    $result = $siteModel->volunteerUpdate(token: $token, regid: $regid, action: $action, currentValue: $currentValue);
+    header('Content-Type: text/plain');
+    echo $result;
+  }
+
+  public function volunteerAddShift()
+  {
+    $this->checkToken();
+
+    $json = new Json();
+    $token = $json->get('token', '', 'string');
+    $uid = $json->get('uid', '', 'uint');
+    $shift = $json->get('shift', '', 'string');
+
+    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
+    $siteModel = $this->getModel('Checkin');
+    $result = $siteModel->volunteerAddShift(token: $token, uid: $uid, shift: $shift);
+    header('Content-Type: text/plain');
+    echo $result;
+
+  }
 }
