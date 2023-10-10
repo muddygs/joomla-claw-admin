@@ -12,13 +12,17 @@ use Joomla\CMS\Factory;
  * @description: Provies dynamic event configuration information
 */
 class Aliases {
-  static function current() {
+  static function current(bool $nocache = false) {
     // Is the session setting for alias set?
     // Only check when not in admin
-    $app = Factory::getApplication();
-    $siteAlias = Helpers::sessionGet('eventAlias');
-    if ( $app->isClient('site') && $siteAlias != '' ) {
-      return $siteAlias;
+    if ( !$nocache ) {
+      $app = Factory::getApplication();
+      if ( $app->isClient('site') ) {
+        $siteAlias = Helpers::sessionGet('eventAlias');
+        if ( $siteAlias != '' ) {
+          return $siteAlias;
+        }
+      }
     }
 
     return Config::getCurrentEventAlias();
