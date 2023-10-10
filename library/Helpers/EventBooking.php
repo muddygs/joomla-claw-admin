@@ -9,7 +9,6 @@ use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
-use Stripe\Event;
 
 class EventBooking
 {
