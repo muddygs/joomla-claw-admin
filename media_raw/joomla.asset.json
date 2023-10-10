@@ -110,6 +110,17 @@
       }
     },
     {
+      "name": "com_claw.rollcall",
+      "type": "script",
+      "uri": "com_claw/vol_checkin_events.js",
+      "dependencies": [
+        "core"
+      ],
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
       "name": "com_claw.copyevent",
       "type": "script",
       "uri": "com_claw/copyevent.js",

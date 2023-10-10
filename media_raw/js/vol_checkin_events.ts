@@ -1,207 +1,214 @@
-const colName = "col-6 col-lg-4";
-const colBadge = "col-6 col-lg-2";
-const colCheckin = "col-6 col-lg-3";
-const colCheckout = "col-6 col-lg-3";
+const colTitle = "col-4 col-lg-6";
+const colCheckin = "col-4 col-lg-3";
+const colCheckout = "col-4 col-lg-3";
 const url = new URL(window.location.href);
 
 var rollcallToken = "";
 var shiftId = "";
 
-class volunteerSearch {
-	name: string;
-	regid: number;
-	badgeid: string;
-	checkin: number;
-	checkout: number;
+document.addEventListener("DOMContentLoaded", function () {
+  rollcallToken = (document.getElementById('token') as HTMLInputElement).value;
+});
 
-	constructor(name: string, regid: number, badgeid: string, checkin: number, checkout: number) {
-		this.name = name;
-		this.regid = regid;
-		this.badgeid = badgeid;
-		this.checkin = checkin;
-		this.checkout = checkout;
-	}
+function volunteerAjaxUrl(task: string) {
+  return `/index.php?option=com_claw&view=checkin&task=${task}&format=raw`;
+}
+
+function volunteerOptions(data: object) {
+  return {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': Joomla.getOptions('csrf.token')
+    }
+  }
+}
+
+class volunteerSearch {
+  name: string;
+  uid: number;
+  regid: number;
+  title: string;
+  checkin: boolean;
+  checkout: boolean;
+
+  constructor(name: string, uid: number, regid: number, title: string, checkin: boolean, checkout: boolean) {
+    this.name = name;
+    this.uid = uid;
+    this.regid = regid;
+    this.title = title;
+    this.checkin = checkin;
+    this.checkout = checkout;
+  }
 }
 
 function formatVolunteerSearch(r: any): volunteerSearch {
-	return { name: r.name, regid: r.regid, badgeid: r.badgeid, checkin: r.checkin, checkout: r.checkout }
+  return { name: r.name, uid: r.uid, regid: r.regid, title: r.title, checkin: r.checkin, checkout: r.checkout }
 }
 
 class volunteerSearchService {
-	async doSearch(search: string): Promise<volunteerSearch[]> {
-		var data = {
-			action: 'search',
-			token: rollcallToken,
-			eventid: search
-		};
+  async doSearch(regid: string): Promise<volunteerSearch[]> {
+    const data = {
+      token: rollcallToken,
+      regid: regid
+    };
 
-		const options = {
-			method: 'POST',
-			body: JSON.stringify(data),
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		};
-
-		const res = await fetch('/php/volunteers/process.php', options);
-		const res_1 = await res.json();
-		return res_1.map((s: any) => formatVolunteerSearch(s));
-	}
+    const res = await fetch(volunteerAjaxUrl('volunteerSearch'), volunteerOptions(data));
+    const res_1 = await res.json();
+    return res_1.map((s: any) => formatVolunteerSearch(s));
+  }
 }
 
 const apiVolunteerSearchService = new volunteerSearchService();
 
-jQuery(function() {
-	rollcallToken = (document.getElementById('token') as HTMLInputElement).value;
-});
 
-function getVolunteerStatusRow(j: volunteerSearch): string
-{
-	var button;
-	var bout;
-	
-	if ( 0 == j.checkin )
-	{
-		button = '<button id="e'+j.regid+'" class="btn btn-danger btn-lg mt-2 mb-2" onClick="'+getVolunteerButton(j.regid,'checkin',0)+'">IN</button>';
-	}
-	else
-	{
-		button = '<button id="e' + j.regid + '" class="btn btn-success btn-lg mt-2 mb-2" onClick="'+getVolunteerButton(j.regid, 'checkin', 0)+'">IN</button>';
-	}
-	
-	if ( 0 == j.checkout )
-	{
-		bout = '<button id="f' + j.regid + '" class="btn btn-danger btn-lg mt-2 mb-2" onClick="' + getVolunteerButton(j.regid, 'checkout', 0)+'">OUT</button>';
-	}
-	else
-	{
-		bout = '<button id="f' + j.regid + '" class="btn btn-success btn-lg mt-2 mb-2" onClick="' + getVolunteerButton(j.regid, 'checkout', 1)+'">OUT</button>';
-	}
-	
-	return '<div class="row row-striped align-items-center"><div class="'+colName+'">'+
-	j.name+'</div><div class="'+colBadge+'">'+j.badgeid+'</div><div class="'+colCheckin+'">'+
-	button+'</div><div class="'+colCheckout+'">'+bout+'</div></div>';
+function getVolunteerStatusRow(record: volunteerSearch): string {
+  const buttonInClass = record.checkin == false ? 'btn-danger' : 'btn-success';
+  const buttonOutClass = record.checkout == false ? 'btn-danger' : 'btn-success';
+
+  const buttonIn = `<button type="button" id="e${record.regid}" class="btn btn-lg mt-2 mb-2 ${buttonInClass}" onClick="${getVolunteerButton(record.regid, 'checkin', record.checkin)}">IN</button>`;
+  const buttonOut = `<button type="button" id="f${record.regid}" class="btn btn-lg mt-2 mb-2 ${buttonOutClass}" onClick="${getVolunteerButton(record.regid, 'checkout', record.checkout)}">OUT</button>`;
+
+  return `
+  <div class="row row-striped align-items-center">
+    <div class="${colTitle}">${record.title}</div>
+    <div class="${colCheckin}">${buttonIn}</div>
+    <div class="${colCheckout}">${buttonOut}</div>
+  </div>
+`;
 }
 
-function getVolunteerButton(regid: number, action:string, value: number) {
-	return "updateVolunteerStatus('" + regid + "','"+action+"', "+value+");"
+function getVolunteerButton(regid: number, action: string, value: boolean) {
+  return "updateVolunteerStatus('" + regid + "','" + action + "', " + value + ");"
 }
 
-function updateVolunteerStatus(regid: number,button:string,undo:number)
-{
-	if (undo == 1 && !confirm("Press OK to undo the check in/out for this volunteer.")) {
-		return;
-	}
+function updateVolunteerStatus(regid: number, action: string, undo: boolean) {
+  if (undo == true && !confirm("Press OK to undo the check in/out for this volunteer.")) {
+    return;
+  }
 
-	var data = {
-		action: 'value',
-		token: rollcallToken,
-		regid: regid,
-		button: button,
-		eventid: shiftId,
-		currentValue: undo
-	};
+  var data = {
+    token: rollcallToken,
+    regid: regid,
+    action: action,
+    currentValue: undo
+  };
 
-	const options = {
-		method: 'POST',
-		body: JSON.stringify(data),
-		headers: {
-			'Content-Type': 'application/json'
-		}
-	};
-
-	fetch('/php/volunteers/process.php', options)
-		.then(result => result.text())
-		.then(result => {
-			if (result != 'ok') {
-				alert('Status change failed. Are you still authenticated?')
-				return;
-			}
-			updateButton(regid, button, undo);
-		});
-
-  // var url='/php/volunteers/checkin_status.php';
-  // var button;
-  
-  // if ( action == 'checkout' && jQuery('#e'+sid).hasClass('btn-danger'))
-  // {
-	//   alert("Check out cannot be changed when not checked in.");
-	//   return;
-  // }
-  
-  // if ( action == 'checkin' ) { button = '#e'+sid; } else { button = '#f'+sid };
-  // if ( override == 0 && jQuery(button).hasClass('btn-success') ) {
-	// action = action + 'confirm';
-  // }
-
-	// var postData =
-	// {
-	// 	token: t,
-	// 	sid: sid,
-	// 	action: action
-	// };
-
-	// jQuery.post( url, postData)
-	// .done(function( data ) {
-	// 	jsonData = JSON.parse(data);
-	// 	finalizeStatus(jsonData);
-	// });
+  fetch(volunteerAjaxUrl('volunteerUpdate'), volunteerOptions(data))
+    .then(result => result.text())
+    .then(result => {
+      if (result != 'ok') {
+        alert('Status change failed. Are you still authenticated?')
+        return;
+      }
+      updateButton(regid, action, undo);
+    });
 }
 
-function updateButton(regid: number, button: string, undo: number)
-{
-	var buttonCheckin  = 'e'+regid;
-	var buttonCheckout = 'f'+regid;
+function updateButton(regid: number, button: string, undo: boolean) {
+  var buttonCheckin = 'e' + regid;
+  var buttonCheckout = 'f' + regid;
 
-	if ( button == 'checkin') {
-		if ( undo == 0 ) {
-			var b = document.getElementById(buttonCheckin) as HTMLElement;
-			b.classList.remove('btn-danger');
-			b.classList.add('btn-success')
-			b.setAttribute('onclick',getVolunteerButton(regid, 'checkin', 1))
-		} else {
-			var b = document.getElementById(buttonCheckin) as HTMLElement;
-			b.classList.remove('btn-success');
-			b.classList.add('btn-danger')
-			b.setAttribute('onclick', getVolunteerButton(regid, 'checkin', 0))
+  if (button == 'checkin') {
+    if (undo == false) {
+      var b = document.getElementById(buttonCheckin) as HTMLElement;
+      b.classList.remove('btn-danger');
+      b.classList.add('btn-success')
+      b.setAttribute('onclick', getVolunteerButton(regid, 'checkin', true))
+    } else {
+      var b = document.getElementById(buttonCheckin) as HTMLElement;
+      b.classList.remove('btn-success');
+      b.classList.add('btn-danger')
+      b.setAttribute('onclick', getVolunteerButton(regid, 'checkin', false))
 
-			b = document.getElementById(buttonCheckout) as HTMLElement;
-			b.classList.remove('btn-success');
-			b.classList.add('btn-danger')
-			b.setAttribute('onclick', getVolunteerButton(regid, 'checkout', 0))
-		}
-	}
-	else if (button == 'checkout') {
-		if (undo == 0) {
-			var b = document.getElementById(buttonCheckout) as HTMLElement;
-			b.classList.remove('btn-danger');
-			b.classList.add('btn-success')
-			b.setAttribute('onclick', getVolunteerButton(regid, 'checkout', 1))
-		} else {
-			var b = document.getElementById(buttonCheckout) as HTMLElement;
-			b.classList.remove('btn-success');
-			b.classList.add('btn-danger')
-			b.setAttribute('onclick', getVolunteerButton(regid, 'checkout', 0))
-		}
-	} else {
-		alert("An error has occurred. Please reload this page to continue. No changes will be lost.");
-	}
+      b = document.getElementById(buttonCheckout) as HTMLElement;
+      b.classList.remove('btn-success');
+      b.classList.add('btn-danger')
+      b.setAttribute('onclick', getVolunteerButton(regid, 'checkout', false))
+    }
+  }
+  else if (button == 'checkout') {
+    if (undo == false) {
+      var b = document.getElementById(buttonCheckout) as HTMLElement;
+      b.classList.remove('btn-danger');
+      b.classList.add('btn-success')
+      b.setAttribute('onclick', getVolunteerButton(regid, 'checkout', true))
+    } else {
+      var b = document.getElementById(buttonCheckout) as HTMLElement;
+      b.classList.remove('btn-success');
+      b.classList.add('btn-danger')
+      b.setAttribute('onclick', getVolunteerButton(regid, 'checkout', false))
+    }
+  } else {
+    alert("An error has occurred. Please reload this page to continue. No changes will be lost.");
+  }
 }
 
+function fetchVolunteerData() {
+  const regid = (document.getElementById('regid') as HTMLInputElement).value;
 
+  apiVolunteerSearchService.doSearch(regid).then(results => {
+    const v = document.getElementById('shifts');
+    v.innerHTML = `
+      <div class="row row-striped">
+        <div class="${colTitle}">Shift Title</div>
+        <div class="${colCheckin}">Checkin</div>
+        <div class="${colCheckout}">Checkout</div>
+      </div>`;
 
-function fetchVolunteerData()
-{
-	var shifts = document.getElementById('shifts') as HTMLSelectElement;
-	shiftId = shifts.selectedOptions[0].value;
+    if ( results.length == 0 ) {
+      v.innerHTML += '<div class="row row-striped"><div class="col-12">No shifts found.</div></div>';
+    } else {
+      const nameId = document.getElementById('name');
+      nameId.innerHTML = results[0].name;
+      const uidId = document.getElementById('uid') as HTMLInputElement;
+      uidId.value = results[0].uid.toString();
 
-	apiVolunteerSearchService.doSearch(shiftId).then(results => {
-		var v = document.getElementById('volunteers');
-		v.innerHTML = "";
-		v.innerHTML += '<div class="row row-striped"><div class="' + colName + '">Name</div><div class="' + colBadge + '">Badge #</div><div class="' + colCheckin + '">Checkin #</div><div class="' + colCheckout + '">Checkout #</div></div>';
+      results.forEach(s => {
+        v.innerHTML += getVolunteerStatusRow(s);
+      });
+    }
+  })
+}
 
-		results.forEach(s => {
-			v.innerHTML += getVolunteerStatusRow(s);
-		});
-	})
+function clearVolunteerData() {
+  const nameId = document.getElementById('name');
+  nameId.innerHTML = '';
+  const uidId = document.getElementById('uid') as HTMLInputElement;
+  uidId.value = '0';
+  const v = document.getElementById('shifts');
+  v.innerHTML = '';
+  const regid = document.getElementById('regid') as HTMLInputElement;
+  regid.value = '';
+}
+
+function addShift() {
+  const uid = (document.getElementById('uid') as HTMLInputElement).value;
+
+  const e = document.getElementById('shift-items') as HTMLSelectElement;
+  const sel = e.selectedIndex;
+  const opt = e.options[sel];
+  const shift = opt.value;
+
+  const regid = document.getElementById('regid') as HTMLInputElement;
+  const regidValue = regid.value;
+
+  const data = {
+    token: rollcallToken,
+    uid: uid,
+    shift: shift
+  };
+
+  fetch(volunteerAjaxUrl('volunteerAddShift'), volunteerOptions(data))
+    .then(result => result.text())
+    .then(result => {
+      if (result != 'ok') {
+        alert('Shift add failed. Are you still authenticated?')
+        return;
+      }
+      alert('Shift added.');
+      regid.value = regidValue;
+      fetchVolunteerData();
+    });
 }
