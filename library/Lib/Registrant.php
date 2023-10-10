@@ -42,16 +42,16 @@ class Registrant
   {
     $info = $this->clawEvents->getClawEventInfo();
 
-    if ( $info->mainAllowed == false ) {
+    if ( !$info->mainAllowed ) {
       die(__FILE__.': cannot request Main Event for "any"');
     }
 
-    if ( count($this->_records) == 0 ) $this->loadCurrentEvents();
+    if ( !count($this->_records) ) $this->loadCurrentEvents();
 
     foreach ( $this->_records as $r )
     {
       /** @var \ClawCorpLib\Lib\RegistrantRecord $r */
-      if ( $r->registrant->published == EbPublishedState::published->value ) {
+      if ( EbPublishedState::published->value == $r->registrant->published ) {
         if ( in_array($r->event->eventId, $this->clawEvents->mainEventIds)) {
           $r->registrant->badgeId = $this->badgeId;
           $e = $this->clawEvents->getEventByKey('eventId', $r->event->eventId);
@@ -84,7 +84,7 @@ class Registrant
 
   /**
    * Returns all the loaded records
-   * @param bool $single (default=false) If a singlular record is expected, set to
+   * @param bool $single (default=false) If a singular record is expected, set to
    *  true. If multiple records are loaded, badness will occur so code can be fixed
    * @return array Records array indexed by recordIndexType (unless $single is true)
    */
@@ -158,13 +158,13 @@ class Registrant
       ->where($db->qn('r.user_id') . ' = ' . $db->quote($this->uid))
       ->where($db->qn('r.invoice_number') . '!=' . $db->q('0'));
 
-    if ( $info->mainAllowed == true && $this->enablePastEvents == false ) {
+    if ( $info->mainAllowed && !$this->enablePastEvents ) {
       $q->where($db->qn('e.event_end_date') . '<' . $db->q($endDate))
       ->where($db->qn('e.event_date') . '>' . $db->q($startDate))
       ->where($db->qn('r.published') . '=' . EbPublishedState::published->value);
     }
 
-    if ( count($this->eventIdFilter) > 0 ) {
+    if ( count($this->eventIdFilter) ) {
       $in = implode(',',$db->quote($this->eventIdFilter));
       $q->where($db->qn('r.event_id') . ' IN (' . $in . ')');
     }
@@ -172,7 +172,7 @@ class Registrant
       $q->where($db->qn('e.id') . ' IS NOT NULL ');
     }
 
-    if ($info->description == 'refunds') {
+    if ( 'refunds' == $info->description ) {
       $q->where('('.$db->qn('r.published') . '=' . EbPublishedState::published->value.' OR '.$db->qn('r.published') . '=' . EbPublishedState::cancelled->value.')');
       $q->order($db->qn(['r.transaction_id']));
     }
@@ -208,7 +208,7 @@ class Registrant
       return;
     }
 
-    if ( count($fieldNames) == 0 ) return;
+    if ( !count($fieldNames) ) return;
 
     if ($this->indexType != EbRecordIndexType::default) die ('Cannot merge on non-id index.');
 
@@ -307,7 +307,6 @@ class Registrant
     if ( is_numeric($invoice) && strlen($invoice) == 5 ) {
       return $invoice;
     }
-
 
     return 0;
   }

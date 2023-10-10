@@ -487,7 +487,7 @@ HTML;
       ->order('r.first_name')
       ->setLimit(20);
 
-    if ( $page == 'badge-print') {
+    if ( 'badge-print' == $page ) {
       $query->where('(v.field_value IS NULL OR v.field_value != 1)');
     }
 
