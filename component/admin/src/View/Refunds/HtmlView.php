@@ -11,19 +11,28 @@ namespace ClawCorp\Component\Claw\Administrator\View\Refunds;
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 
 class HtmlView extends BaseHtmlView
 {
-	/**
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 * @return  void
-	 */
-	function display($tpl = null)
-	{
-		$model       = $this->getModel();
-		$this->form  = $this->get('Form');
+  /**
+   * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+   * @return  void
+   */
+  function display($tpl = null)
+  {
+    $model       = $this->getModel();
+    $this->form  = $this->get('Form');
 
-		parent::display($tpl);
-	}
+    $app = Factory::getApplication();
+    $user  = $app->getIdentity();
+
+    if ($user->authorise('core.admin', 'com_claw')) {
+      parent::display($tpl);
+    } else {
+      Factory::getApplication()->enqueueMessage('You do not have permission to access this page.', 'error');
+      Factory::getApplication()->redirect('/administrator/index.php');
+    }
+  }
 }

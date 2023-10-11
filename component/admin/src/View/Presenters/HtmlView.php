@@ -110,6 +110,7 @@ class HtmlView extends BaseHtmlView
   protected function addToolbar(): Toolbar
   {
     $app = Factory::getApplication();
+    $user  = $app->getIdentity();
 
     ToolbarHelper::title('CLAW Presenters');
 
@@ -121,7 +122,6 @@ class HtmlView extends BaseHtmlView
     /** @var Toolbar $toolbar */
     $toolbar = Factory::getContainer()->get(ToolbarFactoryInterface::class)->createToolbar('toolbar');
 
-    $user  = $app->getIdentity();
 
     // TODO: Need both?
     if ($user->authorise('core.admin', 'com_claw') || $user->authorise('claw.skills', 'com_claw'))

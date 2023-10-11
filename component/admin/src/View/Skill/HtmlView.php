@@ -125,22 +125,12 @@ class HtmlView extends BaseHtmlView
 			'CLAW Skills Class ' . ($isNew ? 'Add' : 'Edit')
 		);
 
-		$toolbarButtons = [];
 		$user = Factory::getApplication()->getIdentity();
 
 		if ( $user->authorise('claw.skills', 'com_claw') ) {
 			ToolbarHelper::apply('skill.apply');
-			$toolbarButtons[] = ['save', 'skill.save'];
-
-				$toolbarButtons[] = ['save2new', 'skill.save2new'];
-			// $toolbarButtons[] = ['save2copy', 'skill.save2copy'];
+			ToolbarHelper::save('skill.save');
 		}
-
-		ToolbarHelper::saveGroup(
-			$toolbarButtons,
-			'btn-success'
-		);
-
 
 		if ($isNew) {
 			ToolbarHelper::cancel('skill.cancel');

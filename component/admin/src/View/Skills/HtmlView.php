@@ -109,11 +109,12 @@ class HtmlView extends BaseHtmlView
 
 		$user  = $app->getIdentity();
 
-		if ($user->authorise('core.admin', 'com_claw')) {
+		if ($user->authorise('core.admin', 'com_claw') || $user->authorise('claw.skills', 'com_claw')) {
 			$toolbar->addNew('skill.add');
 
 			$toolbar->delete('skills.delete')
 			->text('Delete')
+			->message('Confirm delete selected class(es)?')
 			->listCheck(true);
 		}
 	}

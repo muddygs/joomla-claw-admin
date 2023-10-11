@@ -14,6 +14,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Service\Provider\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\User\User;
 
@@ -143,35 +144,21 @@ class HtmlView extends BaseHtmlView
    */
   protected function addToolbar()
   {
-    Factory::getApplication()->input->set('hidemainmenu', true);
+    $app = Factory::getApplication();
+    $app->input->set('hidemainmenu', true);
+    $user = $app->getIdentity();
+
     $isNew      = ($this->item->id == 0);
 
     ToolbarHelper::title(
       'Skills Presenter ' . ($isNew ? 'Add' : 'Edit')
     );
 
-    $toolbarButtons = [];
-
     // If not checked out, can save the item.
-    if (true /*!$checkedOut && ($canDo->get('core.edit') || \count($user->getAuthorisedCategories('com_claw', 'core.create')) > 0)*/) {
+    if ( $user->authorise('claw.skills', 'com_claw') ) {
         ToolbarHelper::apply('presenter.apply');
-        $toolbarButtons[] = ['save', 'presenter.save'];
-
-        if (true /*$canDo->get('core.create')*/) {
-            $toolbarButtons[] = ['save2new', 'presenter.save2new'];
-        }
+        ToolbarHelper::save('presenter.save');
     }
-
-    // If an existing item, can save to a copy.
-    if (!$isNew /*&& $canDo->get('core.create')*/) {
-        $toolbarButtons[] = ['save2copy', 'presenter.save2copy'];
-    }
-
-    ToolbarHelper::saveGroup(
-        $toolbarButtons,
-        'btn-success'
-    );
-
 
     if ($isNew) {
       ToolbarHelper::cancel('presenter.cancel');

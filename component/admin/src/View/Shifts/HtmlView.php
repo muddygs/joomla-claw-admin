@@ -17,9 +17,6 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 
-use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Lib\Registrants;
-
 class HtmlView extends BaseHtmlView
 {
 	/**
@@ -119,6 +116,13 @@ class HtmlView extends BaseHtmlView
 			->icon('fas fa-calendar')
 			->buttonClass('btn')
 			->listCheck(false);
+
+			$toolbar->confirmButton('reset','Reset Events','shifts.reset')
+			->icon('fas fa-exclamation-triangle')
+			->buttonClass('btn')
+			->listCheck(false)
+			->message('Are you sure you want to reset all events?');
+
 		}
 
 		ToolbarHelper::divider();

@@ -17,33 +17,33 @@ use Joomla\CMS\Toolbar\Toolbar;
 
 class HtmlView extends BaseHtmlView
 {
-	/**
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 * @return  void
-	 */
-	function display($tpl = null)
-	{
-		$model       = $this->getModel();
-		$this->form  = $this->get('Form');
+  /**
+   * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+   * @return  void
+   */
+  function display($tpl = null)
+  {
+    $model       = $this->getModel();
+    $this->form  = $this->get('Form');
 
-		$user = Factory::getApplication()->getIdentity();
+    $user = Factory::getApplication()->getIdentity();
 
-		$user = Factory::getApplication()->getIdentity();
+    $user = Factory::getApplication()->getIdentity();
 
-		if ( $user->authorise('core.admin', 'com_claw') ) {
-		} else {
-			Factory::getApplication()->enqueueMessage('You do not have permission to access this page.', 'error');
-			Factory::getApplication()->redirect('/administrator/index.php');
-		}
+    if ( $user->authorise('core.admin', 'com_claw') ) {
+    } else {
+      Factory::getApplication()->enqueueMessage('You do not have permission to access this page.', 'error');
+      Factory::getApplication()->redirect('/administrator/index.php');
+    }
 
-		// Get the toolbar object instance
-		$toolbar = Toolbar::getInstance('toolbar');
+    // Get the toolbar object instance
+    $toolbar = Toolbar::getInstance('toolbar');
 
-		$toolbar->standardButton('refresh')
-		->text('Rebuild Mappings')
-		->task('eventcopy.repair')
-		->formValidation(false);
-		
-		parent::display($tpl);
-	}
+    $toolbar->standardButton('refresh')
+    ->text('Rebuild Mappings')
+    ->task('eventcopy.repair')
+    ->formValidation(false);
+    
+    parent::display($tpl);
+  }
 }
