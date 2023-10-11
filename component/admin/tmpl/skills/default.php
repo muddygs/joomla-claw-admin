@@ -51,6 +51,9 @@ $user = $app->getIdentity();
 		    <th scope="col">Location</th>
         <th scope="col">Track</th>
         <th scope="col">Presenter(s)</th>
+        <th scope="col">
+          <?php echo HTMLHelper::_('searchtools.sort', 'Submission Date', 'a.submission_date', $listDirn, $listOrder); ?>  
+        </th>
         <th scope="col">ID</th>
       </tr>
     </thead>
@@ -93,6 +96,9 @@ $user = $app->getIdentity();
           </td>
           <td>
               <?php echo implode('<br/>', $item->presenter_names) ?>
+          </td>
+          <td>
+            <?= $item->submission_date ?>
           </td>
           <td>
             <?php echo $item->id ?>

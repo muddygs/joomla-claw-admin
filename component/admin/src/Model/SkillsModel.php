@@ -38,7 +38,8 @@ class SkillsModel extends ListModel
     'location',
     'track',
     'owner',
-    'presenters'
+    'presenters',
+    'submission_date'
   ];	
 
   /**
@@ -61,6 +62,8 @@ class SkillsModel extends ListModel
 
     parent::__construct($config);
   }
+
+  
 
   /**
    * Method to auto-populate the model state.
