@@ -40,6 +40,25 @@ class ShiftsController extends AdminController
 		$grid->createEvents();
 	}
 
+	public function reset()
+	{
+		$filter = $this->app->getInput()->get('filter', '', 'string');
+
+		$event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
+
+		switch ($event) {
+			case '':
+			case '_current_':
+				$event = Aliases::current();
+				break;
+			case '_all_':
+				$event = '';
+		}
+
+		$grid = new Grids($event);
+		$grid->resetEvents();
+	}
+
 	/**
 	 * Proxy for getModel.
 	 *
