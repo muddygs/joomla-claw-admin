@@ -39,6 +39,7 @@ class SkillsModel extends ListModel
     'track',
     'owner',
     'presenters',
+    'mtime',
     'submission_date'
   ];	
 

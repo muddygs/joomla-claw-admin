@@ -54,8 +54,12 @@ $user = $app->getIdentity();
             <th scope="col">Event</th>
             <th scope="col">Photo</th>
             <th scope="col">Classes</th>
-            <th scope="col">Mod Time</th>
-            <th scope="col">Sub Date</th>
+            <th scope="col">
+              <?php echo HTMLHelper::_('searchtools.sort', 'Modification', 'a.mtime', $listDirn, $listOrder); ?>  
+            </th>
+            <th scope="col">
+              <?php echo HTMLHelper::_('searchtools.sort', 'Submission', 'a.submission_date', $listDirn, $listOrder); ?>  
+            </th>
             <th scope="col">ID</th>
           </tr>
         </thead>
