@@ -54,8 +54,9 @@ class Registrant
       if ( EbPublishedState::published->value == $r->registrant->published ) {
         if ( in_array($r->event->eventId, $this->clawEvents->mainEventIds)) {
           $r->registrant->badgeId = $this->badgeId;
+          /** @var \ClawCorpLib\Lib\ClawEvent */
           $e = $this->clawEvents->getEventByKey('eventId', $r->event->eventId);
-          $r->registrant->eventPackageType = $e->clawPackageType;
+          $r->registrant->eventPackageType = $e->eventPackageType;
           return $r;
         }
       }
@@ -64,6 +65,11 @@ class Registrant
     return null;
   }
 
+  /**
+   * Finds all the active main events (across all event aliases) for a registrant
+   * @param int $uid 
+   * @return array eventId => RegistrantRecord
+   */
   public static function getMainEvents(int $uid): array
   {
     // Array of registrant records
@@ -92,6 +98,7 @@ class Registrant
   {
     if ( $single && (sizeof($this->_records) > 1 || sizeof($this->_records) == 0) ) die(__FILE__.': Single records expected, none/multiple available');
     if ( !$single) return $this->_records;
+
     $result = [];
     reset($this->_records);
     $result[] = current($this->_records);
@@ -182,11 +189,11 @@ class Registrant
 
     foreach( $records AS $k => $r )
     {
-      $event = $this->clawEvents->getEventByKey('eventId',$r->eventId);
-      if ( null != $event && $event->isMainEvent) {
-        $r->couponKey = $event->couponKey;
-        $r->clawPackageType = $event->clawPackageType;
-        $r->link = $event->link;
+      /** @var \ClawCorpLib\Lib\ClawEvent */
+      $event = $this->clawEvents->getEventByKey('eventId',$r->eventId,false);
+      if ( null != $event ) {
+        if ( $event->isMainEvent) $r->couponKey = $event->couponKey;
+        $r->eventPackageType = $event->eventPackageType;
       }
 
       $this->_records[$k] = new RegistrantRecord($this->clawEventAlias, $r);
