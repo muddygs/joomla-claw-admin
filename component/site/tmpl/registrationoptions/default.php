@@ -17,7 +17,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 
 /** @var \ClawCorp\Component\Claw\Site\View\Registrationoptions\HtmlView $this */
 
-$clawPackageType = EventPackageTypes::none;
+$eventPackageType = EventPackageTypes::none;
 
 Helpers::sessionSet('filter_duration','');
 
@@ -31,54 +31,54 @@ $vipRedirect = false;
 
 switch ($this->action) {
   case EventPackageTypes::attendee->value:
-    $clawPackageType = EventPackageTypes::attendee;
+    $eventPackageType = EventPackageTypes::attendee;
     break;
   case EventPackageTypes::vip->value:
-      $clawPackageType = EventPackageTypes::vip;
+      $eventPackageType = EventPackageTypes::vip;
     break;
   case EventPackageTypes::vip2->value:
-    $clawPackageType = EventPackageTypes::vip;
+    $eventPackageType = EventPackageTypes::vip;
     $vipRedirect = true;
     break;
   case EventPackageTypes::volunteer2->value:
-    $clawPackageType = EventPackageTypes::volunteer2;
+    $eventPackageType = EventPackageTypes::volunteer2;
     $tab = 'Shifts';
     break;
   case EventPackageTypes::volunteer3->value:
-    $clawPackageType = EventPackageTypes::volunteer3;
+    $eventPackageType = EventPackageTypes::volunteer3;
     $tab = 'Shifts';
     break;
   case EventPackageTypes::volunteersuper->value:
-    $clawPackageType = EventPackageTypes::volunteersuper;
+    $eventPackageType = EventPackageTypes::volunteersuper;
     $tab = 'Shifts';
     break;
   case EventPackageTypes::event_staff->value:
-    $clawPackageType = EventPackageTypes::event_staff;
+    $eventPackageType = EventPackageTypes::event_staff;
     break;
   case EventPackageTypes::event_talent->value:
-    $clawPackageType = EventPackageTypes::event_talent;
+    $eventPackageType = EventPackageTypes::event_talent;
     break;
   case EventPackageTypes::claw_staff->value:
-    $clawPackageType = EventPackageTypes::claw_staff;
+    $eventPackageType = EventPackageTypes::claw_staff;
     break;
   case EventPackageTypes::vendor_crew->value:
-    $clawPackageType = EventPackageTypes::vendor_crew;
+    $eventPackageType = EventPackageTypes::vendor_crew;
     break;
   case EventPackageTypes::educator->value:
-    $clawPackageType = EventPackageTypes::educator;
+    $eventPackageType = EventPackageTypes::educator;
     break;
   case EventPackageTypes::addons->value:
-    $clawPackageType = EventPackageTypes::none;
+    $eventPackageType = EventPackageTypes::none;
     $addons = true;
     break;
   case EventPackageTypes::day_pass_fri->value:
-    $clawPackageType = EventPackageTypes::day_pass_fri;
+    $eventPackageType = EventPackageTypes::day_pass_fri;
     break;
   case EventPackageTypes::day_pass_sat->value:
-    $clawPackageType = EventPackageTypes::day_pass_sat;
+    $eventPackageType = EventPackageTypes::day_pass_sat;
     break;
   case EventPackageTypes::day_pass_sun->value:
-    $clawPackageType = EventPackageTypes::day_pass_sun;
+    $eventPackageType = EventPackageTypes::day_pass_sun;
     break;
   default:
     echo 'Unknown action. Please try again.';
@@ -92,7 +92,7 @@ if ( !$this->eventInfo->onsiteActive ) {
     EventPackageTypes::day_pass_sun,
   ];
 
-  if (in_array($clawPackageType, $blockedPackageTypes)) {
+  if (in_array($eventPackageType, $blockedPackageTypes)) {
     echo "Day passes are not available at this time.";
     return;
   }
@@ -118,7 +118,7 @@ if ($addons == true && $mainEvent == null && !$vipRedirect) :
   return;
 endif;
 
-if ($addons == false && $mainEvent != null && $mainEvent->registrant->eventPackageType != $clawPackageType) :
+if ($addons == false && $mainEvent != null && $mainEvent->registrant->eventPackageType != $eventPackageType) :
 ?>
   <p class="text-warning">You cannot register for this event because you are already registered for <b><?= $mainEvent->event->title ?></b>.</p>
   <p><span class="fa fa-info-circle fa-2x"></span><a href="/help?category_id=11">&nbsp;Contact Guest Services for assistance.</a></p>
@@ -151,7 +151,7 @@ $eventInfo = $this->eventInfo;
 Helpers::sessionSet('filter_start' , $eventInfo->start_date);
 Helpers::sessionSet('filter_end' , $eventInfo->end_date);
 
-$regEvent = $clawEvents->getEventByKey('clawPackageType', $clawPackageType);
+$regEvent = $clawEvents->getEventByKey('eventPackageType', $eventPackageType);
 
 // Auto add this registration to the cart
 // Remove any other main events that might be in cart
@@ -254,7 +254,7 @@ endif;
   if ( $this->eventInfo->onsiteActive ) {
     $content[] = contentShiftsOnsite();
   } else {
-    $content[] = contentShifts($clawPackageType);
+    $content[] = contentShifts($eventPackageType);
   }
   
   $headings[] = 'Meals';

@@ -53,9 +53,7 @@ $ts = '?ts=' . time();
     $orientation = BadgeOrientation::portrait->name;
     $dayPassOrientation = BadgeOrientation::landscape->name;
 
-    $package = $r->clawPackage;
-
-    switch (EventPackageTypes::FindValue($package)) {
+    switch ($r->eventPackageType) {
       case EventPackageTypes::volunteer1:
       case EventPackageTypes::volunteer2:
       case EventPackageTypes::volunteer3:
@@ -182,9 +180,9 @@ function badgeBack(CheckinRecord $r): void
 
   $coc = $r->cocSigned ? 'Yes' : 'No';
 
-  $buffet = $r->getBuffetString();
-  $brunch = $r->getBrunchString();
-  $dinner = $r->getDinnerString();
+  $buffet = $r->getMealString($r->buffets);
+  $brunch = $r->getMealString($r->brunches);
+  $dinner = $r->getMealString($r->dinners);
 
 ?>
   <div class="label" id="<?php echo $regCode ?>b">
