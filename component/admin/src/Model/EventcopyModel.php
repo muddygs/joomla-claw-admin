@@ -13,16 +13,11 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvent;
 use ClawCorpLib\Lib\ClawEvents;
-use ClawCorpLib\Lib\Coupons;
 use Joomla\CMS\Factory;
-use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Model\FormModel;
 use Joomla\Input\Json;
 use ClawCorpLib\Lib\Ebmgmt;
-use ClawCorpLib\Lib\EventInfo;
 use DateTimeImmutable;
 use ReflectionClass;
 
@@ -76,11 +71,21 @@ class EventcopyModel extends FormModel
       return 'Invalid to event: ' . $to;
     }
 
-    $fromEvent = new ClawEvents($from);
-    $toEvent = new ClawEvents($to);
+    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$from");
+    /** @var \ClawCorpLib\Event\AbstractEvent */
+    $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
 
-    $fromEventInfo = $fromEvent->getClawEventInfo();
-    $toEventInfo = $toEvent->getClawEventInfo();
+    // Normal constructor does not call with quiet mode set to true
+    /** @var \ClawCorpLib\Lib\EventInfo */
+    $fromEventInfo = $instance->PopulateInfo();
+
+    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$to");
+    /** @var \ClawCorpLib\Event\AbstractEvent */
+    $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
+
+    // Normal constructor does not call with quiet mode set to true
+    /** @var \ClawCorpLib\Lib\EventInfo */
+    $toEventInfo = $instance->PopulateInfo();
 
     // Do some database magic!
 
@@ -95,6 +100,14 @@ class EventcopyModel extends FormModel
     $results = [];
 
     foreach ($tables as $t) {
+      // Delete existing
+      $query = $db->getQuery(true);
+      $query->delete($db->quoteName($t))
+        ->where($db->quoteName('event') . ' = ' . $db->quote($to));
+      $db->setQuery($query);
+      $db->execute();
+      
+      // Copy from older event
       $query = $db->getQuery(true);
       $query->select('*')
         ->from($db->quoteName($t))
