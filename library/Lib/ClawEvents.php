@@ -19,12 +19,10 @@ use UnexpectedValueException;
 
 class ClawEvents
 {
-  // private $events = [];
   public array $mainEventIds = [];
   private array  $couponRequired = [];
   private array $overlapEventCategories = [];
   private array $shiftCategoryIds = [];
-  // private string $clawEventAlias = '';
 
   private AbstractEvent $event;
 
@@ -79,7 +77,7 @@ class ClawEvents
   }
 
   /**
-   * @param string $key Event key to search under
+   * @param string $key ClawEvent property to search under
    * @param string $value Value to find
    * @param bool $mainOnly Main events only (by default) IFF clawEvent
    * @return null|object Event object (ClawEvent)
@@ -88,10 +86,12 @@ class ClawEvents
   {
     $result = null;
     $found = 0;
+
     foreach ($this->event->getEvents() as $e) {
       if (!property_exists($e, $key)) die(__FILE__ . ': Unknown key requested: ' . $key);
 
       if ($mainOnly && !$e->isMainEvent) continue;
+      if ( $e->couponOnly ) continue;
 
       if ($e->$key == $value) {
         $result = $e;
@@ -100,7 +100,7 @@ class ClawEvents
     }
 
     if ($found > 1) {
-      var_dump($this->event->getEvents());
+      var_dump($result);
       die('Duplicate results found. Did you load multiple events?');
     }
     return $result;
@@ -134,8 +134,9 @@ class ClawEvents
   {
     $result = null;
     $found = 0;
+    /** @var \ClawCorpLib\Lib\ClawEvent */
     foreach ($this->event->getEvents() as $e) {
-      if ($e->clawPackageType == $packageType && $e->isMainEvent) {
+      if ($e->eventPackageType == $packageType && $e->isMainEvent) {
         $result = $e;
         $found++;
       }
