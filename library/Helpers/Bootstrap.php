@@ -58,7 +58,7 @@ class Bootstrap
       }
       ?>
     </ul>
-<?php
+    <?php
     return $guid;
   }
 
@@ -66,32 +66,32 @@ class Bootstrap
   {
     if ($activeTab == '') $activeTab = $tabTitles[0];
 
-    if ( !array_key_exists($guid, Bootstrap::$tabGuids) ) {
+    if (!array_key_exists($guid, Bootstrap::$tabGuids)) {
     ?>
       <div class="tab-content" id="pills-tab-<?php echo $guid ?>Content">
-    <?php
+      <?php
     }
 
     reset($tabContent);
 
-    foreach ($tabTitles AS $title) {
+    foreach ($tabTitles as $title) {
       $active = $title == $activeTab ? 'show active' : '';
       $tabName = strtolower($title);
       $tabName = preg_replace("/[^\w]/", '', $tabName);
 
-    ?>
-      <div class="tab-pane fade <?php echo $active ?>" id="pills-<?php echo $tabName ?>" role="tabpanel" aria-labelledby="pills-<?php echo $tabName ?>-tab">
-        <?php
-        echo current($tabContent);
-        next($tabContent);
-        ?>
-      </div>
-    <?php
+      ?>
+        <div class="tab-pane fade <?php echo $active ?>" id="pills-<?php echo $tabName ?>" role="tabpanel" aria-labelledby="pills-<?php echo $tabName ?>-tab">
+          <?php
+          echo current($tabContent);
+          next($tabContent);
+          ?>
+        </div>
+      <?php
     }
 
-    if ( !array_key_exists($guid, Bootstrap::$tabGuids) ) {
+    if (!array_key_exists($guid, Bootstrap::$tabGuids)) {
       Bootstrap::$tabGuids[$guid] = 0;
-    ?>
+      ?>
       </div>
     <?php
     }
@@ -124,5 +124,46 @@ class Bootstrap
 
     if ($asString) return $result;
     echo $result;
+  }
+
+  public static function rawHeader(array $js = [], array $css = [])
+  {
+    $ts = 'ts=' . time();
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+      <meta charset=UTF-8>
+      <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+      <meta http-equiv="Pragma" content="no-cache" />
+      <meta http-equiv="Expires" content="0" />
+      <title>READY TO PRINT</title>
+      <script src="/templates/shaper_helixultimate/js/bootstrap.bundle.min.js"></script>
+      <script src="/templates/shaper_helixultimate/js/lazysizes.min.js"></script>
+    <?php
+      foreach ( $js AS $j ) {
+        echo "<script src=\"$j?$ts\"></script>";
+      }
+    ?>
+      <link href="/templates/shaper_helixultimate/css/bootstrap.min.css" rel="stylesheet" />
+      <link href="/templates/shaper_helixultimate/css/font-awesome.min.css" rel="stylesheet" />
+      <?php
+      foreach ( $css AS $c ) {
+        echo "<link href=\"$c?$ts\" rel=\"stylesheet\" />";
+      }
+    ?>
+    </head>
+
+    <body>
+  <?php
+  }
+
+  public static function rawFooter(): string
+  {
+    return <<< HTML
+    </body>
+    </html>
+HTML;
   }
 }
