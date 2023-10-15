@@ -3,12 +3,12 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
  // No direct access to this file
-defined('_JEXEC') or die('Restricted Access');
+\defined('_JEXEC') or die('Restricted Access');
 
 use ClawCorpLib\Helpers\Bootstrap;
 
@@ -28,14 +28,20 @@ $content = [
     'splotch' => ['Sponsors','LINK'],
     'shopping-basket' => ['Vendors','LINK'],
     'map-signs' => ['Locations','LINK'],
+    'people-carry' => ['Shifts','LINK'],
   ];
   
 Bootstrap::writeGrid($content, $tags);
+
 ?>
-<h2>Volunteer Management</h2>
+<h2>Reports</h2>
 <?php
 $content = [
-  'people-carry' => ['Shifts','LINK'],
+  'stopwatch' => ['Speed Dating','<a href="/administrator/index.php?option=com_claw&view=reports&layout=speeddating&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
+  'globe' => ['Volunteer Overview','<a href="/administrator/index.php?option=com_claw&view=reports&tmpl=volunteer_overview" role="button" class="btn btn-danger">Launch</a>'],
+  'list' => ['Volunteer Detail','<a href="/administrator/index.php?option=com_claw&view=reports&tmpl=volunteer_detail" role="button" class="btn btn-danger">Launch</a>'],
+  'tshirt' => ['Shirts','<a href="/administrator/index.php?option=com_claw&view=reports&layout=shirts&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
+  'utensils' => ['Meals','<a href="/administrator/index.php?option=com_claw&view=reports&tmpl=meals" role="button" class="btn btn-danger">Launch</a>'],
 ];
 
 Bootstrap::writeGrid($content, $tags);
