@@ -195,7 +195,7 @@ HTML;
     }
 
     $shiftCategoryCount = $registrantData->categoryCounts($shiftCategories);
-    if (!$onsiteActive && !$this->show_error && $shiftCategoryCount > 1 && $package_event != ClawEvents::getEventId($prefix . '-volunteer-super')) {
+    if (!$onsiteActive && !$this->show_error && $shiftCategoryCount > 1 && $package_event != ClawEvents::getEventIdByAlias($prefix . '-volunteer-super')) {
       $this->submit = "<div class=\"alert alert-danger\">Shifts must all come from the same category (e.g., all Guest Services or Badge Check). Modify your cart to correct this error.</div>";
       $this->show_error = true;
     }
@@ -203,19 +203,19 @@ HTML;
     $eventIds = array_keys($registrantData->records());
 
     #region Meal combo checks
-    $mealsComboAll = ClawEvents::getEventId($prefix . '-meals-combo-all', true);
-    $mealsComboDinners = ClawEvents::getEventId($prefix . '-meals-combo-dinners', true);
+    $mealsComboAll = ClawEvents::getEventIdByAlias($prefix . '-meals-combo-all', true);
+    $mealsComboDinners = ClawEvents::getEventIdByAlias($prefix . '-meals-combo-dinners', true);
 
     // Collect meal event ids
     $mealsDinners = [];
-    foreach (Aliases::mealComboDinners as $alias) {
-      $eventId = ClawEvents::getEventId($prefix . $alias, true);
+    foreach (Aliases::mealComboDinners() as $alias) {
+      $eventId = ClawEvents::getEventIdByAlias($alias, true);
       if ( $eventId ) $mealsDinners[] = $eventId;
     }
 
     $mealsAll = [];
-    foreach (Aliases::mealComboAll as $alias) {
-      $eventId = ClawEvents::getEventId($prefix . $alias, true);
+    foreach (Aliases::mealComboAll() as $alias) {
+      $eventId = ClawEvents::getEventIdByAlias($alias, true);
       if ( $eventId ) $mealsAll[] = $eventId;
     }
 
