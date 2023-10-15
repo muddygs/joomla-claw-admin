@@ -58,7 +58,7 @@ class RawView extends BaseHtmlView
         break;
     }
 
-    $event = Aliases::current();
+    $event = Aliases::current(true);
     $this->imagePath = '/images/badges/' . $event . '/';
  
     parent::display($event);

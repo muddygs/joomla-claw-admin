@@ -57,7 +57,7 @@ class HtmlView extends BaseHtmlView
 
     // Prepare data for meals checkin
     if ( 'meals-checkin' == $tpl ) {
-      $event = new ClawEvents(Aliases::current());
+      $event = new ClawEvents(Aliases::current(true));
       $events = $event->getEvents();
 
       // Categories of interest
@@ -83,7 +83,7 @@ class HtmlView extends BaseHtmlView
 
     if ( 'volunteer-roll-call' == $tpl ) {
       $shiftCatIds = ClawEvents::getCategoryIds(Aliases::shiftCategories());
-      $event = new ClawEvents(Aliases::current());
+      $event = new ClawEvents(Aliases::current(true));
       $rows = ClawEvents::getEventsByCategoryId($shiftCatIds, $event->getClawEventInfo());
 
       $this->shifts = [];
