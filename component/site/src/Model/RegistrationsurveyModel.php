@@ -66,7 +66,7 @@ class RegistrationsurveyModel extends BaseModel
       /** @var \ClawCorpLib\Lib\ClawEvent $e */
       foreach ($events->getEvents() as $e) {
         if (substr($couponCode, 0, 1) === $e->couponKey) {
-          $action = $e->clawPackageType;
+          $action = $e->eventPackageType;
           Helpers::sessionSet('eventAction', $action->value);
           $result = [
             'error' => 0,

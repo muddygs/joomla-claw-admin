@@ -43,7 +43,7 @@ abstract class AbstractEvent
   {
     /** @var \ClawInfoLib\Lib\ClawEvent */
     foreach ( $this->events as $e ) {
-      if ($e->clawPackageType == $eventAlias) {
+      if ($e->eventPackageType == $eventAlias) {
         return $e->eventId;
       }
     }

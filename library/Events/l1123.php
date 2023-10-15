@@ -40,402 +40,373 @@ class l1123 extends AbstractEvent
     $base = 249;
 
     $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => 'D',
-      'description' => 'International Leather Family Dinner',
-      'clawPackageType' => EventPackageTypes::dinner,
-      'isMainEvent' => false,
-      'couponValue' => 115,
-      'fee' => 115,
-      'start' => 'saturday 7pm',
-      'end' => 'saturday 9pm',
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-dinner', $quiet),
-      'category' => ClawEvents::getCategoryId('dinner'),
-      'minShifts' => 0,
-      'requiresCoupon' => false,
-      'couponAccessGroups' => ['Super Users', 'Administrator'],
-      'isAddon' => true
-    ]));
-    
-    $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => 'B',
-      'description' => 'Sunday LHOF Brunch',
-      'clawPackageType' => EventPackageTypes::brunch_sun,
-      'isMainEvent' => false,
-      'couponValue' => 65,
-      'fee' => 65,
-      'start' => 'sunday noon',
-      'end' => 'sunday 2pm',
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-brunch', $quiet),
-      'category' => ClawEvents::getCategoryId('buffet-breakfast'),
-      'minShifts' => 0,
-      'requiresCoupon' => false,
-      'couponAccessGroups' => ['Super Users', 'Administrator'],
-      'isAddon' => true
-    ]));
-    
-    $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => '',
-      'description' => 'Saturday Breakfast Seminar',
-      'clawPackageType' => EventPackageTypes::brunch_sat,
-      'isMainEvent' => false,
-      'couponValue' => 0,
-      'fee' => 50,
-      'start' => 'saturday 11am',
-      'end' => 'saturday 1pm',
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-sat-breakfast', $quiet),
-      'category' => ClawEvents::getCategoryId('buffet-breakfast'),
-      'minShifts' => 0,
-      'requiresCoupon' => false,
-      'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr'],
-      'isAddon' => true
-    ]));
-    
-    $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => '',
-      'description' => 'Friday Breakfast Seminar',
-      'clawPackageType' => EventPackageTypes::brunch_fri,
-      'isMainEvent' => false,
-      'couponValue' => 0,
-      'fee' => 50,
-      'start' => 'friday 11am',
-      'end' => 'friday 1pm',
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-fri-breakfast', $quiet),
-      'category' => ClawEvents::getCategoryId('buffet-breakfast'),
-      'minShifts' => 0,
-      'requiresCoupon' => false,
-      'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr'],
-      'isAddon' => true
-    ]));
-    
-    $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-thu-buffet',
+      'badgeValue' => 'Thu',
       'couponKey' => 'F',
       'description' => 'Chosen Family Thanksgiving Dinner',
-      'clawPackageType' => EventPackageTypes::buffet_thu,
+      'eventPackageType' => EventPackageTypes::buffet_thu,
       'isMainEvent' => false,
       'couponValue' => 85,
       'fee' => 85,
       'start' => 'thursday 4pm',
       'end' => 'thursday 6pm',
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-thu-buffet', $quiet),
       'category' => ClawEvents::getCategoryId('buffet'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => ['Super Users', 'Administrator'],
       'isAddon' => true
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-dinner',
+      'couponKey' => 'D',
+      'description' => 'International Leather Family Dinner',
+      'eventPackageType' => EventPackageTypes::dinner,
+      'isMainEvent' => false,
+      'couponValue' => 115,
+      'fee' => 115,
+      'start' => 'saturday 7pm',
+      'end' => 'saturday 9pm',
+      'category' => ClawEvents::getCategoryId('dinner'),
+      'minShifts' => 0,
+      'requiresCoupon' => false,
+      'couponAccessGroups' => ['Super Users', 'Administrator'],
+      'isAddon' => true
+    ], $quiet));
+    
+    $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-fri-breakfast',
+      'badgeValue' => 'Fri',
+      'description' => 'Friday Breakfast Seminar',
+      'eventPackageType' => EventPackageTypes::brunch_fri,
+      'isMainEvent' => false,
+      'couponValue' => 0,
+      'fee' => 50,
+      'start' => 'friday 11am',
+      'end' => 'friday 1pm',
+      'category' => ClawEvents::getCategoryId('buffet-breakfast'),
+      'minShifts' => 0,
+      'requiresCoupon' => false,
+      'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr'],
+      'isAddon' => true
+    ], $quiet));
+    
+    $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-fri-buffet',
+      'badgeValue' => 'Fri',
       'couponKey' => 'G',
       'description' => 'BLUF Dinner Buffet',
-      'clawPackageType' => EventPackageTypes::buffet_fri,
+      'eventPackageType' => EventPackageTypes::buffet_fri,
       'isMainEvent' => false,
       'couponValue' => 90,
       'fee' => 90,
       'start' => 'friday 7pm',
       'end' => 'friday 9pm',
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-fri-buffet', $quiet),
       'category' => ClawEvents::getCategoryId('buffet'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => ['Super Users', 'Administrator'],
       'isAddon' => true
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-sat-breakfast',
+      'badgeValue' => 'Sat',
+      'description' => 'Saturday Breakfast Seminar',
+      'eventPackageType' => EventPackageTypes::brunch_sat,
+      'isMainEvent' => false,
+      'couponValue' => 0,
+      'fee' => 50,
+      'start' => 'saturday 11am',
+      'end' => 'saturday 1pm',
+      'category' => ClawEvents::getCategoryId('buffet-breakfast'),
+      'minShifts' => 0,
+      'requiresCoupon' => false,
+      'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr'],
+      'isAddon' => true
+    ], $quiet));
+    
+    $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-sun-buffet',
+      'badgeValue' => 'Sun',
       'couponKey' => 'H',
       'description' => 'Sunday Supper Buffet',
-      'clawPackageType' => EventPackageTypes::buffet_sun,
+      'eventPackageType' => EventPackageTypes::buffet_sun,
       'isMainEvent' => false,
       'couponValue' => 90,
       'fee' => 90,
       'start' => 'sunday 7pm',
       'end' => 'sunday 9pm',
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-sun-buffet', $quiet),
       'category' => ClawEvents::getCategoryId('buffet'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => ['Super Users', 'Administrator'],
       'isAddon' => true
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => '',
+      'alias' => $prefix.'-brunch',
+      'badgeValue' => 'Sun',
+      'couponKey' => 'B',
+      'description' => 'Sunday LHOF Brunch',
+      'eventPackageType' => EventPackageTypes::brunch_sun,
+      'isMainEvent' => false,
+      'couponValue' => 65,
+      'fee' => 65,
+      'start' => 'sunday noon',
+      'end' => 'sunday 2pm',
+      'category' => ClawEvents::getCategoryId('buffet-breakfast'),
+      'minShifts' => 0,
+      'requiresCoupon' => false,
+      'couponAccessGroups' => ['Super Users', 'Administrator'],
+      'isAddon' => true
+    ], $quiet));
+    
+    $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-meals-combo-all',
       'description' => 'Meal Combo All',
-      'clawPackageType' => EventPackageTypes::meal_combo_all,
+      'eventPackageType' => EventPackageTypes::meal_combo_all,
       'isMainEvent' => false,
       'couponValue' => 0,
       'fee' => 500,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-meals-combo-all', $quiet),
       'category' => ClawEvents::getCategoryId('meal-combos'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => [],
       'isAddon' => true
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => '',
+      'alias' => $prefix.'-meals-combo-dinners',
       'description' => 'Meal Combo Dinners',
-      'clawPackageType' => EventPackageTypes::meal_combo_dinners,
+      'eventPackageType' => EventPackageTypes::meal_combo_dinners,
       'isMainEvent' => false,
       'couponValue' => 0,
       'fee' => 300,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-meals-combo-dinners', $quiet),
       'category' => ClawEvents::getCategoryId('meal-combos'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => [],
       'isAddon' => true
-    ]));
+    ], $quiet));
     
     // Events (for coupon generation)
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-attendee',
       'couponKey' => 'A',
-      'link' => $prefix.'-reg-att',
       'description' => 'Attendee',
-      'clawPackageType' => EventPackageTypes::attendee,
+      'eventPackageType' => EventPackageTypes::attendee,
       'isMainEvent' => true,
       'couponValue' => $base,
       'fee' => $base,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-attendee', $quiet),
       'category' => ClawEvents::getCategoryId('attendee'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr']
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => '',
-      'link' => $prefix.'-reg-vip',
+      'alias' => $prefix.'-vip',
       'description' => 'VIP',
-      'clawPackageType' => EventPackageTypes::vip,
+      'eventPackageType' => EventPackageTypes::vip,
       'isMainEvent' => true,
       'couponValue' => 0,
       'fee' => 1250,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-vip', $quiet),
       'category' => ClawEvents::getCategoryId('vip'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => []
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-staff-coordinator',
       'couponKey' => 'C',
-      'link' => $prefix.'-reg-claw',
       'description' => 'Coordinator',
-      'clawPackageType' => EventPackageTypes::claw_staff,
+      'eventPackageType' => EventPackageTypes::claw_staff,
       'isMainEvent' => true,
       'couponValue' => 100,
       'fee' => 100,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-staff-coordinator', $quiet),
       'category' => ClawEvents::getCategoryId('staff-coordinator'),
       'minShifts' => 0,
       'requiresCoupon' => true,
       'couponAccessGroups' => ['Super Users', 'Administrator']
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-staff-onsite',
       'couponKey' => 'S',
-      'link' => $prefix.'-reg-sta',
       'description' => 'Onsite Staff',
-      'clawPackageType' => EventPackageTypes::event_staff,
+      'eventPackageType' => EventPackageTypes::event_staff,
       'isMainEvent' => true,
       'couponValue' => 100,
       'fee' => 100,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-staff-onsite', $quiet),
       'category' => ClawEvents::getCategoryId('staff-onsite'),
       'minShifts' => 0,
       'requiresCoupon' => true,
       'couponAccessGroups' => ['Super Users', 'Administrator']
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-staff-recruited',
       'couponKey' => 'T',
-      'link' => $prefix.'-reg-tal',
       'description' => 'Recruited Volunteer',
-      'clawPackageType' => EventPackageTypes::event_talent,
+      'eventPackageType' => EventPackageTypes::event_talent,
       'isMainEvent' => true,
       'couponValue' => 100,
       'fee' => 100,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-staff-recruited', $quiet),
       'category' => ClawEvents::getCategoryId('staff-recruited'),
       'minShifts' => 0,
       'requiresCoupon' => true,
       'couponAccessGroups' => ['Super Users', 'Administrator']
-    ]));
-    
-    // $this->AppendEvent(new ClawEvent((object)[
-    //   'couponKey' => 'U',
-    //   'link' => $prefix.'-reg-vol1',
-    //   'description' => 'Volunteer 1 Shift',
-    //   'clawPackageType' => EventPackageTypes::volunteer1,
-    //   'isMainEvent' => true,
-    //   'couponValue' => 100,
-    //   'eventId' => ClawEvents::getEventIdByAlias($prefix.'-volunteer-1'),
-    //   'category' => ClawEvents::getCategoryId('volunteer'),
-    //   'minShifts' => 1,
-    //   'requiresCoupon' => true,
-    //   'couponAccessGroups' => ['Super Users', 'Administrator', 'VolunteerMgmr', 'SkillsMgmr']
-    // ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-volunteer-2',
       'couponKey' => 'V',
-      'link' => $prefix.'-reg-vol2',
       'description' => 'Volunteer 2 Shifts',
-      'clawPackageType' => EventPackageTypes::volunteer2,
+      'eventPackageType' => EventPackageTypes::volunteer2,
       'isMainEvent' => true,
       'couponValue' => 0,
       'fee' => 99,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-volunteer-2', $quiet),
       'category' => ClawEvents::getCategoryId('volunteer'),
       'minShifts' => 2,
       'requiresCoupon' => false,
       'couponAccessGroups' => ['Super Users', 'Administrator', 'VolunteerMgmr'],
       'authNetProfile' => true
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-volunteer-3',
       'couponKey' => 'W',
-      'link' => $prefix.'-reg-vol3',
       'description' => 'Volunteer 3 Shifts',
-      'clawPackageType' => EventPackageTypes::volunteer3,
+      'eventPackageType' => EventPackageTypes::volunteer3,
       'isMainEvent' => true,
       'couponValue' => 0,
       'fee' => 1,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-volunteer-3', $quiet),
       'category' => ClawEvents::getCategoryId('volunteer'),
       'minShifts' => 3,
       'requiresCoupon' => false,
       'couponAccessGroups' => [],
       'authNetProfile' => true,
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-volunteer-super',
       'couponKey' => 'Y',
-      'link' => $prefix.'-reg-super',
       'description' => 'Super Volunteer',
-      'clawPackageType' => EventPackageTypes::volunteersuper,
+      'eventPackageType' => EventPackageTypes::volunteersuper,
       'isMainEvent' => true,
       'couponValue' => 1,
       'fee' => 2,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-volunteer-super', $quiet),
       'category' => ClawEvents::getCategoryId('volunteer'),
       'minShifts' => 6,
       'requiresCoupon' => true,
       'couponAccessGroups' => ['Super Users', 'Administrator', 'VolunteerMgmr'],
       'authNetProfile' => true,
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-vendorcrew-extra',
       'couponKey' => 'Q',
-      'link' => $prefix.'-reg-ven-extra',
       'description' => 'Vendor Crew (extra)',
-      'clawPackageType' => EventPackageTypes::vendor_crew_extra,
+      'eventPackageType' => EventPackageTypes::vendor_crew_extra,
       'isMainEvent' => true,
       'couponValue' => $base,
       'fee' => $base,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-vendorcrew-extra', $quiet),
       'category' => ClawEvents::getCategoryId('vendorcrew'),
       'minShifts' => 0,
       'requiresCoupon' => true,
       'couponAccessGroups' => ['Super Users', 'Administrator', 'VMMgmr']
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-vendorcrew',
       'couponKey' => 'R',
-      'link' => $prefix.'-reg-ven',
       'description' => 'Vendor Crew',
-      'clawPackageType' => EventPackageTypes::vendor_crew,
+      'eventPackageType' => EventPackageTypes::vendor_crew,
       'isMainEvent' => true,
       'couponValue' => $base,
       'fee' => $base,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-vendorcrew', $quiet),
       'category' => ClawEvents::getCategoryId('vendorcrew'),
       'minShifts' => 0,
       'requiresCoupon' => true,
       'couponAccessGroups' => ['Super Users', 'Administrator', 'VMMgmr']
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-educator',
       'couponKey' => 'E',
-      'link' => $prefix.'-reg-edu',
       'description' => 'Educator',
-      'clawPackageType' => EventPackageTypes::educator,
+      'eventPackageType' => EventPackageTypes::educator,
       'isMainEvent' => true,
       'couponValue' => 100,
       'fee' => 100,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-educator', $quiet),
       'category' => ClawEvents::getCategoryId('educator'),
       'minShifts' => 0,
       'requiresCoupon' => true,
       'couponAccessGroups' => ['Super Users', 'Administrator', 'SkillsMgmr']
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-attendee',
       'couponKey' => 'N',
-      'link' => $prefix.'-reg-att',
       'description' => 'CLAW Nation',
-      'clawPackageType' => EventPackageTypes::attendee,
+      'eventPackageType' => EventPackageTypes::attendee,
       'isMainEvent' => false,
       'couponValue' => $base,
+      'couponOnly' => true,
       'fee' => $base,
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-attendee', $quiet),
       'category' => ClawEvents::getCategoryId('attendee'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr']
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => 'FRI',
-      'link' => 'onsite',
+      'alias' => $prefix.'-daypass-fri',
       'description' => 'Friday Day Pass',
-      'clawPackageType' => EventPackageTypes::day_pass_fri,
+      'eventPackageType' => EventPackageTypes::day_pass_fri,
       'isMainEvent' => true,
       'couponValue' => 0,
       'fee' => 150,
       'start' => 'friday 9am',
       'end' => 'saturday 2am',
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-daypass-fri', $quiet),
       'category' => ClawEvents::getCategoryId('day-passes'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => []
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix.'-daypass-sat',
       'couponKey' => 'SAT',
-      'link' => 'onsite',
       'description' => 'Saturday Day Pass',
-      'clawPackageType' => EventPackageTypes::day_pass_sat,
+      'eventPackageType' => EventPackageTypes::day_pass_sat,
       'isMainEvent' => true,
       'couponValue' => 0,
       'fee' => 150,
       'start' => 'saturday 9am',
       'end' => 'sunday 2am',
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-daypass-sat', $quiet),
       'category' => ClawEvents::getCategoryId('day-passes'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => []
-    ]));
+    ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => 'SUN',
-      'link' => 'onsite',
+      'alias' => $prefix.'-daypass-sun',
       'description' => 'Sunday Day Pass',
-      'clawPackageType' => EventPackageTypes::day_pass_sun,
+      'eventPackageType' => EventPackageTypes::day_pass_sun,
       'isMainEvent' => true,
       'couponValue' => 0,
       'fee' => 80,
       'start' => 'sunday 9am',
       'end' => 'next monday 2am',
-      'eventId' => ClawEvents::getEventIdByAlias($prefix.'-daypass-sun', $quiet),
       'category' => ClawEvents::getCategoryId('day-passes'),
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => []
-    ]));
+    ], $quiet));
     
   }
 }

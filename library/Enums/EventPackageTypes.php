@@ -19,6 +19,7 @@ enum EventPackageTypes: int
   case buffet_wed = 21;
   case buffet_thu = 9;
   case buffet_fri = 10;
+  case buffet_bluf = 30;
   case buffet_sun = 11;
   case meal_combo_all = 24;
   case meal_combo_dinners = 25;
