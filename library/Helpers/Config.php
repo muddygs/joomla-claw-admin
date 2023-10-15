@@ -73,11 +73,12 @@ class Config
     return $titles;
   }
 
-  public static function getCurrentEventAlias(): string
+  public static function getCurrentEventAlias(bool $next = false): string
   {
-    if ( self::$_current != '' ) return self::$_current;
+    if ( self::$_current != '' && !$next) return self::$_current;
 
     $eventList = ClawEvents::GetEventList();
+    $nextAlias = '';
 
     if ( count($eventList) == 0 ) {
       die('No events found in Config::getCurrentEvent().');
@@ -98,6 +99,15 @@ class Config
     foreach ( array_keys($endDates) AS $endDate ) {
       // TODO: Use database -> sql date
       if ( $endDate > date('Y-m-d hh:mm:ss') ) {
+        if ( $next ) {
+          if ( $nextAlias == '' ) {
+            $nextAlias = $endDates[$endDate];
+            continue;
+          } else {
+            return $endDates[$endDate];
+          }
+        }
+
         self::$_current = $endDates[$endDate];
         break;
       }
@@ -108,7 +118,16 @@ class Config
       self::$_current = array_pop($endDates);
     }
 
+    if ( self::$_current == '' ) {
+      die('No '. $next ? 'next' : 'current' . ' event found in Config::getCurrentEvent().');
+    }
+
     return self::$_current;
+  }
+
+  public static function getNextEventAlias()
+  {
+    return self::getCurrentEventAlias(true);
   }
 
   public static function getActiveEventAliases(bool $mainOnly = false): array
