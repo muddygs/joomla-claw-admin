@@ -1,0 +1,19 @@
+/* Standard page setup */
+
+.page-break {
+  clear: left;
+  display: block;
+  page-break-after: always;
+}
+
+@media print {
+  .noprint,
+  .noprint * {
+    display: none !important;
+  }
+
+  @page {
+    size: letter portrait;
+    margin: 0.5in;
+  }
+}
