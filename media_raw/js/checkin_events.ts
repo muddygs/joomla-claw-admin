@@ -154,15 +154,17 @@ function loadRecord() {
   const v = (s.selectedOptions)[0].value;
   let error:boolean = false;
   hide('submit');
+  (document.getElementById("errorMsg") as HTMLElement).innerText = '';
+  hide('errorMsg');
 
   apiRecordClient.doSearch(v).then(results => {
     if ( results.error != '' ) {
       const e = (document.getElementById("errorMsg") as HTMLElement);
-      if ( e != null ) {
+      if ( e != null && page == 'badge-checkin') {
         e.innerText = results.error;
         show('errorMsg');
+        error = true;
       }
-      error = true;
     }
 
     if ( results.info != '' ) {
@@ -194,11 +196,14 @@ function loadRecord() {
         x.value = results[element as keyof checkinRecord];
 
         if ( !error ) {
-          (document.getElementById("errorMsg") as HTMLElement).innerText = '';
-          show('submit');
+          if ( page == 'badge-checkin' ) {
+            show('submit');
+          } else {
+            show('submitPrint');
+            show('submitPrintIssue');
+          }
         }
-        show('submitPrint');
-        show('submitPrintIssue');
+
         hide('status');
       }
     });
