@@ -5,6 +5,7 @@ use Joomla\CMS\Factory;
 
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Lib\Registrant;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Aliases;
@@ -32,201 +33,181 @@ class Checkin
     // Relay messages
     $errors = [];
     $info = [];
-
-    $this->r = new CheckinRecord($this->uid);
-
+    
     $fieldValues = [
       'BADGE', 'Z_BADGE_SPECIAL', 'Z_BADGE_ISSUED', 'Z_BADGE_PRINTED', 'Dinner',
       'CONDUCT_AGREEMENT', 'PHOTO_PERMISSION', 'TSHIRT', 'TSHIRT_VOL', 'Z_TICKET_SCANNED',
       'STAFF_TYPE_STAFF','STAFF_TYPE_TALENT','STAFF_TYPE_EVENT',
       'PRONOUNS'
     ];
-
-    $registrant = new Registrant(Aliases::current(), $this->uid);
+    
+    $alias = Aliases::current(true);
+    $registrant = new Registrant($alias, $this->uid);
     $registrant->loadCurrentEvents();
-    $mainEvent = null;
-
-    if ( sizeof($registrant->records()) > 0 ) {
+    $mainEventRegistrantRecord = null;
+    $records = $registrant->records();
+    
+    if ( sizeof($records) ) {
       $registrant->mergeFieldValues($fieldValues);
-      $mainEvent = $registrant->getMainEvent();
+      $mainEventRegistrantRecord = $registrant->getMainEvent();
     }
-
+    
     // Error for no main event
-    if ($mainEvent == null) {
+    if ($mainEventRegistrantRecord == null) {
       $this->r->error = 'User does not have a registration package.';
       return false;
     }
+    
+    $events = new ClawEvents($alias);
+    $prefix = strtolower($events->getClawEventInfo()->prefix).'-';
 
-    $events = new ClawEvents(Aliases::current());
-    $eventInfo = $events->getClawEventInfo();
-    $prefix = strtolower($eventInfo->prefix).'-';
+    // Cache meal labels
+    $badgeValues = [];
+    /** @var ClawCorpLib\Lib\ClawEvent */
+    foreach ( $events->getEvents() AS $e ) {
+      if ( $e->badgeValue != '' ) {
+        $badgeValues[$e->eventId] = $e->badgeValue;
+      }
+    }
+    
+    $this->r = new CheckinRecord($events->getEvent(), $this->uid);
 
-    $event = $events->getEventByPackageType($mainEvent->registrant->eventPackageType);
+    $event = $events->getEventByPackageType($mainEventRegistrantRecord->registrant->eventPackageType);
 
-    $this->r->package_eventId = $mainEvent->event->eventId;
-    $this->r->id = $mainEvent->registrant->id;
+    $this->r->package_eventId = $mainEventRegistrantRecord->event->eventId;
+    $this->r->id = $mainEventRegistrantRecord->registrant->id;
 
+    $this->r->legalName = mb_convert_case($mainEventRegistrantRecord->registrant->first_name . ' ' . $mainEventRegistrantRecord->registrant->last_name, MB_CASE_TITLE);
+    $this->r->city = mb_convert_case($mainEventRegistrantRecord->registrant->city, MB_CASE_TITLE);
+    $this->r->address = $mainEventRegistrantRecord->registrant->address;
+    $this->r->address2 = $mainEventRegistrantRecord->registrant->address2;
+    $this->r->state = $mainEventRegistrantRecord->registrant->state;
+    $this->r->zip = $mainEventRegistrantRecord->registrant->zip;
+    $this->r->country = $mainEventRegistrantRecord->registrant->country;
 
-    $this->r->legalName = mb_convert_case($mainEvent->registrant->first_name . ' ' . $mainEvent->registrant->last_name, MB_CASE_TITLE);
-    $this->r->city = mb_convert_case($mainEvent->registrant->city, MB_CASE_TITLE);
-    $this->r->address = $mainEvent->registrant->address;
-    $this->r->address2 = $mainEvent->registrant->address2;
-    $this->r->state = $mainEvent->registrant->state;
-    $this->r->zip = $mainEvent->registrant->zip;
-    $this->r->country = $mainEvent->registrant->country;
+    $this->r->email = mb_convert_case($mainEventRegistrantRecord->registrant->email, MB_CASE_LOWER_SIMPLE);
+    $this->r->badge = $mainEventRegistrantRecord->fieldValue->BADGE;
 
-    $this->r->email = mb_convert_case($mainEvent->registrant->email, MB_CASE_LOWER_SIMPLE);
-    $this->r->badge = $mainEvent->fieldValue->BADGE;
-
-    $x = json_decode($mainEvent->fieldValue->PRONOUNS);
+    $x = json_decode($mainEventRegistrantRecord->fieldValue->PRONOUNS);
     if ( $x == null || in_array('Leave Blank', $x)) {
       $this->r->pronouns = '';
     } else {
       $this->r->pronouns = implode('|', $x);
     }
 
-    $this->r->overridePackage = $mainEvent->fieldValue->Z_BADGE_SPECIAL;
-    $this->r->clawPackage = $mainEvent->registrant->eventPackageType->value;
+    $this->r->overridePackage = $mainEventRegistrantRecord->fieldValue->Z_BADGE_SPECIAL;
+    $this->r->eventPackageType = $mainEventRegistrantRecord->registrant->eventPackageType;
     $this->r->badgeId = $registrant->badgeId;
-    $this->r->registration_code = $mainEvent->registrant->registration_code;
+    $this->r->registration_code = $mainEventRegistrantRecord->registrant->registration_code;
 
     if ( $this->r->overridePackage == '' ) {
-      $tmpOverride='';
-
-      switch ($this->r->clawPackage) {
-        case EventPackageTypes::claw_staff:
-          $tmpOverride = $mainEvent->fieldValue->STAFF_TYPE_STAFF;
-          break;
-        case EventPackageTypes::event_staff:
-          $tmpOverride = $mainEvent->fieldValue->STAFF_TYPE_EVENT;
-          break;
-        case EventPackageTypes::event_talent:
-          $tmpOverride = $mainEvent->fieldValue->STAFF_TYPE_TALENT;
-          break;
-      }
+      $tmpOverride = match ($this->r->eventPackageType) {
+        EventPackageTypes::claw_staff => $mainEventRegistrantRecord->fieldValue->STAFF_TYPE_STAFF,
+        EventPackageTypes::event_staff => $mainEventRegistrantRecord->fieldValue->STAFF_TYPE_EVENT,
+        EventPackageTypes::event_talent => $mainEventRegistrantRecord->fieldValue->STAFF_TYPE_TALENT,
+        default => '',
+      };
 
       if ( $tmpOverride != '' ) $this->r->overridePackage = $tmpOverride;
     }
 
     $shiftCatIds = ClawEvents::getCategoryIds(Aliases::shiftCategories());
-    $dinnerCatIds = ClawEvents::getCategoryIds(['dinner']);
-    $brunchCatIds = ClawEvents::getCategoryIds(['buffet-breakfast']);
-    $buffetCatIds = ClawEvents::getCategoryIds(['buffet']);
-    $leatherHeartCatIds = ClawEvents::getCategoryIds(['donations-leather-heart']);
+    $leatherHeartCatId = ClawEvents::getCategoryId('donations-leather-heart');
 
     $this->r->shifts = '';
     $shiftCount = 0;
-    $this->r->dinners[EventPackageTypes::dinner->value] = 'None';
 
     // Combo meals events
-    $allMealsEventId = false;
-    // $allMealsEventId = ClawEvents::getEventId($prefix.'meals-combo-all');
-    //$allDinnersEventId = ClawEvents::getEventId($prefix.'meals-combo-dinners');
-    $vipEventId = ClawEvents::getEventId($prefix.'vip');
-    
-    foreach ($registrant->records() as $r) {
-      //$r = $registrant->castRecord($r);
+    $allMealsEventId = ClawEvents::getEventIdByAlias($prefix.'meals-combo-all', true);
+    $allDinnersEventId = ClawEvents::getEventIdByAlias($prefix.'meals-combo-dinners', true);
 
+    /** @var \ClawCorpLib\Lib\RegistrantRecord */
+    foreach ($records as $r) {
       $scannedEvents = $this->explodeTicketScanned($r->fieldValue->Z_TICKET_SCANNED);
 
-      if ( sizeof($scannedEvents) > 0 ) {
+      if ( count($scannedEvents) ) {
         $this->r->issuedMealTickets = array_merge($this->r->issuedMealTickets, $scannedEvents );
       }
 
-      // if ( $r->event->eventId == $vipEventId ) {
-      //   $this->r->brunches[EventPackageTypes::brunch_fri] = 'Fri';
-      //   $this->r->brunches[EventPackageTypes::brunch_sat] = 'Sat';
-      //   $this->r->brunches[EventPackageTypes::brunch_sun] = 'Sun';
-  
-      //   //$this->r->buffets[EventPackageTypes::buffet_wed] = 'Wed';
-      //   $this->r->buffets[EventPackageTypes::buffet_thu] = 'Thu';
-      //   $this->r->buffets[EventPackageTypes::buffet_fri] = 'Fri';
-      //   $this->r->buffets[EventPackageTypes::buffet_sun] = 'Sun';
-  
-      //   $this->r->dinners[EventPackageTypes::dinner] = $r->fieldValue->Dinner;
-        
-      //   $this->r->mealIssueMapping = [
-      //     ClawEvents::getEventId($prefix.'fri-breakfast') => $vipEventId,
-      //     ClawEvents::getEventId($prefix.'sat-breakfast') => $vipEventId,
-      //     ClawEvents::getEventId($prefix.'brunch') => $vipEventId,
-      //     //ClawEvents::getEventId($prefix.'wed-buffet') => $vipEventId,
-      //     ClawEvents::getEventId($prefix.'thu-buffet') => $vipEventId,
-      //     ClawEvents::getEventId($prefix.'fri-buffet') => $vipEventId,
-      //     ClawEvents::getEventId($prefix.'sun-buffet') => $vipEventId,
-      //     ClawEvents::getEventId($prefix.'dinner') => $vipEventId,
-      //   ];
-      // }
+      if ( $allMealsEventId != 0 && $r->event->eventId == $allMealsEventId ) {
+        $mealEventAliases = Aliases::mealComboAll();
 
-      // if ( $allMealsEventId !== false && $r->event->eventId == $allMealsEventId ) {
-      //   $this->r->brunches[EventPackageTypes::brunch_fri] = 'Fri';
-      //   $this->r->brunches[EventPackageTypes::brunch_sat] = 'Sat';
-      //   $this->r->brunches[EventPackageTypes::brunch_sun] = 'Sun';
-  
-      //   //$this->r->buffets[EventPackageTypes::buffet_wed] = 'Wed';
-      //   $this->r->buffets[EventPackageTypes::buffet_thu] = 'Thu';
-      //   $this->r->buffets[EventPackageTypes::buffet_fri] = 'Fri';
-      //   $this->r->buffets[EventPackageTypes::buffet_sun] = 'Sun';
-  
-      //   $this->r->dinners[EventPackageTypes::dinner] = $r->fieldValue->Dinner;
+        foreach ( $mealEventAliases AS $mealEventAlias ) {
+          $mealEventId = ClawEvents::getEventIdByAlias($mealEventAlias, true);
+          if ( $mealEventId == 0 ) continue;
 
-      //   $this->r->mealIssueMapping = [
-      //     ClawEvents::getEventId($prefix.'fri-breakfast') => $allMealsEventId,
-      //     ClawEvents::getEventId($prefix.'sat-breakfast') => $allMealsEventId,
-      //     ClawEvents::getEventId($prefix.'brunch') => $allMealsEventId,
-      //     //ClawEvents::getEventId($prefix.'wed-buffet') => $allMealsEventId,
-      //     ClawEvents::getEventId($prefix.'thu-buffet') => $allMealsEventId,
-      //     ClawEvents::getEventId($prefix.'fri-buffet') => $allMealsEventId,
-      //     ClawEvents::getEventId($prefix.'sun-buffet') => $allMealsEventId,
-      //     ClawEvents::getEventId($prefix.'dinner') => $allMealsEventId,
-      //   ];
+          $this->r->mealIssueMapping[$mealEventId] = $allMealsEventId;
 
-      //   continue;
-      // }
+          if ( array_key_exists($mealEventId, $this->r->dinners) ) {
+            $this->r->dinners[$mealEventId] = $r->fieldValue->Dinner;
+            continue;
+          }
+          
+          if ( array_key_exists($mealEventId, $this->r->brunches) ) {
+            $this->r->brunches[$mealEventId] = $badgeValues[$mealEventId];
+            continue;
+          }
+          
+          if ( array_key_exists($mealEventId, $this->r->buffets) ) {
+            $this->r->buffets[$mealEventId] = $badgeValues[$mealEventId];
+            continue;
+          }
+              
+        }
+      }
 
-      // if ( $r->event->eventId == $allDinnersEventId ) {
-      //   $this->r->buffets[EventPackageTypes::buffet_thu] = 'Thu';
-      //   $this->r->buffets[EventPackageTypes::buffet_fri] = 'Fri';
-      //   $this->r->buffets[EventPackageTypes::buffet_sun] = 'Sun';
-  
-      //   $this->r->dinners[EventPackageTypes::dinner] = $r->fieldValue->Dinner;
+      if ( $allDinnersEventId != 0 && $r->event->eventId == $allDinnersEventId ) {
+        $mealEventAliases = Aliases::mealComboDinners();
 
-      //   $this->r->mealIssueMapping = [
-      //     ClawEvents::getEventId($prefix.'thu-buffet') => $allDinnersEventId,
-      //     ClawEvents::getEventId($prefix.'fri-buffet') => $allDinnersEventId,
-      //     ClawEvents::getEventId($prefix.'sun-buffet') => $allDinnersEventId,
-      //     ClawEvents::getEventId($prefix.'dinner') => $allDinnersEventId,
-      //   ];
+        foreach ( $mealEventAliases AS $mealEventAlias ) {
+          $mealEventId = ClawEvents::getEventIdByAlias($mealEventAlias, true);
+          if ( $mealEventId == 0 ) continue;
 
-      //   continue;
-      // }
-      
+          $this->r->mealIssueMapping[$mealEventId] = $allDinnersEventId;
+
+          if ( array_key_exists($mealEventId, $this->r->dinners) ) {
+            $this->r->dinners[$mealEventId] = $r->fieldValue->Dinner;
+            continue;
+          }
+          
+          if ( array_key_exists($mealEventId, $this->r->brunches) ) {
+            $this->r->brunches[$mealEventId] = $badgeValues[$mealEventId];
+            continue;
+          }
+          
+          if ( array_key_exists($mealEventId, $this->r->buffets) ) {
+            $this->r->buffets[$mealEventId] = $badgeValues[$mealEventId];
+            continue;
+          }
+              
+        }
+      }
+
+      // Shifts
       if (in_array($r->category->category_id, $shiftCatIds)) {
         $this->r->shifts .= $r->event->title . "\n";
         $shiftCount++;
         continue;
       }
 
-      if (in_array($r->category->category_id, $dinnerCatIds)) {
-        $this->r->dinners[EventPackageTypes::dinner->value] = $r->fieldValue->Dinner;
+      // Standard Meals
+      if ( array_key_exists($r->event->eventId, $this->r->dinners) ) {
+        $this->r->dinners[$r->event->eventId] = $r->fieldValue->Dinner;
+        continue;
+      }
+      
+      if ( array_key_exists($r->event->eventId, $this->r->brunches) ) {
+        $this->r->brunches[$r->event->eventId] = $badgeValues[$r->event->eventId];
+        continue;
+      }
+      
+      if ( array_key_exists($r->event->eventId, $this->r->buffets) ) {
+        $this->r->buffets[$r->event->eventId] = $badgeValues[$r->event->eventId];
         continue;
       }
 
-      if (in_array($r->category->category_id, $brunchCatIds)) {
-        if ($r->event->eventId == ClawEvents::getEventId($prefix.'fri-breakfast')) $this->r->brunches[EventPackageTypes::brunch_fri->value] = 'Fri';
-        if ($r->event->eventId == ClawEvents::getEventId($prefix.'sat-breakfast')) $this->r->brunches[EventPackageTypes::brunch_sat->value] = 'Sat';
-        if ($r->event->eventId == ClawEvents::getEventId($prefix.'brunch')) $this->r->brunches[EventPackageTypes::brunch_sun->value] = 'Sun';
-        continue;
-      }
-
-      if (in_array($r->category->category_id, $buffetCatIds)) {
-        //if ($r->event->eventId == ClawEvents::getEventId($prefix.'wed-buffet')) $this->r->buffets[EventPackageTypes::buffet_wed] = 'Wed';
-        // if ($r->event->eventId == ClawEvents::getEventId($prefix.'thu-buffet')) $this->r->buffets[EventPackageTypes::buffet_thu] = 'Thu';
-        if ($r->event->eventId == ClawEvents::getEventId($prefix.'fri-buffet')) $this->r->buffets[EventPackageTypes::buffet_fri->value] = 'Fri';
-        // if ($r->event->eventId == ClawEvents::getEventId($prefix.'sun-buffet')) $this->r->buffets[EventPackageTypes::buffet_sun] = 'Sun';
-        continue;
-      }
-
-      if ( in_array($r->category->category_id, $leatherHeartCatIds)) {
+      // Leather Heart Sponsorships
+      if ( $r->category->category_id == $leatherHeartCatId) {
         $this->r->leatherHeartSupport = true;
         continue;
       }
@@ -238,20 +219,20 @@ class Checkin
     }
 
     // ISSUED & PRINTED
-    $this->r->issued = (int)$mainEvent->fieldValue->Z_BADGE_ISSUED != 0 ? true : false;
-    $this->r->printed = (int)$mainEvent->fieldValue->Z_BADGE_PRINTED != 0 ? true : false;
+    $this->r->issued = (int)$mainEventRegistrantRecord->fieldValue->Z_BADGE_ISSUED != 0 ? true : false;
+    $this->r->printed = (int)$mainEventRegistrantRecord->fieldValue->Z_BADGE_PRINTED != 0 ? true : false;
 
     // Code of conduct
-    $this->r->cocSigned = $mainEvent->fieldValue->CONDUCT_AGREEMENT == '' ? false : true;
+    $this->r->cocSigned = $mainEventRegistrantRecord->fieldValue->CONDUCT_AGREEMENT == '' ? false : true;
     if ($this->r->cocSigned == false ) {
       $errors[] = 'Code of Conduct not signed.';
     }
 
     // Photo agreement
-    $this->r->photoAllowed = strtolower($mainEvent->fieldValue->PHOTO_PERMISSION) == 'yes' ? true : false;
+    $this->r->photoAllowed = strcasecmp($mainEventRegistrantRecord->fieldValue->PHOTO_PERMISSION, 'yes') == 0 ? true : false;
 
     // T-Shirt Size
-    $this->r->shirtSize = $mainEvent->fieldValue->TSHIRT . $mainEvent->fieldValue->TSHIRT_VOL;
+    $this->r->shirtSize = $mainEventRegistrantRecord->fieldValue->TSHIRT . $mainEventRegistrantRecord->fieldValue->TSHIRT_VOL;
     if ( $this->r->shirtSize == '' ) $this->r->shirtSize = 'None';
 
     $this->r->dayPassDay = '';
@@ -317,26 +298,26 @@ class Checkin
     }
 
     // Does this badge have this meal?
-    $events = new ClawEvents(Aliases::current());
+    $events = new ClawEvents(Aliases::current(true));
 
     //* @var /ClawCorpLib/Lib/ClawEvent */
     $e = $events->getEventByKey('eventId',$eventId, false);
     if (null == $e) {
-      return $this->htmlMsg('Unknown event id '.$eventId.' in '.Aliases::current(), 'btn-dark');
+      return $this->htmlMsg('Unknown event id '.$eventId.' in '.Aliases::current(true), 'btn-dark');
     }
 
     $ticketEventId = $eventId;
     if ( array_key_exists($eventId, $this->r->mealIssueMapping) ) $ticketEventId = $this->r->mealIssueMapping[$eventId];
 
     if ( array_search($eventId, $this->r->issuedMealTickets) !== false ) {
-      if ( $e->clawPackageType == EventPackageTypes::dinner) {
+      if ( $e->eventPackageType == EventPackageTypes::dinner) {
         return $this->htmlMsg($e->description . ' ticket already issued: '. $this->r->dinners[EventPackageTypes::dinner->value], 'btn-dark');
       } else {
         return $this->htmlMsg($e->description . ' ticket already issued', 'btn-dark');
       }
     }
 
-    switch ($e->clawPackageType) {
+    switch ($e->eventPackageType) {
       case EventPackageTypes::dinner:
         $meal = strtolower($this->r->dinners[EventPackageTypes::dinner->value]);
 
@@ -390,7 +371,7 @@ class Checkin
       case EventPackageTypes::brunch_fri:
       case EventPackageTypes::brunch_sat:
       case EventPackageTypes::brunch_sun:
-        if ($this->r->brunches[$e->clawPackageType] == '') {
+        if ($this->r->brunches[$e->eventPackageType] == '') {
           return $this->htmlMsg($e->description.' not assigned to this badge', 'btn-dark');
         }
 
@@ -402,7 +383,7 @@ class Checkin
       case EventPackageTypes::buffet_thu:
       case EventPackageTypes::buffet_fri:
       case EventPackageTypes::buffet_sun:
-        if ($this->r->buffets[$e->clawPackageType] == '') {
+        if ($this->r->buffets[$e->eventPackageType] == '') {
           return $this->htmlMsg($e->description.' not assigned to this badge', 'btn-dark');
         }
 
@@ -436,12 +417,11 @@ HTML;
 
   private function issueMealTicket(int $mealEventId, int $ticketEventId)
   {
-    $registrant = new registrant(Aliases::current(), $this->r->uid, [$ticketEventId]);
+    $registrant = new registrant(Aliases::current(true), $this->r->uid, [$ticketEventId]);
     $registrant->loadCurrentEvents();
     $registrant->mergeFieldValues(['Z_TICKET_SCANNED']);
 
     $record = ($registrant->records(true))[0];
-    //$record = $registrant->castRecord($record);
 
     $rowId = $record->registrant->id;
 
@@ -460,8 +440,7 @@ HTML;
     $results = [];
     $byName = false;
 
-    Helpers::sessionSet('eventAlias','');
-    $e = new ClawEvents(Aliases::current());
+    $e = new ClawEvents(Aliases::current(true));
     $inMainEventIds = implode(',',$e->mainEventIds);
     $prefix = $e->getClawEventInfo()->prefix;
 
@@ -511,12 +490,8 @@ HTML;
 
   private function explodeTicketScanned(string $field): array
   {
-    $result = [];
     $field = trim($field);
-
-    if ( $field == 0 ) return $result;
-
-    return explode(',',$field);
+    return 0 == $field ? [] : explode(',',$field);
   }
 
   static function getUnprintedBadgeCount(): int 
@@ -535,19 +510,11 @@ HTML;
     $badgeFieldId = ClawEvents::getFieldId('Z_BADGE_PRINTED');
     $published = EbPublishedState::published->value;
 
-    $db = Factory::getDbo();
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $events = new clawEvents(Aliases::current());
-    //$prefix = strtolower(Aliases::defaultPrefix).'-';
+    $events = new clawEvents(Aliases::current(true));
 
     $mainEvents = $events->mainEventIds;
-
-    // if ( ($key = array_search($events->getEventId($prefix.'staff-coordinator'), $mainEvents)) != false ) {
-    //   unset($mainEvents[$key]);
-    // }
-    // if ( ($key = array_search($events->getEventId($prefix.'staff-onsite'), $mainEvents)) != false ) {
-    //   unset($mainEvents[$key]);
-    // }
 
     $mainEventIds = implode(',',$mainEvents);
 
@@ -560,7 +527,7 @@ HTML;
       ->where('(r.ts_modified > v.field_value OR v.id IS NULL )')
       ->order('r.invoice_number');
 
-    if ( $limit > 0 ) {
+    if ( $limit ) {
       $query .= " LIMIT $limit";
     }
 

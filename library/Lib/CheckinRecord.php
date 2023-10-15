@@ -3,6 +3,7 @@
 namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Events\AbstractEvent;
 
 class CheckinRecord
 {
@@ -14,7 +15,7 @@ class CheckinRecord
   public bool $leatherHeartSupport = false;
   public bool $photoAllowed = false;
   public bool $printed = false;
-  public int $clawPackage = 0;
+  public EventPackageTypes $eventPackageType = EventPackageTypes::none;
   public int $id = 0;
   public int $package_eventId = 0;
   public string $address = '';
@@ -36,69 +37,48 @@ class CheckinRecord
   public string $state = '';
   public string $zip = '';
 
-  // Fpr combo meals, contains a CVS of the non-combo meal event ids
-  // E.g., At CLAW 22, the VIP included 8 separate meal events, so the ending value
+  // For combo meals, contains a CVS of the non-combo meal event ids
+  // E.g., A combo meal might include 8 separate meal events, so the ending value
   // could look like 1,2,3,4,5,6,7,8 within the registrant record
   public array $issuedMealTickets = [];
 
   // For combo meals, this maps event id of the checkin meal to the event id of the combo meal
-  // e.g., event_id(dinner) => event_id(vip)
+  // e.g., event_id(dinner) => event_id(combo_meals_all)
   public array $mealIssueMapping = [];
 
   public function __construct(
-    public int $uid, // *** Only required parameter *** 
+    public AbstractEvent $abstractEvent,
+    public int $uid, 
   )
   {
-    // Initialize key ordering
+    // Initialize key ordering based on the implemented AbstractEvent ordering
     // Keeping separate since we need to separate these out for badge printing
 
-    $dinners = [ 
-      EventPackageTypes::dinner->value
-    ];
+    $dinnerCatId = ClawEvents::getCategoryId('dinner');
+    $brunchCatId = ClawEvents::getCategoryId('buffet-breakfast');
+    $buffetCatId = ClawEvents::getCategoryId('buffet');
 
-    foreach ( $dinners AS $b ) {
-      if ( !array_key_exists($b, $this->dinners)) $this->dinners[$b] = '';
-    }
-
-    $brunchTypes = [
-      EventPackageTypes::brunch_fri->value,
-      EventPackageTypes::brunch_sat->value,
-      EventPackageTypes::brunch_sun->value
-    ];
-
-    foreach ( $brunchTypes as $b ) {
-      if ( !array_key_exists($b, $this->brunches)) $this->brunches[$b] = '';
-    }
-
-    $buffets = [
-      EventPackageTypes::buffet_wed->value,
-      EventPackageTypes::buffet_thu->value,
-      EventPackageTypes::buffet_fri->value,
-      EventPackageTypes::buffet_sun->value
-    ];
-
-    foreach ( $buffets AS $b ) {
-      if ( !array_key_exists($b, $this->buffets)) $this->buffets[$b] = '';
+    /** @var \ClawCorpLib\Lib\ClawEvent  */
+    foreach ( $abstractEvent->getEvents() AS $clawEvent) {
+      switch ($clawEvent->category) {
+        case $dinnerCatId:
+          $this->dinners[$clawEvent->eventId] = '';
+          break;
+        case $brunchCatId:
+          $this->brunches[$clawEvent->eventId] = '';
+          break;
+        case $buffetCatId:
+          $this->buffets[$clawEvent->eventId] = '';
+          break;
+      }
     }
   }
 
-  public function getDinnerString(): string
+  public function getMealString(array $meals): string
   {
-    $result = trim(implode(' ', $this->dinners));
+    $result = trim(implode(' ', $meals));
     return $result != '' ? $result : 'None';
-  }
-
-  public function getBuffetString(): string
-  {
-    $result = trim(implode(' ', $this->buffets));
-    return $result != '' ? $result : 'None';
-  }
-
-  public function getBrunchString(): string
-  {
-    $result = trim(implode(' ', $this->brunches));
-    return $result != '' ? $result : 'None';
-  }
+  } 
 
   /**
    * Object expected by checkin_events.ts
@@ -111,16 +91,14 @@ class CheckinRecord
       $result->$key = $value;
     }
 
-    $result->buffets = $this->getBuffetString();
-    $result->brunch = $this->getBrunchString();
-    $result->dinner = $this->getDinnerString();
+    $result->buffets = $this->getMealString($this->buffets);
+    $result->brunch = $this->getMealString($this->brunches);
+    $result->dinner = $this->getMealString($this->dinners);
 
     $result->issued = $this->issued ? 'Issued' : 'New';
     $result->printed = $this->printed ? 'Printed' : 'Need to Print';
 
-    $package = EventPackageTypes::FindValue($this->clawPackage);
-
-    $result->clawPackage = $this->overridePackage == '' ? $package->toString() : $this->overridePackage;
+    $result->clawPackage = $this->overridePackage == '' ? $this->eventPackageType->toString() : $this->overridePackage;
     if ( $this->dayPassDay != '' ) $result->clawPackage .= ' ('.$this->dayPassDay.')';
 
     return $result;
