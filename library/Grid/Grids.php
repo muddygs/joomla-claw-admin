@@ -152,7 +152,7 @@ class Grids
       $this->updateGrids($currentGid, $currentGriditems);
     }
     
-  } 
+  }
 
   private function updateGrids(int $shift_id, array $gridItems)
   {
