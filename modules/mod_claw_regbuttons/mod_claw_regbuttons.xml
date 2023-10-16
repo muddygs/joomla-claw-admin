@@ -8,14 +8,22 @@
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2023 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <description>Displays registration quick buttons</description>
 
-	<files>
-		<filename module="mod_claw_regbuttons">mod_claw_regbuttons.php</filename>
-		<folder>tmpl</folder>
-	</files>
+  <files>
+    <filename module="mod_claw_regbuttons">mod_claw_regbuttons.php</filename>
+    <folder>tmpl</folder>
+  </files>
 
   <config>
+    <fields name="params">
+      <field name="registration"
+        type="textbox"
+        default="/registration-survey"
+        label="Registration URL"
+        description="URL to the registration page"
+      />
+    </fields>
   </config>
 </extension>
