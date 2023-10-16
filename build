@@ -20,6 +20,7 @@ cd ../..
 ## copy
 cp media_raw/joomla.asset.json media
 cp media_raw/js/*.js* media/js
+cp media_raw/css/* media/css
 rm media/js/*.json
 
 # Directories to append to main component package once admin is added
