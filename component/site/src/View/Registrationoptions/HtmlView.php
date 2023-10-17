@@ -33,6 +33,7 @@ class HtmlView extends BaseHtmlView
   
   public function display($tpl = null)
   {
+    /** @var \Joomla\CMS\Application\SiteApplication */
     $this->app = Factory::getApplication();
 
     $input = $this->app->getInput();
