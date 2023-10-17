@@ -8,7 +8,7 @@
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2023 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>0.1.1</version>
+  <version>0.2.0</version>
   <description>Displays registration quick buttons</description>
 
   <files>
@@ -18,12 +18,56 @@
 
   <config>
     <fields name="params">
-      <field name="registration"
-        type="textbox"
-        default="/registration-survey"
-        label="Registration URL"
-        description="URL to the registration page"
-      />
+      <fieldset name="basic">
+        <field name="infospacer"
+          type="spacer"
+          label="Leave entry blank to hide the link from the page display"
+        />
+        <field name="registration"
+          type="text"
+          default=""
+          hint="/registration-survey"
+          label="Registration URL"
+        />
+        <field name="schedule"
+          type="text"
+          hint="/schedule"
+          label="Event Schedule URL"
+        />
+        <field name="skills"
+          type="text"
+          default="/skills"
+          label="Skills Schedule URL"
+        />
+        <field name="vendormart"
+          type="text"
+          hint="/vendormart"
+          label="VendorMart URL"
+        />
+        <field name="silentauction"
+          type="text"
+          hint="/silentauction"
+          label="Silent Auction URL"
+        />
+        <field name="mobileapp"
+          type="text"
+          hint="/yapp"
+          label="Mobile App URL"
+        />
+        <field name="hotels"
+          type="text"
+          default=""
+          label="Hotels URL"
+
+        />
+        <field name="infotext"
+          type="textarea"
+          hint="&lt;p class=&quot;text-center&quot;&gt;Registration is now open!&lt;/p&gt;"
+          label="Info Text (HTML)"
+          filter="safehtml"
+        />
+
+      </fieldset>
     </fields>
   </config>
 </extension>
