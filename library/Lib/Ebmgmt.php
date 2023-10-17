@@ -512,7 +512,7 @@ SQL;
             ->columns($db->quoteName(['eventid','alias']))
             ->values(implode(',', $db->q([$e->id, $alias])));
           $db->setQuery($query);
-          $result = $db->execute();
+          $db->execute();
 
           break;
         }
