@@ -13,11 +13,11 @@ namespace ClawCorp\Component\Claw\Site\View\Registrationsurvey;
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Coupon;
 use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Help\Help;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ReflectionClass;
 
@@ -38,15 +38,29 @@ class HtmlView extends BaseHtmlView
   public bool $hasMainEvent = false;
   public bool $onsiteActive = false;
   public string $prefix = '';
+  public string $referrer = '';
 
   public function __construct($config = [])
   {
     parent::__construct($config);
 
+    /** @var \Joomla\CMS\Application\SiteApplication */
     $this->app = Factory::getApplication();
     
     $this->params = $params = $this->app->getParams();
-    $this->eventAlias = $params->get('eventAlias', Aliases::current());
+    $this->eventAlias = $params->get('eventAlias', '');
+
+    // Kill on bad event alias
+    // TODO: Need function to test if alias is active and act if not
+    if ( $this->eventAlias == '' ) {
+      $this->app->enqueueMessage('No event alias specified.', 'error');
+      return;
+    }
+
+    // TODO: have valid referrers in config
+    $this->referrer = $this->app->getInput()->get('referrer', '', 'string');
+    // Only a-z allowed in referrer
+    $this->referrer = preg_replace('/[^a-z]/', '', $this->referrer);
 
     // Do we need to clear the cart (i.e., when switching events)?
     $oldEventAlias = Helpers::sessionGet('eventAlias');
@@ -66,6 +80,13 @@ class HtmlView extends BaseHtmlView
     $this->prefix = $this->events->getClawEventInfo()->prefix;
 
     $this->couponCode = trim($this->app->input->get('coupon', '', 'string'));
+
+    // set referrer tracking
+    if ( $this->referrer != '' ) {
+      Helpers::sessionSet('referrer', $this->referrer);
+    } else {
+      Helpers::sessionSet('referrer', '');
+    }
 
     // Remember link back to this menu item
     Helpers::sessionSet('optionslink', \Joomla\CMS\Uri\Uri::getInstance()->toString());

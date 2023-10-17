@@ -7,7 +7,6 @@ use Joomla\CMS\Factory;
 use ClawCorpLib\Helpers\Bootstrap;
 use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 
 Helpers::sessionSet('clawcoupon','');
@@ -22,14 +21,21 @@ $wa = $app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.registrationsurvey');
 ?>
 <div style="text-align: center;">
-  <p><img alt="Registration Banner" src="images/<?=strtolower($this->prefix)?>/banners/Registration.png" class="img-fluid mx-auto d-block" /></p>
+  <p><img alt="Registration Banner" src="images/<?=strtolower($this->prefix)?>/banners/Registration.png" class="img-fluid mx-auto d-block" alt="Registration Banner" title="Registration Banner"/></p>
 </div>
 
 <?php
 $ref = Helpers::sessionGet('referrer');
-if ( $ref == 'CARAS' ):?>
-<img alt="CARAS Banner" title="CARAS Banner" src="https://www.clawinfo.org/images/L22/adsliders/2/L22_CLAWbannerAd_cigar.png" class="img-fluid mx-auto mb-3" />
-<?php endif;
+if ( $ref != '' ) {
+  $refImagePath = JPATH_ROOT . '/images/0_static_graphics/referrers/'.$ref;
+  $files = glob($refImagePath.".{[jJ][pP][gG],[pP][nN][gG],[sS][vV][gG]}", GLOB_BRACE);
+  if ( count($files)) {
+    $file = substr($files[0], strlen(JPATH_ROOT));
+    ?>
+      <img alt="<?= strtoupper($ref) ?> Banner" title="<?= strtoupper($ref) ?> Banner" src="<?= $file ?>" class="img-fluid mx-auto mb-3" />
+    <?php
+  }
+}
 ?>
 
 <div class="border border-2 border-info rounded mb-5">
