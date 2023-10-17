@@ -58,9 +58,7 @@ class HtmlView extends BaseHtmlView
     }
 
     // TODO: have valid referrers in config
-    $this->referrer = $this->app->getInput()->get('referrer', '', 'string');
-    // Only a-z allowed in referrer
-    $this->referrer = preg_replace('/[^a-z]/', '', $this->referrer);
+    $this->referrer = $this->app->getInput()->get('referrer', '', 'alnum');
 
     // Do we need to clear the cart (i.e., when switching events)?
     $oldEventAlias = Helpers::sessionGet('eventAlias');
