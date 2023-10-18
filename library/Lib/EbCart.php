@@ -172,7 +172,7 @@ HTML;
       }
 
       // No shifts allowed for non-packages & VendorMart Crew
-      if ($package_event == $e->getEventByPackageType(EventPackageTypes::vendor_crew)->eventId && $shift_count > 0) {
+      if ($package_event == $e->getMainEventByPackageType(EventPackageTypes::vendor_crew)->eventId && $shift_count > 0) {
         $this->submit = '<div class="alert alert-danger">Your event package does not allow shift selection. Please modify your cart.</div>';
         $this->show_error = true;
       }

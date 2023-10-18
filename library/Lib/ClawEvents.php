@@ -130,7 +130,12 @@ class ClawEvents
     return $result;
   }
 
-  public function getEventByPackageType(EventPackageTypes $packageType): ClawEvent
+  /**
+   * Returns the ClawEvent for a given event package type; the target event must be a main event
+   * @param EventPackageTypes $packageType 
+   * @return ClawEvent 
+   */
+  public function getMainEventByPackageType(EventPackageTypes $packageType): ClawEvent
   {
     $result = null;
     $found = 0;
@@ -145,6 +150,26 @@ class ClawEvents
     if ($found > 1) die('Duplicate package types loaded. Did you load multiple events?');
     if (0 == $found) {
       die('Unconfigured package type requested: ' . $packageType->name);
+    }
+
+    return $result;
+  }
+
+  /**
+   * Unlike getMainEventByPackageType, this returns all events for a given package type,
+   * regardless of whether it is a main event
+   * @param EventPackageTypes $packageType 
+   * @return array ClawEvent[]
+   */
+  public function getEventsByPackageType(EventPackageTypes $packageType): array
+  {
+    $result = [];
+
+    /** @var \ClawCorpLib\Lib\ClawEvent */
+    foreach ($this->event->getEvents() as $e) {
+      if ($e->eventPackageType == $packageType) {
+        $result[] = $e;
+      }
     }
 
     return $result;

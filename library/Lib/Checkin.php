@@ -72,7 +72,7 @@ class Checkin
     
     $this->r = new CheckinRecord($events->getEvent(), $this->uid);
 
-    $event = $events->getEventByPackageType($mainEventRegistrantRecord->registrant->eventPackageType);
+    $event = $events->getMainEventByPackageType($mainEventRegistrantRecord->registrant->eventPackageType);
 
     $this->r->package_eventId = $mainEventRegistrantRecord->event->eventId;
     $this->r->id = $mainEventRegistrantRecord->registrant->id;
