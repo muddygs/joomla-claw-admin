@@ -535,14 +535,40 @@ class c0424 extends AbstractEvent
     $blackCategoryId = 'sponsorships-black';
     $blueCategoryId = 'sponsorships-blue';
     $goldCategoryId = 'sponsorships-gold';
+    $heartCategoryId = 'donations-leather-heart';
+
+    $leatherHeartDescription = <<< HTML
+Help someone in the community who is facing financial hardship attend CLAW 24. 
+<a href="index.php?option=com_content&view=article&id=256&catid=77">Leather Heart and Volunteer Bridge Donations Details</a>
+HTML;
+
+    $leatherBridgeDescription = <<< HTML
+Buys tickets to all banquets at CLAW 24 for volunteers who want to be part of those 
+community networks but cannot afford the meal prices. 
+<a href="index.php?option=com_content&view=article&id=256&catid=77">Leather Heart and Volunteer Bridge Donations Details</a>
+HTML;
 
     $events = [
+      (object)[
+        "main_category_id" => $heartCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 250,
+        "title" => "Leather Heart",
+        "description" => $leatherHeartDescription
+      ],
+      (object)[
+        "main_category_id" => $heartCategoryId,
+        "event_capacity" => 0,
+        "individual_price" => 250,
+        "title" => "Leather Heart",
+        "description" => $leatherBridgeDescription
+      ],
       (object)[
         "main_category_id" => $advertisingCategoryId,
         "event_capacity" => 0,
         "individual_price" => 250,
         "title" => "Full Page Ad",
-        "description" => "Full page ad (8\"H x 5\"W) in CLAW 23 Yearbook. Registration email contains full specifications."
+        "description" => "Full page ad (8\"H x 5\"W) in CLAW 24 Yearbook. Registration email contains full specifications."
       ],
       (object)[
         "main_category_id" => $advertisingCategoryId,
@@ -689,7 +715,7 @@ class c0424 extends AbstractEvent
         "event_capacity" => 0,
         "individual_price" => 1200,
         "title" => "Ad Combo 3",
-        "description" => "Save $1000 with this Bundle: Includes full page ad in both Yearbooks (L.A. Leather Getaway and CLAW 23), run bag inserts at both events, website banner ad (12 months), and Banner ads in six e-blasts.<p><small>2,500 run bag inserts (to be received by April 1 for CLAW 23)</small></p>"
+        "description" => "Save $1000 with this Bundle: Includes full page ad in both Yearbooks (L.A. Leather Getaway and CLAW 24), run bag inserts at both events, website banner ad (12 months), and Banner ads in six e-blasts.<p><small>2,500 run bag inserts (to be received by April 1 for CLAW 24)</small></p>"
       ],
       (object)[
         "main_category_id" => $masterSustainingCategoryId,
@@ -724,21 +750,21 @@ class c0424 extends AbstractEvent
         "event_capacity" => 0,
         "individual_price" => 2000,
         "title" => "Black-Level Sponsorship",
-        "description" => "Partner Event Sponsorship - We Work with You to Create <i>CLAW 23</i>"
+        "description" => "Partner Event Sponsorship - We Work with You to Create <i>CLAW 24</i>"
       ],
       (object)[
         "main_category_id" => $blueCategoryId,
         "event_capacity" => 0,
         "individual_price" => 400,
         "title" => "Blue-Level Sponsorship",
-        "description" => "Partner Event Sponsorship - We Work with You to Create <i>CLAW 23</i>"
+        "description" => "Partner Event Sponsorship - We Work with You to Create <i>CLAW 24</i>"
       ],
       (object)[
         "main_category_id" => $goldCategoryId,
         "event_capacity" => 0,
         "individual_price" => 800,
         "title" => "Gold-Level Sponsorship",
-        "description" => "Partner Event Sponsorship - We Work with You to Create <i>CLAW 23</i>"
+        "description" => "Partner Event Sponsorship - We Work with You to Create <i>CLAW 24</i>"
       ]
     ];
 
