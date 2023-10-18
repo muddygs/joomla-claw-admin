@@ -47,15 +47,16 @@ class Helpers
 
 
   /**
-   * Returns hh:mm formatted string in seconds
+   * Returns hh:mm formatted string as seconds
    * @param mixed $t 
    * @return int|bool 
    */
   public static function timeToInt($t): int|bool
   {
     $ts = explode(':', $t);
-    if (count($ts) < 2) return false;
-    return 60 * ($ts[0] * 60 + $ts[1]);
+    if (count($ts) < 2 || !\is_numeric($ts[0]) || !\is_numeric($ts[1]) || 
+      $ts[0] < 0 || $ts[0] > 23 || $ts[1] < 0 || $ts[1] > 59) return false;
+    return strtotime('1970-01-01 ' . trim($t) . ':00');
   }
 
   public static function dateToDay(string $date): string
@@ -295,59 +296,80 @@ class Helpers
     $mailer->Send();
   }
 
-  public static function StringCleanup(string $s, bool $lower = false): string
-  {
-    $s = preg_replace('/[\x00-\x20\x7F-\xFF]/', '', $s);
-    return $lower ? strtolower($s) : $s;
-  }
-
+  /**
+   * Process an input image into JPG (resize original, resize thumbnail), auto rotation on output(s)
+   * @param string $source Uploaded file
+   * @param string $thumbnail Thumbnail file to create
+   * @param int $thumbsize Thumbnail size (default 300)
+   * @param string $copyto Copy uploaded file to this location (default '' - do not copy)
+   * @param int $origsize (optional) Resize original during copy
+   * @param bool $deleteSource Default false
+   * @param int $quality JPG quality (default 80)
+   * @return bool 
+   * @throws RuntimeException 
+   */
   public static function ProcessImageUpload(
     string $source,
     string $thumbnail,
-    int $resize = 300,
+    int $thumbsize = 300,
+    int $origsize = 0,
     string $copyto = '',
     bool $deleteSource = false,
     int $quality = 80
   ): bool {
-    if (file_exists($source)) {
-      $result = true;
-      if ($copyto != '') $result = copy($source, $copyto);
-
-      if (!$result) {
-        //echo('Unable to save original photo file: '. $orig);
+    if ( $copyto ) {
+      $success = self::imageRotate(source: $source, dest: $copyto, size: $origsize, quality: $quality);
+      
+      if ( !$success ) {
+        if ( $deleteSource ) unlink($source);
         return false;
-      } else {
-        try {
-          $image = new Image();
-          $image->loadFile($source);
-          $exif = @exif_read_data($source);
-          $image->resize($resize, $resize, false);
-
-          if ($exif && array_key_exists('Orientation', $exif)) {
-            switch ($exif['Orientation']) {
-              case 3:
-                $image->rotate(angle: 180.0, createNew: false);
-                break;
-              case 6:
-                $image->rotate(angle: -90.0, createNew: false);
-                break;
-              case 8:
-                $image->rotate(angle: 90.0, createNew: false);
-                break;
-            }
-          }
-          $image->toFile($thumbnail, IMAGETYPE_JPEG, ['quality' => $quality]);
-        } catch (LogicException $ex) {
-          //echo('Unable to save web photo file: '. $web);
-          return false;
-        }
       }
-    } else {
-      return false;
     }
+    
+    $success = self::imageRotate(source: $source, dest: $thumbnail, size: $thumbsize, quality: $quality);
 
     if ( $deleteSource ) unlink($source);
 
-    return true;
+    return $success;
+  }
+
+  /**
+   * Rotates (based on EXIF data) and resizes an image (if requested)
+   * @param string $source Any supported input image format
+   * @param string $dest JPG filename
+   * @param int $size Bounding size (default 0 - no resize)
+   * @param int $quality JPG output quality (default 80)
+   * @return bool Success/Fail
+   * @throws RuntimeException 
+   */
+  public static function imageRotate(string $source, string $dest, int $size = 0, int $quality = 80): bool
+  {
+    if (file_exists($source)) {
+      try {
+        $image = new Image();
+        $image->loadFile($source);
+        $exif = @exif_read_data($source);
+        if ( $size > 0) $image->resize($size, $size, false);
+
+        if ($exif && array_key_exists('Orientation', $exif)) {
+          switch ($exif['Orientation']) {
+            case 3:
+              $image->rotate(angle: 180.0, createNew: false);
+              break;
+            case 6:
+              $image->rotate(angle: -90.0, createNew: false);
+              break;
+            case 8:
+              $image->rotate(angle: 90.0, createNew: false);
+              break;
+          }
+        }
+        $image->toFile($dest, IMAGETYPE_JPEG, ['quality' => $quality]);
+      } catch (LogicException $ex) {
+        return false;
+      }
+
+      return true;
+    }
   }
 }

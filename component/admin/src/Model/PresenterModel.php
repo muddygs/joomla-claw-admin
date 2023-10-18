@@ -106,41 +106,23 @@ class PresenterModel extends AdminModel
     $presentersDir = Aliases::presentersDir();
   
     $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'orig', $data['uid'].'.jpg']);
+    $thumb = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'web', $data['uid'].'.jpg']);
     
     if ( 0 == $error ) {
       // Copy original out of tmp
       $result = copy($tmp_name, $orig);
-      if ( !$result ) {
+      if ( !Helpers::ProcessImageUpload(
+        source: $tmp_name,
+        thumbnail: $thumb,
+        copyto: $orig,
+        deleteSource: true,
+        origsize: 1024,
+      )) {
         $app->enqueueMessage('Unable to save original photo file.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
         return false;
       }
 
-      $upload = implode(DIRECTORY_SEPARATOR, ['..', $presentersDir, 'orig', $data['uid']]);
-
-      $upload .= match($mime) {
-        'image/jpeg' => '.jpg',
-        default => '.png',
-      };
-
-      if ( File::upload($tmp_name, $upload))
-      {
-        try {
-          $output = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'web', $data['uid'].'.jpg']);
-          $image = new Image();
-          $image->loadFile($orig);
-          $image->resize(300, 300, false);
-          $image->toFile($output, IMAGETYPE_JPEG, ['quality' => 80]);
-
-          $data['photo'] = implode(DIRECTORY_SEPARATOR, [$presentersDir, 'web', $data['uid'].'.jpg']);
-        } catch(LogicException $ex)
-        {
-          $app->enqueueMessage('Unable to save photo file.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-          return false;
-        }
-      } else {
-        $app->enqueueMessage('Unable to save photo file.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-        return false;
-      }
+      $data['photo'] = implode(DIRECTORY_SEPARATOR, [$presentersDir, 'web', $data['uid'].'.jpg']);
     }
 
     // Email if coming from the front end site
