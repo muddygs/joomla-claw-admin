@@ -25,11 +25,11 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
  */
 class SkillslistModel extends BaseDatabaseModel
 {
-  public function GetConsolidatedList(string $event = Aliases::current()): object
+  public function GetConsolidatedList(string $eventAlias): object
   {
     $db = $this->getDatabase();
-    $presenters = Skills::GetPresenterList($db, $event);
-    $classes = Skills::GetClassList($db, $event);
+    $presenters = Skills::GetPresenterList($db, $eventAlias);
+    $classes = Skills::GetClassList($db, $eventAlias);
 
     $classTypes = Config::getColumn('skill_class_type');
     $classCategories = Config::getColumn('skill_category');
@@ -72,7 +72,7 @@ class SkillslistModel extends BaseDatabaseModel
       $day = Helpers::dateToDayNum($class->day);
       $class->day_text = Helpers::dateToDay($class->day);
       $time = $class->time_slot;
-      $title = Helpers::StringCleanup($class->title, true);
+      $title = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $class->title));
 
       $ordering = implode('-', [$day, $time, $title, $class->id]);
 
@@ -141,27 +141,11 @@ class SkillslistModel extends BaseDatabaseModel
     ];
   }
 
-  public function GetPresenter(int $uid, string $event = Aliases::current()): object
+  public function GetPresenter(int $uid, string $event): object
   {
     $db = $this->getDatabase();
     $presenter = Skills::GetPresenter($db, $uid, $event);
 
     return $presenter;
-  }
-
-  // private function namesort($a, $b) {}
-
-  private function build_sorter($key) {
-    return function ($a, $b) use ($key) {
-        return strnatcmp($a[$key], $b[$key]);
-    };
-  }
-
-  public function GetEventInfo(string $alias = Aliases::current()) : \ClawCorpLib\Lib\EventInfo
-  {
-    $events = new ClawEvents(clawEventAlias: $alias);
-
-    $info = $events->getClawEventInfo();
-    return $info;
   }
 }
