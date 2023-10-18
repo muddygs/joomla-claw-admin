@@ -13,6 +13,7 @@ abstract class AbstractEvent
 {
   private EventInfo $info;
   private array $events;
+  private array $mainEventPackageTypes = [];
 
   public function __construct(
     public string $alias
@@ -66,6 +67,17 @@ abstract class AbstractEvent
 
   public function AppendEvent(ClawEvent $e)
   {
+    $value = $e->eventPackageType->value;
+
+    // Validate main event uniqueness
+    if ( $e->isMainEvent ) {
+      if ( array_key_exists($value, $this->mainEventPackageTypes) ) {
+        throw new UnexpectedValueException(__FILE__ . ': Duplicate eventPackageType: ' . $value);
+      }
+
+      $this->mainEventPackageTypes[$value] = true;
+    }
+
     $this->events[] = $e;
   }
 
