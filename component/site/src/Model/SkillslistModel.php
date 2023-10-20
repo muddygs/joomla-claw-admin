@@ -13,10 +13,8 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Helpers;
 
-use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Skills;
-use ClawCorpLib\Lib\ClawEvents;
 
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 

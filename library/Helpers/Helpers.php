@@ -2,6 +2,7 @@
 
 namespace ClawCorpLib\Helpers;
 
+use DateTime;
 use InvalidArgumentException;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Date\Date;
@@ -80,13 +81,21 @@ class Helpers
    */
   public static function formatTime(string $time): string
   {
+    if (preg_match('/^([01]\d|2[0-3])([0-5]\d)$/', $time, $matches)) {
+      $hour = $matches[1];
+      $minute = $matches[2];
+
+      $time = DateTime::createFromFormat('H:i', "$hour:$minute");
+      return $time->format('g:i A');
+    }
+
     if (0 === strpos($time, '00:00')) {
       $time = "Midnight";
     } else if (0 === strpos($time, '12:00')) {
       $time = "Noon";
     } else {
       date_default_timezone_set('etc/UTC');
-      $time = date('g:iA', strtotime(substr($time, 0, 5)));
+      $time = date('g:i A', strtotime(substr($time, 0, 5)));
     }
 
     return $time;

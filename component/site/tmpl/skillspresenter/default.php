@@ -26,7 +26,7 @@ if ($backurl == '') {
 
 // TODO: Return to home
 if ($this->presenter == null) {
-  echo "no presenter";
+  echo "Presenter not found.";
   return;
 }
 

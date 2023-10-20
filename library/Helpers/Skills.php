@@ -4,6 +4,8 @@ namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Lib\Aliases;
 use InvalidArgumentException;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Router\Route;
 use Joomla\Database\DatabaseDriver;
 use Joomla\Database\Exception\UnsupportedAdapterException;
 use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
@@ -156,6 +158,60 @@ class Skills
       ->where($db->qn('published') . ' = 1');
 
     $db->setQuery($query);
-    return $db->loadObject();
+    $presenter = $db->loadObject();
+
+    if ( $presenter != null )
+      $presenter->route = Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter->uid);
+
+    return $presenter;
+  }
+
+  public static function GetClass(DatabaseDriver $db, int $cid, string $eventAlias): ?object
+  {
+    $query = $db->getQuery(true);
+
+    $query->select('*')
+      ->from($db->qn('#__claw_skills'))
+      ->where($db->qn('id') . ' = :cid')->bind(':cid', $cid)
+      ->where($db->qn('event') . ' = :event')->bind(':event', $eventAlias)
+      ->where($db->qn('published') . ' = 1');
+
+    $db->setQuery($query);
+    $class = $db->loadObject();
+
+    if ( null == $class ) return $class;
+
+    if (empty($class->presenters)) {
+      $presenterIds = [];
+    } else {
+      $presenterIds = explode(',', $class->presenters);
+    }
+    array_unshift($presenterIds, $class->owner);
+
+    $location = Locations::GetLocationById($class->location);
+    $class->location = $location->value != '' ? $location->value : 'TBD';
+
+    // day
+    $class->day = date('l', strtotime($class->day));
+
+    [$time, $length] = explode(':', $class->time_slot);
+    // time
+    $class->time = Helpers::formatTime($time);
+
+    // length
+    $class->length = (int)$length;
+
+    if ( $class->category != 'None' ) $class->category = Config::getConfigValuesText('skill_category', $class->category);
+
+    // Get the presenters
+    $class->presenters = [];
+
+    foreach ( $presenterIds AS $presenterId ) {
+      $presenter = self::GetPresenter($db, $presenterId, $eventAlias);
+      if ( null == $presenter ) continue;
+      $class->presenters[] = $presenter;
+    }
+
+    return $class;
   }
 }

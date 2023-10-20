@@ -17,13 +17,13 @@ use ClawCorpLib\Helpers\Skills;
 /**
  * Methods to handle public class listing.
  */
-class SkillsPresenterModel extends BaseDatabaseModel
+class SkillsClassModel extends BaseDatabaseModel
 {
-  public function GetPresenter(int $uid, string $event): ?object
+  public function GetClass(int $cid, string $event): ?object
   {
     $db = $this->getDatabase();
-    $presenter = Skills::GetPresenter($db, $uid, $event);
+    $class = Skills::GetClass($db, $cid, $event);
 
-    return $presenter;
+    return $class;
   }
 }
