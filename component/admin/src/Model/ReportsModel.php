@@ -13,12 +13,14 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 \defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\EbPublishedState;
+use ClawCorpLib\Helpers\Volunteers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\Registrants;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\User\UserFactory;
 
 /**
  * Methods to handle a list of records.
@@ -122,6 +124,37 @@ class ReportsModel extends BaseDatabaseModel
     $items['volcounters'] = $volcounters;
     $items['totalCount'] = $totalCount;
     $items['volTotalCount'] = $volTotalCount;
+
+    return $items;
+  }
+
+  public function getVolunteerOverview(): array
+  {
+    $items = [];
+    $userFactory = new UserFactory($this->getDatabase());
+
+    $shifts = Volunteers::getShiftEventDetails(Aliases::current(true));
+
+    $coordinators = [];
+
+    foreach ( array_keys($shifts) AS $sid ) {
+      $info = Volunteers::getShiftInfo($sid);
+      if ( null == $info ) continue;
+
+      $primaryCoordinator = $info->coordinators[0];
+      $user = $userFactory->loadUserById($primaryCoordinator);
+
+      $coordinators[$sid] = [
+        'title' => $info->title,
+        'name' => $user->name,
+        'email' => $user->email,
+      ];
+    }
+
+
+    $items['eventInfo'] = $this->eventInfo;
+    $items['shifts'] = $shifts;
+    $items['coordinators'] = $coordinators;
 
     return $items;
   }

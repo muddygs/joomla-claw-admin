@@ -32,6 +32,9 @@ class RawView extends BaseHtmlView
       case 'shirts':
         $this->items = $this->model->getShirtSizes();
         break;
+      case 'volunteer_overview':
+        $this->items = $this->model->getVolunteerOverview();
+        break;
       default:
         break;
     }
