@@ -66,7 +66,8 @@ foreach ($this->items['shifts'] as $this->sid => $events) {
     continue;
   }
 ?>
-  <h1><?php echo $this->items['coordinators'][$this->sid]['title'] . ' - ' . $this->items['coordinators'][$this->sid]['name'] ?></h1>
+  <h1><?= $this->items['coordinators'][$this->sid]['title'] ?></h1>
+  <h2><?= $this->items['coordinators'][$this->sid]['name'] ?> (<?= $this->items['coordinators'][$this->sid]['email'] ?>)</h2>
   <table class="table table-striped table-hover table-sm table-bordered">
     <thead class="thead-dark">
       <tr>

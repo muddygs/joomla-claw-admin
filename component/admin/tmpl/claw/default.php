@@ -39,7 +39,7 @@ Bootstrap::writeGrid($content, $tags);
 $content = [
   'stopwatch' => ['Speed Dating','<a href="/administrator/index.php?option=com_claw&view=reports&layout=speeddating&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
   'globe' => ['Volunteer Overview','<a href="/administrator/index.php?option=com_claw&view=reports&layout=volunteer_overview&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
-  'list' => ['Volunteer Detail','<a href="/administrator/index.php?option=com_claw&view=reports&tmpl=volunteer_detail" role="button" class="btn btn-danger">Launch</a>'],
+  'list' => ['Volunteer Detail','<a href="/administrator/index.php?option=com_claw&view=reports&layout=volunteer_detail&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
   'tshirt' => ['Shirts','<a href="/administrator/index.php?option=com_claw&view=reports&layout=shirts&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
   'utensils' => ['Meals','<a href="/administrator/index.php?option=com_claw&view=reports&tmpl=meals" role="button" class="btn btn-danger">Launch</a>'],
 ];
