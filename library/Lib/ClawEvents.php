@@ -22,7 +22,6 @@ class ClawEvents
   public array $mainEventIds = [];
   private array  $couponRequired = [];
   private array $overlapEventCategories = [];
-  private array $shiftCategoryIds = [];
 
   private AbstractEvent $event;
 
@@ -64,10 +63,6 @@ class ClawEvents
 
     foreach (Aliases::overlapCategories() as $v) {
       $this->overlapEventCategories[] = self::$categoryIds[$v]->id;
-    }
-
-    foreach (Aliases::shiftCategories() as $v) {
-      $this->shiftCategoryIds[] = self::$categoryIds[$v]->id;
     }
   }
 
