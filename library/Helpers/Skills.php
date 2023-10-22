@@ -4,7 +4,6 @@ namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Lib\Aliases;
 use InvalidArgumentException;
-use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Router\Route;
 use Joomla\Database\DatabaseDriver;
 use Joomla\Database\Exception\UnsupportedAdapterException;
