@@ -40,7 +40,261 @@ class c0424 extends AbstractEvent
     $prefix = strtolower($prefix);
     $base = 269;
 
-    #region Main Events
+    #region Meals (do first for meta bundles)
+    // Wednesday
+    $wed_buffet = $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix . '-wed-buffet',
+      'description' => 'Staff Dinner Buffet',
+      'badgeValue' => 'Wed',
+      'eventPackageType' => EventPackageTypes::buffet_wed,
+      'isMainEvent' => false,
+      'couponValue' => 0,
+      'fee' => 50,
+      'bundleDiscount' => 30,
+      'start' => 'wednesday 5pm',
+      'end' => 'wednesday 6:30pm',
+      'category' => 'buffet',
+      'requiresCoupon' => false,
+      'couponAccessGroups' => ['Super Users', 'Administrator'],
+      'isAddon' => true
+    ], $quiet));
+
+    // Thursday
+    $thu_buffet = $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix . '-thu-buffet',
+      'description' => 'Pig Roast',
+      'badgeValue' => 'Thu',
+      'eventPackageType' => EventPackageTypes::buffet_thu,
+      'isMainEvent' => false,
+      'couponValue' => 0,
+      'fee' => 50,
+      'bundleDiscount' => 30,
+      'start' => 'thursday 6pm',
+      'end' => 'thursday 7:30pm',
+      'category' => 'buffet',
+      'requiresCoupon' => false,
+      'couponAccessGroups' => ['Super Users', 'Administrator'],
+      'isAddon' => true
+    ], $quiet));
+
+    // Friday
+    $fri_breakfast = $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix . '-fri-breakfast',
+      'description' => 'Friday Breakfast Seminar',
+      'badgeValue' => 'Fri',
+      'eventPackageType' => EventPackageTypes::brunch_fri,
+      'isMainEvent' => false,
+      'couponValue' => 0,
+      'fee' => 50,
+      'bundleDiscount' => 5,
+      'start' => 'friday noon',
+      'end' => 'friday 1:30pm',
+      'category' => 'buffet-breakfast',
+      'requiresCoupon' => false,
+      'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr'],
+      'isAddon' => true
+    ], $quiet));
+
+    $bluf_buffet = $this->AppendEvent(new ClawEvent((object)[
+      'couponKey' => 'G',
+      'alias' => $prefix . '-bluf-buffet',
+      'description' => 'BLUF Dinner Buffet',
+      'badgeValue' => 'BLUF',
+      'eventPackageType' => EventPackageTypes::buffet_bluf,
+      'isMainEvent' => false,
+      'couponValue' => 110,
+      'fee' => 110,
+      'bundleDiscount' => 20,
+      'start' => 'friday 7pm',
+      'end' => 'friday 9pm',
+      'category' => 'buffet',
+      'requiresCoupon' => false,
+      'couponAccessGroups' => ['Super Users', 'Administrator'],
+      'isAddon' => true
+    ], $quiet));
+
+    $fri_buffet = $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix . '-fri-buffet',
+      'description' => 'Friday Fetish Buffet',
+      'badgeValue' => 'Fri',
+      'eventPackageType' => EventPackageTypes::buffet_fri,
+      'isMainEvent' => false,
+      'couponValue' => 0,
+      'fee' => 90,
+      'bundleDiscount' => 5,
+      'start' => 'friday 6:30pm',
+      'end' => 'friday 8pm',
+      'category' => 'buffet',
+      'requiresCoupon' => false,
+      'couponAccessGroups' => [],
+      'isAddon' => true
+    ], $quiet));
+
+    // Saturday
+    $sat_breakfast = $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix . '-sat-breakfast',
+      'description' => 'Saturday Breakfast Seminar',
+      'badgeValue' => 'Sat',
+      'eventPackageType' => EventPackageTypes::brunch_sat,
+      'isMainEvent' => false,
+      'couponValue' => 0,
+      'fee' => 50,
+      'bundleDiscount' => 5,
+      'start' => 'saturday noon',
+      'end' => 'saturday 1:30pm',
+      'category' => 'buffet-breakfast',
+      'requiresCoupon' => false,
+      'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr'],
+      'isAddon' => true
+    ], $quiet));
+
+    $dinner = $this->AppendEvent(new ClawEvent((object)[
+      'couponKey' => 'D',
+      'alias' => $prefix . '-dinner',
+      'description' => 'International Leather Family Dinner',
+      'eventPackageType' => EventPackageTypes::dinner,
+      'isMainEvent' => false,
+      'couponValue' => 120,
+      'fee' => 120,
+      'bundleDiscount' => 25,
+      'start' => 'saturday 7pm',
+      'end' => 'saturday 8:30pm',
+      'category' => 'dinner',
+      'requiresCoupon' => false,
+      'couponAccessGroups' => ['Super Users', 'Administrator'],
+      'isAddon' => true
+    ], $quiet));
+
+    // Sunday
+    $sun_brunch = $this->AppendEvent(new ClawEvent((object)[
+      'couponKey' => 'B',
+      'alias' => $prefix . '-brunch',
+      'description' => 'Drag Brunch',
+      'badgeValue' => 'Sun',
+      'eventPackageType' => EventPackageTypes::brunch_sun,
+      'isMainEvent' => false,
+      'couponValue' => 70,
+      'fee' => 70,
+      'bundleDiscount' => 15,
+      'start' => 'sunday noon',
+      'end' => 'sunday 2pm',
+      'category' => 'buffet-breakfast',
+      'requiresCoupon' => false,
+      'couponAccessGroups' => ['Super Users', 'Administrator'],
+      'isAddon' => true
+    ], $quiet));
+
+    $sun_buffet = $this->AppendEvent(new ClawEvent((object)[
+      'couponKey' => 'H',
+      'alias' => $prefix . '-sun-buffet',
+      'description' => 'Sunday Supper Buffet',
+      'badgeValue' => 'Sun',
+      'eventPackageType' => EventPackageTypes::buffet_sun,
+      'isMainEvent' => false,
+      'couponValue' => 110,
+      'fee' => 110,
+      'bundleDiscount' => 20,
+      'start' => 'sunday 6pm',
+      'end' => 'sunday 7:30pm',
+      'category' => 'buffet',
+      'requiresCoupon' => false,
+      'couponAccessGroups' => ['Super Users', 'Administrator'],
+      'isAddon' => true
+    ], $quiet));
+
+    // Combos
+
+    $vipMeal = $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix . '-meals-combo-all-bluf',
+      'description' => 'Meal Combo All',
+      'eventPackageType' => EventPackageTypes::combo_meal_1,
+      'isMainEvent' => false,
+      'couponValue' => 0,
+      'fee' => 540,
+      'bundleDiscount' => 85,
+      'category' => 'meal-combos',
+      'requiresCoupon' => false,
+      'couponAccessGroups' => [],
+      'isAddon' => true,
+      'meta' => [
+        $wed_buffet,
+        $thu_buffet,
+        $fri_breakfast,
+        $bluf_buffet,
+        $sat_breakfast,
+        $dinner,
+        $sun_brunch,
+        $sun_buffet
+      ]
+    ], $quiet));
+
+    $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix . '-meals-combo-all-fetish',
+      'description' => 'Meal Combo All',
+      'eventPackageType' => EventPackageTypes::combo_meal_2,
+      'isMainEvent' => false,
+      'couponValue' => 0,
+      'fee' => 520,
+      'bundleDiscount' => 70,
+      'category' => 'meal-combos',
+      'requiresCoupon' => false,
+      'couponAccessGroups' => [],
+      'isAddon' => true,
+      'meta' => [
+        $wed_buffet,
+        $thu_buffet,
+        $fri_breakfast,
+        $fri_buffet,
+        $sat_breakfast,
+        $dinner,
+        $sun_brunch,
+        $sun_buffet
+      ]
+    ], $quiet));
+
+    $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix . '-meals-combo-dinners-bluf',
+      'description' => 'Meal Combo Dinners',
+      'eventPackageType' => EventPackageTypes::combo_meal_3,
+      'isMainEvent' => false,
+      'couponValue' => 0,
+      'fee' => 390,
+      'bundleDiscount' => 70,
+      'category' => 'meal-combos',
+      'requiresCoupon' => false,
+      'couponAccessGroups' => [],
+      'isAddon' => true,
+      'meta' => [
+        $thu_buffet,
+        $bluf_buffet,
+        $dinner,
+        $sun_buffet
+      ]
+    ], $quiet));
+
+    $this->AppendEvent(new ClawEvent((object)[
+      'alias' => $prefix . '-meals-combo-dinners-fetish',
+      'description' => 'Meal Combo Dinners',
+      'eventPackageType' => EventPackageTypes::combo_meal_3,
+      'isMainEvent' => false,
+      'couponValue' => 0,
+      'fee' => 370,
+      'bundleDiscount' => 55,
+      'category' => 'meal-combos',
+      'requiresCoupon' => false,
+      'couponAccessGroups' => [],
+      'isAddon' => true,
+      'meta' => [
+        $thu_buffet,
+        $fri_buffet,
+        $dinner,
+        $sun_buffet
+      ]
+    ], $quiet));
+
+    #endregion
+
+    #region Main Events (put after meals)
     $this->AppendEvent(new ClawEvent((object)[
       'couponKey' => 'A',
       'alias' => $prefix . '-attendee',
@@ -65,7 +319,10 @@ class c0424 extends AbstractEvent
       'category' => 'vip',
       'minShifts' => 0,
       'requiresCoupon' => false,
-      'couponAccessGroups' => []
+      'couponAccessGroups' => [],
+      'meta' => [
+        $vipMeal
+      ]
     ], $quiet));
 
     $this->AppendEvent(new ClawEvent((object)[
@@ -202,184 +459,6 @@ class c0424 extends AbstractEvent
       'category' => 'attendee',
       'requiresCoupon' => false,
       'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr']
-    ], $quiet));
-
-    #endregion
-
-    #region Meals
-    // Wednesday
-    $this->AppendEvent(new ClawEvent((object)[
-      'alias' => $prefix . '-wed-buffet',
-      'description' => 'Staff Dinner Buffet',
-      'badgeValue' => 'Wed',
-      'eventPackageType' => EventPackageTypes::buffet_wed,
-      'isMainEvent' => false,
-      'couponValue' => 0,
-      'fee' => 50,
-      'bundleDiscount' => 30,
-      'start' => 'wednesday 5pm',
-      'end' => 'wednesday 6:30pm',
-      'category' => 'buffet',
-      'requiresCoupon' => false,
-      'couponAccessGroups' => ['Super Users', 'Administrator'],
-      'isAddon' => true
-    ], $quiet));
-
-    // Thursday
-
-    // Friday
-    $this->AppendEvent(new ClawEvent((object)[
-      'alias' => $prefix . '-fri-breakfast',
-      'description' => 'Friday Breakfast Seminar',
-      'badgeValue' => 'Fri',
-      'eventPackageType' => EventPackageTypes::brunch_fri,
-      'isMainEvent' => false,
-      'couponValue' => 0,
-      'fee' => 50,
-      'bundleDiscount' => 5,
-      'start' => 'friday noon',
-      'end' => 'friday 1:30pm',
-      'category' => 'buffet-breakfast',
-      'requiresCoupon' => false,
-      'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr'],
-      'isAddon' => true
-    ], $quiet));
-
-    $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => 'G',
-      'alias' => $prefix . '-bluf-buffet',
-      'description' => 'BLUF Dinner Buffet',
-      'badgeValue' => 'BLUF',
-      'eventPackageType' => EventPackageTypes::buffet_bluf,
-      'isMainEvent' => false,
-      'couponValue' => 110,
-      'fee' => 110,
-      'bundleDiscount' => 20,
-      'start' => 'friday 7pm',
-      'end' => 'friday 9pm',
-      'category' => 'buffet',
-      'requiresCoupon' => false,
-      'couponAccessGroups' => ['Super Users', 'Administrator'],
-      'isAddon' => true
-    ], $quiet));
-
-    $this->AppendEvent(new ClawEvent((object)[
-      'alias' => $prefix . '-fri-buffet',
-      'description' => 'Friday Fetish Buffet',
-      'badgeValue' => 'Fri',
-      'eventPackageType' => EventPackageTypes::buffet_fri,
-      'isMainEvent' => false,
-      'couponValue' => 0,
-      'fee' => 90,
-      'bundleDiscount' => 5,
-      'start' => 'friday 6:30pm',
-      'end' => 'friday 8pm',
-      'category' => 'buffet',
-      'requiresCoupon' => false,
-      'couponAccessGroups' => [],
-      'isAddon' => true
-    ], $quiet));
-
-    // Saturday
-    $this->AppendEvent(new ClawEvent((object)[
-      'alias' => $prefix . '-sat-breakfast',
-      'description' => 'Saturday Breakfast Seminar',
-      'badgeValue' => 'Sat',
-      'eventPackageType' => EventPackageTypes::brunch_sat,
-      'isMainEvent' => false,
-      'couponValue' => 0,
-      'fee' => 50,
-      'bundleDiscount' => 5,
-      'start' => 'saturday noon',
-      'end' => 'saturday 1:30pm',
-      'category' => 'buffet-breakfast',
-      'requiresCoupon' => false,
-      'couponAccessGroups' => ['Super Users', 'Administrator', 'CNMgmr'],
-      'isAddon' => true
-    ], $quiet));
-
-    $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => 'D',
-      'alias' => $prefix . '-dinner',
-      'description' => 'International Leather Family Dinner',
-      'eventPackageType' => EventPackageTypes::dinner,
-      'isMainEvent' => false,
-      'couponValue' => 120,
-      'fee' => 120,
-      'bundleDiscount' => 25,
-      'start' => 'saturday 7pm',
-      'end' => 'saturday 8:30pm',
-      'category' => 'dinner',
-      'requiresCoupon' => false,
-      'couponAccessGroups' => ['Super Users', 'Administrator'],
-      'isAddon' => true
-    ], $quiet));
-
-    // Sunday
-    $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => 'B',
-      'alias' => $prefix . '-brunch',
-      'description' => 'Drag Brunch',
-      'badgeValue' => 'Sun',
-      'eventPackageType' => EventPackageTypes::brunch_sun,
-      'isMainEvent' => false,
-      'couponValue' => 70,
-      'fee' => 70,
-      'bundleDiscount' => 15,
-      'start' => 'sunday noon',
-      'end' => 'sunday 2pm',
-      'category' => 'buffet-breakfast',
-      'requiresCoupon' => false,
-      'couponAccessGroups' => ['Super Users', 'Administrator'],
-      'isAddon' => true
-    ], $quiet));
-
-    $this->AppendEvent(new ClawEvent((object)[
-      'couponKey' => 'H',
-      'alias' => $prefix . '-sun-buffet',
-      'description' => 'Sunday Supper Buffet',
-      'badgeValue' => 'Sun',
-      'eventPackageType' => EventPackageTypes::buffet_sun,
-      'isMainEvent' => false,
-      'couponValue' => 110,
-      'fee' => 110,
-      'bundleDiscount' => 20,
-      'start' => 'sunday 6pm',
-      'end' => 'sunday 7:30pm',
-      'category' => 'buffet',
-      'requiresCoupon' => false,
-      'couponAccessGroups' => ['Super Users', 'Administrator'],
-      'isAddon' => true
-    ], $quiet));
-
-    // Combos
-    
-    $this->AppendEvent(new ClawEvent((object)[
-      'alias' => $prefix . '-meals-combo-all',
-      'description' => 'Meal Combo All',
-      'eventPackageType' => EventPackageTypes::meal_combo_all,
-      'isMainEvent' => false,
-      'couponValue' => 0,
-      'fee' => 510,
-      'bundleDiscount' => 80,
-      'category' => 'meal-combos',
-      'requiresCoupon' => false,
-      'couponAccessGroups' => [],
-      'isAddon' => true
-    ], $quiet));
-
-    $this->AppendEvent(new ClawEvent((object)[
-      'alias' => $prefix . '-meals-combo-dinners',
-      'description' => 'Meal Combo Dinners',
-      'eventPackageType' => EventPackageTypes::meal_combo_dinners,
-      'isMainEvent' => false,
-      'couponValue' => 0,
-      'fee' => 340,
-      'bundleDiscount' => 65,
-      'category' => 'meal-combos',
-      'requiresCoupon' => false,
-      'couponAccessGroups' => [],
-      'isAddon' => true
     ], $quiet));
 
     #endregion

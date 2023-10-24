@@ -59,7 +59,8 @@ HTML;
 
     $clawEventAlias = ClawEvents::eventIdToClawEventAlias($this->items[0]->id);
     $e = new ClawEvents($clawEventAlias);
-    $info = $e->getClawEventInfo();
+    $abstractEvent = $e->getEvent();
+    $info = $abstractEvent->getInfo();
     $onsiteActive = $e->getClawEventInfo()->onsiteActive;
 
     $registrantData = new registrant($clawEventAlias, $app->getIdentity()->id);
@@ -75,7 +76,7 @@ HTML;
     /** @var ClawCorpLib\Lib\RegistrantRecord */
     foreach ($records as $r) {
       if (substr_compare($r->event->alias, $shiftPrefix, 0, strlen($shiftPrefix)) === 0) {
-        // For onsite, we don't count -- later we block any shifts in the cart
+        // TODO: For onsite, we don't count -- later we block any shifts in the cart
         if (!$onsiteActive) $shift_count++;
         continue;
       }
@@ -84,12 +85,6 @@ HTML;
       if (in_array($r->event->eventId, $e->mainEventIds)) {
         if (0 == $package_event) {
           $package_event = $r->event->eventId;
-          $action = Helpers::sessionGet('eventAction');
-          if ($regType == '') {
-            $tempE = $e->getEventByKey('eventId', $r->event->eventId);
-            Helpers::sessionSet('regtype', $tempE->link);
-            $this->regtype = $tempE->link;
-          }
         } else {
           # TODO: queue up error message and redirect to helpdesk?
           $this->submit = '<div class="alert alert-danger">There is a problem with your registration due to multiple event registrations. Please contact guest services at https://www.clawinfo.org/help.</div>';
@@ -203,37 +198,24 @@ HTML;
     $eventIds = array_keys($registrantData->records());
 
     #region Meal combo checks
-    $mealsComboAll = ClawEvents::getEventIdByAlias($prefix . '-meals-combo-all', true);
-    $mealsComboDinners = ClawEvents::getEventIdByAlias($prefix . '-meals-combo-dinners', true);
 
     // Collect meal event ids
-    $mealsDinners = [];
-    foreach (Aliases::mealComboDinners() as $alias) {
-      $eventId = ClawEvents::getEventIdByAlias($alias, true);
-      if ( $eventId ) $mealsDinners[] = $eventId;
+    $comboCount = 0;
+    foreach ( [EventPackageTypes::combo_meal_1, EventPackageTypes::combo_meal_2, EventPackageTypes::combo_meal_3, EventPackageTypes::combo_meal_4] AS $meta ) {
+      $mealEvent = $abstractEvent->getClawEvent($meta);
+      if ( is_null($mealEvent) ) continue;
+
+      if ( in_array( $mealEvent->eventId, $eventIds ) ) {
+        $comboCount++;
+
+        if ( count(array_intersect($eventIds, $mealEvent->meta)) ) {
+          $this->submit = "<div class=\"alert alert-danger\">You cannot combine combo-pack meals with individual meals in the combo.</div>";
+          $this->show_error = true;
+        } 
+      }
     }
-
-    $mealsAll = [];
-    foreach (Aliases::mealComboAll() as $alias) {
-      $eventId = ClawEvents::getEventIdByAlias($alias, true);
-      if ( $eventId ) $mealsAll[] = $eventId;
-    }
-
-    // Any individual meals in registration?
-    $overlapDinners = array_unique(array_intersect($eventIds, $mealsDinners));
-    $overlapAll = array_unique(array_intersect($eventIds, $mealsAll));
-
-    if (in_array($mealsComboDinners, $eventIds) && count($overlapDinners) > 0) {
-      $this->submit = "<div class=\"alert alert-danger\">You cannot combine individual dinner meals with the dinner combo-pack meal.</div>";
-      $this->show_error = true;
-    }
-
-    if (in_array($mealsComboAll, $eventIds) && count($overlapAll) > 0) {
-      $this->submit = "<div class=\"alert alert-danger\">You cannot combine individual meals with a combo-pack meal.</div>";
-      $this->show_error = true;
-    }
-
-    if (in_array($mealsComboAll, $eventIds) && in_array($mealsComboDinners, $eventIds)) {
+    
+    if ( $comboCount > 1 ) {
       $this->submit = "<div class=\"alert alert-danger\">You cannot combine combo-pack meals.</div>";
       $this->show_error = true;
     }

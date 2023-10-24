@@ -11,6 +11,7 @@ use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\CheckinRecord;
+use Stripe\Event;
 
 class Checkin
 {
@@ -59,11 +60,12 @@ class Checkin
     }
     
     $events = new ClawEvents($alias);
+    $abstractEvent = $events->getEvent();
     $prefix = strtolower($events->getClawEventInfo()->prefix).'-';
 
     // Cache meal labels
     $badgeValues = [];
-    /** @var ClawCorpLib\Lib\ClawEvent */
+    /** @var \ClawCorpLib\Lib\ClawEvent */
     foreach ( $events->getEvents() AS $e ) {
       if ( $e->badgeValue != '' ) {
         $badgeValues[$e->eventId] = $e->badgeValue;
@@ -118,8 +120,11 @@ class Checkin
     $shiftCount = 0;
 
     // Combo meals events
-    $allMealsEventId = ClawEvents::getEventIdByAlias($prefix.'meals-combo-all', true);
-    $allDinnersEventId = ClawEvents::getEventIdByAlias($prefix.'meals-combo-dinners', true);
+    $comboMeals = [];
+    foreach ( [EventPackageTypes::combo_meal_1, EventPackageTypes::combo_meal_2, EventPackageTypes::combo_meal_3, EventPackageTypes::combo_meal_4] AS $comboMeal ) {
+      if ( is_null($abstractEvent->getClawEvent($comboMeal)) ) continue;
+      $comboMeals[] = $abstractEvent->getClawEvent($comboMeal);
+    }
 
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
     foreach ($records as $r) {
@@ -129,59 +134,39 @@ class Checkin
         $this->r->issuedMealTickets = array_merge($this->r->issuedMealTickets, $scannedEvents );
       }
 
-      if ( $allMealsEventId != 0 && $r->event->eventId == $allMealsEventId ) {
-        $mealEventAliases = Aliases::mealComboAll();
-
-        foreach ( $mealEventAliases AS $mealEventAlias ) {
-          $mealEventId = ClawEvents::getEventIdByAlias($mealEventAlias, true);
-          if ( $mealEventId == 0 ) continue;
-
-          $this->r->mealIssueMapping[$mealEventId] = $allMealsEventId;
-
-          if ( array_key_exists($mealEventId, $this->r->dinners) ) {
-            $this->r->dinners[$mealEventId] = $r->fieldValue->Dinner;
-            continue;
-          }
-          
-          if ( array_key_exists($mealEventId, $this->r->brunches) ) {
-            $this->r->brunches[$mealEventId] = $badgeValues[$mealEventId];
-            continue;
-          }
-          
-          if ( array_key_exists($mealEventId, $this->r->buffets) ) {
-            $this->r->buffets[$mealEventId] = $badgeValues[$mealEventId];
-            continue;
-          }
-              
+      foreach ( $comboMeals AS $comboMeal ) {
+        if ( $r->event->eventId == $comboMeal->eventId ) {
         }
       }
 
-      if ( $allDinnersEventId != 0 && $r->event->eventId == $allDinnersEventId ) {
-        $mealEventAliases = Aliases::mealComboDinners();
+      $comboCount = 0;
 
-        foreach ( $mealEventAliases AS $mealEventAlias ) {
-          $mealEventId = ClawEvents::getEventIdByAlias($mealEventAlias, true);
-          if ( $mealEventId == 0 ) continue;
-
-          $this->r->mealIssueMapping[$mealEventId] = $allDinnersEventId;
-
-          if ( array_key_exists($mealEventId, $this->r->dinners) ) {
-            $this->r->dinners[$mealEventId] = $r->fieldValue->Dinner;
-            continue;
-          }
+      foreach ( $comboMeals AS $comboMeal ) {
+        if ( is_null($comboMeal) ) continue;
+        
+        if ( $r->event->eventId == $comboMeal->eventId ) {
+          $comboCount++;
           
-          if ( array_key_exists($mealEventId, $this->r->brunches) ) {
-            $this->r->brunches[$mealEventId] = $badgeValues[$mealEventId];
-            continue;
+          foreach ( $comboMeal->meta AS $mealEventId ) {
+            $this->r->mealIssueMapping[$mealEventId] = $comboMeal->eventId;
+
+            if ( array_key_exists($mealEventId, $this->r->dinners) ) {
+              $this->r->dinners[$mealEventId] = $r->fieldValue->Dinner;
+              continue;
+            }
+            
+            if ( array_key_exists($mealEventId, $this->r->brunches) ) {
+              $this->r->brunches[$mealEventId] = $badgeValues[$mealEventId];
+              continue;
+            }
+            
+            if ( array_key_exists($mealEventId, $this->r->buffets) ) {
+              $this->r->buffets[$mealEventId] = $badgeValues[$mealEventId];
+              continue;
+            }
           }
-          
-          if ( array_key_exists($mealEventId, $this->r->buffets) ) {
-            $this->r->buffets[$mealEventId] = $badgeValues[$mealEventId];
-            continue;
-          }
-              
         }
-      }
+      } // end combo meals
 
       // Shifts
       if (in_array($r->category->category_id, $shiftCatIds)) {
@@ -211,8 +196,11 @@ class Checkin
         $this->r->leatherHeartSupport = true;
         continue;
       }
-    }
+    } // end foreach record
 
+    if ( $comboCount > 1 ) {
+      $error[] = 'Multiple combo meals found. This is not allowed.';
+    }
 
     if ( $shiftCount < $event->minShifts ) {
       $errors[] = 'Minimum shifts not met.';
@@ -238,13 +226,13 @@ class Checkin
     $this->r->dayPassDay = '';
 
     switch($this->r->package_eventId) {
-      case ClawEvents::getEventId($prefix.'daypass-fri'):
+      case $abstractEvent->getClawEvent(EventPackageTypes::day_pass_fri)->eventId:
         $this->r->dayPassDay = 'Fri';
         break;
-      case ClawEvents::getEventId($prefix.'daypass-sat'):
+      case $abstractEvent->getClawEvent(EventPackageTypes::day_pass_sat)->eventId:
         $this->r->dayPassDay = 'Sat';
         break;
-      case ClawEvents::getEventId($prefix.'daypass-sun'):
+      case $abstractEvent->getClawEvent(EventPackageTypes::day_pass_sun)->eventId:
         $this->r->dayPassDay = 'Sun';
         break;
     }
@@ -300,7 +288,7 @@ class Checkin
     // Does this badge have this meal?
     $events = new ClawEvents(Aliases::current(true));
 
-    //* @var /ClawCorpLib/Lib/ClawEvent */
+    /** @var \ClawCorpLib\Lib\ClawEvent */
     $e = $events->getEventByKey('eventId',$eventId, false);
     if (null == $e) {
       return $this->htmlMsg('Unknown event id '.$eventId.' in '.Aliases::current(true), 'btn-dark');
@@ -311,7 +299,7 @@ class Checkin
 
     if ( array_search($eventId, $this->r->issuedMealTickets) !== false ) {
       if ( $e->eventPackageType == EventPackageTypes::dinner) {
-        return $this->htmlMsg($e->description . ' ticket already issued: '. $this->r->dinners[EventPackageTypes::dinner->value], 'btn-dark');
+        return $this->htmlMsg($e->description . ' ticket already issued: '. $this->r->dinners[$e->eventId], 'btn-dark');
       } else {
         return $this->htmlMsg($e->description . ' ticket already issued', 'btn-dark');
       }
@@ -319,7 +307,7 @@ class Checkin
 
     switch ($e->eventPackageType) {
       case EventPackageTypes::dinner:
-        $meal = strtolower($this->r->dinners[EventPackageTypes::dinner->value]);
+        $meal = strtolower($this->r->dinners[$e->eventId]);
 
         if ( $meal == '') {
           return $this->htmlMsg('Dinner not assigned to this badge','btn-dark');
@@ -466,7 +454,7 @@ HTML;
       ->order('r.first_name')
       ->setLimit(20);
 
-    if ( 'badge-print' == $page ) {
+    if ( 'badge-print' != $page ) {
       $query->where('(v.field_value IS NULL OR v.field_value != 1)');
     }
 

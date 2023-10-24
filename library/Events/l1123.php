@@ -39,7 +39,7 @@ class l1123 extends AbstractEvent
     $prefix = strtolower($prefix);
     $base = 249;
 
-    $this->AppendEvent(new ClawEvent((object)[
+    $thu_buffet = $this->AppendEvent(new ClawEvent((object)[
       'alias' => $prefix.'-thu-buffet',
       'badgeValue' => 'Thu',
       'couponKey' => 'F',
@@ -57,7 +57,7 @@ class l1123 extends AbstractEvent
       'isAddon' => true
     ], $quiet));
     
-    $this->AppendEvent(new ClawEvent((object)[
+    $dinner = $this->AppendEvent(new ClawEvent((object)[
       'alias' => $prefix.'-dinner',
       'couponKey' => 'D',
       'description' => 'International Leather Family Dinner',
@@ -74,7 +74,7 @@ class l1123 extends AbstractEvent
       'isAddon' => true
     ], $quiet));
     
-    $this->AppendEvent(new ClawEvent((object)[
+    $fri_breakfast = $this->AppendEvent(new ClawEvent((object)[
       'alias' => $prefix.'-fri-breakfast',
       'badgeValue' => 'Fri',
       'description' => 'Friday Breakfast Seminar',
@@ -91,7 +91,7 @@ class l1123 extends AbstractEvent
       'isAddon' => true
     ], $quiet));
     
-    $this->AppendEvent(new ClawEvent((object)[
+    $bluf_buffet = $this->AppendEvent(new ClawEvent((object)[
       'alias' => $prefix.'-fri-buffet',
       'badgeValue' => 'Fri',
       'couponKey' => 'G',
@@ -109,7 +109,7 @@ class l1123 extends AbstractEvent
       'isAddon' => true
     ], $quiet));
     
-    $this->AppendEvent(new ClawEvent((object)[
+    $sat_breakfast = $this->AppendEvent(new ClawEvent((object)[
       'alias' => $prefix.'-sat-breakfast',
       'badgeValue' => 'Sat',
       'description' => 'Saturday Breakfast Seminar',
@@ -126,7 +126,7 @@ class l1123 extends AbstractEvent
       'isAddon' => true
     ], $quiet));
     
-    $this->AppendEvent(new ClawEvent((object)[
+    $sun_buffet = $this->AppendEvent(new ClawEvent((object)[
       'alias' => $prefix.'-sun-buffet',
       'badgeValue' => 'Sun',
       'couponKey' => 'H',
@@ -144,7 +144,7 @@ class l1123 extends AbstractEvent
       'isAddon' => true
     ], $quiet));
     
-    $this->AppendEvent(new ClawEvent((object)[
+    $sun_brunch = $this->AppendEvent(new ClawEvent((object)[
       'alias' => $prefix.'-brunch',
       'badgeValue' => 'Sun',
       'couponKey' => 'B',
@@ -162,10 +162,10 @@ class l1123 extends AbstractEvent
       'isAddon' => true
     ], $quiet));
     
-    $this->AppendEvent(new ClawEvent((object)[
+    $vip_meal = $this->AppendEvent(new ClawEvent((object)[
       'alias' => $prefix.'-meals-combo-all',
       'description' => 'Meal Combo All',
-      'eventPackageType' => EventPackageTypes::meal_combo_all,
+      'eventPackageType' => EventPackageTypes::combo_meal_1,
       'isMainEvent' => false,
       'couponValue' => 0,
       'fee' => 500,
@@ -173,13 +173,21 @@ class l1123 extends AbstractEvent
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => [],
-      'isAddon' => true
+      'isAddon' => true,
+      'meta' => [
+        $thu_buffet,
+        $dinner,
+        $fri_breakfast,
+        $bluf_buffet,
+        $sat_breakfast,
+        $sun_buffet,
+        $sun_brunch ]
     ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[
       'alias' => $prefix.'-meals-combo-dinners',
       'description' => 'Meal Combo Dinners',
-      'eventPackageType' => EventPackageTypes::meal_combo_dinners,
+      'eventPackageType' => EventPackageTypes::combo_meal_2,
       'isMainEvent' => false,
       'couponValue' => 0,
       'fee' => 300,
@@ -187,7 +195,12 @@ class l1123 extends AbstractEvent
       'minShifts' => 0,
       'requiresCoupon' => false,
       'couponAccessGroups' => [],
-      'isAddon' => true
+      'isAddon' => true,
+      'meta' => [
+        $thu_buffet,
+        $dinner,
+        $bluf_buffet,
+        $sun_buffet ]
     ], $quiet));
     
     // Events (for coupon generation)
@@ -215,7 +228,8 @@ class l1123 extends AbstractEvent
       'category' => ClawEvents::getCategoryId('vip'),
       'minShifts' => 0,
       'requiresCoupon' => false,
-      'couponAccessGroups' => []
+      'couponAccessGroups' => [],
+      'meta' => [$vip_meal]
     ], $quiet));
     
     $this->AppendEvent(new ClawEvent((object)[

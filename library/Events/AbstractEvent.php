@@ -14,6 +14,7 @@ abstract class AbstractEvent
   private EventInfo $info;
   private array $events;
   private array $mainEventPackageTypes = [];
+  private array $packageTypesMap = []; // Map of packageType to $events index
 
   public function __construct(
     public string $alias
@@ -37,21 +38,31 @@ abstract class AbstractEvent
 
   /**
    * Returns the Event Booking event ID for a given EventPackageTypes enum
-   * @param EventPackageTypes $eventAlias Event alias in Event Booking
+   * @param EventPackageTypes $packageType Event alias in Event Booking
    * @return int Event ID
    */
-  public function getEventId(EventPackageTypes $eventAlias): int
+  public function getEventId(EventPackageTypes $packageType): int
   {
-    /** @var \ClawInfoLib\Lib\ClawEvent */
-    foreach ( $this->events as $e ) {
-      if ($e->eventPackageType == $eventAlias) {
-        return $e->eventId;
-      }
+    if ( array_key_exists($packageType->value, $this->packageTypesMap) ) {
+      return $this->events[$this->packageTypesMap[$packageType->value]]->eventId;
     }
 
-    throw new UnexpectedValueException(__FILE__ . ': Unknown eventAlias: ' . $eventAlias->value);
+    throw new UnexpectedValueException(__FILE__ . ': Unknown packageType: ' . $packageType->value);
   }
 
+  /**
+   * Returns the full ClawEvent record for a given EventPackageTypes enum
+   * @param EventPackageTypes $packageType Event alias in Event Booking
+   * @return ClawEvent Event ID (or null if not found)
+   */
+  public function getClawEvent(EventPackageTypes $packageType): ?ClawEvent
+  {
+    if ( array_key_exists($packageType->value, $this->packageTypesMap) ) {
+      return $this->events[$this->packageTypesMap[$packageType->value]];
+    }
+
+    return null;
+  }
 
   public function getInfo(): \ClawCorpLib\Lib\EventInfo {
     return $this->info;
@@ -65,7 +76,7 @@ abstract class AbstractEvent
     $this->events = array_merge($this->events, $otherEvents);
   }
 
-  public function AppendEvent(ClawEvent $e)
+  public function AppendEvent(ClawEvent $e): int
   {
     $value = $e->eventPackageType->value;
 
@@ -79,6 +90,9 @@ abstract class AbstractEvent
     }
 
     $this->events[] = $e;
+    $this->packageTypesMap[$e->eventPackageType->value] = sizeof($this->events) - 1;
+
+    return $e->eventId;
   }
 
   abstract public function PopulateInfo(): EventInfo;

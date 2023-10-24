@@ -40,6 +40,13 @@ enum EventPackageTypes: int
   // Virtual CLAW
   case virtual_claw = 29;
 
+  // Combos for c0424 and beyond
+  // TODO: Needs better abstraction, meta events are very hacky
+  case combo_meal_1 = 100;
+  case combo_meal_2 = 101;
+  case combo_meal_3 = 102;
+  case combo_meal_4 = 103;
+
   public function toString(): string
   {
     return match ($this) {

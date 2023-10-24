@@ -78,20 +78,6 @@ class Aliases {
   // Categories that require main events (other than shifts)
   const categoriesRequiringMainEvent = ['speed-dating', 'dinner', 'buffet-breakfast', 'buffet','meal-combos','equipment-rentals'];
 
-  static function mealComboAll(): array
-  {
-    $eventAliases = Config::getConfigValuesText('config_combo_events', 'meals-combo-all-'.self::current());
-    $mealEventAliases = explode(',',$eventAliases);
-    return $mealEventAliases;
-  }
-
-  static function mealComboDinners(): array
-  {
-    $eventAliases = Config::getConfigValuesText('config_combo_events', 'meals-combo-dinners-'.self::current());
-    $mealEventAliases = explode(',',$eventAliases);
-    return $mealEventAliases;
-  }
-
   const categoriesTicketedEvents = [
     'dinner',
     'buffet',
