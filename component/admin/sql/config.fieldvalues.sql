@@ -60,7 +60,3 @@ INSERT INTO `#__claw_field_values` (`id`, `fieldname`, `value`, `text`) VALUES
 (0, 'config_overlap_category', 'dinner', 'dinner'),
 (0, 'config_overlap_category', 'buffet', 'buffet'),
 (0, 'config_overlap_category', 'buffet-breakfast', 'buffet-breakfast'),
-(0, 'config_combo_events', 'meals-combo-all-l1123', 'l23-dinner,l23-brunch,l23-sat-breakfast,l23-fri-breakfast,l23-thu-buffet,l23-fri-buffet,l23-sun-buffet'),
-(0, 'config_combo_events', 'meals-combo-dinners-l1123', 'l23-dinner,l23-thu-buffet,l23-fri-buffet,l23-sun-buffet'),
-(0, 'config_combo_events', 'meals-combo-all-c0424', 'c24-fri-breakfast,c24-bluf-buffet,c24-sat-breakfast,c24-dinner,c24-brunch,c24-sun-buffet'),
-(0, 'config_combo_events', 'meals-combo-dinners-c0424', 'c24-bluf-buffet,c24-dinner,c24-sun-buffet'),
