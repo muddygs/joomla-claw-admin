@@ -38,7 +38,7 @@ class Volunteers
     $option = [];
 
     $query = $db->getQuery(true);
-    $query->select($db->qn(['id', 'alias', 'event_capacity', 'event_date', 'event_end_date', 'published']))
+    $query->select($db->qn(['id', 'title', 'alias', 'event_capacity', 'event_date', 'event_end_date', 'published']))
       ->select('( SELECT count(*) FROM #__eb_registrants r WHERE r.event_id = e.id AND r.published = 1 ) AS memberCount')
       ->from($db->qn('#__eb_events', 'e'))
       ->where($db->qn('id') . ' IN (' . $e . ')')
