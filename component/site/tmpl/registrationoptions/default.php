@@ -186,7 +186,8 @@ if ( $vipRedirect ) {
   $cart = new \EventbookingHelperCart();
   $cart->reset();
 
-  $comboMealsAll = $this->events->getEvent()->getEventId(EventPackageTypes::meal_combo_all);
+  $vipClawEvent = $this->events->getEvent()->getClawEvent(EventPackageTypes::vip);
+  $comboMealsAll = $vipClawEvent->meta[0];
   $vip = $this->events->getEvent()->getEventId(EventPackageTypes::vip);
   $cart->addEvents([$vip, $comboMealsAll]);
 
