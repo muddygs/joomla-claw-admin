@@ -29,7 +29,7 @@ class ClawEvent
   public int $bundleDiscount = 0;
   public string $badgeValue = '';
   public bool $couponOnly = false;
-
+  public array $meta = []; // Used for combo events as a list of event ids
 
   // TODO: Rewrite with named parameters and remove above public properties
   public function __construct(object $e, bool $quiet = false)
@@ -56,6 +56,7 @@ class ClawEvent
       'isAddon',
       'isVolunteer',
       'start',
+      'meta'
     ];
 
     foreach ($requiredKeys as $k) {
