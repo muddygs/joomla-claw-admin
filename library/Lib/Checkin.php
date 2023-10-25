@@ -252,8 +252,7 @@ class Checkin
   }
 
   public function doCheckin() {
-    $registrant = new Registrant(Aliases::current(), $this->r->uid);
-    $registrant->loadCurrentEvents();
+    $registrant = new Registrant(Aliases::current(true), $this->r->uid);
     $mainEvent = $registrant->getMainEvent();
 
     $registrant->updateFieldValues($mainEvent->registrant->id, ['Z_BADGE_ISSUED' => 1]);
@@ -261,8 +260,8 @@ class Checkin
 
   public function doMarkPrinted()
   {
-    $registrant = new Registrant(Aliases::current(), $this->r->uid);
-    $registrant->loadCurrentEvents();
+    $registrant = new Registrant(Aliases::current(true), $this->r->uid);
+    /** @var \ClawCorpLib\Lib\RegistrantRecord */
     $mainEvent = $registrant->getMainEvent();
 
     $registrant->updateFieldValues($mainEvent->registrant->id, ['Z_BADGE_PRINTED' => Helpers::mtime()]);
