@@ -158,9 +158,12 @@ class CheckinModel extends BaseDatabaseModel
     $checkinRecord = new Checkin($registration_code);
 
     if ( !$checkinRecord->isValid ) {
+      $errors = explode("\n", $checkinRecord->r->error);
+      array_shift($errors);
+
       return [
         'state' => 'error',
-        'message' => 'Invalid registration code'
+        'message' => '<p class="text-center">'.implode("</p><p class=\"text-center\">", $errors).'</p>'
       ];
     }
 

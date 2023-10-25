@@ -241,12 +241,11 @@ class Checkin
     }
 
     if ( sizeof($errors) != 0 ) {
-      array_unshift($errors, 'Do not give out the badge:');
+      array_unshift($errors, 'Do not issue badge:');
       $errors[] = 'Please direct to Guest Services';
       $this->r->error = implode("\n", $errors);
       return false;
     }
-
 
     return true;
   }
@@ -330,10 +329,10 @@ class Checkin
           ]
         ];
 
-        foreach ( $mealTypes AS $type => $info ) {
+        foreach ( $mealTypes AS $info ) {
           foreach ( $info['phrases'] AS $phrase ) {
             if ( str_contains($meal, $phrase) ) {
-              $description = $type;
+              $description = $info['description'];
               $class = $info['class'];
               break 2;
             }
@@ -388,8 +387,9 @@ HTML;
     $b = property_exists($this, 'r') ? $this->r->badgeId : 'error';
 
     $result = [
+      'state' => 'ok',
       'badge' => $b,
-      'msg' => $msg
+      'message' => $msg
     ];
 
     return $result;

@@ -41,10 +41,13 @@ function doMealCheckin() {
   fetch(mealsAjaxUrl('mealCheckin'), mealsOptions(data))
     .then(result => result.json())
     .then(response => {
-      document.getElementById('status').innerHTML = response.msg;
+      document.getElementById('status').innerHTML = response.message;
       const badgeInput = document.getElementById('badgecode') as HTMLInputElement;
-      if (badgeInput) {
-        badgeInput.value = response.badge;
+
+      if ( response.state && response.state !== 'error' ) {
+        if (badgeInput && response.badge) {
+          badgeInput.value = response.badge;
+        }
       }
     }).catch(error => {
       console.log("Fetch error in doMealCheckin");
