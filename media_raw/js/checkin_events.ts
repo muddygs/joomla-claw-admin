@@ -252,13 +252,15 @@ function doPrint(mode:boolean = false) {
   const action = mode ? 'printissue' : 'print'
 
   const printUrl = checkinAjaxUrl('checkinPrint');
-  window.open(`${printUrl}&action=${action}&registration_code=${registration_code}&token=${badgeToken}&page=${page}`, '_blank');
+  const ts = Date.now();
+  window.open(`${printUrl}&action=${action}&registration_code=${registration_code}&token=${badgeToken}&page=${page}&ts=${ts}`, '_blank');
 }
 
 function doBatchPrint() {
   const batch_quantity = (document.getElementById('batchcount') as HTMLInputElement).value;
   const printUrl = checkinAjaxUrl('checkinPrint');
-  window.open(`${printUrl}&action=printbatch&quantity=${batch_quantity}&token=${badgeToken}&page=${page}`, '_blank');
+  const ts = Date.now();
+  window.open(`${printUrl}&action=printbatch&quantity=${batch_quantity}&token=${badgeToken}&page=${page}&ts=${ts}`, '_blank');
 }
 
 function clearDisplay() {
