@@ -30,6 +30,7 @@
     folder="media">
     <file>joomla.asset.json</file>
     <folder>js</folder>
+    <folder>css</folder>
   </media>
 
   <files folder="site">
