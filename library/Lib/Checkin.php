@@ -134,16 +134,9 @@ class Checkin
         $this->r->issuedMealTickets = array_merge($this->r->issuedMealTickets, $scannedEvents );
       }
 
-      foreach ( $comboMeals AS $comboMeal ) {
-        if ( $r->event->eventId == $comboMeal->eventId ) {
-        }
-      }
-
       $comboCount = 0;
 
       foreach ( $comboMeals AS $comboMeal ) {
-        if ( is_null($comboMeal) ) continue;
-        
         if ( $r->event->eventId == $comboMeal->eventId ) {
           $comboCount++;
           
