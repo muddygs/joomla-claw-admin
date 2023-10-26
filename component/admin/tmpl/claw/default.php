@@ -34,6 +34,7 @@ $content = [
 Bootstrap::writeGrid($content, $tags);
 
 ?>
+<hr/>
 <h2>Reports</h2>
 <?php
 $content = [
@@ -47,6 +48,17 @@ $content = [
 Bootstrap::writeGrid($content, $tags);
 
 ?>
+<hr/>
+<h2>CSV Exports</h2>
+<?php
+$content = [
+  'stopwatch' => ['Current Schedule','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_schedule&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
+];
+
+Bootstrap::writeGrid($content, $tags);
+
+?>
+<hr/>
 <h2>Skills &amp; Education</h2>
 <?php
 $content = [
@@ -57,7 +69,7 @@ $content = [
 Bootstrap::writeGrid($content, $tags);
 ?>
 
-
+<hr/>
 <h2>Administration Tools</h2>
 <?php
 $content = [

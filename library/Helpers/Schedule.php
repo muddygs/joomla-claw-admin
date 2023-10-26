@@ -42,4 +42,36 @@ class Schedule {
     return $result;
   }
 
+  public function toCSV(string $filename)
+  {
+    // Load database columns
+    $columnNames = array_keys($this->db->getTableColumns('#__claw_schedule'));
+    $columnNames[] = 'start_time_int';
+    $columnNames[] = 'end_time_int';
+
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="'. $filename . '"');
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
+    header("Pragma: public");
+    ob_clean();
+    ob_start();
+    set_time_limit(0);
+    ini_set('error_reporting', E_NOTICE);
+
+    $fp = fopen('php://output', 'wb');
+    fputcsv($fp, $columnNames);
+
+    foreach ( $this->cache AS $c) {
+      $row = [];
+      foreach ( $columnNames AS $col ) {
+        $row[] = $c->$col;
+      }
+      fputcsv($fp, $row);
+    }
+
+    fclose($fp);
+    ob_end_flush();
+  }
+
 }
