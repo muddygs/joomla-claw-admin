@@ -350,7 +350,7 @@ class Checkin
       case EventPackageTypes::brunch_fri:
       case EventPackageTypes::brunch_sat:
       case EventPackageTypes::brunch_sun:
-        if ($this->r->brunches[$e->eventPackageType] == '') {
+        if ($this->r->brunches[$e->eventId] == '') {
           return $this->htmlMsg($e->description.' not assigned to this badge', 'btn-dark');
         }
 
@@ -362,7 +362,7 @@ class Checkin
       case EventPackageTypes::buffet_thu:
       case EventPackageTypes::buffet_fri:
       case EventPackageTypes::buffet_sun:
-        if ($this->r->buffets[$e->eventPackageType] == '') {
+        if ($this->r->buffets[$e->eventId] == '') {
           return $this->htmlMsg($e->description.' not assigned to this badge', 'btn-dark');
         }
 
@@ -397,21 +397,14 @@ HTML;
 
   private function issueMealTicket(int $mealEventId, int $ticketEventId)
   {
-    $registrant = new registrant(Aliases::current(true), $this->r->uid, [$ticketEventId]);
+    $registrant = new Registrant(Aliases::current(true), $this->r->uid, [$ticketEventId]);
     $registrant->loadCurrentEvents();
     $registrant->mergeFieldValues(['Z_TICKET_SCANNED']);
 
     $record = ($registrant->records(true))[0];
 
     $rowId = $record->registrant->id;
-
-    $values = $this->explodeTicketScanned($record->fieldValue->Z_TICKET_SCANNED);
-    $values[] = $mealEventId;
-
-    $values = array_unique($values);
-    sort($values);
-
-    $fieldValues = ['Z_TICKET_SCANNED' => implode(',',$values)];
+    $fieldValues = ['Z_TICKET_SCANNED' => $mealEventId];
     $registrant->updateFieldValues($rowId, $fieldValues, true);
   }
 
