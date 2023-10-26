@@ -28,7 +28,7 @@ class Registrant
     if ( 0 == $uid ) {
       throw(new UnexpectedValueException('User ID cannot be zero when retrieving registrant record'));
     }
-
+    
     $this->clawEvents = new ClawEvents($clawEventAlias);
     $this->badgeId = $this->clawEvents->getClawEventInfo()->prefix.'-'. str_pad($uid, 5, '0', STR_PAD_LEFT);
   }
@@ -45,7 +45,6 @@ class Registrant
     if ( !$info->mainAllowed ) {
       die(__FILE__.': cannot request Main Event for "any"');
     }
-
     if ( !count($this->_records) ) $this->loadCurrentEvents();
 
     foreach ( $this->_records as $r )
