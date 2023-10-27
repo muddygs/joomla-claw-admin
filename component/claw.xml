@@ -24,8 +24,6 @@
   <update>
   </update>
 
-  <scriptfile>script.php</scriptfile>
-
   <media destination="com_claw"
     folder="media">
     <file>joomla.asset.json</file>
