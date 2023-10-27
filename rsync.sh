@@ -3,7 +3,7 @@
 rsync -arv /var/www/j4_dev/public_html/administrator/components/com_claw/ component/admin/
 rsync -arv /var/www/j4_dev/public_html/components/com_claw/ component/site/
 mv component/admin/claw.xml component/
-mv component/admin/script.php component/
+mv component/admin/script.php package/
 #rsync -arv --delete /var/www/j4_dev/public_html/libraries/claw/ library/
 rsync -arv /var/www/j4_dev/public_html/libraries/claw/ library/
 #rsync -arv /var/www/j4_dev/public_html/plugins/system/claw/ plugin/
