@@ -9,6 +9,8 @@
 	<version>0.0.25</version>
 	<description>CLAW Data and Systems Administration</description>
 
+	<scriptfile>script.php</scriptfile>
+
 	<packagename>claw</packagename>
 	<packager>CLAW Corp.</packager>
 	<packagerurl>https://www.clawinfo.org/</packagerurl>
