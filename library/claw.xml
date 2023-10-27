@@ -20,6 +20,7 @@
         <folder>Grid</folder>
         <folder>Helpers</folder>
         <folder>Lib</folder>
+        <folder>svn</folder>
         <file>claw.xml</file>
         <file>LICENSE.txt</file>
     </files>

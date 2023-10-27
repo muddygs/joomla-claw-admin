@@ -8,7 +8,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Installer\Installer;
 use Joomla\Database\DatabaseDriver;
 
-class com_clawInstallerScript
+class pkg_clawInstallerScript
 {
   /**
    * Constructor
@@ -42,11 +42,17 @@ class com_clawInstallerScript
    */
   public function postflight($route, $adapter)
   {
-    /*
+    $status = true;
+
     if ( !in_array($route, ['install', 'update', 'discover_install']) ) {
       return true;
     }
 
+    if ( in_array($route, ['install', 'update']) ) {
+      $status = $this->extractTarball($adapter);
+    }
+
+    /*
     // Verify that base key/value pairs exist in #__claw_field_values
     $db = Factory::getContainer()->get('DatabaseDriver');
     $query = $db->getQuery(true);
@@ -61,7 +67,7 @@ class com_clawInstallerScript
     }
      */
 
-    return true;
+    return $status;
   }
 
   /**
@@ -71,25 +77,18 @@ class com_clawInstallerScript
    *
    * @return  boolean  True on success
    */
-  public function install(InstallerAdapter $adapter)
+  public function update(InstallerAdapter $adapter)
   {
-    // Extract tarball here
-    $src = JPATH_LIBRARIES . '/svn/j4_custom_code_current.tar.gz';
-    $dest = JPATH_ROOT;
-
-    $result = $this->extractTarball($src, $dest);
-
-    if ( !$result ) {
-      echo '<p>Could not extract overlay tarball</p>';
-    } else {
-      echo '<p>Overlay tarball extracted</p>';
-    }
-
     return true;
   }
 
-  private function extractTarball($src, $dest): bool
+  private function extractTarball(): bool
   {
+    $src = JPATH_LIBRARIES . '/claw/svn/j4_custom_code_current.tar.gz';
+    $dest = JPATH_ROOT;
+    $result = true;
+
+
     $archive = new Archive(['tmp_path' => JPATH_ROOT . '/tmp']);
 
     if (!Folder::exists($dest)) {
@@ -98,11 +97,18 @@ class com_clawInstallerScript
 
     try {
       $archive->extract($src, $dest);
-      return true;
     } catch (\Exception $e) {
-      return false;
-      // Factory::getApplication()->enqueueMessage('Could not extract tarball: ' . $e->getMessage(), 'error');
+      $result = false;
     }
+
+    if ( !$result ) {
+      echo '<p>Could not extract overlay tarball</p>';
+    } else {
+      echo '<p>Overlay tarball extracted</p>';
+    }
+
+    return $result;
+
   }
 
   /**
@@ -112,9 +118,9 @@ class com_clawInstallerScript
    *
    * @return  boolean  True on success
    */
-  public function update(InstallerAdapter $adapter)
+  public function install(InstallerAdapter $adapter)
   {
-    return true;
+    return $this->update($adapter);
   }
 
   /**
