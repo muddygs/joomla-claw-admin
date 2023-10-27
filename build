@@ -26,6 +26,12 @@ rm media/js/*.json
 # Directories to append to main component package once admin is added
 /usr/bin/zip -r package/packages/com_claw.zip media
 
+pushd ~/code
+./export
+popd
+
+cp ~/tmp/j4_claw_custom_code_current.tar.gz library/svn
+
 cd library && /usr/bin/zip -r ../package/packages/lib_claw.zip . && cd -
 #cd plugin    && zip -dr ../package/packages/plg_claw.zip . && cd -
 
