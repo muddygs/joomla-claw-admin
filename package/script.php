@@ -84,7 +84,7 @@ class pkg_clawInstallerScript
 
   private function extractTarball(): bool
   {
-    $src = JPATH_LIBRARIES . '/claw/svn/j4_custom_code_current.tar.gz';
+    $src = JPATH_LIBRARIES . '/claw/svn/j4_claw_custom_code_current.tar.gz';
     $dest = JPATH_ROOT;
     $result = true;
 
