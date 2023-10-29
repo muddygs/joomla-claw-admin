@@ -13,6 +13,7 @@ use Joomla\Database\DatabaseDriver;
 use Joomla\Database\Exception\UnsupportedAdapterException;
 use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
 use LogicException;
+use Joomla\CMS\Uri\Uri;
 use RuntimeException;
 
 class Helpers
@@ -379,6 +380,33 @@ class Helpers
       }
 
       return true;
+    }
+  }
+
+  /**
+   * Returns Joomla x#x media representation to a site URL
+   * @param string $mediaManagerPath Media manager path
+   * @return string URL (null on error)
+   */
+  public static function convertMediaManagerUrl(string $mediaManagerPath): ?string
+  {
+    // Split the internal path by the "#" symbol
+    // It's ok if the # portion is missing
+    $parts = explode("#", $mediaManagerPath);
+
+    // The actual path should be the first element
+    $actualPath = $parts[0];
+
+    // Convert to full path if it's a relative path
+    $fullPath = !str_starts_with($actualPath, '/') ? JPATH_ROOT . '/' . $actualPath : $actualPath;
+
+    // Check if the file actually exists
+    if (file_exists($fullPath)) {
+        // Convert the internal path to URL using Uri class
+        return Uri::root() . $actualPath;
+    } else {
+        // Handle the case where the file doesn't exist
+        return null;
     }
   }
 }
