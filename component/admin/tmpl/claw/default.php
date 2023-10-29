@@ -53,6 +53,7 @@ Bootstrap::writeGrid($content, $tags);
 <?php
 $content = [
   'stopwatch' => ['Current Schedule','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_schedule&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
+  'globe' => ['Sponsors','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_sponsors&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
 ];
 
 Bootstrap::writeGrid($content, $tags);
