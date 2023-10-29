@@ -65,8 +65,37 @@ class Schedule {
     foreach ( $this->cache AS $c) {
       $row = [];
       foreach ( $columnNames AS $col ) {
-        $row[] = $c->$col;
+        switch($col) {
+          case 'id':
+            $row[] = 'schedule_'.$c->$col;
+            break;
+          case 'start_time':
+          case 'end_time':
+            $time = Helpers::formatTime($c->$col);
+            if ( $time == 'Midnight' ) $time = '12:00 AM';
+            if ( $time == 'Noon' ) $time = '12:00 PM';
+            $row[] = $time;
+            break;
+          case 'sponsors':
+            $json = json_decode($c->$col);
+            if ( $json !== null ) {
+              // prefix with sponsor_
+              $json = array_map(function($v) { return 'sponsor_'.$v; }, $json);
+              $row[] = implode(',', $json);
+            } else {
+              $row[] = '';
+            }
+            break;
+          case 'location':
+            $location = Locations::GetLocationById($c->$col)->value;
+            $row[] = $location;
+            break;
+          default:
+            $row[] = $c->$col;
+            break;
+        }
       }
+
       fputcsv($fp, $row);
     }
 

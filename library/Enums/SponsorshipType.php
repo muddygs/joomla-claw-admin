@@ -31,11 +31,20 @@ enum SponsorshipType: int
   {
     $result = [];
     $result[] = SponsorshipType::Legacy_Master->value;
-    $result[] = SponsorshipType::Legacy_Sustaining->value;
     $result[] = SponsorshipType::Master->value;
+    $result[] = SponsorshipType::Legacy_Sustaining->value;
     $result[] = SponsorshipType::Sustaining->value;
     $result[] = SponsorshipType::Sponsor->value;
     $result[] = SponsorshipType::Media->value;
     return $result;
+  }
+
+  public static function FindValue(int $key): SponsorshipType {
+    foreach (SponsorshipType::cases() as $c )
+    {
+      if ( $c->value == $key ) return $c;
+    }
+
+    throw(new \Exception("Invalid SponsorshipType value: $key"));
   }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace ClawCorpLib\Helpers;
 
+use ClawCorpLib\Enums\SponsorshipType;
 use InvalidArgumentException;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseDriver;
@@ -10,26 +11,31 @@ use RuntimeException;
 
 class Sponsors {
   private array $cache = [];
+  private DatabaseDriver $db;
 
   public function __construct()
   {
+    $this->db = Factory::getContainer()->get('DatabaseDriver');
     $this->CacheSponsorsList();
   }
 
   private function CacheSponsorsList()
   {
     if ( count($this->cache) > 0) return $this->cache;
-    
-    $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $query = $db->getQuery(true);
+    $ordering = SponsorshipType::valuesOrdered();
+
+    $query = $this->db->getQuery(true);
 
     $query->select('*')
-    ->from($db->qn('#__claw_sponsors'))
-    ->where($db->qn('published') . '=1');
+    ->from($this->db->qn('#__claw_sponsors'))
+    ->where($this->db->qn('published') . '=1')
+    ->order('FIND_IN_SET(' . $this->db->qn('type') . ', ' . $this->db->q(implode(',', $ordering)) . ')')
+    ->order($this->db->qn('ordering') . ' ASC')
+    ->order($this->db->qn('name') . ' ASC');
 
-    $db->setQuery($query);
-    $this->cache = $db->loadObjectList('id') ?? [];
+    $this->db->setQuery($query);
+    $this->cache = $this->db->loadObjectList('id') ?? [];
   }
 
   public function GetSponsorsList(): array
@@ -98,4 +104,50 @@ class Sponsors {
     $db->setQuery($query);
     return $db->loadObjectList();
   }
+
+  public function toCSV(string $filename)
+  {
+    // Load database columns
+    $columnNames = array_keys($this->db->getTableColumns('#__claw_sponsors'));
+
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="'. $filename . '"');
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
+    header("Pragma: public");
+    ob_clean();
+    ob_start();
+    set_time_limit(0);
+    ini_set('error_reporting', E_NOTICE);
+
+    $fp = fopen('php://output', 'wb');
+    fputcsv($fp, $columnNames);
+
+    foreach ( $this->cache AS $c) {
+      $row = [];
+      foreach ( $columnNames AS $col ) {
+        switch ($col) {
+          case 'id':
+            $row[] = 'sponsor_'.$c->$col;
+            break;
+          case 'logo_small':
+          case 'logo_large':
+            $link = Helpers::convertMediaManagerUrl($c->$col);
+            $row[] = is_null($link) ? '' : $link;
+            break;
+          case 'type':
+            $row[] = SponsorshipType::FindValue($c->$col)->toString();
+            break;
+          default:
+            $row[] = $c->$col;
+            break;
+        }
+      }
+      fputcsv($fp, $row);
+    }
+
+    fclose($fp);
+    ob_end_flush();
+  }
+
 }
