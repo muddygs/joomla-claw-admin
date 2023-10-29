@@ -17,88 +17,101 @@ use ClawCorpLib\Helpers\Skills;
  */
 class PresentersListField extends ListField
 {
-    /**
-     * The form field type.
-     *
-     * @var    string
-     * @since  1.7.0
-     */
-    public $type = 'PresentersList';
+  /**
+   * The form field type.
+   *
+   * @var    string
+   * @since  1.7.0
+   */
+  public $type = 'PresentersList';
 
-    /**
-     * Method to get certain otherwise inaccessible properties from the form field object.
-     *
-     * @param   string  $name  The property name for which to get the value.
-     *
-     * @return  mixed  The property value or null.
-     *
-     * @since   3.8.0
-     */
-    // public function __get($name)
-    // {
-    //     switch ($name) {
-    //         case 'menuType':
-    //         case 'language':
-    //         case 'published':
-    //         case 'disable':
-    //             return $this->$name;
-    //     }
+  private array $presenters = [];
 
-    //     return parent::__get($name);
-    // }
+  /**
+   * Method to get certain otherwise inaccessible properties from the form field object.
+   *
+   * @param   string  $name  The property name for which to get the value.
+   *
+   * @return  mixed  The property value or null.
+   *
+   * @since   3.8.0
+   */
+  // public function __get($name)
+  // {
+  //     switch ($name) {
+  //         case 'menuType':
+  //         case 'language':
+  //         case 'published':
+  //         case 'disable':
+  //             return $this->$name;
+  //     }
 
-    /**
-     * Method to get the field input markup for a generic list.
-     * Use the multiple attribute to enable multiselect.
-     *
-     * @return  string  The field input markup.
-     *
-     * @since   3.7.0
-     */
-    protected function getInput()
-    {
-        $data = $this->getLayoutData();
+  //     return parent::__get($name);
+  // }
 
-        $data['options'] = (array) $this->getOptions();
+  /**
+   * Method to get the field input markup for a generic list.
+   * Use the multiple attribute to enable multiselect.
+   *
+   * @return  string  The field input markup.
+   *
+   * @since   3.7.0
+   */
+  protected function getInput()
+  {
+    $data = $this->getLayoutData();
 
-        // VALID for other menus -- future reference $db = $this->getDatabase();
-        $currentValue = $this->__get('value');
-        if ( $currentValue === '' ) {
-            $this->__set('value', Aliases::current());
-        }
+    $this->presenters = Skills::GetPresentersList($this->getDatabase());
+    $currentValue = $this->__get('value');
 
-        return $this->getRenderer($this->layout)->render($data);
+    if ($currentValue && !array_key_exists($currentValue, $this->presenters)) {
+      // Push this presenter into the list
+      $presenter = Skills::GetPresenter($this->getDatabase(), $currentValue, Aliases::current(), false);
+      if (!is_null($presenter)) {
+        $p = (object)[
+          'id' => $presenter->id,
+          'uid' => $currentValue,
+          'name' => $presenter->name,
+          'published' => $presenter->published
+        ];
+
+        $this->presenters[$currentValue] = $p;
+      }
     }
 
-        /**
-     * Method to get the field options.
-     *
-     * @return  array  The field option objects.
-     *
-     * @since   3.7.0
-     */
-    protected function getOptions()
-    {
-        $options = parent::getOptions();
+    $data['options'] = (array) $this->getOptions();
+    return $this->getRenderer($this->layout)->render($data);
+  }
 
-        foreach(Skills::GetPresentersList($this->getDatabase()) AS $p ) {
-            $tmp = [
-                'value'    => $p->uid,
-                'text'     => $p->name,
-                'disable'  => false,
-                'class'    => '',
-                'selected' => false,
-                'checked'  => false,
-                'onclick'  => '',
-                'onchange' => ''
-            ];
+  /**
+   * Method to get the field options.
+   *
+   * @return  array  The field option objects.
+   *
+   * @since   3.7.0
+   */
+  protected function getOptions()
+  {
+    $options = parent::getOptions();
 
-            $options[] = (object)$tmp;
-		}
+    foreach ($this->presenters as $p) {
+      $tmp = [
+        'value'    => $p->uid,
+        'text'     => $p->name,
+        'disable'  => false,
+        'class'    => '',
+        'selected' => false,
+        'checked'  => false,
+        'onclick'  => '',
+        'onchange' => ''
+      ];
 
-        // Because this is what ListField (parent) does; I do not know if necessary
-        reset($options);
-
-        return $options;
+      $options[] = (object)$tmp;
     }
+
+    // Because this is what ListField (parent) does; I do not know if necessary
+    reset($options);
+
+    return $options;
+  }
 }

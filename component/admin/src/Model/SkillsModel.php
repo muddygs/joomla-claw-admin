@@ -154,6 +154,7 @@ class SkillsModel extends ListModel
     $presenters = Skills::GetPresentersList($this->getDatabase(), $event);
 
     $new = ' <span class="badge rounded-pill bg-warning">New</span>';
+    $unpublished = ' <span class="badge rounded-pill bg-danger">Unpublished</span>';
 
     foreach ( $items AS $item ) {
       $item->day_text = '<i class="fa fa-question"></i>';
@@ -194,17 +195,30 @@ class SkillsModel extends ListModel
               }
       
             } else {
-              $item->presenter_names = ['<span class="text-danger">ERROR: Deleted presenter</span>'];
+              $item->presenter_names[] = '<span class="text-danger">ERROR: Deleted co-presenter</span>';
               break;
             }
           }
         }
       } else {
-        $item->presenter_names = ['<span class="text-danger">ERROR: Deleted presenter</span>'];
+        // Do we have the owner record still but is unpublished?
+        $presenter = Skills::GetPresenter($this->getDatabase(), $item->owner, Aliases::current(), false);
+        if (!is_null($presenter)) {
+          $p = (object)[
+            'id' => $presenter->id,
+            'uid' => $item->owner,
+            'name' => $presenter->name,
+            'published' => $presenter->published
+          ];
+  
+          $item->presenter_names[] = '<a href="'. Route::_('index.php?option=com_claw&view=presenter&layout=edit&id='.$p->id). '">'.$p->name.$unpublished.'</a>';
+        } else {
+          $item->presenter_names[] = '<span class="text-danger">ERROR: Deleted presenter</span>';
+        }
       }
 
       if ( !count($item->presenter_names)) {
-        $item->presenter_names = ['<span class="text-danger">ERROR: No presenter</span>'];
+        $item->presenter_names[] = '<span class="text-danger">ERROR: No presenter</span>';
       }
 
       $item->location_text = array_key_exists($item->location, $locations) ? $locations[$item->location]->value : '<i class="fa fa-question"></i>';

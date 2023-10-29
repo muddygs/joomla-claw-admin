@@ -146,15 +146,18 @@ class Skills
     return $db->loadObjectList('id') ?? [];
   }
 
-  public static function GetPresenter(DatabaseDriver $db, int $uid, string $eventAlias): ?object
+  public static function GetPresenter(DatabaseDriver $db, int $uid, string $eventAlias, bool $published = true): ?object
   {
     $query = $db->getQuery(true);
 
     $query->select('*')
       ->from($db->qn('#__claw_presenters'))
       ->where($db->qn('uid') . ' = :uid')->bind(':uid', $uid)
-      ->where($db->qn('event') . ' = :event')->bind(':event', $eventAlias)
-      ->where($db->qn('published') . ' = 1');
+      ->where($db->qn('event') . ' = :event')->bind(':event', $eventAlias);
+
+    if ( $published ) {
+      $query->where($db->qn('published') . ' = 1');
+    }
 
     $db->setQuery($query);
     $presenter = $db->loadObject();
