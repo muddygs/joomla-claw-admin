@@ -33,6 +33,7 @@ $view = 'sponsor';
 		<div class="row">
 			<?php echo $this->form->renderField('type'); ?>
 			<?php echo $this->form->renderField('link'); ?>
+			<?php echo $this->form->renderField('description'); ?>
 			<?php echo $this->form->renderField('expires'); ?>
 			<?php echo $this->form->renderField('ordering'); ?>
 			<?php echo $this->form->renderField('id'); ?>

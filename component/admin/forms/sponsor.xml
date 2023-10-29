@@ -97,5 +97,13 @@
     <option value="-2">JTRASHED</option>
   </field>
 
+  <field
+    name='description'
+    type='textarea'
+    label='Description'
+    description='Sponsor description'
+    filter='safehtml'
+    rows='5'
+  />
 
 </form>

@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `#__claw_sponsors`(
   `name` VARCHAR(255) NOT NULL,
   `link` VARCHAR(255) NOT NULL,
   `type` TINYINT NOT NULL,
+  `description` TEXT DEFAULT NULL,
   `logo_small` VARCHAR(255) NULL,
   `logo_large` VARCHAR(255) NULL,
   `published` TINYINT(4) NOT NULL DEFAULT '1',
