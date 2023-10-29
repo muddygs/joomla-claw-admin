@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS `#__claw_skills` (
   `presenters` TEXT DEFAULT NULL,
   `track` varchar(10) DEFAULT NULL,
   `audience` varchar(10) DEFAULT NULL,
-  `category` varchar(10) DEFAULT NULL,
+  `category` varchar(15) DEFAULT NULL,
   `location` INT(11) DEFAULT NULL,
   `description` TEXT DEFAULT NULL,
   `photo` TEXT DEFAULT NULL,
