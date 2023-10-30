@@ -66,6 +66,11 @@ class SkillslistModel extends BaseDatabaseModel
     foreach ( $classes AS $class ) {
       if ( $class->published != 1 ) continue;
 
+      if ( $class->day == '0000-00-00' ) {
+        // var_dump($class);
+        continue;
+      }
+
       // These should all be defined per validation on a published skills class
       $day = Helpers::dateToDayNum($class->day);
       $class->day_text = Helpers::dateToDay($class->day);
