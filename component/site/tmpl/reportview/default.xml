@@ -2,7 +2,7 @@
 <metadata>
   <layout title="Reports">
     <message>
-      Event View
+      Report View
     </message>
   </layout>
 
@@ -16,6 +16,8 @@
         <option value="speed_dating">Speed Dating</option>
         <option value="volunteers_overview">Volunteer Overview</option>
         <option value="volunteers_details">Volunteer Details</option>
+        <option value="shirt_report">Shirt Report</option>
+        <option value="meals_report">Meals Report</option>
       </field>
 
     </fieldset>

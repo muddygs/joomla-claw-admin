@@ -16,13 +16,14 @@ use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
+use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
 {
   /**
-   * Execute and display a template script.
+   * Execute and display a single class listing.
    *
    * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
    *
@@ -32,16 +33,14 @@ class HtmlView extends BaseHtmlView
   {
     $this->state = $this->get('State');
 
-    /** @var Joomla\CMS\Application\SiteApplication */
+    /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
 
-    $controllerMenuId = (int)Helpers::sessionGet('skillsmenuid');
+    $viewMenuId = (int)Helpers::sessionGet('skillslist.menuid');
+    $sitemenu = $app->getMenu();
+    $sitemenu->setActive($viewMenuId);
     $menu = $app->getMenu()->getActive();
-    if ($controllerMenuId != $menu->id) {
-      $sitemenu = $app->getMenu();
-      $sitemenu->setActive($controllerMenuId);
-      $menu = $app->getMenu()->getActive();
-    }
+
     $this->params = $menu->getParams();
     
     $uri = Uri::getInstance();
@@ -51,6 +50,17 @@ class HtmlView extends BaseHtmlView
     /** @var \ClawCorp\Component\Claw\Site\Model\SkillsclassModel */
     $model = $this->getModel();
     $this->class = $model->GetClass($cid, $this->params->get('event_alias', Aliases::current()));
+
+    if ( is_null($this->class)) {
+      $app->enqueueMessage('Class not found.', 'error');
+      $app->redirect(Route::_('index.php?option=com_claw&view=skillslist'));
+    }
+
+    $this->urlTab = $app->input->get('tab', 'overview', 'string');
+    // Class detail should always come from class list
+    $this->backLink = Route::_('index.php?option=com_claw&view=skillslist&tab=' . $this->urlTab);
+
+
     parent::display($tpl);
   }
 }

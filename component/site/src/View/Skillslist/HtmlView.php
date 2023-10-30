@@ -34,12 +34,17 @@ class HtmlView extends BaseHtmlView
     /** @var Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
 
-    $controllerMenuId = (int)Helpers::sessionGet('menuid');
-    Helpers::sessionSet('skillsmenuid', $controllerMenuId);
+    $viewMenuId = (int)Helpers::sessionGet('skillslist.menuid');
     $menu = $app->getMenu()->getActive();
-    if ($controllerMenuId != $menu->id) {
+
+    if ( 0 == $viewMenuId ) {
+      $viewMenuId = $menu->id;
+      Helpers::sessionSet('skillslist.menuid', $viewMenuId);
+    }
+
+    if ($viewMenuId != $menu->id) {
       $sitemenu = $app->getMenu();
-      $sitemenu->setActive($controllerMenuId);
+      $sitemenu->setActive($viewMenuId);
       $menu = $app->getMenu()->getActive();
     }
     $this->params = $menu->getParams();
@@ -49,9 +54,16 @@ class HtmlView extends BaseHtmlView
 
     /** @var \ClawCorp\Component\Claw\Site\Model\SkillslistModel */
     $model = $this->getModel();
-    $alias = $this->params->get('event_alias', Aliases::current());
+    $this->eventAlias = $this->params->get('event_alias', Aliases::current());
 
-    $this->list = $model->GetConsolidatedList($alias);
+    $this->list = $model->GetConsolidatedList($this->eventAlias);
+    
+    $this->listType = $this->params->get('list_type') ?? 'simple';
+    $this->urlTab = $app->input->get('tab', 'overview', 'string');
+
+    if ( !property_exists($this->list->tabs, $this->urlTab) ) {
+      $this->urlTab = 'overview';
+    }
 
     parent::display($tpl);
   }

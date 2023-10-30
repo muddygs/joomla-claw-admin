@@ -8,34 +8,15 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+
 defined('_JEXEC') or die;
 
-$backurl = '';
-
-if (array_key_exists('tab', $_GET)) {
-  $tab = $_GET['tab'];
-  if (strpos($tab, 'fri') === 0 || strpos($tab, 'sat') === 0 || strpos($tab, 'sun') === 0) {
-    $backurl = $_SERVER['HTTP_REFERER'] . '#' . $tab;
-  }
-}
-
-if ($backurl == '') {
-  $click = 'history.back(-1)';
-} else {
-  $click = "document.location='$backurl'";
-}
-
-// TODO: Return to home
-if ($this->class == null) {
-  echo "This requested class is not valid.";
-  return;
-}
 ?>
 
 <div class="container">
   <div class="row align-items-center">
     <div class="col-12 col-lg-2 text-center">
-      <button type="button" class="btn btn-primary mb-2" onClick="<?php echo $click ?>"><i class="fa fa-chevron-left"></i> Go Back</button>
+      <a href="<?= $this->backLink ?>" role="button" class="btn btn-primary mb-2"><i class="fa fa-chevron-left"></i> Go Back</a>
     </div>
     <div class="col-12 col-lg-10">
       <div class="row">
@@ -61,7 +42,7 @@ if ($this->class == null) {
           <?php
           foreach ($this->class->presenters as $presenter) {
           ?>
-            <a href="<?= $presenter->route ?>">
+            <a href="<?= $presenter->route . '&cid=' . $this->class->id . '&tab=' . $this->urlTab ?>">
               <button type="button" class="btn btn-outline-light m-2"><?= $presenter->name ?>&nbsp;<i class="fa fa-chevron-right"></i></button>
             </a>
           <?php

@@ -1,14 +1,9 @@
 <?php
 defined('_JEXEC') or die;
 
-use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Router\Route;
-
-use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Helpers\Bootstrap;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Locations;
-use ClawCorpLib\Helpers\Skills;
 
 $tabInfo = $this->list->tabs->{$this->tabId};
 
@@ -20,8 +15,6 @@ if ( !count($tabInfo['ids']) ) {
 $prevTime = '';
 
 foreach ( $tabInfo['ids'] AS $classId ) {
-  $url_append = '?tab='. $this->tabId;
-
   $class = $this->list->items[$classId];
   
   $timeSlot = explode(':', $class->time_slot);
@@ -34,12 +27,12 @@ foreach ( $tabInfo['ids'] AS $classId ) {
   // Merge presenters
   $presenter_urls = [];
   foreach ( $this->list->items[$classId]->presenter_info AS $presenter ) {
-    $presenter_urls[] = '<a href="' . Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter['uid']) . '">' . $presenter['name'] . '</a>';
+    $presenter_urls[] = '<a href="' . Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter['uid']) .'&tab='.$this->tabId. '">' . $presenter['name'] . '</a>';
   }
   $presenter_links = implode('<br/>',$presenter_urls);
 
   // Class title to detail link
-  $title = '<a href="' . Route::_('index.php?option=com_claw&view=skillsclass&id=' . $class->id) . '">' . $class->title . '</a>';
+  $title = '<a href="' . Route::_('index.php?option=com_claw&view=skillsclass&id=' . $class->id) . '&tab=' . $this->tabId. '">' . $class->title . '</a>';
 
   if ( $prevTime != $startTime ) {
     if ( $prevTime != '' ) echo "</div><hr>";

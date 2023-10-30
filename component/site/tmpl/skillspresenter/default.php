@@ -9,28 +9,6 @@
 
 defined('_JEXEC') or die;
 
-$backurl = '';
-
-if (array_key_exists('tab', $_GET)) {
-  $tab = $_GET['tab'];
-  if (strpos($tab, 'fri') === 0 || strpos($tab, 'sat') === 0 || strpos($tab, 'sun') === 0) {
-    $backurl = $_SERVER['HTTP_REFERER'] . '#' . $tab;
-  }
-}
-
-if ($backurl == '') {
-  $click = 'history.back(-1)';
-} else {
-  $click = "document.location='$backurl'";
-}
-
-// TODO: Return to home
-if ($this->presenter == null) {
-  echo "Presenter not found.";
-  return;
-}
-
-
 // Validate photo file exists
 $photo = '';
 if ($this->presenter->photo ) {
@@ -80,7 +58,7 @@ if ($this->presenter->photo ) {
   ?>
   <div class="row mt-3">
     <div class="col">
-      <button type="button" class="btn btn-primary" onClick="<?php echo $click ?>"><i class="fa fa-chevron-left"></i> Go Back</button>
+      <a href="<?= $this->backLink ?>" role="button" class="btn btn-primary mb-2"><i class="fa fa-chevron-left"></i> Go Back</a>
     </div>
   </div>
 </div>
