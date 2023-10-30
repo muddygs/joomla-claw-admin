@@ -1,11 +1,6 @@
-jQuery(function () {
-  // jQuery('#class_start_time').on('change', function() {
-  //   updateClassList();
-  // })
-
+document.addEventListener("DOMContentLoaded", function () {
   updateClassList();
 });
-
 
 class classRecord {
   stime: string;
@@ -22,53 +17,62 @@ class classRecord {
 }
 
 function updateClassList() {
-  var stimeSelect = document.getElementById('class_start_time') as HTMLSelectElement;
-  var stime = stimeSelect.selectedOptions[0].value;
+  const stimeSelect = document.getElementById('class_start_time') as HTMLSelectElement;
+  const stime = stimeSelect.selectedOptions[0].value;
 
-  var classes: classRecord[] = JSON.parse((document.getElementById('classListJson') as HTMLInputElement).value);
+  const classes: classRecord[] = JSON.parse((document.getElementById('classListJson') as HTMLInputElement).value);
 
-  var selects: classRecord[] = [];
+  let selects: classRecord[] = [];
 
   if (stime == 'any') {
     selects = classes
   } else {
     classes.forEach((c) => {
-      var t: number = Number(c.stime);
-      var d: number = Number(c.day);
+      const t: number = Number(c.stime);
+      const d: number = Number(c.day);
 
       // Any, FriAM, ..., Sun
 
-      if (stime == 'friam' && d == 1 && t < 1200) {
-        selects.push(c);
-      } else
-      if (stime == 'fripm' && d == 1 && t > 1159) {
-        selects.push(c);
-      } else
-      if (stime == 'satam' && d == 2 && t < 1200) {
-        selects.push(c);
-      } else
-      if (stime == 'satpm' && d == 2 && t > 1159) {
-        selects.push(c);
-      } else
-      if (stime == 'sun' && d == 3) {
-        selects.push(c);
+      switch (stime) {
+        case 'friam':
+          if (d == 5 && t < 1200) {
+            selects.push(c);
+          }
+          break;
+        case 'fripm':
+          if (d == 5 && t > 1159) {
+            selects.push(c);
+          }
+          break;
+        case 'satam':
+          if (d == 6 && t < 1200) {
+            selects.push(c);
+          }
+          break;
+        case 'satpm':
+          if (d == 6 && t > 1159) {
+            selects.push(c);
+          }
+          break;
+        case 'sun':
+          if (d == 0) {
+            selects.push(c);
+          }
+          break;
       }
     });
   }
 
-  var classTitleParam = document.getElementById('classTitleParam') as HTMLInputElement;
-  var preselect = '';
+  const classTitleParam = document.getElementById('classTitleParam') as HTMLInputElement;
+  let preselect = '';
   if (classTitleParam != null) preselect = classTitleParam.value;
-  var classTitle = document.getElementById('class_title') as HTMLSelectElement;
+  const classTitle = document.getElementById('class_title') as HTMLSelectElement;
 
   classTitle.innerHTML = "";
 
   selects.forEach(s => {
-    var selected = false;
-    if (s.gid == preselect) {
-      selected = true
-    }
-    var o = new Option(s.title, s.gid, selected, selected);
+    const o = new Option(s.title, s.gid, s.gid == preselect, s.gid == preselect);
+    o.innerHTML = s.title;
     classTitle.append(o);
   });
 }
