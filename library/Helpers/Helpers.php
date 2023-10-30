@@ -3,15 +3,12 @@
 namespace ClawCorpLib\Helpers;
 
 use DateTime;
-use InvalidArgumentException;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Image\Image;
 use Joomla\CMS\User\UserHelper;
 use Joomla\Database\DatabaseDriver;
-use Joomla\Database\Exception\UnsupportedAdapterException;
-use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
 use LogicException;
 use Joomla\CMS\Uri\Uri;
 use RuntimeException;
