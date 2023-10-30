@@ -4,6 +4,7 @@ namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Lib\Aliases;
 use InvalidArgumentException;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\Database\DatabaseDriver;
 use Joomla\Database\Exception\UnsupportedAdapterException;
@@ -139,7 +140,10 @@ class Skills
       ->where($db->qn('event') . ' = :event')->bind(':event', $eventAlias);
     
     if ( $published ) {
-      $query->where($db->qn('published') . '= 1');
+      $query->where($db->qn('published') . '= 1')
+        ->where($db->qn('day') . ' != "0000-00-00"')
+        ->where($db->qn('time_slot') . ' IS NOT NULL')
+        ->where($db->qn('time_slot') . ' != ""');
     }
 
     $db->setQuery($query);
@@ -215,5 +219,27 @@ class Skills
     }
 
     return $class;
+  }
+
+  public static function rsformJson()
+  {
+    // Database driver
+    $db = Factory::getContainer()->get('DatabaseDriver');
+    $classes = self::GetClassList($db, Aliases::current(true));
+
+    $results = [];
+
+    foreach ( $classes as $class ) {
+      // stime corresponds to the tabs, just to help people find their class in the list
+      $results[] = (object)[
+        'id' => $class->id,
+        'stime' => explode(':', $class->time_slot)[0],
+        'title' => htmlentities($class->title),
+        'gid' => $class->id,
+        'day' => date('w', strtotime($class->day)), // 0 = Sunday, 1 = Monday, etc.
+      ];
+    }
+
+    return json_encode($results);
   }
 }
