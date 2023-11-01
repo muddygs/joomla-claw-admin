@@ -151,7 +151,8 @@ class SkillsModel extends ListModel
     }
 
     $locations = Locations::GetLocationsList();
-    $presenters = Skills::GetPresentersList($this->getDatabase(), $event);
+    $skills = new Skills($this->getDatabase(), $event);
+    $presenters = $skills->GetPresentersList();
 
     $new = ' <span class="badge rounded-pill bg-warning">New</span>';
     $unpublished = ' <span class="badge rounded-pill bg-danger">Unpublished</span>';
@@ -202,7 +203,7 @@ class SkillsModel extends ListModel
         }
       } else {
         // Do we have the owner record still but is unpublished?
-        $presenter = Skills::GetPresenter($this->getDatabase(), $item->owner, Aliases::current(), false);
+        $presenter = $skills->GetPresenter($item->owner, false);
         if (!is_null($presenter)) {
           $p = (object)[
             'id' => $presenter->id,

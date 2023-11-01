@@ -13,117 +13,101 @@ use RuntimeException;
 
 class Skills
 {
-  private static array $cache = [];
+  private array $presenterCache = [];
+  private array $classCache = [];
 
-  public static function GetPresentersList(DatabaseDriver $db, string $eventAlias = ''): array
+  // constructor
+  public function __construct(
+    public DatabaseDriver $db,
+    public string $eventAlias = ''
+  )
   {
-    if (count(Skills::$cache)) return Skills::$cache;
-    if ( $eventAlias == '' ) $eventAlias = Aliases::current();
-
-    $query = $db->getQuery(true);
-
-    $query->select($db->qn(['id', 'uid', 'name', 'published']))
-      ->from($db->qn('#__claw_presenters'))
-      ->where($db->qn('published') . ' IN (1,3)')
-      ->order('name ASC');
-
-    if ( $eventAlias != '' ) {
-      $query->where($db->qn('event') . ' = :event')
-      ->bind(':event', $eventAlias);
-    }
-
-    $db->setQuery($query);
-    Skills::$cache = $db->loadObjectList('uid') ?? [];
-    return Skills::$cache;
   }
 
-  /**
-   * Returns a simple list of the presenters for the given event
-   * @param DatabaseDriver $db 
-   * @param string $eventAlias 
-   * @param bool $published (default: true)
-   * @return array 
-   * @throws UnsupportedAdapterException 
-   * @throws QueryTypeAlreadyDefinedException 
-   * @throws RuntimeException 
-   * @throws InvalidArgumentException 
-   */
-  public static function GetPresenterList(DatabaseDriver $db, string $eventAlias, bool $published = true): array
+  public function GetPresentersList(bool $publishedOnly = false): array
   {
-    $query = $db->getQuery(true);
+    if (count($this->presenterCache)) return $this->presenterCache;
 
-    $query->select($db->qn(['uid', 'name']))
-      ->from($db->qn('#__claw_presenters'))
-      ->where($db->qn('event') . ' = :event')->bind(':event', $eventAlias);
+    if ( $this->eventAlias == '' ) $this->eventAlias = Aliases::current();
 
-    if ( $published ) {
-      $query->where($db->qn('published') . '= 1');
+    $query = $this->db->getQuery(true);
+
+    $query->select($this->db->qn(['id', 'uid', 'name', 'published']))
+      ->from($this->db->qn('#__claw_presenters'))
+      ->order('name ASC');
+
+    if ( $publishedOnly ) {
+      $query->where($this->db->qn('published') . ' = 1');
+    } else {
+      $query->where($this->db->qn('published') . ' IN (1,3)'); // published or new
     }
 
-    $db->setQuery($query);
-    return $db->loadObjectList('uid') ?? [];
+    if ( $this->eventAlias != '' ) {
+      $query->where($this->db->qn('event') . ' = :event')
+      ->bind(':event', $this->eventAlias);
+    }
+
+    $this->db->setQuery($query);
+    $this->presenterCache = $this->db->loadObjectList('uid') ?? [];
+    return $this->presenterCache;
   }
 
   /**
    * Load the presenter bio records (check event for determining current)
-   * @param DatabaseDriver $db 
-   * @param int $uid 
+   * @param int $pid Presenter User ID
    * @return array|null Bio records array (of objects) or null on error
    */
-  public static function GetPresenterBios(DatabaseDriver $db, int $uid, string $current = ''): ?array
+  public function GetPresenterBios(int $pid): ?array
   {
-    $query = $db->getQuery(true);
+    $query = $this->db->getQuery(true);
     $query->select('*')
-      ->from($db->quoteName('#__claw_presenters'))
-      ->where($db->qn('uid') . '= :uid')
-      ->where('('. $db->qn('archive_state') . ' = "" OR ' . $db->qn('archive_state') . ' IS NULL)')
-      ->bind(':uid', $uid);
+      ->from($this->db->quoteName('#__claw_presenters'))
+      ->where($this->db->qn('uid') . '= :uid')
+      ->where('('. $this->db->qn('archive_state') . ' = "" OR ' . $this->db->qn('archive_state') . ' IS NULL)')
+      ->bind(':uid', $pid);
 
-    if ( $current != '' ) {
-      $query->where($db->qn('event') . ' = :event')
-      ->bind(':event', $current);
+    if ( $this->eventAlias != '' ) {
+      $query->where($this->db->qn('event') . ' = :event')
+      ->bind(':event', $this->eventAlias);
     }
 
     $query->order('mtime');
 
-    $db->setQuery($query);
-    return $db->loadObjectList();
+    $this->db->setQuery($query);
+    return $this->db->loadObjectList();
   }
 
   /**
    * Load the presenter skills class records (check event for determining current)
-   * @param DatabaseDriver $db 
-   * @param int $uid User ID of Presenter
-   * @param string $event Event alias
+   * @param int $pid User ID of Presenter
    * @return array|null Bio records array (of objects) or null on error
    */
-  public static function GetPresenterClasses(DatabaseDriver $db, int $uid, string $eventAlias = ''): ?array
+  public function GetPresenterClasses(int $pid): ?array
   {
-    $query = $db->getQuery(true);
+    $query = $this->db->getQuery(true);
     $query->select('*')
-      ->from($db->quoteName('#__claw_skills'))
-      ->where('((JSON_VALID('.$db->qn('presenters').') AND JSON_CONTAINS(' . $db->qn('presenters') . ', :copresenters)) OR ' . $db->qn('owner') . ' = :uid)')
-      ->where('('.$db->qn('archive_state') . ' = "" OR ' . $db->qn('archive_state') . ' IS NULL)')
-      ->bind(':uid', $uid)
-      ->bind(':copresenters', $uid);
+      ->from($this->db->quoteName('#__claw_skills'))
+      ->where('((JSON_VALID('.$this->db->qn('presenters').') AND JSON_CONTAINS(' . $this->db->qn('presenters') . ', :copresenters)) OR ' . $this->db->qn('owner') . ' = :uid)')
+      ->where('('.$this->db->qn('archive_state') . ' = "" OR ' . $this->db->qn('archive_state') . ' IS NULL)')
+      ->bind(':uid', $pid)
+      ->bind(':copresenters', $pid);
 
-    if ( $eventAlias != '' ) {
-      $query->where($db->qn('event') . ' = :event')
-      ->bind(':event', $eventAlias);
+    if ( $this->eventAlias != '' ) {
+      $query->where($this->db->qn('event') . ' = :event')
+      ->bind(':event', $this->eventAlias);
     }
 
     $query->order('mtime');
     $query->setLimit(30);
 
-    $db->setQuery($query);
-    return $db->loadObjectList();
+    $this->db->setQuery($query);
+    return $this->db->loadObjectList();
   }
 
   /**
    * Returns a list of classes for the given event
    * 
    * @param DatabaseDriver $db 
-   * @param string $eventAlias 
    * @param bool $published (default: true)
    * @return array 
    * @throws UnsupportedAdapterException 
@@ -131,40 +115,43 @@ class Skills
    * @throws RuntimeException 
    * @throws InvalidArgumentException 
    */
-  public static function GetClassList(DatabaseDriver $db, string $eventAlias, bool $published = true): array
+  public function GetClassList(bool $published = true): array
   {
-    $query = $db->getQuery(true);
+    if (count($this->classCache)) return $this->classCache;
+
+    $query = $this->db->getQuery(true);
 
     $query->select('*')
-      ->from($db->qn('#__claw_skills'))
-      ->where($db->qn('event') . ' = :event')->bind(':event', $eventAlias);
+      ->from($this->db->qn('#__claw_skills'))
+      ->where($this->db->qn('event') . ' = :event')->bind(':event', $this->eventAlias);
     
     if ( $published ) {
-      $query->where($db->qn('published') . '= 1')
-        ->where($db->qn('day') . ' != "0000-00-00"')
-        ->where($db->qn('time_slot') . ' IS NOT NULL')
-        ->where($db->qn('time_slot') . ' != ""');
+      $query->where($this->db->qn('published') . '= 1')
+        ->where($this->db->qn('day') . ' != "0000-00-00"')
+        ->where($this->db->qn('time_slot') . ' IS NOT NULL')
+        ->where($this->db->qn('time_slot') . ' != ""');
     }
 
-    $db->setQuery($query);
-    return $db->loadObjectList('id') ?? [];
+    $this->db->setQuery($query);
+    $this->classCache = $this->db->loadObjectList('id') ?? [];
+    return $this->classCache;
   }
 
-  public static function GetPresenter(DatabaseDriver $db, int $uid, string $eventAlias, bool $published = true): ?object
+  public function GetPresenter(int $uid, bool $published = true): ?object
   {
-    $query = $db->getQuery(true);
+    $query = $this->db->getQuery(true);
 
     $query->select('*')
-      ->from($db->qn('#__claw_presenters'))
-      ->where($db->qn('uid') . ' = :uid')->bind(':uid', $uid)
-      ->where($db->qn('event') . ' = :event')->bind(':event', $eventAlias);
+      ->from($this->db->qn('#__claw_presenters'))
+      ->where($this->db->qn('uid') . ' = :uid')->bind(':uid', $uid)
+      ->where($this->db->qn('event') . ' = :event')->bind(':event', $this->eventAlias);
 
     if ( $published ) {
-      $query->where($db->qn('published') . ' = 1');
+      $query->where($this->db->qn('published') . ' = 1');
     }
 
-    $db->setQuery($query);
-    $presenter = $db->loadObject();
+    $this->db->setQuery($query);
+    $presenter = $this->db->loadObject();
 
     if ( $presenter != null )
       $presenter->route = Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter->uid);
@@ -172,18 +159,18 @@ class Skills
     return $presenter;
   }
 
-  public static function GetClass(DatabaseDriver $db, int $cid, string $eventAlias): ?object
+  public function GetClass(int $cid): ?object
   {
-    $query = $db->getQuery(true);
+    $query = $this->db->getQuery(true);
 
     $query->select('*')
-      ->from($db->qn('#__claw_skills'))
-      ->where($db->qn('id') . ' = :cid')->bind(':cid', $cid)
-      ->where($db->qn('event') . ' = :event')->bind(':event', $eventAlias)
-      ->where($db->qn('published') . ' = 1');
+      ->from($this->db->qn('#__claw_skills'))
+      ->where($this->db->qn('id') . ' = :cid')->bind(':cid', $cid)
+      ->where($this->db->qn('event') . ' = :event')->bind(':event', $this->eventAlias)
+      ->where($this->db->qn('published') . ' = 1');
 
-    $db->setQuery($query);
-    $class = $db->loadObject();
+    $this->db->setQuery($query);
+    $class = $this->db->loadObject();
 
     if ( null == $class ) return $class;
 
@@ -213,7 +200,7 @@ class Skills
     $class->presenters = [];
 
     foreach ( $presenterIds AS $presenterId ) {
-      $presenter = self::GetPresenter($db, $presenterId, $eventAlias);
+      $presenter = $this->GetPresenter($presenterId);
       if ( null == $presenter ) continue;
       $class->presenters[] = $presenter;
     }
@@ -225,7 +212,8 @@ class Skills
   {
     // Database driver
     $db = Factory::getContainer()->get('DatabaseDriver');
-    $classes = self::GetClassList($db, Aliases::current(true));
+    $skills = new Skills($db, Aliases::current(true));
+    $classes = $skills->GetClassList();
 
     $results = [];
 

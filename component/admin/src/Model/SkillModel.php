@@ -43,7 +43,8 @@ class SkillModel extends AdminModel
     // Check that all presenters are published if this class is going to be
     // published
 
-    $presenters = Skills::GetPresentersList($this->getDatabase());
+    $skills = new Skills($this->getDatabase());
+    $presenters = $skills->GetPresentersList();
 
     $okToPublish = true;
     if ( 1 == $data['published']) {

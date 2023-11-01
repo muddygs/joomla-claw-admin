@@ -78,8 +78,9 @@ class SkillsubmissionController extends FormController
     $data['owner'] = $data['uid'] = $identity->id;
     $data['email'] = $identity->email;
 
-    $bio = Skills::GetPresenterBios($siteModel->db, $data['owner'], Aliases::current());
-    $data['name'] = $bio[0]->name;
+    $skills = new Skills($siteModel->db, Aliases::current());
+    $bio = $skills->GetPresenterBios($data['owner']);
+    $data['name'] = is_null($bio) ? '' : $bio[0]->name;
 
     $data['event'] = Aliases::current();
     $data['length_info'] = (int)$data['length'] ?? 60;

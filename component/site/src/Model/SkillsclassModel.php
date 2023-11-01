@@ -22,7 +22,8 @@ class SkillsClassModel extends BaseDatabaseModel
   public function GetClass(int $cid, string $event): ?object
   {
     $db = $this->getDatabase();
-    $class = Skills::GetClass($db, $cid, $event);
+    $skills = new Skills($db, $event);
+    $class = $skills->GetClass($cid);
 
     return $class;
   }

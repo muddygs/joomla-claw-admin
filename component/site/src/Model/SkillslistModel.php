@@ -26,8 +26,9 @@ class SkillslistModel extends BaseDatabaseModel
   public function GetConsolidatedList(string $eventAlias): object
   {
     $db = $this->getDatabase();
-    $presenters = Skills::GetPresenterList($db, $eventAlias);
-    $classes = Skills::GetClassList($db, $eventAlias);
+    $skills = new Skills($db, $eventAlias);
+    $presenters = $skills->GetPresentersList(true);
+    $classes = $skills->GetClassList();
 
     $classTypes = Config::getColumn('skill_class_type');
     $classCategories = Config::getColumn('skill_category');
@@ -144,10 +145,12 @@ class SkillslistModel extends BaseDatabaseModel
     ];
   }
 
-  public function GetPresenter(int $uid, string $event): object
+  public function GetPresenter(int $uid, string $eventAlias): object
   {
     $db = $this->getDatabase();
-    $presenter = Skills::GetPresenter($db, $uid, $event);
+    $skills = new Skills($db, $eventAlias);
+
+    $presenter = $this->skills->GetPresenter($uid);
 
     return $presenter;
   }

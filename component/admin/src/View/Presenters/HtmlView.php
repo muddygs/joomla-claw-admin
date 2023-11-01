@@ -12,6 +12,7 @@ namespace ClawCorp\Component\Claw\Administrator\View\Presenters;
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Skills;
+use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
@@ -82,11 +83,11 @@ class HtmlView extends BaseHtmlView
     $this->filterForm    = $this->get('FilterForm');
     $this->activeFilters = $this->get('ActiveFilters');
 
-    $model = $this->getModel();
-
     foreach ( $this->items AS $item )
     {
-      $classes = Skills::GetPresenterClasses($this->getModel()->db, $item->uid, 'c0423');
+      // TODO: This should use the filter event alias, not the current alias
+      $skills = new Skills($this->getModel()->db, Aliases::current());
+      $classes = $skills->GetPresenterClasses($item->uid);
 
       $classesLink = array_map(function($class) {
         $url = Route::_("index.php?option=com_claw&view=skill&layout=edit&id={$class->id}");

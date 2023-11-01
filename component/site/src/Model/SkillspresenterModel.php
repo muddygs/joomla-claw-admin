@@ -19,10 +19,11 @@ use ClawCorpLib\Helpers\Skills;
  */
 class SkillsPresenterModel extends BaseDatabaseModel
 {
-  public function GetPresenter(int $uid, string $event): ?object
+  public function GetPresenter(int $pid, string $event): ?object
   {
     $db = $this->getDatabase();
-    $presenter = Skills::GetPresenter($db, $uid, $event);
+    $skills = new Skills($db, $event);
+    $presenter = $skills->GetPresenter($pid);
 
     return $presenter;
   }

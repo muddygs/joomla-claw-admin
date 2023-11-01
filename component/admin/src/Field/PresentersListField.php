@@ -61,12 +61,16 @@ class PresentersListField extends ListField
   {
     $data = $this->getLayoutData();
 
-    $this->presenters = Skills::GetPresentersList($this->getDatabase());
+    // Get the list of presenters
+    $skills = new Skills($this->getDatabase());
+    $this->presenters = $skills->GetPresentersList();
+    
     $currentValue = $this->__get('value');
 
     if ($currentValue && !array_key_exists($currentValue, $this->presenters)) {
       // Push this presenter into the list
-      $presenter = Skills::GetPresenter($this->getDatabase(), $currentValue, Aliases::current(), false);
+      $skills = new Skills($this->getDatabase(), Aliases::current());
+      $presenter = $skills->GetPresenter($currentValue, false);
       if (!is_null($presenter)) {
         $p = (object)[
           'id' => $presenter->id,

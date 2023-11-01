@@ -128,7 +128,8 @@ class PresentersubmissionModel extends AdminModel
     $app = Factory::getApplication();
     $uid = $app->getIdentity()->id;
 
-    $bios = Skills::GetPresenterBios($this->getDatabase(), $uid);
+    $skills = new Skills($this->getDatabase());
+    $bios = $skills->GetPresenterBios($uid);
 
     $id = 0;
     $mtime = 0;

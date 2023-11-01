@@ -50,9 +50,9 @@ class SkillssubmissionsModel extends BaseDatabaseModel
   {
     $db = $this->getDatabase();
     $app = Factory::getApplication();
-    $uid = $app->getIdentity()->id;
-  
-    return Skills::GetPresenterBios($db, $uid, $event);
+    $pid = $app->getIdentity()->id;
+    $skills = new Skills($db, $event);
+    return $skills->GetPresenterBios($pid);
   }
 
   public function GetPresenterClasses(string $event = '')
@@ -60,8 +60,8 @@ class SkillssubmissionsModel extends BaseDatabaseModel
     $db = $this->getDatabase();
     $app = Factory::getApplication();
     $uid = $app->getIdentity()->id;
-  
-    return Skills::GetPresenterClasses($db, $uid, $event);
+    $skills = new Skills($db, $event);
+    return $skills->GetPresenterClasses($uid);
   }
 
   public function GetEventInfo() : \ClawCorpLib\Lib\EventInfo
