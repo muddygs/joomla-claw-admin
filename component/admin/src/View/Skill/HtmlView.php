@@ -130,6 +130,7 @@ class HtmlView extends BaseHtmlView
 		if ( $user->authorise('claw.skills', 'com_claw') ) {
 			ToolbarHelper::apply('skill.apply');
 			ToolbarHelper::save('skill.save');
+			ToolbarHelper::save('skill.save2copy','Copy Class');
 		}
 
 		if ($isNew) {
