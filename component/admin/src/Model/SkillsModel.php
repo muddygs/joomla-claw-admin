@@ -11,6 +11,7 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\ListModel;
 
@@ -188,7 +189,13 @@ class SkillsModel extends ListModel
         }
 
         if ( $item->presenters != '' ) {
-          foreach ( explode(',',$item->presenters) AS $p ) {
+          $json = json_decode($item->presenters);
+
+          if ( is_null($presenters)) {
+            $json = explode(',', $item->presenters);
+          }
+
+          foreach ( $json AS $p ) {
             if ( array_key_exists($p, $presenters)) {
               $item->presenter_names[] = '<i>'.$presenters[$p]->name.'</i>';
               if ( $presenters[$item->owner]->published == 3 ) {
@@ -271,6 +278,8 @@ class SkillsModel extends ListModel
       case '_all_':
         $event = '';
     }
+
+    Helpers::sessionSet('eventAlias', $event);
     
     if ( $event != '' )
     {
