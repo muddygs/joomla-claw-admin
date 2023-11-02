@@ -69,7 +69,7 @@ class HtmlView extends BaseHtmlView
 
     // In read-only mode? New bios accepted, but current ones are locked
 
-    if ($this->params->get('se_submissions_open') == 0) {
+    if ($this->params->get('se_submissions_open') == 0 && $this->item->id > 0) {
       $fieldSet = $this->form->getFieldset('userinput');
       foreach ($fieldSet as $field) {
         $this->form->setFieldAttribute($field->getAttribute('name'), 'readonly', 'true');
