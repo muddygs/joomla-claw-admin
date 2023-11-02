@@ -46,8 +46,7 @@ class Schedule {
   {
     // Load database columns
     $columnNames = array_keys($this->db->getTableColumns('#__claw_schedule'));
-    $columnNames[] = 'start_time_int';
-    $columnNames[] = 'end_time_int';
+    $columnNames[] = 'track';
 
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="'. $filename . '"');
@@ -89,6 +88,10 @@ class Schedule {
           case 'location':
             $location = Locations::GetLocationById($c->$col)->value;
             $row[] = $location;
+            break;
+          case 'track':
+            // track is day converted to day of week
+            $row[] = date('l', strtotime($c->day));
             break;
           default:
             $row[] = $c->$col;
