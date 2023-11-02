@@ -40,21 +40,18 @@ class SkillModel extends AdminModel
 
   public function validate($form, $data, $group = null)
   {
-    // Check that all presenters are published if this class is going to be
-    // published
-
-    $skills = new Skills($this->getDatabase());
-    $presenters = $skills->GetPresentersList();
+    $skills = new Skills($this->getDatabase(), $data['event']);
+    $presenters = $skills->GetPresentersList(true);
 
     $okToPublish = true;
     if ( 1 == $data['published']) {
-      if ( !array_key_exists($data['owner'], $presenters) || $presenters[$data['owner']]->published != 1) {
+      if ( !array_key_exists($data['owner'], $presenters) ) {
         $okToPublish = false;
       }
 
       if ( array_key_exists('presenters', $data)) {
       foreach ( $data['presenters'] AS $copresenter ) {
-          if ( !array_key_exists($copresenter, $presenters) || $presenters[$copresenter]->published != 1) {
+          if ( !array_key_exists($copresenter, $presenters) ) {
             $okToPublish = false;
             break;
           }
@@ -88,7 +85,8 @@ class SkillModel extends AdminModel
       $data['day'] = $this->getDatabase()->getNullDate();
     }
 
-    $data['presenters'] = implode(',', $data['presenters'] ?? []);
+    // $data['presenters'] = implode(',', $data['presenters'] ?? []);
+    $data['presenters'] = json_encode($data['presenters'] ?? []);
 
     if (!isset($data['location']) || !$data['location']) {
         $data['location'] = Locations::$blankLocation;
@@ -122,7 +120,10 @@ class SkillModel extends AdminModel
     }
 
 		$event = $form->getField('event')->value;
-		$e = new ClawEvents( !empty($event) ? $event : Aliases::current());
+    $eventAlias = !empty($event) ? $event : Aliases::current();
+    Helpers::sessionSet('eventAlias', $eventAlias);
+
+		$e = new ClawEvents($eventAlias);
 		$info = $e->getEvent()->getInfo();
 
 		/** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
