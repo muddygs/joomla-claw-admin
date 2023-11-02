@@ -2,6 +2,7 @@
 
 namespace ClawCorp\Component\Claw\Administrator\Field;
 
+use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Form\Field\ListField;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Skills;
@@ -28,28 +29,6 @@ class PresentersListField extends ListField
   private array $presenters = [];
 
   /**
-   * Method to get certain otherwise inaccessible properties from the form field object.
-   *
-   * @param   string  $name  The property name for which to get the value.
-   *
-   * @return  mixed  The property value or null.
-   *
-   * @since   3.8.0
-   */
-  // public function __get($name)
-  // {
-  //     switch ($name) {
-  //         case 'menuType':
-  //         case 'language':
-  //         case 'published':
-  //         case 'disable':
-  //             return $this->$name;
-  //     }
-
-  //     return parent::__get($name);
-  // }
-
-  /**
    * Method to get the field input markup for a generic list.
    * Use the multiple attribute to enable multiselect.
    *
@@ -62,24 +41,29 @@ class PresentersListField extends ListField
     $data = $this->getLayoutData();
 
     // Get the list of presenters
-    $skills = new Skills($this->getDatabase());
+    $eventAlias = Helpers::sessionGet('eventAlias');
+    $skills = new Skills($this->getDatabase(), $eventAlias);
     $this->presenters = $skills->GetPresentersList();
     
     $currentValue = $this->__get('value');
 
-    if ($currentValue && !array_key_exists($currentValue, $this->presenters)) {
-      // Push this presenter into the list
-      $skills = new Skills($this->getDatabase(), Aliases::current());
-      $presenter = $skills->GetPresenter($currentValue, false);
-      if (!is_null($presenter)) {
-        $p = (object)[
-          'id' => $presenter->id,
-          'uid' => $currentValue,
-          'name' => $presenter->name,
-          'published' => $presenter->published
-        ];
+    if ( $currentValue ) {
+      $currentPresenters = is_array($currentValue) ? $currentValue : explode(',', $currentValue);
+      foreach ( $currentPresenters AS $currentPresenter ) {
+        if ( !array_key_exists($currentPresenter, $this->presenters) ) {
+          // Push this presenter into the list
+          $presenter = $skills->GetPresenter($currentPresenter, false);
+          if (!is_null($presenter)) {
+            $p = (object)[
+              'id' => $presenter->id,
+              'uid' => $currentPresenter,
+              'name' => $presenter->name,
+              'published' => $presenter->published
+            ];
 
-        $this->presenters[$currentValue] = $p;
+            $this->presenters[$currentPresenter] = $p;
+          }
+        }
       }
     }
 
@@ -97,6 +81,8 @@ class PresentersListField extends ListField
   protected function getOptions()
   {
     $options = parent::getOptions();
+    $currentValue = $this->__get('value');
+    $value = is_array($currentValue) ? $currentValue : explode(',', $currentValue);
 
     foreach ($this->presenters as $p) {
       $tmp = [
@@ -104,8 +90,8 @@ class PresentersListField extends ListField
         'text'     => $p->name,
         'disable'  => false,
         'class'    => '',
-        'selected' => false,
-        'checked'  => false,
+        'selected' => in_array($p->uid, $value),
+        'checked'  => in_array($p->uid, $value),
         'onclick'  => '',
         'onchange' => ''
       ];
