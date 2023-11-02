@@ -8,8 +8,9 @@ use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 
-/** @package ClawCorpLib\Lib 
- * @description: Provies dynamic event configuration information
+/** 
+ * @package ClawCorpLib\Lib\Aliases
+ * @description: Provides dynamic event configuration information
 */
 class Aliases {
   static function current(bool $nocache = false) {
@@ -39,9 +40,6 @@ class Aliases {
   // For refunds, allow past events to be identified
   // Also used for checking if volunteer is in good starting in registrationsurvey.php
   // TODO: Probably need to fix getInactiveEventAliases const past = ['c0423'];
-
-  // For event info display
-  #const timezone = 'America/New_York';
 
   const onsiteCoupon = 'ONSITE-CASH'; // TODO: Remove all usage of this
   
