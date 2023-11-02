@@ -78,8 +78,10 @@ function BioHtml(object &$__this)
     default => 'Pending Review'
   };
 
+  $isCurrent = $__this->bio->event == Aliases::current();
+
   $event = ClawCorpLib\Lib\ClawEvents::eventAliasToTitle($__this->bio->event);
-  if ($__this->bio->event == Aliases::current()) {
+  if ($isCurrent) {
     $event .= ' <span class="badge bg-danger">Current</span>';
   } else {
     $event .= ' <span class="badge bg-info">Previous</span>';
@@ -106,11 +108,34 @@ function BioHtml(object &$__this)
           </tr>
           <tr>
             <td>Public Name:</td>
-            <td><?php echo $__this->bio->name ?></td>
+            <td><?= $__this->bio->name ?></td>
           </tr>
           <tr>
             <td>Biography:</td>
-            <td><?php echo $__this->bio->bio ?></td>
+            <td><?= $__this->bio->bio ?></td>
+          </tr>
+          <tr>
+            <td>Photo:</td>
+            <td>
+              <?php
+                $field = $__this->bio->photo;
+                if ($field != false && $field !== '') {
+                  $file = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $field]);
+                  if (is_file($file)) {
+                    $ts = time();
+                ?>
+                    <p class="form-label"><strong>Current Image Preview</strong></p>
+                    <img src="<?= $field ?>?ts=<?php echo $ts ?>" />
+                <?php
+                  } else {
+                    echo 'No photo on file';
+                  }
+                } else {
+                  echo 'No photo on file';
+                }
+
+                ?>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -119,14 +144,17 @@ function BioHtml(object &$__this)
 
     <?php
   if ($__this->params->get('se_submissions_open') == 0) :
-    if ($__this->bio->id ?? 0 != 0) :
+    if ( ($__this->bio->id ?? 0 != 0) && $isCurrent ) :
     ?>
-      <h3 class="text-info">Submissions are currently closed. You may view only your biography.</h3>
+      <h3 class="text-info">Submissions are currently closed. Biographies are in view-only mode.</h3>
     <?php
     else :
+      $buttonRoute = Route::_('index.php?option=com_claw&task=copybio&id=' . $__this->bio->id);
+      $msg = 'Resubmit for ' . Config::getTitleMapping()[Aliases::current()];
     ?>
       <h3 class="text-warning">Submissions are closed, but you may submit a biography.
-        After submission, you will no longer be able to edit it.</h3>
+        After submission, please contact the skills coordinator with your updated information.</h3>
+      <a name="add-biography" id="add-biography" class="btn btn-danger" href="<?= $buttonRoute ?>" role="button"><?= $msg ?></a>
     <?php
     endif;
   else :
@@ -134,7 +162,7 @@ function BioHtml(object &$__this)
     <h3 class="text-warning">Submissions are open for <?php echo $__this->eventInfo->description ?>.
       You may add/edit your biography.</h3>
     <?php
-    if ($__this->bio->event == Aliases::current()) {
+    if ($isCurrent) {
       $buttonRoute = Route::_('index.php?option=com_claw&view=presentersubmission&id=' . $__this->bio->id);
       $msg = 'Edit Biography';
     } else {
