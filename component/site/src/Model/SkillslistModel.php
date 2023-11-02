@@ -116,9 +116,9 @@ class SkillslistModel extends BaseDatabaseModel
 
       // Add co-presenters
       // TODO: Sort by name
-      $copresenters = explode(',', $class->presenters);
+      $copresenters = json_decode($class->presenters);
 
-      if ( $copresenters[0] !== '' ) {
+      if ( $copresenters !== null ) {
         foreach ( $copresenters AS $copresenter ) {
           if ( array_key_exists($copresenter, $presenters) ) {
             $class->presenter_info[] = [
