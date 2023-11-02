@@ -11,6 +11,7 @@ namespace ClawCorp\Component\Claw\Administrator\View\Presenter;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
@@ -103,34 +104,23 @@ class HtmlView extends BaseHtmlView
       throw new GenericDataException(implode("\n", $errors), 500);
     }
 
-    $this->addToolbar();
-
+    
     // If user is already defined, it cannot be changed
     $field = $this->form->getField('uid');
     $this->form->uid = 0;
-
+    
     if ( $field->value ) {
       $this->form->uid = $field->value;
       $user = new User($this->form->uid);
       $name = $user->name;
-
+      
       $field = $this->form->getField('uid_readonly_name');
       $this->form->setFieldAttribute($field->getAttribute('name'), 'default', $name);
       $field = $this->form->getField('uid_readonly_uid');
       $this->form->setFieldAttribute($field->getAttribute('name'), 'default', $this->form->uid);
     }
-
-        /** @var $parentField \Joomla\CMS\Form\Field\CheckboxesField */
-		// $parentField = $form->getField('phone_info');
-    // $parentField->checkedOptions = json_decode($data['phone_info']) ?? [];
-
-    // $field = $this->form->getField('phone_info');
-    // $this->form->setFieldAttribute($field->getAttribute('value'), 'value', '');
-    // // unset($field->value);
-    // $field->checkedOptions = json_decode($field->value) ?? [];
-
-
-
+    
+    $this->addToolbar();
     parent::display($tpl);
   }
 
@@ -158,6 +148,11 @@ class HtmlView extends BaseHtmlView
     if ( $user->authorise('claw.skills', 'com_claw') ) {
         ToolbarHelper::apply('presenter.apply');
         ToolbarHelper::save('presenter.save');
+
+        // If the form event is not current, allow copying to current
+        if ( $this->item->event != Aliases::current() ) {
+          ToolbarHelper::save2copy('presenter.save2copy', 'Copy to current');
+        }
     }
 
     if ($isNew) {

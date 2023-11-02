@@ -67,6 +67,12 @@ class PresenterModel extends AdminModel
 
     $data['mtime'] = Helpers::mtime();
 
+    // Get the task
+    $task = $app->input->get('task');
+    if ( $task == 'save2copy' ) {
+      $data['event'] = Aliases::current();
+    }
+
     $new = false;
 
     // New record handling
@@ -101,7 +107,7 @@ class PresenterModel extends AdminModel
     $input = $app->input;
     $files = $input->files->get('jform');
     $tmp_name = $files['photo_upload']['tmp_name'];
-    $mime = $files['photo_upload']['type'];
+    // $mime = $files['photo_upload']['type'];
     $error = $files['photo_upload']['error'];
     $presentersDir = Aliases::presentersDir();
   
