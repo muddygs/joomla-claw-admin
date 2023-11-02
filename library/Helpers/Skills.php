@@ -5,6 +5,7 @@ namespace ClawCorpLib\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use InvalidArgumentException;
 use Joomla\CMS\Factory;
+use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Router\Route;
 use Joomla\Database\DatabaseDriver;
 use Joomla\Database\Exception\UnsupportedAdapterException;
@@ -28,7 +29,7 @@ class Skills
   {
     if (count($this->presenterCache)) return $this->presenterCache;
 
-    if ( $this->eventAlias == '' ) $this->eventAlias = Aliases::current();
+    //if ( $this->eventAlias == '' ) $this->eventAlias = Aliases::current();
 
     $query = $this->db->getQuery(true);
 
@@ -177,7 +178,7 @@ class Skills
     if (empty($class->presenters)) {
       $presenterIds = [];
     } else {
-      $presenterIds = explode(',', $class->presenters);
+      $presenterIds = json_decode($class->presenters);
     }
     array_unshift($presenterIds, $class->owner);
 
@@ -229,5 +230,146 @@ class Skills
     }
 
     return json_encode($results);
+  }
+
+  public function presentersCSV(string $filename)
+  {
+    if ( $this->eventAlias == '' ) {
+      // error message
+      throw new GenericDataException('eventAlias must be specified', 500);
+    }
+
+    $query = $this->db->getQuery(true);
+    $columnNames = ['id', 'uid', 'name', 'bio', 'photo'];
+
+    $query->select($this->db->qn($columnNames))
+      ->from($this->db->qn('#__claw_presenters'))
+      ->where($this->db->qn('published') . ' = 1')
+      ->where($this->db->qn('event') . ' = :event')
+      ->bind(':event', $this->eventAlias)
+      ->order('name ASC');
+
+    $this->db->setQuery($query);
+    $presenters = $this->db->loadObjectList() ?? [];
+
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="'. $filename . '"');
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
+    header("Pragma: public");
+    ob_clean();
+    ob_start();
+    set_time_limit(0);
+    ini_set('error_reporting', E_NOTICE);
+
+    $fp = fopen('php://output', 'wb');
+    fputcsv($fp, $columnNames);
+
+    foreach ( $presenters AS $p ) {
+      $row = [];
+      foreach ( $columnNames AS $col ) {
+        switch ( $col ) {
+          case 'id':
+            $row[] = 'presenter_' . $p->$col;
+            break;
+          case 'photo':
+            // Remove leading '/' from path
+            $link = Helpers::convertMediaManagerUrl(ltrim($p->$col, '/'));
+            $row[] = is_null($link) ? '' : $link;
+            break;
+          default:
+            $row[] = $p->$col;
+            break;
+        }
+      }
+
+      fputcsv($fp, $row);
+    }
+
+    fclose($fp);
+    ob_end_flush();
+  }
+
+  public function classesCSV(string $filename)
+  {
+    if ( $this->eventAlias == '' ) {
+      // error message
+      throw new GenericDataException('eventAlias must be specified', 500);
+    }
+
+    $this->GetClassList(published: true);
+    $this->GetPresentersList(publishedOnly: true);
+
+    // Load database columns
+    $columnNames = array_keys($this->db->getTableColumns('#__claw_skills'));
+    $columnNames[] = 'track';
+    $columnNames[] = 'people';
+
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="'. $filename . '"');
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
+    header("Pragma: public");
+    ob_clean();
+    ob_start();
+    set_time_limit(0);
+    ini_set('error_reporting', E_NOTICE);
+
+    $fp = fopen('php://output', 'wb');
+    fputcsv($fp, $columnNames);
+
+    foreach ( $this->classCache AS $c) {
+      $row = [];
+      foreach ( $columnNames AS $col ) {
+        switch ( $col ) {
+          case 'id':
+            $row[] = 'class_'.$c->$col;
+            break;
+          case 'start_time':
+            $time = Helpers::formatTime($c->$col);
+            if ( $time == 'Midnight' ) $time = '12:00 AM';
+            if ( $time == 'Noon' ) $time = '12:00 PM';
+            $row[] = $time;
+            break;
+          case 'end_time':
+            $row[] = '';
+            break;
+          case 'people':
+            if (empty($c->presenters)) {
+              $presenterIds = [];
+            } else {
+              // TODO: Fix decode
+              $presenterIds = json_decode($c->presenters);
+            }
+            array_unshift($presenterIds, $c->owner);
+
+            // Remove any unpublished presenter ids
+            $presenterIds = array_filter($presenterIds, function($id) {
+              return isset($this->presenterCache[$id]);
+            });
+
+            // Prepend "presenter_" to each id and join with commas
+            $row[] = implode(',', array_map(function($id) {
+              return 'presenter_' . $id;
+            }, $presenterIds));
+            break;
+          case 'location':
+            $location = Locations::GetLocationById($c->$col)->value;
+            $row[] = $location;
+            break;
+          case 'track':
+            // track is day converted to day of week
+            $time = $c->day . ' ' . explode(':', $c->time_slot)[0];
+            $row[] = date('l A', strtotime($time));
+            break;
+          default:
+            $row[] = $c->$col;
+            break;
+        }
+      }
+
+      fputcsv($fp, $row);
+
+    }
   }
 }
