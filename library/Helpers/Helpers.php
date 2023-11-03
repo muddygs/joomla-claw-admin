@@ -87,9 +87,9 @@ class Helpers
       return $time->format('g:i A');
     }
 
-    if (0 === strpos($time, '00:00')) {
+    if (str_starts_with($time, '00:00')) {
       $time = "Midnight";
-    } else if (0 === strpos($time, '12:00')) {
+    } else if (str_starts_with($time, '12:00')) {
       $time = "Noon";
     } else {
       date_default_timezone_set('etc/UTC');
@@ -387,6 +387,8 @@ class Helpers
    */
   public static function convertMediaManagerUrl(string $mediaManagerPath): ?string
   {
+    if ( trim($mediaManagerPath) == '' ) return null;
+    
     // Split the internal path by the "#" symbol
     // It's ok if the # portion is missing
     $parts = explode("#", $mediaManagerPath);

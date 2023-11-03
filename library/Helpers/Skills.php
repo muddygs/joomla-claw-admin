@@ -133,6 +133,8 @@ class Skills
         ->where($this->db->qn('time_slot') . ' != ""');
     }
 
+    $query->order('day ASC, time_slot ASC, title ASC');
+
     $this->db->setQuery($query);
     $this->classCache = $this->db->loadObjectList('id') ?? [];
     return $this->classCache;
@@ -269,7 +271,7 @@ class Skills
       $row = [];
       foreach ( $columnNames AS $col ) {
         switch ( $col ) {
-          case 'id':
+          case 'uid':
             $row[] = 'presenter_' . $p->$col;
             break;
           case 'photo':
@@ -302,8 +304,13 @@ class Skills
 
     // Load database columns
     $columnNames = array_keys($this->db->getTableColumns('#__claw_skills'));
-    $columnNames[] = 'track';
+    $columnNames[] = 'multitrack';
     $columnNames[] = 'people';
+    $columnNames[] = 'start_time';
+    $columnNames[] = 'end_time';
+
+    // Load category strings
+    $categories = Config::getColumn('skill_category');
 
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="'. $filename . '"');
@@ -326,13 +333,17 @@ class Skills
             $row[] = 'class_'.$c->$col;
             break;
           case 'start_time':
-            $time = Helpers::formatTime($c->$col);
+            $time = Helpers::formatTime(explode(':', $c->time_slot)[0]);
             if ( $time == 'Midnight' ) $time = '12:00 AM';
             if ( $time == 'Noon' ) $time = '12:00 PM';
             $row[] = $time;
             break;
           case 'end_time':
-            $row[] = '';
+            // take start time and add length
+            [ $time, $length ] = explode(':', $c->time_slot);
+            $time = new \DateTime($c->day . ' ' . $time);
+            $time->modify('+ '.$length .' minutes');
+            $row[] = $time->format('g:i A');
             break;
           case 'people':
             if (empty($c->presenters)) {
@@ -340,6 +351,7 @@ class Skills
             } else {
               // TODO: Fix decode
               $presenterIds = json_decode($c->presenters);
+              if ( is_null($presenterIds)) $presenterIds = []; 
             }
             array_unshift($presenterIds, $c->owner);
 
@@ -357,10 +369,20 @@ class Skills
             $location = Locations::GetLocationById($c->$col)->value;
             $row[] = $location;
             break;
-          case 'track':
+          case 'multitrack':
             // track is day converted to day of week
             $time = $c->day . ' ' . explode(':', $c->time_slot)[0];
-            $row[] = date('l A', strtotime($time));
+            // Fri/Sat get AM/PM, Sun gets day of week
+            $day = date('w', strtotime($time));
+            if ( $day == 5 || $day == 6 ) {
+              $row[] = date('l A', strtotime($time));
+            } else {
+              $row[] = date('l', strtotime($time));
+            }
+            break;
+          case 'description':
+            // Convert category to text
+            $row[] = '<p><b>Category:</b> ' . $categories[$c->category]->text . '</p>' . PHP_EOL . $c->$col;
             break;
           default:
             $row[] = $c->$col;
