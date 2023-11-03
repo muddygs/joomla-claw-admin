@@ -100,10 +100,12 @@ class Bootstrap
   /**
    * Generates HTML based on Bootstrap 5 flex. Input is array with icon and content.
    */
-  public static function writeGrid(array $content, array $tags = [], bool $asString = false)
+  public static function writeGrid(array $content, array $tags = [], bool $asString = false, bool $justified = true)
   {
     $result = '<div class="container px-2 py-2" id="icon-grid-vip">
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2 px-4 py-2 justify-content-center">';
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2 px-4 py-2 ';
+    $result .= $justified ? 'justify-content-center' : 'justify-content-start';
+    $result .= '">';
 
     $tagSize = count($tags);
 
