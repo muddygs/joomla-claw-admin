@@ -31,7 +31,7 @@ $content = [
     'people-carry' => ['Shifts','LINK'],
   ];
   
-Bootstrap::writeGrid($content, $tags);
+Bootstrap::writeGrid($content, $tags, false, false);
 
 ?>
 <hr/>
@@ -45,18 +45,21 @@ $content = [
   'utensils' => ['Meals','<a href="/administrator/index.php?option=com_claw&view=reports&tmpl=meals" role="button" class="btn btn-danger">Launch</a>'],
 ];
 
-Bootstrap::writeGrid($content, $tags);
+Bootstrap::writeGrid($content, $tags, false, false);
 
 ?>
 <hr/>
 <h2>CSV Exports</h2>
+<p>NOTE: Exports are for the current event only.</p>
 <?php
 $content = [
-  'stopwatch' => ['Current Schedule','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_schedule&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
+  'stopwatch' => ['Schedule','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_schedule&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
   'globe' => ['Sponsors','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_sponsors&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
+  'user-tag' => ['Presenters','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_presenters&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
+  'list' => ['Classes','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_classes&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
 ];
 
-Bootstrap::writeGrid($content, $tags);
+Bootstrap::writeGrid($content, $tags, false, false);
 
 ?>
 <hr/>
@@ -67,7 +70,7 @@ $content = [
     'user-tag' => ['Classes','<a href="/administrator/index.php?option=com_claw&view=classes" role="button" class="btn btn-danger">Launch</a>'],
   ];
   
-Bootstrap::writeGrid($content, $tags);
+Bootstrap::writeGrid($content, $tags, false, false);
 ?>
 
 <hr/>
@@ -79,5 +82,5 @@ $content = [
     'copy'       => ['Event Copy','<a href="/administrator/index.php?option=com_claw&view=eventcopy&layout=edit" role="button" class="btn btn-danger">Launch</a>'],
   ];
 
-Bootstrap::writeGrid($content, $tags);
+Bootstrap::writeGrid($content, $tags, false, false);
 
