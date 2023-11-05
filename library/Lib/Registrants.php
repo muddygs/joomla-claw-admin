@@ -52,6 +52,21 @@ class Registrants
     return $results;
   }
 
+  public static function getRegistrantCount(int $eventId): int
+  {
+    $db = Factory::getContainer()->get('DatabaseDriver');
+
+    $query = $db->getQuery(true);
+    $query->SELECT('COUNT(*)')
+      ->FROM($db->qn('#__eb_registrants'))
+      ->WHERE($db->qn('event_id') . '=' . $db->q($eventId))
+      ->WHERE($db->qn('published') . '=' . $db->q(EbPublishedState::published->value));
+
+    $db->setQuery($query);
+    $count = $db->loadResult();
+    return $count;
+  }
+
   /** Returns list of registrant changes filtered on record update (ts_modified)
    * @param int $days_back Number of days for history to report
    * @return array Registrant records
