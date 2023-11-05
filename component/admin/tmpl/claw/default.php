@@ -42,7 +42,7 @@ $content = [
   'globe' => ['Volunteer Overview','<a href="/administrator/index.php?option=com_claw&view=reports&layout=volunteer_overview&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
   'list' => ['Volunteer Detail','<a href="/administrator/index.php?option=com_claw&view=reports&layout=volunteer_detail&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
   'tshirt' => ['Shirts','<a href="/administrator/index.php?option=com_claw&view=reports&layout=shirts&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
-  'utensils' => ['Meals','<a href="/administrator/index.php?option=com_claw&view=reports&tmpl=meals" role="button" class="btn btn-danger">Launch</a>'],
+  'utensils' => ['Meals','<a href="/administrator/index.php?option=com_claw&view=reports&layout=meals&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
 ];
 
 Bootstrap::writeGrid($content, $tags, false, false);

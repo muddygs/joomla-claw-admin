@@ -38,6 +38,9 @@ class RawView extends BaseHtmlView
       case 'volunteer_detail':
         $this->items = $this->model->getVolunteerOverview();
         break;
+      case 'meals':
+        $this->items = $this->model->getMealCounts();
+        break;
       default:
         break;
     }

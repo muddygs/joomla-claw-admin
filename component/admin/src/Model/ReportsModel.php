@@ -13,14 +13,17 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 \defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\EbPublishedState;
+use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Helpers\Volunteers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\Ebfield;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\Registrants;
-use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\User\UserFactory;
+use Joomla\DI\Exception\KeyNotFoundException;
+use Joomla\CMS\WebAsset\Exception\InvalidActionException;
 
 /**
  * Methods to handle a list of records.
@@ -155,6 +158,84 @@ class ReportsModel extends BaseDatabaseModel
     $items['eventInfo'] = $this->eventInfo;
     $items['shifts'] = $shifts;
     $items['coordinators'] = $coordinators;
+
+    return $items;
+  }
+
+  /**
+   * Parses meal events and returns counts. WARNING: Assumes "dinner" has only one event.
+   * Dinner includes a subcount of meal types and counts.
+   * @return array 
+   * @throws KeyNotFoundException 
+   * @throws InvalidActionException 
+   */
+  public function getMealCounts(): array
+  {
+    $items = [];
+
+    $abstractEvent = $this->events->getEvent();
+
+    $dinnerField = null;
+    $dinnerField = new Ebfield('Dinner');
+    $dinnerEventId = 0;
+
+    // Data ordering
+    $mealOrderCategory = ['dinner', 'buffet-breakfast', 'buffet'];
+
+    foreach ( $mealOrderCategory AS $category ) {
+      $catId = ClawEvents::getCategoryId($category);
+
+      /** @var \ClawCorpLib\Lib\ClawEvent */
+      foreach ( $abstractEvent->getEvents() AS $clawEvent ) {
+        if ( $clawEvent->category != $catId ) continue;
+
+        $subcount = [];
+
+        if ( 'dinner' == $category ) {
+          $subcount = $dinnerField->valueCounts($clawEvent->eventId);
+          $dinnerEventId = $clawEvent->eventId;
+        }
+
+        $items[$clawEvent->eventId] = (object)[
+          'eventId' => $clawEvent->eventId,
+          'description' => $clawEvent->description,
+          'category' => $category,
+          'count' => Registrants::getRegistrantCount($clawEvent->eventId),
+          'subcount' => $subcount,
+        ];
+
+      }
+    }
+
+    // Combo meals events
+    foreach ( [EventPackageTypes::combo_meal_1,
+        EventPackageTypes::combo_meal_2, 
+        EventPackageTypes::combo_meal_3, 
+        EventPackageTypes::combo_meal_4] AS $comboMeal ) {
+      if ( is_null($abstractEvent->getClawEvent($comboMeal)) ) continue;
+
+      $clawEvent = $abstractEvent->getClawEvent($comboMeal);
+
+      $subcount = $dinnerField->valueCounts($clawEvent->eventId);
+
+      foreach ( $clawEvent->meta AS $eventId ) {
+        $items[$eventId]->count += Registrants::getRegistrantCount($clawEvent->eventId);
+
+        if ( $eventId == $dinnerEventId && $dinnerEventId > 0 ) {
+          foreach ( $subcount AS $count ) {
+            $comboValue = $count->field_value;
+            $comboCount = $count->value_count;
+
+            foreach ( $items[$eventId]->subcount AS $itemCount ) {
+              if ( $itemCount->field_value == $comboValue ) {
+                $itemCount->value_count += $comboCount;
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
 
     return $items;
   }
