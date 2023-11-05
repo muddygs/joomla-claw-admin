@@ -5,13 +5,11 @@ use Joomla\CMS\Factory;
 
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
-use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Lib\Registrant;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\CheckinRecord;
-use Stripe\Event;
 
 class Checkin
 {
@@ -61,7 +59,6 @@ class Checkin
     
     $events = new ClawEvents($alias);
     $abstractEvent = $events->getEvent();
-    $prefix = strtolower($events->getClawEventInfo()->prefix).'-';
 
     // Cache meal labels
     $badgeValues = [];
