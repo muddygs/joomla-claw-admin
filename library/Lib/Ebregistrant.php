@@ -3,9 +3,7 @@
 namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Helpers\Helpers;
-use HelixUltimate\Framework\Platform\Helper;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Help\Help;
 use Joomla\CMS\User\UserHelper;
 
 \defined('_JEXEC') or die;
