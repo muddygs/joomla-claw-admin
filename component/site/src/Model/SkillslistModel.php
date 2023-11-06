@@ -15,8 +15,10 @@ use ClawCorpLib\Helpers\Helpers;
 
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Skills;
-
+use ClawCorpLib\Lib\ClawEvents;
+use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\Router\Route;
 
 /**
  * Methods to handle public class listing.
@@ -78,6 +80,7 @@ class SkillslistModel extends BaseDatabaseModel
       $time = $class->time_slot;
       $title = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $class->title));
 
+      // TODO: SQL has been updated so data is already ordered - this can be simplified
       $ordering = implode('-', [$day, $time, $title, $class->id]);
 
       // Overview view gets all items indexed by category
@@ -137,21 +140,31 @@ class SkillslistModel extends BaseDatabaseModel
       ksort($tab_items->$tab['ids']);
     }
 
+    // Is the event onsite active true?
+    $clawEvent = new ClawEvents($eventAlias);
+    $eventInfo = $clawEvent->getClawEventInfo();
+
+    $surveyLink = '';
+
+    if ( $eventInfo->onsiteActive) {
+      /** @var $app SiteApplication */
+      $app = Factory::getApplication();
+      $params = $app->getParams();
+      $seSurveyMenuId = $params->get('se_survey_link', 0);
+
+      if ( $seSurveyMenuId > 0 ) {
+        $menu = $app->getMenu();
+        $item = $menu->getItem($seSurveyMenuId);
+        $surveyLink = Route::_($item->link);
+      }
+    }
+
     return (object) [
       'items' => $classes, // All classes
       'tabs' => $tab_items, // Organized by tab
       'categories' => $classCategories, // Categories used by overview listing
       'types' => $classTypes, // Class types of presentations
+      'survey' => $surveyLink,
     ];
-  }
-
-  public function GetPresenter(int $uid, string $eventAlias): object
-  {
-    $db = $this->getDatabase();
-    $skills = new Skills($db, $eventAlias);
-
-    $presenter = $this->skills->GetPresenter($uid);
-
-    return $presenter;
   }
 }
