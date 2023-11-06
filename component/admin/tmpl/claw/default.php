@@ -11,6 +11,7 @@
 \defined('_JEXEC') or die('Restricted Access');
 
 use ClawCorpLib\Helpers\Bootstrap;
+use Joomla\CMS\Router\Route;
 
 $tags = [
   ['<h4 class="fw-bold mb-0">','</h4>'],
@@ -23,12 +24,18 @@ $tags = [
 
 <h2>Event Management</h2>
 <?php
+$eventSchedule = Route::_('index.php?option=com_claw&view=schedules');
+$sponsors = Route::_('index.php?option=com_claw&view=sponsors');
+$vendors = Route::_('index.php?option=com_claw&view=vendors');
+$locations = Route::_('index.php?option=com_claw&view=locations');
+$shifts = Route::_('index.php?option=com_claw&view=shifts');
+
 $content = [
-    'ticket-alt' => ['Event Schedule','LINK'],
-    'splotch' => ['Sponsors','LINK'],
-    'shopping-basket' => ['Vendors','LINK'],
-    'map-signs' => ['Locations','LINK'],
-    'people-carry' => ['Shifts','LINK'],
+    'ticket-alt' => ['Event Schedule','<a href="' . $eventSchedule . '" role="button" class="btn btn-danger">Launch</a>'],
+    'splotch' => ['Sponsors','<a href="' . $sponsors . '" role="button" class="btn btn-danger">Launch</a>'],
+    'shopping-basket' => ['Vendors','<a href="' . $vendors . '" role="button" class="btn btn-danger">Launch</a>'],
+    'map-signs' => ['Locations','<a href="' . $locations . '" role="button" class="btn btn-danger">Launch</a>'],
+    'people-carry' => ['Shifts','<a href="' . $shifts . '" role="button" class="btn btn-danger">Launch</a>'],
   ];
   
 Bootstrap::writeGrid($content, $tags, false, false);
@@ -49,7 +56,7 @@ Bootstrap::writeGrid($content, $tags, false, false);
 
 ?>
 <hr/>
-<h2>CSV Exports</h2>
+<h2>Exports</h2>
 <p>NOTE: Exports are for the current event only.</p>
 <?php
 $content = [
@@ -57,6 +64,7 @@ $content = [
   'globe' => ['Sponsors','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_sponsors&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
   'user-tag' => ['Presenters','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_presenters&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
   'list' => ['Classes','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_classes&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
+  'file-archive' => ['Zip Presenter Images','<a href="/administrator/index.php?option=com_claw&view=reports&layout=zip_presenters&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
 ];
 
 Bootstrap::writeGrid($content, $tags, false, false);
@@ -66,9 +74,9 @@ Bootstrap::writeGrid($content, $tags, false, false);
 <h2>Skills &amp; Education</h2>
 <?php
 $content = [
-    'ticket-alt' => ['Presenters','<a href="/administrator/index.php?option=com_claw&view=presenters" role="button" class="btn btn-danger">Launch</a>'],
-    'user-tag' => ['Classes','<a href="/administrator/index.php?option=com_claw&view=classes" role="button" class="btn btn-danger">Launch</a>'],
-  ];
+  'ticket-alt' => ['Presenters','<a href="/administrator/index.php?option=com_claw&view=presenters" role="button" class="btn btn-danger">Launch</a>'],
+  'user-tag' => ['Classes','<a href="/administrator/index.php?option=com_claw&view=classes" role="button" class="btn btn-danger">Launch</a>'],
+];
   
 Bootstrap::writeGrid($content, $tags, false, false);
 ?>
