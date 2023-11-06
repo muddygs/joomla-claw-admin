@@ -5,6 +5,8 @@ namespace ClawCorpLib\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use InvalidArgumentException;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Filesystem\File;
+use Joomla\CMS\Filesystem\Folder;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Router\Route;
 use Joomla\Database\DatabaseDriver;
@@ -258,7 +260,6 @@ class Skills
     header('Content-Disposition: attachment; filename="'. $filename . '"');
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
-    header("Pragma: public");
     ob_clean();
     ob_start();
     set_time_limit(0);
@@ -316,7 +317,6 @@ class Skills
     header('Content-Disposition: attachment; filename="'. $filename . '"');
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
-    header("Pragma: public");
     ob_clean();
     ob_start();
     set_time_limit(0);
@@ -382,7 +382,9 @@ class Skills
             break;
           case 'description':
             // Convert category to text
-            $row[] = '<p><b>Category:</b> ' . $categories[$c->category]->text . '</p>' . PHP_EOL . $c->$col;
+            $description = '<p>Category: ' . $categories[$c->category]->text . '</p>' . PHP_EOL . $c->$col;
+            $description = Helpers::cleanHtmlForCsv($description);
+            $row[] = $description;
             break;
           default:
             $row[] = $c->$col;
@@ -393,5 +395,106 @@ class Skills
       fputcsv($fp, $row);
 
     }
+  }
+
+  public function zipPresenters(string $filename)
+  {
+    if ( $this->eventAlias == '' ) {
+      // error message
+      throw new GenericDataException('eventAlias must be specified', 500);
+    }
+
+    $query = $this->db->getQuery(true);
+    $columnNames = ['id', 'uid', 'name', 'bio', 'photo'];
+
+    $query->select($this->db->qn($columnNames))
+      ->from($this->db->qn('#__claw_presenters'))
+      ->where($this->db->qn('published') . ' = 1')
+      ->where($this->db->qn('event') . ' = :event')
+      ->bind(':event', $this->eventAlias)
+      ->order('name ASC');
+
+    $this->db->setQuery($query);
+    $presenters = $this->db->loadObjectList() ?? [];
+
+    // Define the base tmp path
+    $tmpBasePath = Factory::getApplication()->get('tmp_path');
+
+    // Create a unique folder name, e.g., using a timestamp or a unique ID
+    $uniqueFolderName = 'presenters_' . uniqid();
+    $tempFolderPath = implode(DIRECTORY_SEPARATOR,[$tmpBasePath, $uniqueFolderName]);
+    $zipFileName = implode(DIRECTORY_SEPARATOR, [$tmpBasePath, $filename]);
+
+    // Check if the directory already exists just in case
+    if (!Folder::exists($tempFolderPath)) {
+      // Create the directory
+      Folder::create($tempFolderPath);
+    }
+
+    $archiveFiles = [];
+
+    foreach ( $presenters AS $p ) {
+      if ( $p->photo !== '') {
+        if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $p->photo]))) {
+          $name = strtolower(preg_replace('/[^a-zA-Z0-9]/', '_', $p->name));
+
+          $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, 'images', 'skills', 'presenters', 'orig', basename($p->photo)]);
+          $tmp = implode(DIRECTORY_SEPARATOR, [$tempFolderPath, $name.'_'.$p->uid.'.jpg']);
+          $archiveFiles[basename($tmp)] = $tmp;
+
+          // Copy the file to the temp folder
+          if ( !copy($orig, $tmp) ) {
+            // error message
+            echo "<p>Unable to copy file for {$p->name}</p>";
+          }
+        }
+      }
+    }
+
+    /**** JOOMLA METHOD FAILS
+    $archive = new Archive(['tmp_path' => $tmpBasePath]);
+
+    try {
+        $zipFileAdapter = $archive->getAdapter('zip');
+        // HERE: says it wants list of files, but really is wants content?
+        $zipFile = $zipFileAdapter->create($zipFileName, $archiveFiles);
+    } catch (\Exception $e) {
+        // Handle exception
+        echo "Error creating zip archive: " . $e->getMessage();
+        return;
+    }
+    *****/
+
+    /** PHP METHOD */
+    $zip = new \ZipArchive();
+    if ( $zip->open($zipFileName, \ZipArchive::CREATE) !== TRUE ) {
+      echo "Error creating zip archive";
+      return;
+    }
+
+    foreach ( $archiveFiles AS $name => $file ) {
+      $zip->addFromString($name, \file_get_contents($file));
+    }
+
+    $zip->close();
+
+    header('Content-Type: application/zip');
+    header('Content-Disposition: attachment; filename="'. $filename . '"');
+    header("Cache-Control: no-store");
+
+    header('Content-Length: '.filesize($zipFileName));
+    header('Content-Transfer-Encoding', 'binary');
+    header('Cache-Control', 'must-revalidate');
+    header("Expires: 0");
+
+    set_time_limit(120);
+    ini_set('error_reporting', E_NOTICE);
+
+    ob_end_clean();
+    flush();
+    readfile($zipFileName);
+
+    File::delete($zipFileName);
+    Folder::delete($tempFolderPath);
   }
 }
