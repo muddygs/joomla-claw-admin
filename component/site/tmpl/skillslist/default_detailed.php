@@ -51,15 +51,12 @@ foreach ( $tabInfo['ids'] AS $classId ) {
     <?php
   }
     
-    $link = '/se';
-    $survey = '';
+    $survey = '<i class="fa fa-comments fa-2x text-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Surveys are not open"></i>';
 
-    // TODO: Survey links
-    // if ( CLAWALIASES::onsiteActive === true ) {
-    //   $gid = getId($tabInfo->id,$tabInfo->title);
-    //   $link = "/se?form[classTitleParam]=$gid";
-    //   $survey = '<a href="'.$link.'" style="color:#ffae00"><i class="fa fa-comments fa-2x"></i></a>';
-    // }
+    if ( $this->list->survey != '' ) {
+      $link = $this->list->survey . '&form[classTitleParam]=' . $class->id;
+      $survey = '<a href="'.$link.'" style="color:#ffae00"><i class="fa fa-comments fa-2x"></i></a>';
+    }
 
   ?>
     <div class="row row-striped">
