@@ -54,8 +54,8 @@
 			<option value="">JGLOBAL_SORT_BY</option>
 			<option value="a.title ASC">Title Ascending</option>
 			<option value="a.title DESC">Title Descending</option>
-			<option value="a.start_time ASC">Time Ascending</option>
-			<option value="a.start_time DESC">Time Descending</option>
+			<option value="a.time_slot ASC">Time Ascending</option>
+			<option value="a.time_slot DESC">Time Descending</option>
 			<option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
 			<option value="a.id DESC">JGRID_HEADING_ID_DESC</option>
 			<option value="a.mtime ASC">Modification Ascending</option>
