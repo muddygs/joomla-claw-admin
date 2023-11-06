@@ -30,7 +30,7 @@ defined('_JEXEC') or die;
         <div class="col-12 text-center">Room: <?= $this->class->location ?></div>
         <div class="col-12 p-1 m-2 text-center">Topic area: <?= $this->class->category ?></div>
       </div>
-      <div class="row border border-warning p-2 tight">
+      <div class="row border border-warning p-2">
         <?= $this->class->description ?>
       </div>
       <hr />
