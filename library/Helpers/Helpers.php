@@ -408,4 +408,31 @@ class Helpers
         return null;
     }
   }
+
+  public static function cleanHtmlForCsv($htmlString) {
+    // Replace <br> and <br/> with two carriage returns "\r\n\r\n"
+    $cleanedString = preg_replace('/<br\s*\/?>/i', "\r\n\r\n", $htmlString);
+
+    // Remove anchor tags but keep the href part.
+    // This finds all href attributes and replaces the anchor tag with its URL in parenthesis.
+    $cleanedString = preg_replace_callback(
+        '/<a\s+[^>]*href=(["\'])(.*?)\1[^>]*>(.*?)<\/a>/i',
+        function($matches) {
+            // If the link text is the same as the URL, we'll just use the URL
+            if ($matches[3] === $matches[2]) {
+                return $matches[2];
+            }
+            // Otherwise, return the link text followed by the URL in parenthesis
+            return $matches[3] . ' (' . $matches[2] . ')';
+        },
+        $cleanedString
+    );
+
+    // Strip remaining HTML tags
+    $cleanedString = strip_tags($cleanedString);
+
+    return $cleanedString;
+}
+
+
 }
