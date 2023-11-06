@@ -34,7 +34,8 @@ foreach ( $this->list->tabs->overview['category'] AS $simple_item )
     $url = '';
     $presenter_urls = [];
 
-    $title = $this->list->items[$classId]->title;
+    $title = '<a href="' . Route::_('index.php?option=com_claw&view=skillsclass&id=' . $classId) . '&tab=' . $this->tabId. '">' . $this->list->items[$classId]->title . '</a>';
+
     $day = $this->list->items[$classId]->day_text;
 
     foreach ( $this->list->items[$classId]->presenter_info AS $presenter ) {
@@ -43,7 +44,7 @@ foreach ( $this->list->tabs->overview['category'] AS $simple_item )
 
     ?>
       <tr class="d-flex">
-      <td class="col-6"><?= $title ?>&nbsp;<i class="fa fa-chevron-right"></i></div>
+      <td class="col-6"><?= $title ?></div>
       <td class="col-3"><?= $day ?></div>
       <td class="col-3"><?php echo implode('<br/>',$presenter_urls) ?></div>
       </tr>
