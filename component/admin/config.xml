@@ -47,6 +47,14 @@
 				<option value="0">JNO</option>
 			</field>
 
+			<field 
+				name="se_survey_link"
+				type="menuitem"
+				label="Survey RS Form Menu Item"
+			>
+				<option value="">JDEFAULT</option>
+			</field>
+
 			<field
 				name="se_notification_email"
 				type="email"
