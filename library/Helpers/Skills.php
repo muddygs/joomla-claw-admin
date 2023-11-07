@@ -280,6 +280,10 @@ class Skills
             $link = Helpers::convertMediaManagerUrl(ltrim($p->$col, '/'));
             $row[] = is_null($link) ? '' : $link;
             break;
+          case 'bio':
+            // Convert to HTML
+            $row[] = Helpers::cleanHtmlForCsv($p->$col);
+            break;
           default:
             $row[] = $p->$col;
             break;
@@ -481,11 +485,12 @@ class Skills
     header('Content-Type: application/zip');
     header('Content-Disposition: attachment; filename="'. $filename . '"');
     header("Cache-Control: no-store");
-
     header('Content-Length: '.filesize($zipFileName));
-    header('Content-Transfer-Encoding', 'binary');
-    header('Cache-Control', 'must-revalidate');
-    header("Expires: 0");
+
+    /** WARNING: THESE BREAK OUR HOSTING COMPANY */
+    // header('Content-Transfer-Encoding: binary'); <-- this is a mail transport header
+    // header('Cache-Control', 'must-revalidate');      and many resources lie about this?
+    // header("Expires: 0");
 
     set_time_limit(120);
     ini_set('error_reporting', E_NOTICE);
