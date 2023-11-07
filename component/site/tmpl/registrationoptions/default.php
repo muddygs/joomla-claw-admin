@@ -12,6 +12,7 @@ use ClawCorpLib\Helpers\Bootstrap;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\HTML\HTMLHelper;
 
@@ -259,7 +260,7 @@ endif;
   }
   
   $headings[] = 'Meals';
-  $content[] = contentMeals($this->eventInfo->onsiteActive);
+  $content[] = contentMeals($this->eventInfo);
 
   $headings[] = 'Speed Dating';
   $content[] = contentSpeedDating();
@@ -345,17 +346,18 @@ HTML;
     return $result;
   }
 
-  function contentMeals(bool $onsiteActive): string
+  function contentMeals(EventInfo &$eventInfo): string
   {
+    // TODO: temporary use of C24 category for meals
     $result = '';
     $categoryIds = ClawEvents::getCategoryIds([
-      'dinner',
+      $eventInfo->prefix == 'C24' ? 'dinner-cle' : 'dinner',
       'buffet',
       'buffet-breakfast',
     ]);
 
-    if ( !$onsiteActive ) {
-      $categoryIds[] = ClawEvents::getCategoryId('meal-combos');
+    if ( !$eventInfo->onsiteActive ) {
+      $categoryIds[] = ClawEvents::getCategoryId($eventInfo->prefix == 'C24' ? 'meal-combos-cle' : 'meal-combos');
     }
 
     foreach ($categoryIds as $id) {
