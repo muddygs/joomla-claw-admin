@@ -93,6 +93,9 @@ class Schedule {
             // track is day converted to day of week
             $row[] = date('l', strtotime($c->day));
             break;
+          case 'event_description':
+            $row[] = Helpers::cleanHtmlForCsv($c->$col);
+            break;
           default:
             $row[] = $c->$col;
             break;
