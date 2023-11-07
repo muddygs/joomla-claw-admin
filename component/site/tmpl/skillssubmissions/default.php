@@ -78,7 +78,7 @@ function BioHtml(object &$__this)
     default => 'Pending Review'
   };
 
-  $isCurrent = $__this->bio->event == Aliases::current();
+  $isCurrent = $__this->bio->event == Aliases::current(true);
 
   $event = ClawCorpLib\Lib\ClawEvents::eventAliasToTitle($__this->bio->event);
   if ($isCurrent) {
