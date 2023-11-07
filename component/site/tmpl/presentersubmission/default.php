@@ -23,14 +23,14 @@ $this->document->setTitle("Biography Submission");
 $header = $this->params->get('BioHeader') ?? '';
 echo $header;
 
-if ($this->params->get('se_submissions_open') == 0) :
+if ($this->params->get('se_submissions_open') == 0 || $this->item->id != 0) :
 ?>
   <h1>Submissions are currently closed. You may view only your biography.</h1>
 <?php
 endif;
 ?>
 
-<?php if ($this->params->get('se_submissions_open') != 0) : ?>
+<?php if ($this->params->get('se_submissions_open') != 0 || $this->item->id == 0 ) : ?>
   <form action="<?php echo Route::_('index.php?option=com_claw&view=' . $view . '&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="<?php echo $view ?>" id="<?php echo $view ?>-form" class="form-validate" enctype="multipart/form-data">
   <?php endif; ?>
 
@@ -83,7 +83,7 @@ endif;
     <?php echo $this->form->renderField('comments'); ?>
   </div>
 
-  <?php if ($this->params->get('se_submissions_open') != 0) : ?>
+  <?php if ($this->params->get('se_submissions_open') != 0 || $this->item->id == 0) : ?>
     <button type="button" class="btn btn-primary" onclick="Joomla.submitbutton('<?php echo $view ?>.submit')">Submit for <?php echo $this->eventInfo->description ?></button>
     <?php echo $this->form->renderField('event'); ?>
     <input type="hidden" name="idx" value="<?php echo $this->item->id ?>" />
