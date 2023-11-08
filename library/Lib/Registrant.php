@@ -186,10 +186,13 @@ class Registrant
     $db->setQuery($q);
     $records = $db->loadObjectList($index->value);
 
+    // Refunds can only retrieve main events
+    $mainOnly = ( 'refunds' == $this->clawEventAlias );
+
     foreach( $records AS $k => $r )
     {
       /** @var \ClawCorpLib\Lib\ClawEvent */
-      $event = $this->clawEvents->getEventByKey('eventId',$r->eventId,false);
+      $event = $this->clawEvents->getEventByKey('eventId',$r->eventId,$mainOnly);
       if ( null != $event ) {
         if ( $event->isMainEvent) $r->couponKey = $event->couponKey;
         $r->eventPackageType = $event->eventPackageType;
