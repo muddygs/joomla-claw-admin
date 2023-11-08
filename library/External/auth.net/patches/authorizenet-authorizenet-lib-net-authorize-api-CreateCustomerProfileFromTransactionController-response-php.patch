@@ -1,0 +1,12 @@
+--- a/lib/net/authorize/api/controller/CreateCustomerProfileFromTransactionController.php
++++ b/lib/net/authorize/api/controller/CreateCustomerProfileFromTransactionController.php
+@@ -8,7 +8,7 @@
+ {
+     public function __construct(AnetApiRequestType $request)
+     {
+-        $responseType = 'net\authorize\api\contract\v1\CreateCustomerProfileFromTransactionResponse';
++        $responseType = 'net\authorize\api\contract\v1\CreateCustomerProfileResponse';
+         parent::__construct($request, $responseType);
+     }
+ 
+

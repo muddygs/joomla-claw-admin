@@ -1,0 +1,2797 @@
+From e4f40bf77f40ee8d41921625f5562d4c086b7988 Mon Sep 17 00:00:00 2001
+From: Alex Skrashuk <askrashuk@scnsoft.com>
+Date: Tue, 15 Nov 2022 12:52:16 +0300
+Subject: [PATCH 1/2] Make library compatible with PHP 8.1
+
+---
+ lib/net/authorize/api/contract/v1/ANetApiRequestType.php      | 4 +++-
+ lib/net/authorize/api/contract/v1/ANetApiResponseType.php     | 4 +++-
+ .../api/contract/v1/ARBCancelSubscriptionRequest.php          | 4 +++-
+ .../api/contract/v1/ARBCreateSubscriptionRequest.php          | 4 +++-
+ .../api/contract/v1/ARBGetSubscriptionListRequest.php         | 4 +++-
+ .../api/contract/v1/ARBGetSubscriptionListSortingType.php     | 4 +++-
+ .../authorize/api/contract/v1/ARBGetSubscriptionRequest.php   | 4 +++-
+ .../api/contract/v1/ARBGetSubscriptionStatusRequest.php       | 4 +++-
+ .../authorize/api/contract/v1/ARBSubscriptionMaskedType.php   | 4 +++-
+ lib/net/authorize/api/contract/v1/ARBSubscriptionType.php     | 4 +++-
+ .../api/contract/v1/ARBUpdateSubscriptionRequest.php          | 4 +++-
+ lib/net/authorize/api/contract/v1/ArbTransactionType.php      | 4 +++-
+ lib/net/authorize/api/contract/v1/ArrayOfSettingType.php      | 4 +++-
+ lib/net/authorize/api/contract/v1/AuDeleteType.php            | 4 +++-
+ lib/net/authorize/api/contract/v1/AuDetailsType.php           | 4 +++-
+ lib/net/authorize/api/contract/v1/AuResponseType.php          | 4 +++-
+ lib/net/authorize/api/contract/v1/AuUpdateType.php            | 4 +++-
+ lib/net/authorize/api/contract/v1/AuthenticateTestRequest.php | 4 +++-
+ .../authorize/api/contract/v1/AuthorizationIndicatorType.php  | 4 +++-
+ lib/net/authorize/api/contract/v1/BankAccountMaskedType.php   | 4 +++-
+ lib/net/authorize/api/contract/v1/BankAccountType.php         | 4 +++-
+ lib/net/authorize/api/contract/v1/BatchDetailsType.php        | 4 +++-
+ lib/net/authorize/api/contract/v1/BatchStatisticType.php      | 4 +++-
+ lib/net/authorize/api/contract/v1/CardArtType.php             | 4 +++-
+ lib/net/authorize/api/contract/v1/CcAuthenticationType.php    | 4 +++-
+ lib/net/authorize/api/contract/v1/ContactDetailType.php       | 4 +++-
+ .../api/contract/v1/CreateCustomerPaymentProfileRequest.php   | 4 +++-
+ .../v1/CreateCustomerProfileFromTransactionRequest.php        | 4 +++-
+ .../api/contract/v1/CreateCustomerProfileRequest.php          | 4 +++-
+ .../contract/v1/CreateCustomerProfileTransactionRequest.php   | 4 +++-
+ .../api/contract/v1/CreateCustomerShippingAddressRequest.php  | 4 +++-
+ .../authorize/api/contract/v1/CreateProfileResponseType.php   | 4 +++-
+ .../authorize/api/contract/v1/CreateTransactionRequest.php    | 4 +++-
+ lib/net/authorize/api/contract/v1/CreditCardMaskedType.php    | 4 +++-
+ lib/net/authorize/api/contract/v1/CreditCardSimpleType.php    | 4 +++-
+ lib/net/authorize/api/contract/v1/CreditCardTrackType.php     | 4 +++-
+ lib/net/authorize/api/contract/v1/CreditCardType.php          | 4 +++-
+ lib/net/authorize/api/contract/v1/CustomerAddressExType.php   | 4 +++-
+ lib/net/authorize/api/contract/v1/CustomerAddressType.php     | 4 +++-
+ lib/net/authorize/api/contract/v1/CustomerDataType.php        | 4 +++-
+ .../api/contract/v1/CustomerPaymentProfileBaseType.php        | 4 +++-
+ .../api/contract/v1/CustomerPaymentProfileExType.php          | 4 +++-
+ .../api/contract/v1/CustomerPaymentProfileListItemType.php    | 4 +++-
+ .../api/contract/v1/CustomerPaymentProfileMaskedType.php      | 4 +++-
+ .../api/contract/v1/CustomerPaymentProfileSortingType.php     | 4 +++-
+ .../authorize/api/contract/v1/CustomerPaymentProfileType.php  | 4 +++-
+ lib/net/authorize/api/contract/v1/CustomerProfileBaseType.php | 4 +++-
+ lib/net/authorize/api/contract/v1/CustomerProfileExType.php   | 4 +++-
+ lib/net/authorize/api/contract/v1/CustomerProfileIdType.php   | 4 +++-
+ .../authorize/api/contract/v1/CustomerProfileInfoExType.php   | 4 +++-
+ .../authorize/api/contract/v1/CustomerProfileMaskedType.php   | 4 +++-
+ .../authorize/api/contract/v1/CustomerProfilePaymentType.php  | 4 +++-
+ .../authorize/api/contract/v1/CustomerProfileSummaryType.php  | 4 +++-
+ lib/net/authorize/api/contract/v1/CustomerProfileType.php     | 4 +++-
+ lib/net/authorize/api/contract/v1/CustomerType.php            | 4 +++-
+ .../authorize/api/contract/v1/DecryptPaymentDataRequest.php   | 4 +++-
+ .../api/contract/v1/DeleteCustomerPaymentProfileRequest.php   | 4 +++-
+ .../api/contract/v1/DeleteCustomerProfileRequest.php          | 4 +++-
+ .../api/contract/v1/DeleteCustomerShippingAddressRequest.php  | 4 +++-
+ .../authorize/api/contract/v1/DriversLicenseMaskedType.php    | 4 +++-
+ lib/net/authorize/api/contract/v1/DriversLicenseType.php      | 4 +++-
+ lib/net/authorize/api/contract/v1/EmailSettingsType.php       | 4 +++-
+ lib/net/authorize/api/contract/v1/EmvTagType.php              | 4 +++-
+ lib/net/authorize/api/contract/v1/EncryptedTrackDataType.php  | 4 +++-
+ lib/net/authorize/api/contract/v1/ExtendedAmountType.php      | 4 +++-
+ lib/net/authorize/api/contract/v1/FDSFilterType.php           | 4 +++-
+ lib/net/authorize/api/contract/v1/FingerPrintType.php         | 4 +++-
+ lib/net/authorize/api/contract/v1/FraudInformationType.php    | 4 +++-
+ lib/net/authorize/api/contract/v1/GetAUJobDetailsRequest.php  | 4 +++-
+ lib/net/authorize/api/contract/v1/GetAUJobSummaryRequest.php  | 4 +++-
+ .../authorize/api/contract/v1/GetBatchStatisticsRequest.php   | 4 +++-
+ .../api/contract/v1/GetCustomerPaymentProfileListRequest.php  | 4 +++-
+ .../api/contract/v1/GetCustomerPaymentProfileRequest.php      | 4 +++-
+ .../api/contract/v1/GetCustomerProfileIdsRequest.php          | 4 +++-
+ .../authorize/api/contract/v1/GetCustomerProfileRequest.php   | 4 +++-
+ .../api/contract/v1/GetCustomerShippingAddressRequest.php     | 4 +++-
+ .../authorize/api/contract/v1/GetHostedPaymentPageRequest.php | 4 +++-
+ .../authorize/api/contract/v1/GetHostedProfilePageRequest.php | 4 +++-
+ .../authorize/api/contract/v1/GetMerchantDetailsRequest.php   | 4 +++-
+ .../authorize/api/contract/v1/GetSettledBatchListRequest.php  | 4 +++-
+ .../api/contract/v1/GetTransactionDetailsRequest.php          | 4 +++-
+ .../api/contract/v1/GetTransactionListForCustomerRequest.php  | 4 +++-
+ .../authorize/api/contract/v1/GetTransactionListRequest.php   | 4 +++-
+ .../api/contract/v1/GetUnsettledTransactionListRequest.php    | 4 +++-
+ .../authorize/api/contract/v1/HeldTransactionRequestType.php  | 4 +++-
+ .../api/contract/v1/ImpersonationAuthenticationType.php       | 4 +++-
+ lib/net/authorize/api/contract/v1/IsAliveRequest.php          | 4 +++-
+ lib/net/authorize/api/contract/v1/KeyBlockType.php            | 4 +++-
+ lib/net/authorize/api/contract/v1/KeyManagementSchemeType.php | 4 +++-
+ .../api/contract/v1/KeyManagementSchemeType/DUKPTAType.php    | 4 +++-
+ .../v1/KeyManagementSchemeType/DUKPTAType/DeviceInfoAType.php | 4 +++-
+ .../KeyManagementSchemeType/DUKPTAType/EncryptedDataAType.php | 4 +++-
+ .../v1/KeyManagementSchemeType/DUKPTAType/ModeAType.php       | 4 +++-
+ lib/net/authorize/api/contract/v1/KeyValueType.php            | 4 +++-
+ lib/net/authorize/api/contract/v1/LineItemType.php            | 4 +++-
+ lib/net/authorize/api/contract/v1/ListOfAUDetailsType.php     | 4 +++-
+ lib/net/authorize/api/contract/v1/LogoutRequest.php           | 4 +++-
+ .../authorize/api/contract/v1/MerchantAuthenticationType.php  | 4 +++-
+ lib/net/authorize/api/contract/v1/MerchantContactType.php     | 4 +++-
+ lib/net/authorize/api/contract/v1/MessagesType.php            | 4 +++-
+ .../authorize/api/contract/v1/MessagesType/MessageAType.php   | 4 +++-
+ .../authorize/api/contract/v1/MobileDeviceLoginRequest.php    | 4 +++-
+ .../api/contract/v1/MobileDeviceRegistrationRequest.php       | 4 +++-
+ lib/net/authorize/api/contract/v1/MobileDeviceType.php        | 4 +++-
+ lib/net/authorize/api/contract/v1/NameAndAddressType.php      | 4 +++-
+ lib/net/authorize/api/contract/v1/OpaqueDataType.php          | 4 +++-
+ lib/net/authorize/api/contract/v1/OrderExType.php             | 4 +++-
+ lib/net/authorize/api/contract/v1/OrderType.php               | 4 +++-
+ lib/net/authorize/api/contract/v1/OtherTaxType.php            | 4 +++-
+ lib/net/authorize/api/contract/v1/PagingType.php              | 4 +++-
+ lib/net/authorize/api/contract/v1/PayPalType.php              | 4 +++-
+ lib/net/authorize/api/contract/v1/PaymentDetailsType.php      | 4 +++-
+ lib/net/authorize/api/contract/v1/PaymentEmvType.php          | 4 +++-
+ lib/net/authorize/api/contract/v1/PaymentMaskedType.php       | 4 +++-
+ lib/net/authorize/api/contract/v1/PaymentProfileType.php      | 4 +++-
+ lib/net/authorize/api/contract/v1/PaymentScheduleType.php     | 4 +++-
+ .../api/contract/v1/PaymentScheduleType/IntervalAType.php     | 4 +++-
+ lib/net/authorize/api/contract/v1/PaymentSimpleType.php       | 4 +++-
+ lib/net/authorize/api/contract/v1/PaymentType.php             | 4 +++-
+ lib/net/authorize/api/contract/v1/PermissionType.php          | 4 +++-
+ lib/net/authorize/api/contract/v1/ProcessingOptionsType.php   | 4 +++-
+ lib/net/authorize/api/contract/v1/ProcessorType.php           | 4 +++-
+ lib/net/authorize/api/contract/v1/ProfileTransAmountType.php  | 4 +++-
+ .../authorize/api/contract/v1/ProfileTransAuthCaptureType.php | 4 +++-
+ .../authorize/api/contract/v1/ProfileTransAuthOnlyType.php    | 4 +++-
+ .../authorize/api/contract/v1/ProfileTransCaptureOnlyType.php | 4 +++-
+ lib/net/authorize/api/contract/v1/ProfileTransOrderType.php   | 4 +++-
+ .../api/contract/v1/ProfileTransPriorAuthCaptureType.php      | 4 +++-
+ lib/net/authorize/api/contract/v1/ProfileTransRefundType.php  | 4 +++-
+ lib/net/authorize/api/contract/v1/ProfileTransVoidType.php    | 4 +++-
+ lib/net/authorize/api/contract/v1/ProfileTransactionType.php  | 4 +++-
+ lib/net/authorize/api/contract/v1/ReturnedItemType.php        | 4 +++-
+ .../api/contract/v1/SecurePaymentContainerErrorType.php       | 4 +++-
+ .../api/contract/v1/SecurePaymentContainerRequest.php         | 4 +++-
+ .../api/contract/v1/SendCustomerTransactionReceiptRequest.php | 4 +++-
+ lib/net/authorize/api/contract/v1/SettingType.php             | 4 +++-
+ lib/net/authorize/api/contract/v1/SolutionType.php            | 4 +++-
+ lib/net/authorize/api/contract/v1/SubMerchantType.php         | 4 +++-
+ .../api/contract/v1/SubscriptionCustomerProfileType.php       | 4 +++-
+ lib/net/authorize/api/contract/v1/SubscriptionDetailType.php  | 4 +++-
+ lib/net/authorize/api/contract/v1/SubscriptionPaymentType.php | 4 +++-
+ .../api/contract/v1/SubsequentAuthInformationType.php         | 4 +++-
+ lib/net/authorize/api/contract/v1/TokenMaskedType.php         | 4 +++-
+ lib/net/authorize/api/contract/v1/TransRetailInfoType.php     | 4 +++-
+ lib/net/authorize/api/contract/v1/TransactionDetailsType.php  | 4 +++-
+ .../contract/v1/TransactionDetailsType/EmvDetailsAType.php    | 4 +++-
+ .../v1/TransactionDetailsType/EmvDetailsAType/TagAType.php    | 4 +++-
+ .../authorize/api/contract/v1/TransactionListSortingType.php  | 4 +++-
+ lib/net/authorize/api/contract/v1/TransactionRequestType.php  | 4 +++-
+ .../contract/v1/TransactionRequestType/UserFieldsAType.php    | 4 +++-
+ lib/net/authorize/api/contract/v1/TransactionResponseType.php | 4 +++-
+ .../contract/v1/TransactionResponseType/EmvResponseAType.php  | 4 +++-
+ .../v1/TransactionResponseType/EmvResponseAType/TagsAType.php | 4 +++-
+ .../api/contract/v1/TransactionResponseType/ErrorsAType.php   | 4 +++-
+ .../v1/TransactionResponseType/ErrorsAType/ErrorAType.php     | 4 +++-
+ .../api/contract/v1/TransactionResponseType/MessagesAType.php | 4 +++-
+ .../v1/TransactionResponseType/MessagesAType/MessageAType.php | 4 +++-
+ .../contract/v1/TransactionResponseType/PrePaidCardAType.php  | 4 +++-
+ .../v1/TransactionResponseType/SecureAcceptanceAType.php      | 4 +++-
+ .../v1/TransactionResponseType/SplitTenderPaymentsAType.php   | 4 +++-
+ .../SplitTenderPaymentsAType/SplitTenderPaymentAType.php      | 4 +++-
+ .../contract/v1/TransactionResponseType/UserFieldsAType.php   | 4 +++-
+ lib/net/authorize/api/contract/v1/TransactionSummaryType.php  | 4 +++-
+ .../api/contract/v1/UpdateCustomerPaymentProfileRequest.php   | 4 +++-
+ .../api/contract/v1/UpdateCustomerProfileRequest.php          | 4 +++-
+ .../api/contract/v1/UpdateCustomerShippingAddressRequest.php  | 4 +++-
+ .../api/contract/v1/UpdateHeldTransactionRequest.php          | 4 +++-
+ .../api/contract/v1/UpdateMerchantDetailsRequest.php          | 4 +++-
+ .../api/contract/v1/UpdateSplitTenderGroupRequest.php         | 4 +++-
+ lib/net/authorize/api/contract/v1/UserFieldType.php           | 4 +++-
+ .../api/contract/v1/ValidateCustomerPaymentProfileRequest.php | 4 +++-
+ lib/net/authorize/api/contract/v1/WebCheckOutDataType.php     | 4 +++-
+ .../api/contract/v1/WebCheckOutDataTypeTokenType.php          | 4 +++-
+ 174 files changed, 521 insertions(+), 175 deletions(-)
+
+diff --git a/lib/net/authorize/api/contract/v1/ANetApiRequestType.php b/lib/net/authorize/api/contract/v1/ANetApiRequestType.php
+index da1a55f9..6ee74717 100644
+--- a/lib/net/authorize/api/contract/v1/ANetApiRequestType.php
++++ b/lib/net/authorize/api/contract/v1/ANetApiRequestType.php
+@@ -96,7 +96,9 @@ public function setRefId($refId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ANetApiResponseType.php b/lib/net/authorize/api/contract/v1/ANetApiResponseType.php
+index 18cc9628..85658753 100644
+--- a/lib/net/authorize/api/contract/v1/ANetApiResponseType.php
++++ b/lib/net/authorize/api/contract/v1/ANetApiResponseType.php
+@@ -94,7 +94,9 @@ public function setSessionToken($sessionToken)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ARBCancelSubscriptionRequest.php b/lib/net/authorize/api/contract/v1/ARBCancelSubscriptionRequest.php
+index 90015975..e68fe4cc 100644
+--- a/lib/net/authorize/api/contract/v1/ARBCancelSubscriptionRequest.php
++++ b/lib/net/authorize/api/contract/v1/ARBCancelSubscriptionRequest.php
+@@ -37,7 +37,9 @@ public function setSubscriptionId($subscriptionId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ARBCreateSubscriptionRequest.php b/lib/net/authorize/api/contract/v1/ARBCreateSubscriptionRequest.php
+index c2f74f5f..13a099f9 100644
+--- a/lib/net/authorize/api/contract/v1/ARBCreateSubscriptionRequest.php
++++ b/lib/net/authorize/api/contract/v1/ARBCreateSubscriptionRequest.php
+@@ -37,7 +37,9 @@ public function setSubscription(\net\authorize\api\contract\v1\ARBSubscriptionTy
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ARBGetSubscriptionListRequest.php b/lib/net/authorize/api/contract/v1/ARBGetSubscriptionListRequest.php
+index b9c02deb..7a330b63 100644
+--- a/lib/net/authorize/api/contract/v1/ARBGetSubscriptionListRequest.php
++++ b/lib/net/authorize/api/contract/v1/ARBGetSubscriptionListRequest.php
+@@ -92,7 +92,9 @@ public function setPaging(\net\authorize\api\contract\v1\PagingType $paging)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ARBGetSubscriptionListSortingType.php b/lib/net/authorize/api/contract/v1/ARBGetSubscriptionListSortingType.php
+index e1cee011..2aae2a48 100644
+--- a/lib/net/authorize/api/contract/v1/ARBGetSubscriptionListSortingType.php
++++ b/lib/net/authorize/api/contract/v1/ARBGetSubscriptionListSortingType.php
+@@ -67,7 +67,9 @@ public function setOrderDescending($orderDescending)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ARBGetSubscriptionRequest.php b/lib/net/authorize/api/contract/v1/ARBGetSubscriptionRequest.php
+index da539e1b..6e7e9910 100644
+--- a/lib/net/authorize/api/contract/v1/ARBGetSubscriptionRequest.php
++++ b/lib/net/authorize/api/contract/v1/ARBGetSubscriptionRequest.php
+@@ -64,7 +64,9 @@ public function setIncludeTransactions($includeTransactions)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ARBGetSubscriptionStatusRequest.php b/lib/net/authorize/api/contract/v1/ARBGetSubscriptionStatusRequest.php
+index c288f5f7..d561bbcb 100644
+--- a/lib/net/authorize/api/contract/v1/ARBGetSubscriptionStatusRequest.php
++++ b/lib/net/authorize/api/contract/v1/ARBGetSubscriptionStatusRequest.php
+@@ -37,7 +37,9 @@ public function setSubscriptionId($subscriptionId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ARBSubscriptionMaskedType.php b/lib/net/authorize/api/contract/v1/ARBSubscriptionMaskedType.php
+index 675f89a8..9d37d195 100644
+--- a/lib/net/authorize/api/contract/v1/ARBSubscriptionMaskedType.php
++++ b/lib/net/authorize/api/contract/v1/ARBSubscriptionMaskedType.php
+@@ -264,7 +264,9 @@ public function setArbTransactions(array $arbTransactions)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ARBSubscriptionType.php b/lib/net/authorize/api/contract/v1/ARBSubscriptionType.php
+index 276b8eaf..79e1f45e 100644
+--- a/lib/net/authorize/api/contract/v1/ARBSubscriptionType.php
++++ b/lib/net/authorize/api/contract/v1/ARBSubscriptionType.php
+@@ -283,7 +283,9 @@ public function setProfile(\net\authorize\api\contract\v1\CustomerProfileIdType
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ARBUpdateSubscriptionRequest.php b/lib/net/authorize/api/contract/v1/ARBUpdateSubscriptionRequest.php
+index 81afdf6e..db0cf8da 100644
+--- a/lib/net/authorize/api/contract/v1/ARBUpdateSubscriptionRequest.php
++++ b/lib/net/authorize/api/contract/v1/ARBUpdateSubscriptionRequest.php
+@@ -64,7 +64,9 @@ public function setSubscription(\net\authorize\api\contract\v1\ARBSubscriptionTy
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ArbTransactionType.php b/lib/net/authorize/api/contract/v1/ArbTransactionType.php
+index a2f71799..3f0e1d9f 100644
+--- a/lib/net/authorize/api/contract/v1/ArbTransactionType.php
++++ b/lib/net/authorize/api/contract/v1/ArbTransactionType.php
+@@ -148,7 +148,9 @@ public function setAttemptNum($attemptNum)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ArrayOfSettingType.php b/lib/net/authorize/api/contract/v1/ArrayOfSettingType.php
+index 71b67a8d..fb239117 100644
+--- a/lib/net/authorize/api/contract/v1/ArrayOfSettingType.php
++++ b/lib/net/authorize/api/contract/v1/ArrayOfSettingType.php
+@@ -74,7 +74,9 @@ public function setSetting(array $setting)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/AuDeleteType.php b/lib/net/authorize/api/contract/v1/AuDeleteType.php
+index 411b25b7..af526587 100644
+--- a/lib/net/authorize/api/contract/v1/AuDeleteType.php
++++ b/lib/net/authorize/api/contract/v1/AuDeleteType.php
+@@ -40,7 +40,9 @@ public function setCreditCard(\net\authorize\api\contract\v1\CreditCardMaskedTyp
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/AuDetailsType.php b/lib/net/authorize/api/contract/v1/AuDetailsType.php
+index f1f58fea..45bdc0e6 100644
+--- a/lib/net/authorize/api/contract/v1/AuDetailsType.php
++++ b/lib/net/authorize/api/contract/v1/AuDetailsType.php
+@@ -202,7 +202,9 @@ public function setReasonDescription($reasonDescription)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/AuResponseType.php b/lib/net/authorize/api/contract/v1/AuResponseType.php
+index 87227bf3..76efcc66 100644
+--- a/lib/net/authorize/api/contract/v1/AuResponseType.php
++++ b/lib/net/authorize/api/contract/v1/AuResponseType.php
+@@ -94,7 +94,9 @@ public function setReasonDescription($reasonDescription)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/AuUpdateType.php b/lib/net/authorize/api/contract/v1/AuUpdateType.php
+index 11d89b49..d9d1fad4 100644
+--- a/lib/net/authorize/api/contract/v1/AuUpdateType.php
++++ b/lib/net/authorize/api/contract/v1/AuUpdateType.php
+@@ -67,7 +67,9 @@ public function setOldCreditCard(\net\authorize\api\contract\v1\CreditCardMasked
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/AuthenticateTestRequest.php b/lib/net/authorize/api/contract/v1/AuthenticateTestRequest.php
+index c61b4e23..5575326b 100644
+--- a/lib/net/authorize/api/contract/v1/AuthenticateTestRequest.php
++++ b/lib/net/authorize/api/contract/v1/AuthenticateTestRequest.php
+@@ -10,7 +10,9 @@ class AuthenticateTestRequest extends ANetApiRequestType
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/AuthorizationIndicatorType.php b/lib/net/authorize/api/contract/v1/AuthorizationIndicatorType.php
+index 354d4e57..8422d423 100644
+--- a/lib/net/authorize/api/contract/v1/AuthorizationIndicatorType.php
++++ b/lib/net/authorize/api/contract/v1/AuthorizationIndicatorType.php
+@@ -40,7 +40,9 @@ public function setAuthorizationIndicator($authorizationIndicator)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/BankAccountMaskedType.php b/lib/net/authorize/api/contract/v1/BankAccountMaskedType.php
+index cb41738a..7bc37f59 100644
+--- a/lib/net/authorize/api/contract/v1/BankAccountMaskedType.php
++++ b/lib/net/authorize/api/contract/v1/BankAccountMaskedType.php
+@@ -175,7 +175,9 @@ public function setBankName($bankName)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/BankAccountType.php b/lib/net/authorize/api/contract/v1/BankAccountType.php
+index a677038b..b3076d24 100644
+--- a/lib/net/authorize/api/contract/v1/BankAccountType.php
++++ b/lib/net/authorize/api/contract/v1/BankAccountType.php
+@@ -202,7 +202,9 @@ public function setCheckNumber($checkNumber)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/BatchDetailsType.php b/lib/net/authorize/api/contract/v1/BatchDetailsType.php
+index 560947e8..16ae11f9 100644
+--- a/lib/net/authorize/api/contract/v1/BatchDetailsType.php
++++ b/lib/net/authorize/api/contract/v1/BatchDetailsType.php
+@@ -263,7 +263,9 @@ public function setStatistics(array $statistics)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/BatchStatisticType.php b/lib/net/authorize/api/contract/v1/BatchStatisticType.php
+index b21db0e0..92020bfc 100644
+--- a/lib/net/authorize/api/contract/v1/BatchStatisticType.php
++++ b/lib/net/authorize/api/contract/v1/BatchStatisticType.php
+@@ -580,7 +580,9 @@ public function setRefundReturnedItemsCount($refundReturnedItemsCount)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CardArtType.php b/lib/net/authorize/api/contract/v1/CardArtType.php
+index e7760f9a..9e2625b4 100644
+--- a/lib/net/authorize/api/contract/v1/CardArtType.php
++++ b/lib/net/authorize/api/contract/v1/CardArtType.php
+@@ -148,7 +148,9 @@ public function setCardType($cardType)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CcAuthenticationType.php b/lib/net/authorize/api/contract/v1/CcAuthenticationType.php
+index c2724a94..7e098c15 100644
+--- a/lib/net/authorize/api/contract/v1/CcAuthenticationType.php
++++ b/lib/net/authorize/api/contract/v1/CcAuthenticationType.php
+@@ -67,7 +67,9 @@ public function setCardholderAuthenticationValue($cardholderAuthenticationValue)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ContactDetailType.php b/lib/net/authorize/api/contract/v1/ContactDetailType.php
+index a0396e1a..18853167 100644
+--- a/lib/net/authorize/api/contract/v1/ContactDetailType.php
++++ b/lib/net/authorize/api/contract/v1/ContactDetailType.php
+@@ -94,7 +94,9 @@ public function setLastName($lastName)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CreateCustomerPaymentProfileRequest.php b/lib/net/authorize/api/contract/v1/CreateCustomerPaymentProfileRequest.php
+index f4eea01b..a5b6ce76 100644
+--- a/lib/net/authorize/api/contract/v1/CreateCustomerPaymentProfileRequest.php
++++ b/lib/net/authorize/api/contract/v1/CreateCustomerPaymentProfileRequest.php
+@@ -92,7 +92,9 @@ public function setValidationMode($validationMode)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CreateCustomerProfileFromTransactionRequest.php b/lib/net/authorize/api/contract/v1/CreateCustomerProfileFromTransactionRequest.php
+index 4d06f3f8..94337ed7 100644
+--- a/lib/net/authorize/api/contract/v1/CreateCustomerProfileFromTransactionRequest.php
++++ b/lib/net/authorize/api/contract/v1/CreateCustomerProfileFromTransactionRequest.php
+@@ -172,7 +172,9 @@ public function setProfileType($profileType)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CreateCustomerProfileRequest.php b/lib/net/authorize/api/contract/v1/CreateCustomerProfileRequest.php
+index 45eeb6a9..7e282b1e 100644
+--- a/lib/net/authorize/api/contract/v1/CreateCustomerProfileRequest.php
++++ b/lib/net/authorize/api/contract/v1/CreateCustomerProfileRequest.php
+@@ -64,7 +64,9 @@ public function setValidationMode($validationMode)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CreateCustomerProfileTransactionRequest.php b/lib/net/authorize/api/contract/v1/CreateCustomerProfileTransactionRequest.php
+index d68a1762..341f679b 100644
+--- a/lib/net/authorize/api/contract/v1/CreateCustomerProfileTransactionRequest.php
++++ b/lib/net/authorize/api/contract/v1/CreateCustomerProfileTransactionRequest.php
+@@ -64,7 +64,9 @@ public function setExtraOptions($extraOptions)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CreateCustomerShippingAddressRequest.php b/lib/net/authorize/api/contract/v1/CreateCustomerShippingAddressRequest.php
+index 8b910812..dcb0f0bf 100644
+--- a/lib/net/authorize/api/contract/v1/CreateCustomerShippingAddressRequest.php
++++ b/lib/net/authorize/api/contract/v1/CreateCustomerShippingAddressRequest.php
+@@ -91,7 +91,9 @@ public function setDefaultShippingAddress($defaultShippingAddress)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CreateProfileResponseType.php b/lib/net/authorize/api/contract/v1/CreateProfileResponseType.php
+index 66ac4dcb..ab228eb0 100644
+--- a/lib/net/authorize/api/contract/v1/CreateProfileResponseType.php
++++ b/lib/net/authorize/api/contract/v1/CreateProfileResponseType.php
+@@ -189,7 +189,9 @@ public function setCustomerShippingAddressIdList(array $customerShippingAddressI
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CreateTransactionRequest.php b/lib/net/authorize/api/contract/v1/CreateTransactionRequest.php
+index c9f6870b..2dbdc748 100644
+--- a/lib/net/authorize/api/contract/v1/CreateTransactionRequest.php
++++ b/lib/net/authorize/api/contract/v1/CreateTransactionRequest.php
+@@ -38,7 +38,9 @@ public function setTransactionRequest(\net\authorize\api\contract\v1\Transaction
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CreditCardMaskedType.php b/lib/net/authorize/api/contract/v1/CreditCardMaskedType.php
+index ee52cfb8..c343a649 100644
+--- a/lib/net/authorize/api/contract/v1/CreditCardMaskedType.php
++++ b/lib/net/authorize/api/contract/v1/CreditCardMaskedType.php
+@@ -175,7 +175,9 @@ public function setIsPaymentToken($isPaymentToken)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CreditCardSimpleType.php b/lib/net/authorize/api/contract/v1/CreditCardSimpleType.php
+index 83cdd1dc..fe32effe 100644
+--- a/lib/net/authorize/api/contract/v1/CreditCardSimpleType.php
++++ b/lib/net/authorize/api/contract/v1/CreditCardSimpleType.php
+@@ -67,7 +67,9 @@ public function setExpirationDate($expirationDate)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CreditCardTrackType.php b/lib/net/authorize/api/contract/v1/CreditCardTrackType.php
+index a08682c4..0076edb9 100644
+--- a/lib/net/authorize/api/contract/v1/CreditCardTrackType.php
++++ b/lib/net/authorize/api/contract/v1/CreditCardTrackType.php
+@@ -67,7 +67,9 @@ public function setTrack2($track2)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CreditCardType.php b/lib/net/authorize/api/contract/v1/CreditCardType.php
+index a756d03a..17a6106f 100644
+--- a/lib/net/authorize/api/contract/v1/CreditCardType.php
++++ b/lib/net/authorize/api/contract/v1/CreditCardType.php
+@@ -175,7 +175,9 @@ public function setTokenRequestorEci($tokenRequestorEci)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerAddressExType.php b/lib/net/authorize/api/contract/v1/CustomerAddressExType.php
+index a58d1403..2699d359 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerAddressExType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerAddressExType.php
+@@ -40,7 +40,9 @@ public function setCustomerAddressId($customerAddressId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerAddressType.php b/lib/net/authorize/api/contract/v1/CustomerAddressType.php
+index 5c77bfe0..1abb9e0b 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerAddressType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerAddressType.php
+@@ -94,7 +94,9 @@ public function setEmail($email)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerDataType.php b/lib/net/authorize/api/contract/v1/CustomerDataType.php
+index e241cd4e..b018c9b8 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerDataType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerDataType.php
+@@ -148,7 +148,9 @@ public function setTaxId($taxId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerPaymentProfileBaseType.php b/lib/net/authorize/api/contract/v1/CustomerPaymentProfileBaseType.php
+index f3f7c39f..186f79a9 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerPaymentProfileBaseType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerPaymentProfileBaseType.php
+@@ -67,7 +67,9 @@ public function setBillTo(\net\authorize\api\contract\v1\CustomerAddressType $bi
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerPaymentProfileExType.php b/lib/net/authorize/api/contract/v1/CustomerPaymentProfileExType.php
+index 81b26acc..57cb2061 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerPaymentProfileExType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerPaymentProfileExType.php
+@@ -40,7 +40,9 @@ public function setCustomerPaymentProfileId($customerPaymentProfileId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerPaymentProfileListItemType.php b/lib/net/authorize/api/contract/v1/CustomerPaymentProfileListItemType.php
+index 52eed69f..cab6c771 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerPaymentProfileListItemType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerPaymentProfileListItemType.php
+@@ -202,7 +202,9 @@ public function setOriginalAuthAmount($originalAuthAmount)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerPaymentProfileMaskedType.php b/lib/net/authorize/api/contract/v1/CustomerPaymentProfileMaskedType.php
+index 69832682..9f69af7c 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerPaymentProfileMaskedType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerPaymentProfileMaskedType.php
+@@ -291,7 +291,9 @@ public function setOriginalAuthAmount($originalAuthAmount)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerPaymentProfileSortingType.php b/lib/net/authorize/api/contract/v1/CustomerPaymentProfileSortingType.php
+index 580a89c3..010e5e3f 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerPaymentProfileSortingType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerPaymentProfileSortingType.php
+@@ -67,7 +67,9 @@ public function setOrderDescending($orderDescending)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerPaymentProfileType.php b/lib/net/authorize/api/contract/v1/CustomerPaymentProfileType.php
+index c579d7b3..5d971451 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerPaymentProfileType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerPaymentProfileType.php
+@@ -150,7 +150,9 @@ public function setSubsequentAuthInformation(\net\authorize\api\contract\v1\Subs
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerProfileBaseType.php b/lib/net/authorize/api/contract/v1/CustomerProfileBaseType.php
+index 389be4a4..6c34cfaf 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerProfileBaseType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerProfileBaseType.php
+@@ -94,7 +94,9 @@ public function setEmail($email)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerProfileExType.php b/lib/net/authorize/api/contract/v1/CustomerProfileExType.php
+index 7f4a7097..a30613dc 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerProfileExType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerProfileExType.php
+@@ -40,7 +40,9 @@ public function setCustomerProfileId($customerProfileId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerProfileIdType.php b/lib/net/authorize/api/contract/v1/CustomerProfileIdType.php
+index e2a54fc7..8eb46253 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerProfileIdType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerProfileIdType.php
+@@ -94,7 +94,9 @@ public function setCustomerAddressId($customerAddressId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerProfileInfoExType.php b/lib/net/authorize/api/contract/v1/CustomerProfileInfoExType.php
+index 0ef19a90..ae98ca97 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerProfileInfoExType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerProfileInfoExType.php
+@@ -40,7 +40,9 @@ public function setProfileType($profileType)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerProfileMaskedType.php b/lib/net/authorize/api/contract/v1/CustomerProfileMaskedType.php
+index e9995dd5..7f732a80 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerProfileMaskedType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerProfileMaskedType.php
+@@ -165,7 +165,9 @@ public function setProfileType($profileType)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerProfilePaymentType.php b/lib/net/authorize/api/contract/v1/CustomerProfilePaymentType.php
+index b37c3a4c..5d855ae7 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerProfilePaymentType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerProfilePaymentType.php
+@@ -121,7 +121,9 @@ public function setShippingProfileId($shippingProfileId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerProfileSummaryType.php b/lib/net/authorize/api/contract/v1/CustomerProfileSummaryType.php
+index d1ea5166..0b831f21 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerProfileSummaryType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerProfileSummaryType.php
+@@ -148,7 +148,9 @@ public function setCreatedDate(\DateTime $createdDate)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerProfileType.php b/lib/net/authorize/api/contract/v1/CustomerProfileType.php
+index baf25154..b56e5410 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerProfileType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerProfileType.php
+@@ -165,7 +165,9 @@ public function setProfileType($profileType)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/CustomerType.php b/lib/net/authorize/api/contract/v1/CustomerType.php
+index bf614e0b..b53f25c0 100644
+--- a/lib/net/authorize/api/contract/v1/CustomerType.php
++++ b/lib/net/authorize/api/contract/v1/CustomerType.php
+@@ -202,7 +202,9 @@ public function setTaxId($taxId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/DecryptPaymentDataRequest.php b/lib/net/authorize/api/contract/v1/DecryptPaymentDataRequest.php
+index df158922..63c42605 100644
+--- a/lib/net/authorize/api/contract/v1/DecryptPaymentDataRequest.php
++++ b/lib/net/authorize/api/contract/v1/DecryptPaymentDataRequest.php
+@@ -64,7 +64,9 @@ public function setCallId($callId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/DeleteCustomerPaymentProfileRequest.php b/lib/net/authorize/api/contract/v1/DeleteCustomerPaymentProfileRequest.php
+index 04f01f19..f653f6ed 100644
+--- a/lib/net/authorize/api/contract/v1/DeleteCustomerPaymentProfileRequest.php
++++ b/lib/net/authorize/api/contract/v1/DeleteCustomerPaymentProfileRequest.php
+@@ -64,7 +64,9 @@ public function setCustomerPaymentProfileId($customerPaymentProfileId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/DeleteCustomerProfileRequest.php b/lib/net/authorize/api/contract/v1/DeleteCustomerProfileRequest.php
+index cb48a957..eff76bc3 100644
+--- a/lib/net/authorize/api/contract/v1/DeleteCustomerProfileRequest.php
++++ b/lib/net/authorize/api/contract/v1/DeleteCustomerProfileRequest.php
+@@ -37,7 +37,9 @@ public function setCustomerProfileId($customerProfileId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/DeleteCustomerShippingAddressRequest.php b/lib/net/authorize/api/contract/v1/DeleteCustomerShippingAddressRequest.php
+index 1c0b2eb0..44078660 100644
+--- a/lib/net/authorize/api/contract/v1/DeleteCustomerShippingAddressRequest.php
++++ b/lib/net/authorize/api/contract/v1/DeleteCustomerShippingAddressRequest.php
+@@ -64,7 +64,9 @@ public function setCustomerAddressId($customerAddressId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/DriversLicenseMaskedType.php b/lib/net/authorize/api/contract/v1/DriversLicenseMaskedType.php
+index ee5f9fbb..b1f0e48a 100644
+--- a/lib/net/authorize/api/contract/v1/DriversLicenseMaskedType.php
++++ b/lib/net/authorize/api/contract/v1/DriversLicenseMaskedType.php
+@@ -94,7 +94,9 @@ public function setDateOfBirth($dateOfBirth)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/DriversLicenseType.php b/lib/net/authorize/api/contract/v1/DriversLicenseType.php
+index 941922b4..c1c6c495 100644
+--- a/lib/net/authorize/api/contract/v1/DriversLicenseType.php
++++ b/lib/net/authorize/api/contract/v1/DriversLicenseType.php
+@@ -94,7 +94,9 @@ public function setDateOfBirth($dateOfBirth)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/EmailSettingsType.php b/lib/net/authorize/api/contract/v1/EmailSettingsType.php
+index 9ec87609..f75becf1 100644
+--- a/lib/net/authorize/api/contract/v1/EmailSettingsType.php
++++ b/lib/net/authorize/api/contract/v1/EmailSettingsType.php
+@@ -40,7 +40,9 @@ public function setVersion($version)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/EmvTagType.php b/lib/net/authorize/api/contract/v1/EmvTagType.php
+index 59b8b59a..4d554e05 100644
+--- a/lib/net/authorize/api/contract/v1/EmvTagType.php
++++ b/lib/net/authorize/api/contract/v1/EmvTagType.php
+@@ -94,7 +94,9 @@ public function setFormatted($formatted)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/EncryptedTrackDataType.php b/lib/net/authorize/api/contract/v1/EncryptedTrackDataType.php
+index 422eb3fe..b4c0651f 100644
+--- a/lib/net/authorize/api/contract/v1/EncryptedTrackDataType.php
++++ b/lib/net/authorize/api/contract/v1/EncryptedTrackDataType.php
+@@ -40,7 +40,9 @@ public function setFormOfPayment(\net\authorize\api\contract\v1\KeyBlockType $fo
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ExtendedAmountType.php b/lib/net/authorize/api/contract/v1/ExtendedAmountType.php
+index 022a36f2..d990a568 100644
+--- a/lib/net/authorize/api/contract/v1/ExtendedAmountType.php
++++ b/lib/net/authorize/api/contract/v1/ExtendedAmountType.php
+@@ -94,7 +94,9 @@ public function setDescription($description)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/FDSFilterType.php b/lib/net/authorize/api/contract/v1/FDSFilterType.php
+index 5fee67f9..7a6c4b16 100644
+--- a/lib/net/authorize/api/contract/v1/FDSFilterType.php
++++ b/lib/net/authorize/api/contract/v1/FDSFilterType.php
+@@ -67,7 +67,9 @@ public function setAction($action)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/FingerPrintType.php b/lib/net/authorize/api/contract/v1/FingerPrintType.php
+index 8bfa2087..2ee957a1 100644
+--- a/lib/net/authorize/api/contract/v1/FingerPrintType.php
++++ b/lib/net/authorize/api/contract/v1/FingerPrintType.php
+@@ -148,7 +148,9 @@ public function setAmount($amount)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/FraudInformationType.php b/lib/net/authorize/api/contract/v1/FraudInformationType.php
+index 342d2a5d..078fabfd 100644
+--- a/lib/net/authorize/api/contract/v1/FraudInformationType.php
++++ b/lib/net/authorize/api/contract/v1/FraudInformationType.php
+@@ -101,7 +101,9 @@ public function setFraudAction($fraudAction)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetAUJobDetailsRequest.php b/lib/net/authorize/api/contract/v1/GetAUJobDetailsRequest.php
+index 81321ae5..a7a06808 100644
+--- a/lib/net/authorize/api/contract/v1/GetAUJobDetailsRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetAUJobDetailsRequest.php
+@@ -91,7 +91,9 @@ public function setPaging(\net\authorize\api\contract\v1\PagingType $paging)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetAUJobSummaryRequest.php b/lib/net/authorize/api/contract/v1/GetAUJobSummaryRequest.php
+index f2c0bdcc..bcb94543 100644
+--- a/lib/net/authorize/api/contract/v1/GetAUJobSummaryRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetAUJobSummaryRequest.php
+@@ -37,7 +37,9 @@ public function setMonth($month)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetBatchStatisticsRequest.php b/lib/net/authorize/api/contract/v1/GetBatchStatisticsRequest.php
+index b48c1eab..0e6c3dd7 100644
+--- a/lib/net/authorize/api/contract/v1/GetBatchStatisticsRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetBatchStatisticsRequest.php
+@@ -37,7 +37,9 @@ public function setBatchId($batchId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetCustomerPaymentProfileListRequest.php b/lib/net/authorize/api/contract/v1/GetCustomerPaymentProfileListRequest.php
+index b72a311a..5bdee7eb 100644
+--- a/lib/net/authorize/api/contract/v1/GetCustomerPaymentProfileListRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetCustomerPaymentProfileListRequest.php
+@@ -119,7 +119,9 @@ public function setPaging(\net\authorize\api\contract\v1\PagingType $paging)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetCustomerPaymentProfileRequest.php b/lib/net/authorize/api/contract/v1/GetCustomerPaymentProfileRequest.php
+index b1d8d2bc..a1cf8d49 100644
+--- a/lib/net/authorize/api/contract/v1/GetCustomerPaymentProfileRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetCustomerPaymentProfileRequest.php
+@@ -118,7 +118,9 @@ public function setIncludeIssuerInfo($includeIssuerInfo)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetCustomerProfileIdsRequest.php b/lib/net/authorize/api/contract/v1/GetCustomerProfileIdsRequest.php
+index 0b9bc9a5..b6c52c07 100644
+--- a/lib/net/authorize/api/contract/v1/GetCustomerProfileIdsRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetCustomerProfileIdsRequest.php
+@@ -10,7 +10,9 @@ class GetCustomerProfileIdsRequest extends ANetApiRequestType
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetCustomerProfileRequest.php b/lib/net/authorize/api/contract/v1/GetCustomerProfileRequest.php
+index 57560100..a47356b7 100644
+--- a/lib/net/authorize/api/contract/v1/GetCustomerProfileRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetCustomerProfileRequest.php
+@@ -145,7 +145,9 @@ public function setIncludeIssuerInfo($includeIssuerInfo)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetCustomerShippingAddressRequest.php b/lib/net/authorize/api/contract/v1/GetCustomerShippingAddressRequest.php
+index 5eaef05d..05e31379 100644
+--- a/lib/net/authorize/api/contract/v1/GetCustomerShippingAddressRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetCustomerShippingAddressRequest.php
+@@ -64,7 +64,9 @@ public function setCustomerAddressId($customerAddressId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetHostedPaymentPageRequest.php b/lib/net/authorize/api/contract/v1/GetHostedPaymentPageRequest.php
+index 78789148..489b2070 100644
+--- a/lib/net/authorize/api/contract/v1/GetHostedPaymentPageRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetHostedPaymentPageRequest.php
+@@ -141,7 +141,9 @@ public function setHostedPaymentSettings(array $hostedPaymentSettings)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetHostedProfilePageRequest.php b/lib/net/authorize/api/contract/v1/GetHostedProfilePageRequest.php
+index 82a95cd2..52bd3ba6 100644
+--- a/lib/net/authorize/api/contract/v1/GetHostedProfilePageRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetHostedProfilePageRequest.php
+@@ -140,7 +140,9 @@ public function setHostedProfileSettings(array $hostedProfileSettings)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetMerchantDetailsRequest.php b/lib/net/authorize/api/contract/v1/GetMerchantDetailsRequest.php
+index 4adba146..c8282687 100644
+--- a/lib/net/authorize/api/contract/v1/GetMerchantDetailsRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetMerchantDetailsRequest.php
+@@ -10,7 +10,9 @@ class GetMerchantDetailsRequest extends ANetApiRequestType
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetSettledBatchListRequest.php b/lib/net/authorize/api/contract/v1/GetSettledBatchListRequest.php
+index 4b27c4f8..c0b5a353 100644
+--- a/lib/net/authorize/api/contract/v1/GetSettledBatchListRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetSettledBatchListRequest.php
+@@ -91,7 +91,9 @@ public function setLastSettlementDate(\DateTime $lastSettlementDate)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetTransactionDetailsRequest.php b/lib/net/authorize/api/contract/v1/GetTransactionDetailsRequest.php
+index 5a4d31b8..64eaf628 100644
+--- a/lib/net/authorize/api/contract/v1/GetTransactionDetailsRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetTransactionDetailsRequest.php
+@@ -37,7 +37,9 @@ public function setTransId($transId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetTransactionListForCustomerRequest.php b/lib/net/authorize/api/contract/v1/GetTransactionListForCustomerRequest.php
+index c72334fd..a389c452 100644
+--- a/lib/net/authorize/api/contract/v1/GetTransactionListForCustomerRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetTransactionListForCustomerRequest.php
+@@ -118,7 +118,9 @@ public function setPaging(\net\authorize\api\contract\v1\PagingType $paging)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetTransactionListRequest.php b/lib/net/authorize/api/contract/v1/GetTransactionListRequest.php
+index ca88933c..c8a92810 100644
+--- a/lib/net/authorize/api/contract/v1/GetTransactionListRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetTransactionListRequest.php
+@@ -91,7 +91,9 @@ public function setPaging(\net\authorize\api\contract\v1\PagingType $paging)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/GetUnsettledTransactionListRequest.php b/lib/net/authorize/api/contract/v1/GetUnsettledTransactionListRequest.php
+index 7abd1e4b..92fa0682 100644
+--- a/lib/net/authorize/api/contract/v1/GetUnsettledTransactionListRequest.php
++++ b/lib/net/authorize/api/contract/v1/GetUnsettledTransactionListRequest.php
+@@ -91,7 +91,9 @@ public function setPaging(\net\authorize\api\contract\v1\PagingType $paging)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/HeldTransactionRequestType.php b/lib/net/authorize/api/contract/v1/HeldTransactionRequestType.php
+index 8fea8616..1b3b41cb 100644
+--- a/lib/net/authorize/api/contract/v1/HeldTransactionRequestType.php
++++ b/lib/net/authorize/api/contract/v1/HeldTransactionRequestType.php
+@@ -67,7 +67,9 @@ public function setRefTransId($refTransId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ImpersonationAuthenticationType.php b/lib/net/authorize/api/contract/v1/ImpersonationAuthenticationType.php
+index 25d8491e..d8bb8e02 100644
+--- a/lib/net/authorize/api/contract/v1/ImpersonationAuthenticationType.php
++++ b/lib/net/authorize/api/contract/v1/ImpersonationAuthenticationType.php
+@@ -67,7 +67,9 @@ public function setPartnerTransactionKey($partnerTransactionKey)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/IsAliveRequest.php b/lib/net/authorize/api/contract/v1/IsAliveRequest.php
+index f59eb4cd..74acb47f 100644
+--- a/lib/net/authorize/api/contract/v1/IsAliveRequest.php
++++ b/lib/net/authorize/api/contract/v1/IsAliveRequest.php
+@@ -37,7 +37,9 @@ public function setRefId($refId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/KeyBlockType.php b/lib/net/authorize/api/contract/v1/KeyBlockType.php
+index 798ea3e0..2c9f40e7 100644
+--- a/lib/net/authorize/api/contract/v1/KeyBlockType.php
++++ b/lib/net/authorize/api/contract/v1/KeyBlockType.php
+@@ -40,7 +40,9 @@ public function setValue(\net\authorize\api\contract\v1\KeyValueType $value)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/KeyManagementSchemeType.php b/lib/net/authorize/api/contract/v1/KeyManagementSchemeType.php
+index 0a569df0..ec64a621 100644
+--- a/lib/net/authorize/api/contract/v1/KeyManagementSchemeType.php
++++ b/lib/net/authorize/api/contract/v1/KeyManagementSchemeType.php
+@@ -41,7 +41,9 @@ public function setDUKPT(\net\authorize\api\contract\v1\KeyManagementSchemeType\
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType.php b/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType.php
+index 4b9a9280..97bc2462 100644
+--- a/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType.php
++++ b/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType.php
+@@ -133,7 +133,9 @@ public function setEncryptedData(\net\authorize\api\contract\v1\KeyManagementSch
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType/DeviceInfoAType.php b/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType/DeviceInfoAType.php
+index 2298ec52..dda319d0 100644
+--- a/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType/DeviceInfoAType.php
++++ b/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType/DeviceInfoAType.php
+@@ -37,7 +37,9 @@ public function setDescription($description)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType/EncryptedDataAType.php b/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType/EncryptedDataAType.php
+index 605a5661..f0044353 100644
+--- a/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType/EncryptedDataAType.php
++++ b/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType/EncryptedDataAType.php
+@@ -37,7 +37,9 @@ public function setValue($value)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType/ModeAType.php b/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType/ModeAType.php
+index ad374656..d5496c0f 100644
+--- a/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType/ModeAType.php
++++ b/lib/net/authorize/api/contract/v1/KeyManagementSchemeType/DUKPTAType/ModeAType.php
+@@ -64,7 +64,9 @@ public function setData($data)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/KeyValueType.php b/lib/net/authorize/api/contract/v1/KeyValueType.php
+index 67d7d27a..ee366283 100644
+--- a/lib/net/authorize/api/contract/v1/KeyValueType.php
++++ b/lib/net/authorize/api/contract/v1/KeyValueType.php
+@@ -94,7 +94,9 @@ public function setScheme(\net\authorize\api\contract\v1\KeyManagementSchemeType
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/LineItemType.php b/lib/net/authorize/api/contract/v1/LineItemType.php
+index 28d914f2..810f654b 100644
+--- a/lib/net/authorize/api/contract/v1/LineItemType.php
++++ b/lib/net/authorize/api/contract/v1/LineItemType.php
+@@ -715,7 +715,9 @@ public function setTaxIsAfterDiscount($taxIsAfterDiscount)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ListOfAUDetailsType.php b/lib/net/authorize/api/contract/v1/ListOfAUDetailsType.php
+index 2de1eeb1..accfc078 100644
+--- a/lib/net/authorize/api/contract/v1/ListOfAUDetailsType.php
++++ b/lib/net/authorize/api/contract/v1/ListOfAUDetailsType.php
+@@ -135,7 +135,9 @@ public function setAuDelete(array $auDelete)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/LogoutRequest.php b/lib/net/authorize/api/contract/v1/LogoutRequest.php
+index e8d17edc..135b4ce6 100644
+--- a/lib/net/authorize/api/contract/v1/LogoutRequest.php
++++ b/lib/net/authorize/api/contract/v1/LogoutRequest.php
+@@ -10,7 +10,9 @@ class LogoutRequest extends ANetApiRequestType
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/MerchantAuthenticationType.php b/lib/net/authorize/api/contract/v1/MerchantAuthenticationType.php
+index eec14f72..2a951310 100644
+--- a/lib/net/authorize/api/contract/v1/MerchantAuthenticationType.php
++++ b/lib/net/authorize/api/contract/v1/MerchantAuthenticationType.php
+@@ -258,7 +258,9 @@ public function setMobileDeviceId($mobileDeviceId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/MerchantContactType.php b/lib/net/authorize/api/contract/v1/MerchantContactType.php
+index 3f68c3f9..592c0943 100644
+--- a/lib/net/authorize/api/contract/v1/MerchantContactType.php
++++ b/lib/net/authorize/api/contract/v1/MerchantContactType.php
+@@ -175,7 +175,9 @@ public function setMerchantPhone($merchantPhone)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/MessagesType.php b/lib/net/authorize/api/contract/v1/MessagesType.php
+index c12d7af1..7547463c 100644
+--- a/lib/net/authorize/api/contract/v1/MessagesType.php
++++ b/lib/net/authorize/api/contract/v1/MessagesType.php
+@@ -101,7 +101,9 @@ public function setMessage(array $message)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/MessagesType/MessageAType.php b/lib/net/authorize/api/contract/v1/MessagesType/MessageAType.php
+index 6c1e20b4..8301d219 100644
+--- a/lib/net/authorize/api/contract/v1/MessagesType/MessageAType.php
++++ b/lib/net/authorize/api/contract/v1/MessagesType/MessageAType.php
+@@ -64,7 +64,9 @@ public function setText($text)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/MobileDeviceLoginRequest.php b/lib/net/authorize/api/contract/v1/MobileDeviceLoginRequest.php
+index 51b1adf5..04d8f1b5 100644
+--- a/lib/net/authorize/api/contract/v1/MobileDeviceLoginRequest.php
++++ b/lib/net/authorize/api/contract/v1/MobileDeviceLoginRequest.php
+@@ -10,7 +10,9 @@ class MobileDeviceLoginRequest extends ANetApiRequestType
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/MobileDeviceRegistrationRequest.php b/lib/net/authorize/api/contract/v1/MobileDeviceRegistrationRequest.php
+index 9006546c..8d1450a0 100644
+--- a/lib/net/authorize/api/contract/v1/MobileDeviceRegistrationRequest.php
++++ b/lib/net/authorize/api/contract/v1/MobileDeviceRegistrationRequest.php
+@@ -37,7 +37,9 @@ public function setMobileDevice(\net\authorize\api\contract\v1\MobileDeviceType
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/MobileDeviceType.php b/lib/net/authorize/api/contract/v1/MobileDeviceType.php
+index f7b04a8b..f5738422 100644
+--- a/lib/net/authorize/api/contract/v1/MobileDeviceType.php
++++ b/lib/net/authorize/api/contract/v1/MobileDeviceType.php
+@@ -148,7 +148,9 @@ public function setDeviceActivation($deviceActivation)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/NameAndAddressType.php b/lib/net/authorize/api/contract/v1/NameAndAddressType.php
+index 0a891710..8d2ac586 100644
+--- a/lib/net/authorize/api/contract/v1/NameAndAddressType.php
++++ b/lib/net/authorize/api/contract/v1/NameAndAddressType.php
+@@ -229,7 +229,9 @@ public function setCountry($country)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/OpaqueDataType.php b/lib/net/authorize/api/contract/v1/OpaqueDataType.php
+index 7ff3cc23..8ec1624e 100644
+--- a/lib/net/authorize/api/contract/v1/OpaqueDataType.php
++++ b/lib/net/authorize/api/contract/v1/OpaqueDataType.php
+@@ -121,7 +121,9 @@ public function setExpirationTimeStamp(\DateTime $expirationTimeStamp)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/OrderExType.php b/lib/net/authorize/api/contract/v1/OrderExType.php
+index 144ff59f..f2142fc4 100644
+--- a/lib/net/authorize/api/contract/v1/OrderExType.php
++++ b/lib/net/authorize/api/contract/v1/OrderExType.php
+@@ -40,7 +40,9 @@ public function setPurchaseOrderNumber($purchaseOrderNumber)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/OrderType.php b/lib/net/authorize/api/contract/v1/OrderType.php
+index 32813e7c..efc1345f 100644
+--- a/lib/net/authorize/api/contract/v1/OrderType.php
++++ b/lib/net/authorize/api/contract/v1/OrderType.php
+@@ -499,7 +499,9 @@ public function setAmexDataTAA4($amexDataTAA4)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/OtherTaxType.php b/lib/net/authorize/api/contract/v1/OtherTaxType.php
+index e51fade1..13f8b31d 100644
+--- a/lib/net/authorize/api/contract/v1/OtherTaxType.php
++++ b/lib/net/authorize/api/contract/v1/OtherTaxType.php
+@@ -175,7 +175,9 @@ public function setVatTaxAmount($vatTaxAmount)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/PagingType.php b/lib/net/authorize/api/contract/v1/PagingType.php
+index 2569011c..663a2bab 100644
+--- a/lib/net/authorize/api/contract/v1/PagingType.php
++++ b/lib/net/authorize/api/contract/v1/PagingType.php
+@@ -67,7 +67,9 @@ public function setOffset($offset)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/PayPalType.php b/lib/net/authorize/api/contract/v1/PayPalType.php
+index 30b57cde..4a44632c 100644
+--- a/lib/net/authorize/api/contract/v1/PayPalType.php
++++ b/lib/net/authorize/api/contract/v1/PayPalType.php
+@@ -175,7 +175,9 @@ public function setPayerID($payerID)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/PaymentDetailsType.php b/lib/net/authorize/api/contract/v1/PaymentDetailsType.php
+index befd5636..4bdb8ce2 100644
+--- a/lib/net/authorize/api/contract/v1/PaymentDetailsType.php
++++ b/lib/net/authorize/api/contract/v1/PaymentDetailsType.php
+@@ -283,7 +283,9 @@ public function setAmount($amount)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/PaymentEmvType.php b/lib/net/authorize/api/contract/v1/PaymentEmvType.php
+index d1086813..65c3655c 100644
+--- a/lib/net/authorize/api/contract/v1/PaymentEmvType.php
++++ b/lib/net/authorize/api/contract/v1/PaymentEmvType.php
+@@ -94,7 +94,9 @@ public function setEmvVersion($emvVersion)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/PaymentMaskedType.php b/lib/net/authorize/api/contract/v1/PaymentMaskedType.php
+index 065246a3..2547a055 100644
+--- a/lib/net/authorize/api/contract/v1/PaymentMaskedType.php
++++ b/lib/net/authorize/api/contract/v1/PaymentMaskedType.php
+@@ -94,7 +94,9 @@ public function setTokenInformation(\net\authorize\api\contract\v1\TokenMaskedTy
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/PaymentProfileType.php b/lib/net/authorize/api/contract/v1/PaymentProfileType.php
+index 7450c0cc..e6f39cb5 100644
+--- a/lib/net/authorize/api/contract/v1/PaymentProfileType.php
++++ b/lib/net/authorize/api/contract/v1/PaymentProfileType.php
+@@ -67,7 +67,9 @@ public function setCardCode($cardCode)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/PaymentScheduleType.php b/lib/net/authorize/api/contract/v1/PaymentScheduleType.php
+index ea3a791b..1678747a 100644
+--- a/lib/net/authorize/api/contract/v1/PaymentScheduleType.php
++++ b/lib/net/authorize/api/contract/v1/PaymentScheduleType.php
+@@ -124,7 +124,9 @@ public function setTrialOccurrences($trialOccurrences)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/PaymentScheduleType/IntervalAType.php b/lib/net/authorize/api/contract/v1/PaymentScheduleType/IntervalAType.php
+index 0aaf75f7..bfea63fc 100644
+--- a/lib/net/authorize/api/contract/v1/PaymentScheduleType/IntervalAType.php
++++ b/lib/net/authorize/api/contract/v1/PaymentScheduleType/IntervalAType.php
+@@ -64,7 +64,9 @@ public function setUnit($unit)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/PaymentSimpleType.php b/lib/net/authorize/api/contract/v1/PaymentSimpleType.php
+index ec13ad52..7ca49f44 100644
+--- a/lib/net/authorize/api/contract/v1/PaymentSimpleType.php
++++ b/lib/net/authorize/api/contract/v1/PaymentSimpleType.php
+@@ -67,7 +67,9 @@ public function setBankAccount(\net\authorize\api\contract\v1\BankAccountType $b
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/PaymentType.php b/lib/net/authorize/api/contract/v1/PaymentType.php
+index 73c8d0f3..3ee75444 100644
+--- a/lib/net/authorize/api/contract/v1/PaymentType.php
++++ b/lib/net/authorize/api/contract/v1/PaymentType.php
+@@ -230,7 +230,9 @@ public function setDataSource($dataSource)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/PermissionType.php b/lib/net/authorize/api/contract/v1/PermissionType.php
+index d93d2e88..d351546e 100644
+--- a/lib/net/authorize/api/contract/v1/PermissionType.php
++++ b/lib/net/authorize/api/contract/v1/PermissionType.php
+@@ -40,7 +40,9 @@ public function setPermissionName($permissionName)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ProcessingOptionsType.php b/lib/net/authorize/api/contract/v1/ProcessingOptionsType.php
+index 17a877ee..30a4a4df 100644
+--- a/lib/net/authorize/api/contract/v1/ProcessingOptionsType.php
++++ b/lib/net/authorize/api/contract/v1/ProcessingOptionsType.php
+@@ -121,7 +121,9 @@ public function setIsStoredCredentials($isStoredCredentials)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ProcessorType.php b/lib/net/authorize/api/contract/v1/ProcessorType.php
+index 33a85244..a30ed168 100644
+--- a/lib/net/authorize/api/contract/v1/ProcessorType.php
++++ b/lib/net/authorize/api/contract/v1/ProcessorType.php
+@@ -128,7 +128,9 @@ public function setCardTypes(array $cardTypes)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ProfileTransAmountType.php b/lib/net/authorize/api/contract/v1/ProfileTransAmountType.php
+index de821769..21aa17b0 100644
+--- a/lib/net/authorize/api/contract/v1/ProfileTransAmountType.php
++++ b/lib/net/authorize/api/contract/v1/ProfileTransAmountType.php
+@@ -182,7 +182,9 @@ public function setLineItems(array $lineItems)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ProfileTransAuthCaptureType.php b/lib/net/authorize/api/contract/v1/ProfileTransAuthCaptureType.php
+index 6c213857..fff80d4c 100644
+--- a/lib/net/authorize/api/contract/v1/ProfileTransAuthCaptureType.php
++++ b/lib/net/authorize/api/contract/v1/ProfileTransAuthCaptureType.php
+@@ -13,7 +13,9 @@ class ProfileTransAuthCaptureType extends ProfileTransOrderType implements \Json
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ProfileTransAuthOnlyType.php b/lib/net/authorize/api/contract/v1/ProfileTransAuthOnlyType.php
+index d25f0457..bb257c9f 100644
+--- a/lib/net/authorize/api/contract/v1/ProfileTransAuthOnlyType.php
++++ b/lib/net/authorize/api/contract/v1/ProfileTransAuthOnlyType.php
+@@ -13,7 +13,9 @@ class ProfileTransAuthOnlyType extends ProfileTransOrderType implements \JsonSer
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ProfileTransCaptureOnlyType.php b/lib/net/authorize/api/contract/v1/ProfileTransCaptureOnlyType.php
+index 5afe04e5..647278d4 100644
+--- a/lib/net/authorize/api/contract/v1/ProfileTransCaptureOnlyType.php
++++ b/lib/net/authorize/api/contract/v1/ProfileTransCaptureOnlyType.php
+@@ -40,7 +40,9 @@ public function setApprovalCode($approvalCode)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ProfileTransOrderType.php b/lib/net/authorize/api/contract/v1/ProfileTransOrderType.php
+index 41837c32..d7a08fc0 100644
+--- a/lib/net/authorize/api/contract/v1/ProfileTransOrderType.php
++++ b/lib/net/authorize/api/contract/v1/ProfileTransOrderType.php
+@@ -315,7 +315,9 @@ public function setAuthorizationIndicatorType(\net\authorize\api\contract\v1\Aut
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ProfileTransPriorAuthCaptureType.php b/lib/net/authorize/api/contract/v1/ProfileTransPriorAuthCaptureType.php
+index 85b8a038..4537e720 100644
+--- a/lib/net/authorize/api/contract/v1/ProfileTransPriorAuthCaptureType.php
++++ b/lib/net/authorize/api/contract/v1/ProfileTransPriorAuthCaptureType.php
+@@ -121,7 +121,9 @@ public function setTransId($transId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ProfileTransRefundType.php b/lib/net/authorize/api/contract/v1/ProfileTransRefundType.php
+index 9f183095..db542b6a 100644
+--- a/lib/net/authorize/api/contract/v1/ProfileTransRefundType.php
++++ b/lib/net/authorize/api/contract/v1/ProfileTransRefundType.php
+@@ -229,7 +229,9 @@ public function setTransId($transId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ProfileTransVoidType.php b/lib/net/authorize/api/contract/v1/ProfileTransVoidType.php
+index 72ee1e6d..45c88c64 100644
+--- a/lib/net/authorize/api/contract/v1/ProfileTransVoidType.php
++++ b/lib/net/authorize/api/contract/v1/ProfileTransVoidType.php
+@@ -121,7 +121,9 @@ public function setTransId($transId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ProfileTransactionType.php b/lib/net/authorize/api/contract/v1/ProfileTransactionType.php
+index 141c51f2..d7e505f4 100644
+--- a/lib/net/authorize/api/contract/v1/ProfileTransactionType.php
++++ b/lib/net/authorize/api/contract/v1/ProfileTransactionType.php
+@@ -184,7 +184,9 @@ public function setProfileTransVoid(\net\authorize\api\contract\v1\ProfileTransV
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ReturnedItemType.php b/lib/net/authorize/api/contract/v1/ReturnedItemType.php
+index 7f7bd2e6..41a0286c 100644
+--- a/lib/net/authorize/api/contract/v1/ReturnedItemType.php
++++ b/lib/net/authorize/api/contract/v1/ReturnedItemType.php
+@@ -148,7 +148,9 @@ public function setDescription($description)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/SecurePaymentContainerErrorType.php b/lib/net/authorize/api/contract/v1/SecurePaymentContainerErrorType.php
+index 2afd6477..974935e0 100644
+--- a/lib/net/authorize/api/contract/v1/SecurePaymentContainerErrorType.php
++++ b/lib/net/authorize/api/contract/v1/SecurePaymentContainerErrorType.php
+@@ -67,7 +67,9 @@ public function setDescription($description)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/SecurePaymentContainerRequest.php b/lib/net/authorize/api/contract/v1/SecurePaymentContainerRequest.php
+index 843c1760..b215aa73 100644
+--- a/lib/net/authorize/api/contract/v1/SecurePaymentContainerRequest.php
++++ b/lib/net/authorize/api/contract/v1/SecurePaymentContainerRequest.php
+@@ -37,7 +37,9 @@ public function setData(\net\authorize\api\contract\v1\WebCheckOutDataType $data
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/SendCustomerTransactionReceiptRequest.php b/lib/net/authorize/api/contract/v1/SendCustomerTransactionReceiptRequest.php
+index 77bcd59c..d4fbadef 100644
+--- a/lib/net/authorize/api/contract/v1/SendCustomerTransactionReceiptRequest.php
++++ b/lib/net/authorize/api/contract/v1/SendCustomerTransactionReceiptRequest.php
+@@ -91,7 +91,9 @@ public function setEmailSettings(\net\authorize\api\contract\v1\EmailSettingsTyp
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/SettingType.php b/lib/net/authorize/api/contract/v1/SettingType.php
+index 4794ff7f..6322cd57 100644
+--- a/lib/net/authorize/api/contract/v1/SettingType.php
++++ b/lib/net/authorize/api/contract/v1/SettingType.php
+@@ -67,7 +67,9 @@ public function setSettingValue($settingValue)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/SolutionType.php b/lib/net/authorize/api/contract/v1/SolutionType.php
+index cb9ee4b7..120924a5 100644
+--- a/lib/net/authorize/api/contract/v1/SolutionType.php
++++ b/lib/net/authorize/api/contract/v1/SolutionType.php
+@@ -94,7 +94,9 @@ public function setVendorName($vendorName)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/SubMerchantType.php b/lib/net/authorize/api/contract/v1/SubMerchantType.php
+index f88aaa64..3a6af0cb 100644
+--- a/lib/net/authorize/api/contract/v1/SubMerchantType.php
++++ b/lib/net/authorize/api/contract/v1/SubMerchantType.php
+@@ -310,7 +310,9 @@ public function setCountryCode($countryCode)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/SubscriptionCustomerProfileType.php b/lib/net/authorize/api/contract/v1/SubscriptionCustomerProfileType.php
+index 4311fe30..e0fe29ea 100644
+--- a/lib/net/authorize/api/contract/v1/SubscriptionCustomerProfileType.php
++++ b/lib/net/authorize/api/contract/v1/SubscriptionCustomerProfileType.php
+@@ -69,7 +69,9 @@ public function setShippingProfile(\net\authorize\api\contract\v1\CustomerAddres
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/SubscriptionDetailType.php b/lib/net/authorize/api/contract/v1/SubscriptionDetailType.php
+index ef5312ea..4af48f50 100644
+--- a/lib/net/authorize/api/contract/v1/SubscriptionDetailType.php
++++ b/lib/net/authorize/api/contract/v1/SubscriptionDetailType.php
+@@ -445,7 +445,9 @@ public function setCustomerShippingProfileId($customerShippingProfileId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/SubscriptionPaymentType.php b/lib/net/authorize/api/contract/v1/SubscriptionPaymentType.php
+index 569dfa5a..516fd80a 100644
+--- a/lib/net/authorize/api/contract/v1/SubscriptionPaymentType.php
++++ b/lib/net/authorize/api/contract/v1/SubscriptionPaymentType.php
+@@ -67,7 +67,9 @@ public function setPayNum($payNum)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/SubsequentAuthInformationType.php b/lib/net/authorize/api/contract/v1/SubsequentAuthInformationType.php
+index 7d04cb1e..fb7325bd 100644
+--- a/lib/net/authorize/api/contract/v1/SubsequentAuthInformationType.php
++++ b/lib/net/authorize/api/contract/v1/SubsequentAuthInformationType.php
+@@ -94,7 +94,9 @@ public function setReason($reason)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TokenMaskedType.php b/lib/net/authorize/api/contract/v1/TokenMaskedType.php
+index f3d7bac1..fba8cfb8 100644
+--- a/lib/net/authorize/api/contract/v1/TokenMaskedType.php
++++ b/lib/net/authorize/api/contract/v1/TokenMaskedType.php
+@@ -121,7 +121,9 @@ public function setTokenRequestorId($tokenRequestorId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransRetailInfoType.php b/lib/net/authorize/api/contract/v1/TransRetailInfoType.php
+index c7d75cde..51b209c0 100644
+--- a/lib/net/authorize/api/contract/v1/TransRetailInfoType.php
++++ b/lib/net/authorize/api/contract/v1/TransRetailInfoType.php
+@@ -121,7 +121,9 @@ public function setTerminalNumber($terminalNumber)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionDetailsType.php b/lib/net/authorize/api/contract/v1/TransactionDetailsType.php
+index 2f23f9dc..24215221 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionDetailsType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionDetailsType.php
+@@ -1560,7 +1560,9 @@ public function setAuthorizationIndicator($authorizationIndicator)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionDetailsType/EmvDetailsAType.php b/lib/net/authorize/api/contract/v1/TransactionDetailsType/EmvDetailsAType.php
+index 36160519..a7e56e43 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionDetailsType/EmvDetailsAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionDetailsType/EmvDetailsAType.php
+@@ -78,7 +78,9 @@ public function setTag(array $tag)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionDetailsType/EmvDetailsAType/TagAType.php b/lib/net/authorize/api/contract/v1/TransactionDetailsType/EmvDetailsAType/TagAType.php
+index 324a0c36..55c852c1 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionDetailsType/EmvDetailsAType/TagAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionDetailsType/EmvDetailsAType/TagAType.php
+@@ -64,7 +64,9 @@ public function setData($data)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionListSortingType.php b/lib/net/authorize/api/contract/v1/TransactionListSortingType.php
+index 52127442..e07f6fd5 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionListSortingType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionListSortingType.php
+@@ -67,7 +67,9 @@ public function setOrderDescending($orderDescending)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionRequestType.php b/lib/net/authorize/api/contract/v1/TransactionRequestType.php
+index 59457a1b..c74ed8a6 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionRequestType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionRequestType.php
+@@ -1118,7 +1118,9 @@ public function setAuthorizationIndicatorType(\net\authorize\api\contract\v1\Aut
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionRequestType/UserFieldsAType.php b/lib/net/authorize/api/contract/v1/TransactionRequestType/UserFieldsAType.php
+index c6150fa9..49d6533f 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionRequestType/UserFieldsAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionRequestType/UserFieldsAType.php
+@@ -71,7 +71,9 @@ public function setUserField(array $userField)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionResponseType.php b/lib/net/authorize/api/contract/v1/TransactionResponseType.php
+index 7b6b22af..106c995b 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionResponseType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionResponseType.php
+@@ -856,7 +856,9 @@ public function setNetworkTransId($networkTransId)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionResponseType/EmvResponseAType.php b/lib/net/authorize/api/contract/v1/TransactionResponseType/EmvResponseAType.php
+index 18b22053..995fbe4c 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionResponseType/EmvResponseAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionResponseType/EmvResponseAType.php
+@@ -98,7 +98,9 @@ public function setTags(array $tags)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionResponseType/EmvResponseAType/TagsAType.php b/lib/net/authorize/api/contract/v1/TransactionResponseType/EmvResponseAType/TagsAType.php
+index 5e5cad41..bc273b47 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionResponseType/EmvResponseAType/TagsAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionResponseType/EmvResponseAType/TagsAType.php
+@@ -71,7 +71,9 @@ public function setTag(array $tag)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionResponseType/ErrorsAType.php b/lib/net/authorize/api/contract/v1/TransactionResponseType/ErrorsAType.php
+index bb1ecae7..4d1b1caa 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionResponseType/ErrorsAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionResponseType/ErrorsAType.php
+@@ -78,7 +78,9 @@ public function setError(array $error)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionResponseType/ErrorsAType/ErrorAType.php b/lib/net/authorize/api/contract/v1/TransactionResponseType/ErrorsAType/ErrorAType.php
+index 8c36f93a..4d6adf36 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionResponseType/ErrorsAType/ErrorAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionResponseType/ErrorsAType/ErrorAType.php
+@@ -64,7 +64,9 @@ public function setErrorText($errorText)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionResponseType/MessagesAType.php b/lib/net/authorize/api/contract/v1/TransactionResponseType/MessagesAType.php
+index b7e8938c..713110ca 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionResponseType/MessagesAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionResponseType/MessagesAType.php
+@@ -78,7 +78,9 @@ public function setMessage(array $message)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionResponseType/MessagesAType/MessageAType.php b/lib/net/authorize/api/contract/v1/TransactionResponseType/MessagesAType/MessageAType.php
+index 334e741e..34c7206e 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionResponseType/MessagesAType/MessageAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionResponseType/MessagesAType/MessageAType.php
+@@ -64,7 +64,9 @@ public function setDescription($description)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionResponseType/PrePaidCardAType.php b/lib/net/authorize/api/contract/v1/TransactionResponseType/PrePaidCardAType.php
+index b323da5a..0070a883 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionResponseType/PrePaidCardAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionResponseType/PrePaidCardAType.php
+@@ -91,7 +91,9 @@ public function setBalanceOnCard($balanceOnCard)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionResponseType/SecureAcceptanceAType.php b/lib/net/authorize/api/contract/v1/TransactionResponseType/SecureAcceptanceAType.php
+index c161d30a..2414d2cd 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionResponseType/SecureAcceptanceAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionResponseType/SecureAcceptanceAType.php
+@@ -91,7 +91,9 @@ public function setPayerEmail($payerEmail)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionResponseType/SplitTenderPaymentsAType.php b/lib/net/authorize/api/contract/v1/TransactionResponseType/SplitTenderPaymentsAType.php
+index 7fe4cdf0..f2b59aa5 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionResponseType/SplitTenderPaymentsAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionResponseType/SplitTenderPaymentsAType.php
+@@ -78,7 +78,9 @@ public function setSplitTenderPayment(array $splitTenderPayment)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionResponseType/SplitTenderPaymentsAType/SplitTenderPaymentAType.php b/lib/net/authorize/api/contract/v1/TransactionResponseType/SplitTenderPaymentsAType/SplitTenderPaymentAType.php
+index 02ce2bc1..05833104 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionResponseType/SplitTenderPaymentsAType/SplitTenderPaymentAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionResponseType/SplitTenderPaymentsAType/SplitTenderPaymentAType.php
+@@ -253,7 +253,9 @@ public function setBalanceOnCard($balanceOnCard)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionResponseType/UserFieldsAType.php b/lib/net/authorize/api/contract/v1/TransactionResponseType/UserFieldsAType.php
+index d1a1360a..28718368 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionResponseType/UserFieldsAType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionResponseType/UserFieldsAType.php
+@@ -71,7 +71,9 @@ public function setUserField(array $userField)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/TransactionSummaryType.php b/lib/net/authorize/api/contract/v1/TransactionSummaryType.php
+index b38bc08e..934253ec 100644
+--- a/lib/net/authorize/api/contract/v1/TransactionSummaryType.php
++++ b/lib/net/authorize/api/contract/v1/TransactionSummaryType.php
+@@ -472,7 +472,9 @@ public function setProfile(\net\authorize\api\contract\v1\CustomerProfileIdType
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/UpdateCustomerPaymentProfileRequest.php b/lib/net/authorize/api/contract/v1/UpdateCustomerPaymentProfileRequest.php
+index d0db3283..088c0fe4 100644
+--- a/lib/net/authorize/api/contract/v1/UpdateCustomerPaymentProfileRequest.php
++++ b/lib/net/authorize/api/contract/v1/UpdateCustomerPaymentProfileRequest.php
+@@ -93,7 +93,9 @@ public function setValidationMode($validationMode)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/UpdateCustomerProfileRequest.php b/lib/net/authorize/api/contract/v1/UpdateCustomerProfileRequest.php
+index 77d7ef96..448febeb 100644
+--- a/lib/net/authorize/api/contract/v1/UpdateCustomerProfileRequest.php
++++ b/lib/net/authorize/api/contract/v1/UpdateCustomerProfileRequest.php
+@@ -37,7 +37,9 @@ public function setProfile(\net\authorize\api\contract\v1\CustomerProfileExType
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/UpdateCustomerShippingAddressRequest.php b/lib/net/authorize/api/contract/v1/UpdateCustomerShippingAddressRequest.php
+index acd6e34d..5c16b463 100644
+--- a/lib/net/authorize/api/contract/v1/UpdateCustomerShippingAddressRequest.php
++++ b/lib/net/authorize/api/contract/v1/UpdateCustomerShippingAddressRequest.php
+@@ -91,7 +91,9 @@ public function setDefaultShippingAddress($defaultShippingAddress)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/UpdateHeldTransactionRequest.php b/lib/net/authorize/api/contract/v1/UpdateHeldTransactionRequest.php
+index ba00f73f..8d490b90 100644
+--- a/lib/net/authorize/api/contract/v1/UpdateHeldTransactionRequest.php
++++ b/lib/net/authorize/api/contract/v1/UpdateHeldTransactionRequest.php
+@@ -39,7 +39,9 @@ public function setHeldTransactionRequest(\net\authorize\api\contract\v1\HeldTra
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/UpdateMerchantDetailsRequest.php b/lib/net/authorize/api/contract/v1/UpdateMerchantDetailsRequest.php
+index a4cfcc20..544da29e 100644
+--- a/lib/net/authorize/api/contract/v1/UpdateMerchantDetailsRequest.php
++++ b/lib/net/authorize/api/contract/v1/UpdateMerchantDetailsRequest.php
+@@ -37,7 +37,9 @@ public function setIsTestMode($isTestMode)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/UpdateSplitTenderGroupRequest.php b/lib/net/authorize/api/contract/v1/UpdateSplitTenderGroupRequest.php
+index f61aaa25..43d507d3 100644
+--- a/lib/net/authorize/api/contract/v1/UpdateSplitTenderGroupRequest.php
++++ b/lib/net/authorize/api/contract/v1/UpdateSplitTenderGroupRequest.php
+@@ -64,7 +64,9 @@ public function setSplitTenderStatus($splitTenderStatus)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/UserFieldType.php b/lib/net/authorize/api/contract/v1/UserFieldType.php
+index 024fc1f4..530664b9 100644
+--- a/lib/net/authorize/api/contract/v1/UserFieldType.php
++++ b/lib/net/authorize/api/contract/v1/UserFieldType.php
+@@ -67,7 +67,9 @@ public function setValue($value)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/ValidateCustomerPaymentProfileRequest.php b/lib/net/authorize/api/contract/v1/ValidateCustomerPaymentProfileRequest.php
+index 97668ac2..ea910a19 100644
+--- a/lib/net/authorize/api/contract/v1/ValidateCustomerPaymentProfileRequest.php
++++ b/lib/net/authorize/api/contract/v1/ValidateCustomerPaymentProfileRequest.php
+@@ -145,7 +145,9 @@ public function setValidationMode($validationMode)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/WebCheckOutDataType.php b/lib/net/authorize/api/contract/v1/WebCheckOutDataType.php
+index 8911b0f3..d0793217 100644
+--- a/lib/net/authorize/api/contract/v1/WebCheckOutDataType.php
++++ b/lib/net/authorize/api/contract/v1/WebCheckOutDataType.php
+@@ -121,7 +121,9 @@ public function setBankToken(\net\authorize\api\contract\v1\BankAccountType $ban
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+diff --git a/lib/net/authorize/api/contract/v1/WebCheckOutDataTypeTokenType.php b/lib/net/authorize/api/contract/v1/WebCheckOutDataTypeTokenType.php
+index b9c10980..9b8a7937 100644
+--- a/lib/net/authorize/api/contract/v1/WebCheckOutDataTypeTokenType.php
++++ b/lib/net/authorize/api/contract/v1/WebCheckOutDataTypeTokenType.php
+@@ -148,7 +148,9 @@ public function setFullName($fullName)
+ 
+ 
+     // Json Serialize Code
+-    public function jsonSerialize(){
++    #[\ReturnTypeWillChange]
++    public function jsonSerialize(): mixed
++    {
+         $values = array_filter((array)get_object_vars($this),
+         function ($val){
+             return !is_null($val);
+
+From dcee37734d1b7514e0c42726e514758efa2a958a Mon Sep 17 00:00:00 2001
+From: Alex Skrashuk <askrashuk@scnsoft.com>
+Date: Tue, 15 Nov 2022 12:56:28 +0300
+Subject: [PATCH 2/2] Changed owner name to use repository on our project.
+
+---
+ composer.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/composer.json b/composer.json
+index 61eaccf6..8f6f9eb7 100644
+--- a/composer.json
++++ b/composer.json
+@@ -1,5 +1,5 @@
+ {
+-    "name": "authorizenet/authorizenet",
++    "name": "zhartaunik/authorizenet",
+     "type": "library",
+ 	"version": "3.0.0",
+     "description": "Official PHP SDK for Authorize.Net",

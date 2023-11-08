@@ -1,0 +1,10 @@
+--- /dev/null
++++ ../lib/net/authorize/util/Log.php
+@@ -31,6 +31,7 @@
+     private $sensitiveXmlTags = NULL;
+     private $logFile = '';
+     private $logLevel = ANET_LOG_LEVEL;
++    private $sensitiveStringRegexes = NULL;
+ 	
+ 	/**
+ 	* Takes a regex pattern (string) as argument and adds the forward slash delimiter.

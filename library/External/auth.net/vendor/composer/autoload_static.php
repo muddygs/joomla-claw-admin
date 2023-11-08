@@ -4,8 +4,22 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit5223a8498fa2f174c0051f896b86f68f
+class ComposerStaticInit7cfd69953d2ee1f6fbbf49fcb11bd25e
 {
+    public static $prefixLengthsPsr4 = array (
+        'c' => 
+        array (
+            'cweagans\\Composer\\' => 18,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'cweagans\\Composer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/cweagans/composer-patches/src',
+        ),
+    );
+
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'net\\authorize\\api\\constants\\ANetEnvironment' => __DIR__ . '/..' . '/authorizenet/authorizenet/lib/net/authorize/api/constants/ANetEnvironment.php',
@@ -290,7 +304,9 @@ class ComposerStaticInit5223a8498fa2f174c0051f896b86f68f
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->classMap = ComposerStaticInit5223a8498fa2f174c0051f896b86f68f::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit7cfd69953d2ee1f6fbbf49fcb11bd25e::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit7cfd69953d2ee1f6fbbf49fcb11bd25e::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit7cfd69953d2ee1f6fbbf49fcb11bd25e::$classMap;
 
         }, null, ClassLoader::class);
     }

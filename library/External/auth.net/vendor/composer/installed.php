@@ -28,5 +28,14 @@
             'reference' => 'a3e76f96f674d16e892f87c58bedb99dada4b067',
             'dev_requirement' => false,
         ),
+        'cweagans/composer-patches' => array(
+            'pretty_version' => '1.7.3',
+            'version' => '1.7.3.0',
+            'type' => 'composer-plugin',
+            'install_path' => __DIR__ . '/../cweagans/composer-patches',
+            'aliases' => array(),
+            'reference' => 'e190d4466fe2b103a55467dfa83fc2fecfcaf2db',
+            'dev_requirement' => false,
+        ),
     ),
 );
