@@ -43,6 +43,7 @@ Bootstrap::writeGrid($content, $tags, false, false);
 ?>
 <hr/>
 <h2>Reports</h2>
+<p>NOTE: Exports are for the current event only.</p>
 <?php
 $content = [
   'stopwatch' => ['Speed Dating','<a href="/administrator/index.php?option=com_claw&view=reports&layout=speeddating&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
@@ -62,6 +63,7 @@ Bootstrap::writeGrid($content, $tags, false, false);
 $content = [
   'stopwatch' => ['Schedule','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_schedule&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
   'globe' => ['Sponsors','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_sponsors&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
+  'store' => ['Vendors','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_vendors&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
   'user-tag' => ['Presenters','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_presenters&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
   'list' => ['Classes','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_classes&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
   'file-archive' => ['Zip Presenter Images','<a href="/administrator/index.php?option=com_claw&view=reports&layout=zip_presenters&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
