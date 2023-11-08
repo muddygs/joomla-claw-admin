@@ -7,7 +7,7 @@ git archive main | tar -xf - -C $OUTPUT
 
 pushd $OUTPUT
 
-cd component && zip -r ../package/packages/com_claw.zip . && cd -
+cd component && zip --quiet -r ../package/packages/com_claw.zip . && cd -
 
 # prepare media directory
 rm -rf media
@@ -24,25 +24,25 @@ cp media_raw/css/* media/css
 rm media/js/*.json
 
 # Directories to append to main component package once admin is added
-/usr/bin/zip -r package/packages/com_claw.zip media
+/usr/bin/zip --quiet -r package/packages/com_claw.zip media
 
 pushd ~/code
-./export
+./export.sh
 popd
 
 cp ~/tmp/j4_claw_custom_code_current.tar.gz library/svn
 
-cd library && /usr/bin/zip -r ../package/packages/lib_claw.zip . && cd -
+cd library && /usr/bin/zip --quiet -r ../package/packages/lib_claw.zip . && cd -
 #cd plugin    && zip -dr ../package/packages/plg_claw.zip . && cd -
 
-cd package && /usr/bin/zip -r ../pkg_claw.zip . && cd -
+cd package && /usr/bin/zip --quiet -r ../pkg_claw.zip . && cd -
 
 # Build modules separately
 
-cd modules/mod_claw_sponsors && /usr/bin/zip -r ../../package/packages/mod_claw_sponsors.zip . && cd -
-cd modules/mod_claw_cart && /usr/bin/zip -r ../../package/packages/mod_claw_cart.zip . && cd -
-cd modules/mod_claw_vendors && /usr/bin/zip -r ../../package/packages/mod_claw_vendors.zip . && cd -
-cd modules/mod_claw_regbuttons && /usr/bin/zip -r ../../package/packages/mod_claw_regbuttons.zip . && cd -
+cd modules/mod_claw_sponsors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_sponsors.zip . && cd -
+cd modules/mod_claw_cart && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_cart.zip . && cd -
+cd modules/mod_claw_vendors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_vendors.zip . && cd -
+cd modules/mod_claw_regbuttons && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_regbuttons.zip . && cd -
 
 VPACKAGE=`xmllint --xpath '/extension/version/text()' package/pkg_claw.xml`
 VCOMPONENT=`xmllint --xpath '/extension/version/text()' component/claw.xml`
