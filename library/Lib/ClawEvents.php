@@ -95,6 +95,9 @@ class ClawEvents
     }
 
     if ($found > 1) {
+      var_dump($key);
+      var_dump($value);
+      var_dump($this->event->getEvents());
       var_dump($result);
       die('Duplicate results found. Did you load multiple events?');
     }
