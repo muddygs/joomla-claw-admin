@@ -55,7 +55,8 @@ class Helpers
     $ts = explode(':', $t);
     if (count($ts) < 2 || !\is_numeric($ts[0]) || !\is_numeric($ts[1]) || 
       $ts[0] < 0 || $ts[0] > 23 || $ts[1] < 0 || $ts[1] > 59) return false;
-    return strtotime('1970-01-01 ' . trim($t) . ':00');
+    // return strtotime('1970-01-01 ' . trim($t) . ':00');
+    return strtotime('1970-01-01 ' . implode(':', [ $ts[0], $ts[1], '00' ]));
   }
 
   public static function dateToDay(string $date): string
