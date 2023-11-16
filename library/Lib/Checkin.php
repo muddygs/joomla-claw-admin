@@ -17,7 +17,9 @@ class Checkin
   private $uid;
   public bool $isValid;
 
-  public function __construct(string $registration_code)
+  public function __construct(
+    public string $registration_code, 
+    public bool $errorReporting = true)
   {
     $this->uid = Registrant::getUserIdFromInvoice($registration_code);
     $this->isValid = false;
@@ -25,6 +27,11 @@ class Checkin
     if ( $this->uid != 0 ) {
       $this->isValid = $this->loadRecord();
     }
+  }
+
+  public function getUid()
+  {
+    return $this->uid;
   }
 
   private function loadRecord(): bool
@@ -43,18 +50,15 @@ class Checkin
     $alias = Aliases::current(true);
     $registrant = new Registrant($alias, $this->uid);
     $registrant->loadCurrentEvents();
+    
+    /** @var \ClawCorpLib\Lib\RegistrantRecord */
     $mainEventRegistrantRecord = null;
     $records = $registrant->records();
     
     if ( sizeof($records) ) {
       $registrant->mergeFieldValues($fieldValues);
+      /** @var \ClawCorpLib\Lib\RegistrantRecord */
       $mainEventRegistrantRecord = $registrant->getMainEvent();
-    }
-    
-    // Error for no main event
-    if ($mainEventRegistrantRecord == null) {
-      $this->r->error = 'User does not have a registration package.';
-      return false;
     }
     
     $events = new ClawEvents($alias);
@@ -70,6 +74,11 @@ class Checkin
     }
     
     $this->r = new CheckinRecord($events->getEvent(), $this->uid);
+    // Error for no main event
+    if ($mainEventRegistrantRecord == null) {
+      $this->r->error = 'User does not have a registration package.';
+      return false;
+    }
 
     $event = $events->getMainEventByPackageType($mainEventRegistrantRecord->registrant->eventPackageType);
 
@@ -210,7 +219,28 @@ class Checkin
     $this->r->photoAllowed = strcasecmp($mainEventRegistrantRecord->fieldValue->PHOTO_PERMISSION, 'yes') == 0 ? true : false;
 
     // T-Shirt Size
-    $this->r->shirtSize = $mainEventRegistrantRecord->fieldValue->TSHIRT . $mainEventRegistrantRecord->fieldValue->TSHIRT_VOL;
+    switch ( $mainEventRegistrantRecord->registrant->eventPackageType ) {
+      case EventPackageTypes::claw_staff:
+      case EventPackageTypes::event_staff:
+      case EventPackageTypes::event_talent:
+      case EventPackageTypes::volunteer1:
+      case EventPackageTypes::volunteer2:
+      case EventPackageTypes::volunteer3:
+      case EventPackageTypes::volunteersuper:
+      case EventPackageTypes::educator:
+        $this->r->shirtSize = $mainEventRegistrantRecord->fieldValue->TSHIRT_VOL;
+        break;
+      case EventPackageTypes::attendee:
+      case EventPackageTypes::vendor_crew:
+      case EventPackageTypes::vendor_crew_extra:
+      case EventPackageTypes::vip:
+      case EventPackageTypes::vip2:
+        $this->r->shirtSize = $mainEventRegistrantRecord->fieldValue->TSHIRT;
+        break;
+      default:
+        $this->r->shirtSize = '???';
+        break;
+    }
     if ( $this->r->shirtSize == '' ) $this->r->shirtSize = 'None';
 
     $this->r->dayPassDay = '';
@@ -237,11 +267,13 @@ class Checkin
       $errors[] = 'Badge not printed.';
     }
 
-    if ( sizeof($errors) != 0 ) {
+    if ( sizeof($errors) != 0 && $this->errorReporting) {
       array_unshift($errors, 'Do not issue badge:');
       $errors[] = 'Please direct to Guest Services';
       $this->r->error = implode("\n", $errors);
       return false;
+    } else {
+      $this->r->error = implode("\n", $errors);
     }
 
     return true;
