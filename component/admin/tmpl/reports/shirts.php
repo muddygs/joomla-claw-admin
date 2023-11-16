@@ -60,4 +60,14 @@ foreach ( $this->items['sizes'] as $size ) {
 <h2>TOTAL VOLUNTEER REGISTRATIONS: <?php echo $this->items['volTotalCount'] ?>
 
 <?php
+  if ( count($this->items['missing']) > 0 ):
+    ?>
+    <h2>Error/missing list:</h2>
+    <ol>
+    <?php
+      echo '<li>' . implode('</li><li>', $this->items['missing']) . '</li>';
+    ?>
+    </ol>
+<?php
+  endif;
 \ClawCorpLib\Helpers\Bootstrap::rawFooter();
