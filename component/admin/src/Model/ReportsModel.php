@@ -72,6 +72,7 @@ class ReportsModel extends BaseDatabaseModel
 
     $sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'None', 'Missing'];
     $items['sizes'] = $sizes;
+    $items['missing'] = [];
 
     $counters = (object)[];
     $volcounters = (object)[];
@@ -99,14 +100,32 @@ class ReportsModel extends BaseDatabaseModel
 
         /** @var \ClawCorpLib\Lib\RegistrantRecord */
         foreach ($r->records() as $record) {
-
-          /** @var registrantRecord $record */
-          if ($record->fieldValue->TSHIRT != '') {
-            $size = $record->fieldValue->TSHIRT;
-          } else if ($record->fieldValue->TSHIRT_VOL != '') {
-            $size = $record->fieldValue->TSHIRT_VOL;
-            $isVolunteer = true;
-          } else {
+          switch ( $record->registrant->eventPackageType ) {
+            case EventPackageTypes::claw_staff:
+            case EventPackageTypes::event_staff:
+            case EventPackageTypes::event_talent:
+            case EventPackageTypes::volunteer1:
+            case EventPackageTypes::volunteer2:
+            case EventPackageTypes::volunteer3:
+            case EventPackageTypes::volunteersuper:
+            case EventPackageTypes::educator:
+              $size = $record->fieldValue->TSHIRT_VOL;
+              $isVolunteer = true;
+              break;
+            case EventPackageTypes::attendee:
+            case EventPackageTypes::vendor_crew:
+            case EventPackageTypes::vendor_crew_extra:
+            case EventPackageTypes::vip:
+            case EventPackageTypes::vip2:
+              $size = $record->fieldValue->TSHIRT;
+              break;
+            default:
+              $size = '';
+              break;
+            }
+            
+            if ( empty($size) ) {
+            $items['missing'][] = $record->registrant->invoice_number;
             $size = 'Missing';
           }
 
