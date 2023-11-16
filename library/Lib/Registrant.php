@@ -47,9 +47,9 @@ class Registrant
     }
     if ( !count($this->_records) ) $this->loadCurrentEvents();
 
+    /** @var \ClawCorpLib\Lib\RegistrantRecord $r */
     foreach ( $this->_records as $r )
     {
-      /** @var \ClawCorpLib\Lib\RegistrantRecord $r */
       if ( EbPublishedState::published->value == $r->registrant->published ) {
         if ( in_array($r->event->eventId, $this->clawEvents->mainEventIds)) {
           $r->registrant->badgeId = $this->badgeId;
@@ -189,16 +189,16 @@ class Registrant
     // Refunds can only retrieve main events
     $mainOnly = ( 'refunds' == $this->clawEventAlias );
 
-    foreach( $records AS $k => $r )
+    foreach( $records AS $index => $record )
     {
       /** @var \ClawCorpLib\Lib\ClawEvent */
-      $event = $this->clawEvents->getEventByKey('eventId',$r->eventId,$mainOnly);
+      $event = $this->clawEvents->getEventByKey('eventId',$record->eventId,$mainOnly);
       if ( null != $event ) {
-        if ( $event->isMainEvent) $r->couponKey = $event->couponKey;
-        $r->eventPackageType = $event->eventPackageType;
+        if ( $event->isMainEvent) $record->couponKey = $event->couponKey;
+        $record->eventPackageType = $event->eventPackageType;
       }
 
-      $this->_records[$k] = new RegistrantRecord($this->clawEventAlias, $r);
+      $this->_records[$index] = new RegistrantRecord($this->clawEventAlias, $record);
     }
 
     $this->count = count($this->_records);
