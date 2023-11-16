@@ -67,7 +67,7 @@ class RegistrantRecord
 
     $this->event->clawEventAlias = $clawEventAlias;
 
-    foreach (get_class_vars('ClawCorpLib\Lib\RegistrantRecordEvent') AS $k => $v) {
+    foreach (array_keys(get_class_vars('ClawCorpLib\Lib\RegistrantRecordEvent')) AS $k) {
       if ( property_exists($r, $k) ) {
         $this->event->$k = $r->$k;
       }
@@ -75,7 +75,7 @@ class RegistrantRecord
 
     $this->category->category_id = $r->category_id;
 
-    foreach (get_class_vars('ClawCorpLib\Lib\RegistrantRecordRegistrant') as $k => $v) {
+    foreach (array_keys(get_class_vars('ClawCorpLib\Lib\RegistrantRecordRegistrant')) AS $k) {
       if ( property_exists($r, $k) && $r->$k !== null ) {
         $this->registrant->$k = $r->$k;
       }
