@@ -90,6 +90,7 @@ $content = [
     'ticket-alt' => ['Coupon Generator','<a href="/administrator/index.php?option=com_claw&view=coupongenerator&layout=edit" role="button" class="btn btn-danger">Launch</a>'],
     'user-tag'   => ['Refunds','<a href="/administrator/index.php?option=com_claw&view=refunds&layout=edit" role="button" class="btn btn-danger">Launch</a>'],
     'copy'       => ['Event Copy','<a href="/administrator/index.php?option=com_claw&view=eventcopy&layout=edit" role="button" class="btn btn-danger">Launch</a>'],
+    'plane-departure' => ['Preflight','<a href="/administrator/index.php?option=com_claw&view=reports&layout=preflight&format=raw" role="button" class="btn btn-info" target="_blank">Launch</a>'],
   ];
 
 Bootstrap::writeGrid($content, $tags, false, false);
