@@ -18,9 +18,7 @@ use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Ebregistrant;
 use ClawCorpLib\Lib\Jwtwrapper;
 use ClawCorpLib\Lib\Registrant;
-use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use Joomla\CMS\Router\Route;
 
 /**
  * Methods to handle public class listing.
@@ -179,31 +177,34 @@ class CheckinModel extends BaseDatabaseModel
 
     $uid = Registrant::getUserIdFromInvoice($regid);
 
+    $result = [
+      'valid' => false,
+      'message' => 'User Not Found',
+      'name' => '',
+      'uid' => $uid,
+      'shifts' => []
+    ];
+
     if ( $uid == 0 ) {
-      return [
-        'name' => 'Not Found',
-        'badgeid' => '',
-        'title' => '',
-        'checkin' => false,
-        'checkout' => false
-      ];
+      return $result;
     }
 
     $registrant = new Registrant(Aliases::current(true), $uid);
     $registrant->loadCurrentEvents();
     $registrant->mergeFieldValues($customFields);
 
-    $mainEventId = $registrant->getMainEvent();
+    /** @var \ClawCorpLib\Lib\RegistrantRecord */
+    $mainEvent = $registrant->getMainEvent();
 
-    if ( null == $mainEventId ) {
-      return [
-        'name' => 'User Does Not Have a Main Event',
-        'badgeid' => '',
-        'title' => '',
-        'checkin' => false,
-        'checkout' => false
-      ];
+    if ( null == $mainEvent ) {
+      $result['message'] = 'User Does Not Have a Main Event';
+      return $result;
     }
+
+    $result['valid'] = true;
+    $result['message'] = 'ok';
+    $result['name'] = ucwords($mainEvent->registrant->first_name . ' ' . $mainEvent->registrant->last_name);
+    $result['uid'] = $mainEvent->registrant->user_id;
 
     $shiftCatIds = ClawEvents::getCategoryIds(Aliases::shiftCategories());
 
@@ -213,8 +214,6 @@ class CheckinModel extends BaseDatabaseModel
     foreach ( $registrant->records() AS $record) {
       if ( in_array($record->category->category_id, $shiftCatIds) ) {
         $shifts[] = [
-          'name' => $record->registrant->first_name . ' ' . $record->registrant->last_name,
-          'uid' => $record->registrant->user_id,
           'regid' => $record->registrant->id,
           'title' => $record->event->title,
           'checkin' => (int)($record->fieldValue->Z_SHIFT_CHECKIN) == 0 ? false : true,
@@ -229,7 +228,9 @@ class CheckinModel extends BaseDatabaseModel
       return strcmp($a['time'], $b['time']);
     });
 
-    return $shifts;
+    $result['shifts'] = $shifts;
+
+    return $result;
   }
 
   public function volunteerUpdate(string $token, int $regid, string $action, bool $currentValue): string

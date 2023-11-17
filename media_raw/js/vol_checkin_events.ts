@@ -3,8 +3,8 @@ const colCheckin = "col-4 col-lg-3";
 const colCheckout = "col-4 col-lg-3";
 const url = new URL(window.location.href);
 
-var rollcallToken = "";
-var shiftId = "";
+let rollcallToken = "";
+let shiftId = "";
 
 document.addEventListener("DOMContentLoaded", function () {
   rollcallToken = (document.getElementById('token') as HTMLInputElement).value;
@@ -25,17 +25,25 @@ function volunteerOptions(data: object) {
   }
 }
 
-class volunteerSearch {
-  name: string;
+class shiftsInfo {
   uid: number;
+  name: string;
+  shifts: shiftRecord[];
+
+  constructor(uid: number, name: string, shifts: shiftRecord[]) {
+    this.uid = uid;
+    this.name = name;
+    this.shifts = shifts;
+  }
+}
+
+class shiftRecord {
   regid: number;
   title: string;
   checkin: boolean;
   checkout: boolean;
 
-  constructor(name: string, uid: number, regid: number, title: string, checkin: boolean, checkout: boolean) {
-    this.name = name;
-    this.uid = uid;
+  constructor(regid: number, title: string, checkin: boolean, checkout: boolean) {
     this.regid = regid;
     this.title = title;
     this.checkin = checkin;
@@ -43,27 +51,47 @@ class volunteerSearch {
   }
 }
 
-function formatVolunteerSearch(r: any): volunteerSearch {
-  return { name: r.name, uid: r.uid, regid: r.regid, title: r.title, checkin: r.checkin, checkout: r.checkout }
+function formatVolunteerSearch(r: any): shiftRecord {
+  return { regid: r.regid, title: r.title, checkin: r.checkin, checkout: r.checkout }
 }
 
 class volunteerSearchService {
-  async doSearch(regid: string): Promise<volunteerSearch[]> {
+  async doSearch(regid: string): Promise<shiftsInfo> {
+    clearVolunteerData();
+
     const data = {
       token: rollcallToken,
       regid: regid
     };
 
-    const res = await fetch(volunteerAjaxUrl('volunteerSearch'), volunteerOptions(data));
-    const res_1 = await res.json();
-    return res_1.map((s: any) => formatVolunteerSearch(s));
+    try {
+      const res = await fetch(volunteerAjaxUrl('volunteerSearch'), volunteerOptions(data));
+      
+      if (!res.ok) {
+        alert('Error fetching volunteer search data');
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const res_1 = await res.json();
+
+      if ( res_1.valid == true ) {
+        const shifts = res_1.shifts.map((s: shiftRecord) => formatVolunteerSearch(s));
+        return { uid: res_1.uid, name: res_1.name, shifts: shifts}
+      } else {
+        alert('Error fetching volunteer search data');
+        throw new Error(`Invalid response from server`);
+      }
+    } catch (error) {
+      alert('Error fetching volunteer search data');
+      throw error; // or handle it as needed
+    }
   }
 }
 
 const apiVolunteerSearchService = new volunteerSearchService();
 
 
-function getVolunteerStatusRow(record: volunteerSearch): string {
+function getVolunteerStatusRow(record: shiftRecord): string {
   const buttonInClass = record.checkin == false ? 'btn-danger' : 'btn-success';
   const buttonOutClass = record.checkout == false ? 'btn-danger' : 'btn-success';
 
@@ -149,6 +177,11 @@ function fetchVolunteerData() {
   const regid = (document.getElementById('regid') as HTMLInputElement).value;
 
   apiVolunteerSearchService.doSearch(regid).then(results => {
+    const nameId = document.getElementById('name');
+    nameId.innerHTML = results.name;
+    const uidId = document.getElementById('uid') as HTMLInputElement;
+    uidId.value = results.uid.toString();
+
     const v = document.getElementById('shifts');
     v.innerHTML = `
       <div class="row row-striped">
@@ -157,15 +190,10 @@ function fetchVolunteerData() {
         <div class="${colCheckout}">Checkout</div>
       </div>`;
 
-    if ( results.length == 0 ) {
+    if ( results.shifts.length == 0 ) {
       v.innerHTML += '<div class="row row-striped"><div class="col-12">No shifts found.</div></div>';
     } else {
-      const nameId = document.getElementById('name');
-      nameId.innerHTML = results[0].name;
-      const uidId = document.getElementById('uid') as HTMLInputElement;
-      uidId.value = results[0].uid.toString();
-
-      results.forEach(s => {
+      results.shifts.forEach(s => {
         v.innerHTML += getVolunteerStatusRow(s);
       });
     }
