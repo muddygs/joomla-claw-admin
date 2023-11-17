@@ -117,9 +117,15 @@ foreach ( $events AS $event )
       dataRow($output);
       continue;
     }
-
+    
+    if ( stristr($invoice[0], $eventInfo->prefix) === false ) {
+      $output->errors = "<span class=\"text-danger\">Invalid invoice number: {$record->invoice_number}</span>";
+      dataRow($output);
+      continue;
+    }
     
     $baseInvoice = implode('-', [$invoice[0], $invoice[1]]);
+
     $checkin = new Checkin($baseInvoice, false);
 
     $output->regid = implode('<br/>',[$registrant->badgeId, $checkin->r->legalName, $checkin->r->email]);
