@@ -474,8 +474,6 @@ SQL;
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $db->truncateTable('#__claw_eventid_mapping');
-
     $aliases = Config::getActiveEventAliases();
     $dates = [];
 
@@ -501,22 +499,33 @@ SQL;
     $db->setQuery($query);
     $ebEvents = $db->loadObjectList('id');
 
-    foreach ( $ebEvents AS $e ) {
-      if ( $e->event_date == '0000-00-00 00:00:00' ) continue;
+    try {
+      $db->transactionStart(true);
 
-      foreach ( $dates AS $alias => $date ) {
-        if ( $e->event_date >= $date->start && $e->event_date <= $date->end ) {
-          $query = $db->getQuery(true);
-          $query
-            ->insert($db->quoteName('#__claw_eventid_mapping'))
-            ->columns($db->quoteName(['eventid','alias']))
-            ->values(implode(',', $db->q([$e->id, $alias])));
-          $db->setQuery($query);
-          $db->execute();
+      $db->truncateTable('#__claw_eventid_mapping');
 
-          break;
+      foreach ( $ebEvents AS $e ) {
+        if ( $e->event_date == '0000-00-00 00:00:00' ) continue;
+
+        foreach ( $dates AS $alias => $date ) {
+          if ( $e->event_date >= $date->start && $e->event_date <= $date->end ) {
+            $query = $db->getQuery(true);
+            $query
+              ->insert($db->quoteName('#__claw_eventid_mapping'))
+              ->columns($db->quoteName(['eventid','alias']))
+              ->values(implode(',', $db->q([$e->id, $alias])));
+            $db->setQuery($query);
+            $db->execute();
+
+            break;
+          }
         }
       }
+
+      $db->transactionCommit();
+    } catch ( \Exception $e ) {
+      $db->transactionRollback();
+      throw $e;
     }
   }
 }
