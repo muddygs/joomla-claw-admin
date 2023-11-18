@@ -407,7 +407,7 @@ SQL;
     return $db->loadObject();
   }
 
-  public static function getEventIdMapping(int $eventId): bool|string
+  private static function getEventIdMapping(int $eventId): bool|string
   {
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
@@ -419,26 +419,28 @@ SQL;
       ->bind(':eventid', $eventId);
     $db->setQuery($query);
     $result = $db->loadResult();
-    return $result;
+
+    if ( null == $result ) {
+      Ebmgmt::rebuildEventIdMapping();
+    } else {
+      return $result;
+    }
+
+    $db->setQuery($query);
+    $result = $db->loadResult();
+
+    return $result == null ? false : $result;
   }
 
   /**
    * Given an event ID, returns the alias that includes that event, except if mainAllowed is false,
    * which does not make sense in this context in order to return specific event
    * @param int $eventId The event ID
-   * @return string Event Aliases or false if not found
+   * @return string|bool Event Aliases or false if not found
    */
   public static function eventIdToClawEventAlias(int $eventId): string|bool
   {
     $alias = self::getEventIdMapping($eventId);
-
-    // Rebuild and try again
-    if ( $alias === false ) {
-      Ebmgmt::rebuildEventIdMapping();
-      $alias = self::getEventIdMapping($eventId);
-    } else {
-      return $alias;
-    }
 
     if ( $alias !== false ) return $alias;
 
