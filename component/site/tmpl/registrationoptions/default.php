@@ -102,6 +102,14 @@ if ( !$this->eventInfo->onsiteActive ) {
 $uid = Factory::getApplication()->getIdentity()->id;
 
 if (!$uid) {
+  if ( $this->eventInfo->onsiteActive ) {
+    // Redirect to login page
+    $return = \Joomla\CMS\Uri\Uri::getInstance()->toString();
+    $url    = 'index.php?option=com_users&view=login';
+    $url   .= '&return=' . base64_encode($return);
+    $this->app->redirect($url);
+  }
+  
   echo 'You must be signed in to see this resource';
   return;
 }
