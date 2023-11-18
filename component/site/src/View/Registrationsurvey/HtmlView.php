@@ -98,6 +98,8 @@ class HtmlView extends BaseHtmlView
 
     if ( $this->events->getClawEventInfo()->onsiteActive) {
       if ($this->app->getIdentity()->id != 0) $this->app->logout();
+      $coupon = new Coupon('',0);
+      $this->autoCoupon = $coupon;
     } else {
       if (!$this->uid) {
         $return = \Joomla\CMS\Uri\Uri::getInstance()->toString();
