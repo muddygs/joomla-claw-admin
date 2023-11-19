@@ -37,6 +37,12 @@ class HtmlView extends BaseHtmlView
     $app = Factory::getApplication();
 
     $viewMenuId = (int)Helpers::sessionGet('skillslist.menuid');
+
+    if ( 0 == $viewMenuId ) {
+      $app->enqueueMessage('Class listing must be reloaded. Reselect the menu item to continue.', 'info');
+      $app->redirect(Route::_('/'));
+    }
+
     $sitemenu = $app->getMenu();
     $sitemenu->setActive($viewMenuId);
     $menu = $app->getMenu()->getActive();

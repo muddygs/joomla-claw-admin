@@ -37,6 +37,12 @@ class HtmlView extends BaseHtmlView
     $app = Factory::getApplication();
 
     $viewMenuId = (int)Helpers::sessionGet('skillslist.menuid');
+
+    if ( 0 == $viewMenuId ) {
+      $app->enqueueMessage('Class listing must be reloaded. Reselect the menu item to continue.', 'info');
+      $app->redirect(Route::_('/'));
+    }
+
     $sitemenu = $app->getMenu();
     $sitemenu->setActive($viewMenuId);
     $menu = $app->getMenu()->getActive();
@@ -49,7 +55,7 @@ class HtmlView extends BaseHtmlView
     $this->cid = $params['cid'] ?? 0;
     $this->urlTab = $params['tab'] ?? 'overview';
 
-    /** @var \ClawCorp\Component\Claw\Site\Model\SkillslistModel */
+    /** @var \ClawCorp\Component\Claw\Site\Model\SkillsPresenterModel */
     $model = $this->getModel();
     $this->presenter = $model->GetPresenter($this->pid, $this->params->get('event_alias', Aliases::current()));
 
