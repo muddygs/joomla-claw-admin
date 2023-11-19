@@ -16,6 +16,7 @@ use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
+use Joomla\CMS\Router\Route;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
@@ -34,23 +35,25 @@ class HtmlView extends BaseHtmlView
     /** @var Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
 
-    $viewMenuId = (int)Helpers::sessionGet('skillslist.menuid');
+    /** @var \Joomla\CMS\Menu\MenuItem */
     $menu = $app->getMenu()->getActive();
-
-    if ( 0 == $viewMenuId ) {
-      $viewMenuId = $menu->id;
-      Helpers::sessionSet('skillslist.menuid', $viewMenuId);
-    }
-
-    if ($viewMenuId != $menu->id) {
+    $viewMenuId = (int)Helpers::sessionGet('skillslist.menuid', '0');
+    if ($viewMenuId != $menu->id && $viewMenuId != 0) {
       $sitemenu = $app->getMenu();
       $sitemenu->setActive($viewMenuId);
       $menu = $app->getMenu()->getActive();
     }
-    $this->params = $menu->getParams();
- 
-    $this->list_type = $this->params->get('list_type', 'simple');
 
+    if ( $menu->link != 'index.php?option=com_claw&view=skillslist' ) {
+      Helpers::sessionSet('skillslist.menuid', 0);
+      $app->enqueueMessage('Class listing must be reloaded. Reselect the menu item to continue.', 'info');
+      $app->redirect(Route::_('/'));
+    }
+
+    Helpers::sessionSet('skillslist.menuid', $menu->id);
+
+    $this->params = $menu->getParams();
+    $this->list_type = $this->params->get('list_type', 'simple');
 
     /** @var \ClawCorp\Component\Claw\Site\Model\SkillslistModel */
     $model = $this->getModel();
