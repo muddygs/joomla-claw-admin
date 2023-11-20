@@ -7,6 +7,9 @@ git archive main | tar -xf - -C $OUTPUT
 
 pushd $OUTPUT
 
+# auth.net files to remove since .gitignore is not working
+rm -rf library/External/auth.net/patches library/External/auth.net/patches.zip library/External/auth.net/*.pdf library/External/auth.net/*.md
+
 cd component && zip --quiet -r ../package/packages/com_claw.zip . && cd -
 
 # prepare media directory
