@@ -323,7 +323,7 @@ class Skills
       // Get main site link
       $uri = Uri::getInstance();
       $siteUrl = $uri::root();
-      $surveyLink = $siteUrl . $item->link;
+      $surveyLink = $siteUrl . $item->alias;
     }
 
 
@@ -408,20 +408,19 @@ class Skills
             }
             break;
           case 'description':
-            $description = '';
-
             // Convert category to text
-            $description .= 'Category: ' . $categories[$c->category]->text . '<br/>' . $c->$col;
+            $description = '<p>Category: ' . $categories[$c->category]->text . '</p>' . PHP_EOL. $c->$col;
             $description = Helpers::cleanHtmlForCsv($description);
             $row[] = $description;
             break;
           case 'url':
             // Survey link
             if ( $surveyLink != '') {
-              $row[] = $surveyLink . '&form[classTitleParam]=' . $c->id;
+              $row[] = $surveyLink . '?form[classTitleParam]=' . $c->id;
             } else {
               $row[] = '';
             }
+            break;
           default:
             $row[] = $c->$col;
             break;
