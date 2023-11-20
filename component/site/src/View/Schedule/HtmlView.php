@@ -75,9 +75,13 @@ class HtmlView extends BaseHtmlView
       }
     }
 
+    // Time zone
+    date_default_timezone_set($this->eventInfo->timezone);
+    $now = \date('Y-m-d');
+
     // Set default tab
-    if ( $this->eventInfo->onsiteActive ) {
-      $this->start_tab = date('D', strtotime($dates[date('D')]));
+    if ( $this->eventInfo->onsiteActive && $now >= $this->start_date && $now <= $this->end_date ) {
+      $this->start_tab = date('D', strtotime($now));
     } else {
       $this->start_tab = date('D', strtotime($this->start_date));
     }
