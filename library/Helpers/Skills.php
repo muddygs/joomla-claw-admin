@@ -4,11 +4,13 @@ namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Lib\Aliases;
 use InvalidArgumentException;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Filesystem\Folder;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Router\Route;
+use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseDriver;
 use Joomla\Database\Exception\UnsupportedAdapterException;
 use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
@@ -307,12 +309,33 @@ class Skills
     $this->GetClassList(published: true);
     $this->GetPresentersList(publishedOnly: true);
 
+    // Load the global config for com_claw. We need to the RS Form ID
+    /** @var Joomla\CMS\Application\AdministratorApplication */
+    $app = Factory::getApplication();
+    $componentParams = ComponentHelper::getParams('com_claw');
+    $seSurveyMenuId = $componentParams->get('se_survey_link', 0);
+    $surveyLink = '';
+
+    if ( $seSurveyMenuId > 0 ) {
+      $menu = $app->getMenu('site');
+      $item = $menu->getItem($seSurveyMenuId);
+
+      // Get main site link
+      $uri = Uri::getInstance();
+      $siteUrl = $uri::root();
+      $surveyLink = $siteUrl . $item->link;
+    }
+
+
+    // $rsformId = $config['se_survey_link'];
+
     // Load database columns
     $columnNames = array_keys($this->db->getTableColumns('#__claw_skills'));
     $columnNames[] = 'multitrack';
     $columnNames[] = 'people';
     $columnNames[] = 'start_time';
     $columnNames[] = 'end_time';
+    $columnNames[] = 'url';
 
     // Load category strings
     $categories = Config::getColumn('skill_category');
@@ -385,11 +408,20 @@ class Skills
             }
             break;
           case 'description':
+            $description = '';
+
             // Convert category to text
-            $description = '<p>Category: ' . $categories[$c->category]->text . '</p>' . PHP_EOL . $c->$col;
+            $description .= 'Category: ' . $categories[$c->category]->text . '<br/>' . $c->$col;
             $description = Helpers::cleanHtmlForCsv($description);
             $row[] = $description;
             break;
+          case 'url':
+            // Survey link
+            if ( $surveyLink != '') {
+              $row[] = $surveyLink . '&form[classTitleParam]=' . $c->id;
+            } else {
+              $row[] = '';
+            }
           default:
             $row[] = $c->$col;
             break;
