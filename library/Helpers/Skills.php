@@ -315,6 +315,7 @@ class Skills
     $componentParams = ComponentHelper::getParams('com_claw');
     $seSurveyMenuId = $componentParams->get('se_survey_link', 0);
     $surveyLink = '';
+    $siteUrl = '';
 
     if ( $seSurveyMenuId > 0 ) {
       $menu = $app->getMenu('site');
@@ -335,7 +336,6 @@ class Skills
     $columnNames[] = 'people';
     $columnNames[] = 'start_time';
     $columnNames[] = 'end_time';
-    $columnNames[] = 'url';
 
     // Load category strings
     $categories = Config::getColumn('skill_category');
@@ -408,18 +408,20 @@ class Skills
             }
             break;
           case 'description':
+            $survey = '';
+
+            if ( $surveyLink != '') {
+              $newurl = $surveyLink . '?form[classTitleParam]=' . $c->id;
+              $oldurl = $siteUrl . 'skills_survey_'.$c->id; 
+              $redirect = new Redirects($this->db, $oldurl, $newurl, 'survey_'.$c->id);
+              $redirectId = $redirect->insert();
+              if ( $redirectId ) $survey = 'Survey: ' . $oldurl . '<br/>';
+            }
+
             // Convert category to text
-            $description = '<p>Category: ' . $categories[$c->category]->text . '</p>' . PHP_EOL. $c->$col;
+            $description = $survey . 'Category: ' . $categories[$c->category]->text . '<br/>' . $c->$col;
             $description = Helpers::cleanHtmlForCsv($description);
             $row[] = $description;
-            break;
-          case 'url':
-            // Survey link
-            if ( $surveyLink != '') {
-              $row[] = $surveyLink . '?form[classTitleParam]=' . $c->id;
-            } else {
-              $row[] = '';
-            }
             break;
           default:
             $row[] = $c->$col;
