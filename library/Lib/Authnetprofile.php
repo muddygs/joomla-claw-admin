@@ -140,18 +140,20 @@ class Authnetprofile {
         //$r->registrant->payment_status == registrationPaymentStatus::partial &&
         $r->registrant->payment_method == EbPaymentTypes::authnet->value &&
         is_numeric($r->registrant->transaction_id) &&
-        ( 0 == $r->fieldValue->Z_AUTHNET_PAYMENTPROFILEID || 0 == $r->fieldValue->Z_AUTHNET_PROFILEID )
+        ( empty($r->fieldValue->Z_AUTHNET_PAYMENTPROFILEID) || empty($r->fieldValue->Z_AUTHNET_PROFILEID) )
       ) {
           list($profileId, $paymentProfileId) = $this->createProfile($r);
           if ( 0 == $profileId || 0 == $paymentProfileId ) 
           {
             echo "ERROR CREATING PROFILE FOR: ".$r->registrant->id."\n";
+            $this->storeProfileId($r->registrant->id, 'error', 'error');
+            continue;
           }
           else
           {
             $this->storeProfileId($r->registrant->id, $profileId, $paymentProfileId);
+            $count++;
           }
-          $count++;
       }
       else
       {
