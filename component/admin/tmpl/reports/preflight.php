@@ -17,6 +17,7 @@
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Checkin;
+use ClawCorpLib\Lib\ClawEvent;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\Factory;
@@ -227,6 +228,68 @@ if ( count($duplicateUserIds) > 0 ) {
   echo "<pre>" . implode("\n", $duplicateUserIds) . "</pre>\n";
 } else {
   echo "<h2 class=\"text-success\">No duplicate user ids found</h2>\n";
+}
+
+// Verify all Event Booking events exist and that they are configured the same
+?>
+<h2>Event Booking Events</h2>
+  <table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+      <tr>
+        <td>Event ID</td>
+        <td>Title</td>
+        <td>Coupon Key</td>
+        <td>Published</td>
+        <td>Fee</td>
+      </tr>
+    </thead>
+    <tbody>
+<?php
+
+// Tracking for duplicate coupon keys
+$couponKeys = [];
+
+/** @var \ClawCorpLib\Lib\ClawEvent */
+foreach ( $events AS $event )
+{
+  // Load the EventBooking database item for this event
+  $eventRow = ClawEvents::loadEventRow($event->eventId);
+
+  if ( $event->couponKey != '') $couponKeys[] = $event->couponKey;
+
+  if ( property_exists($event, 'fee') && $event->fee != $eventRow->individual_price ) {
+    $fee = "<span class=\"text-danger\">{$event->fee} != {$eventRow->individual_price}</span>";
+  } else {
+    $fee = $event->fee ?? 0;
+  }
+
+  $published = $eventRow->published == EbPublishedState::published->value ?
+    'PUBLISHED' : 
+    "<span class=\"text-danger\">UNPUBLISHED</span>";
+
+  ?>
+  <tr>
+    <td><?= $event->eventId ?></td>
+    <td><?= $eventRow->title ?></td>
+    <td><?= $event->couponKey ?></td>
+    <td><?= $published ?></td>
+    <td><?= $fee ?></td>
+  </tr>
+  <?php
+}
+?>
+    </tbody>
+  </table> 
+<?php
+
+// Check for duplicate coupon values
+$duplicateCouponKeys = array_unique(array_diff_assoc($couponKeys, array_unique($couponKeys)));
+
+if ( count($duplicateCouponKeys) > 0 ) {
+  echo "<h2 class=\"text-danger\">Duplicate Coupon Keys</h2>\n";
+  echo "<pre>" . implode("\n", $duplicateCouponKeys) . "</pre>\n";
+} else {
+  echo "<h2 class=\"text-success\">No duplicate coupon keys found</h2>\n";
 }
 
 \ClawCorpLib\Helpers\Bootstrap::rawFooter();
