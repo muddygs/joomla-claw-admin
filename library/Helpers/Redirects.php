@@ -58,19 +58,23 @@ class Redirects
   public function insert(): int
   {
     // If comment is not blank, try to delete equivalent redirect first
-    if ($this->comment) {
-      $query = $this->db->getQuery(true);
-      $conditions = [
-        $query->qn('comment') . ' = ' . $query->q($this->comment)
-      ];
+    // or if oldurl already exists
+    $query = $this->db->getQuery(true);
+    $conditions = [
+      $query->qn('old_url') . ' = ' . $query->q($this->oldUrl)
+    ];
 
-      $query->delete($this->db->qn('#__redirect_links'))
-        ->where($conditions);
-      
-      $this->db->setQuery($query);
-      $this->db->execute();
+    if ($this->comment) {
+      $conditions[] = $query->qn('comment') . ' = ' . $query->q($this->comment);
     }
 
+    $query->delete($this->db->qn('#__redirect_links'))
+      ->where($conditions, 'OR');
+    
+    $this->db->setQuery($query);
+    $this->db->execute();
+
+    // Insert new redirect
     $result = $this->db->insertObject('#__redirect_links', $this->redirect, 'id');
 
     return $result != false ? $this->redirect->id : 0;
