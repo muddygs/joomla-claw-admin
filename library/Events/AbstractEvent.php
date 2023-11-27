@@ -68,7 +68,12 @@ abstract class AbstractEvent
     return $this->info;
   }
 
-  public function getEvents(): array { 
+
+  /**
+   * Returns array of ClawEvent records 
+   * @return array
+  */
+    public function getEvents(): array { 
     return $this->events;
   }
 
