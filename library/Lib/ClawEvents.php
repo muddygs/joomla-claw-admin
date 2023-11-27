@@ -198,7 +198,7 @@ class ClawEvents
   }
 
   /**
-   * Returns list of loaded events
+   * Returns array of ClawEvent records for loaded events
    */
   public function getEvents(): array
   {
