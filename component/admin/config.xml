@@ -63,6 +63,43 @@
 				required="true"
 				validate="email"
 			/>
+	</fieldset>
+	<fieldset
+		name="cron"
+		label="Cron"
+		description="Settings for Cron Tasks">
+
+		<field
+			name="profiles_eventalias"
+			type="text"
+			label="Profiles Event Alias"
+			default=""
+			required="false"
+		/>
+
+		<field
+			name="profiles_cronkey"
+			type="text"
+			label="Profiles Cron Key"
+			default=""
+			required="false"
+		/>
+
+		<field
+			name="shifts_eventalias"
+			type="text"
+			label="Shifts Event Alias"
+			default=""
+			required="false"
+		/>
+
+		<field
+			name="shifts_cronkey"
+			type="text"
+			label="Shifts Cron Key"
+			default=""
+			required="false"
+		/>
 
 	</fieldset>
 
