@@ -16,6 +16,7 @@ $container->alias('session.web', 'session.web.site')
   ->alias(\Joomla\Session\SessionInterface::class, 'session.web.site');
 
 // Instantiate the application.
+/** @var \Joomla\CMS\Application\AdministratorApplication */
 $app = $container->get(\Joomla\CMS\Application\AdministratorApplication::class);
 
 // Set the application as global app
@@ -37,20 +38,37 @@ if ($autoLoader)
   die('Autoloader failed in cron task');
 }
 
-use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Authnetprofile;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Component\ComponentHelper;
 
-require_once JPATH_ROOT . '/../cron_constants.php';
-
-$app = Factory::getApplication('site');
+$componentParams = ComponentHelper::getParams('com_claw');
+$alias = $componentParams->get('profiles_eventalias', '');
+$cronkey = $componentParams->get('profiles_cronkey', '');
 
 $key = $app->input->getString('key', '');
 $cron = $app->input->getString('cron', '');
+$limit = $app->input->getUint('limit', 25);
 $cron = $cron == '' ? true : false;
 
-if ( $key != Clawcron::PROFILES) exit;
+if ( $key != $cronkey ) exit;
+?>
+<!DOCTYPE html>
+<html lang="en">
 
-$count = Authnetprofile::create( eventAlias: Aliases::current(), maximum_records:25, cron:$cron );
+<head>
+  <meta charset=UTF-8>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>PROFILES</title>
+</head>
 
-echo "Profiles created: " . $count;
+<body>
+<?php
+
+$count = Authnetprofile::create( eventAlias: $alias, maximum_records:$limit, cron:$cron );
+
+echo '<h1>Profiles created: ' . $count . '</h1>';
+
+?>
+</body>
