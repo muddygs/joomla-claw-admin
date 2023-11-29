@@ -132,6 +132,22 @@
       }
     },
     {
+      "name": "com_claw.textarea",
+      "type": "script",
+      "uri": "com_claw/textarea.js",
+      "dependencies": [
+        "core"
+      ],
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_claw.textarea",
+      "type": "style",
+      "uri": "com_claw/textarea.css"
+    },
+    {
       "name": "com_claw.admin",
       "type": "style",
       "uri": "com_claw/claw_admin.css"
