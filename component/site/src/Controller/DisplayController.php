@@ -54,8 +54,6 @@ class DisplayController extends BaseController
 
   public function copyskill()
   {
-//    $this->checkToken();
-
     $id = $this->input->get('id');
     /** @var \ClawCorp\Component\Claw\Site\Model\SkillsubmissionModel */
     $siteModel = $this->getModel('Skillsubmission', 'Site');
@@ -67,18 +65,20 @@ class DisplayController extends BaseController
     if ( $status) $adminModel->email(true, $data);
 
     $skillRoute = Route::_('index.php?option=com_claw&view=skillssubmissions');
-    $this->redirect($skillRoute);
+    $this->setRedirect($skillRoute);
+
+    return true;
   }
 
 
   public function copybio()
   {
-//    $this->checkToken();
-
     $id = $this->input->get('id');
     /** @var \ClawCorp\Component\Claw\Site\Model\PresentersubmissionModel */
     $siteModel = $this->getModel('Presentersubmission', 'Site');
     $siteModel->duplicate($id);
+
+    return true;
   }
 
   /**
