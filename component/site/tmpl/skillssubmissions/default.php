@@ -201,6 +201,7 @@ function ClassesHtml(object &$__this)
       <thead>
         <th>Event</th>
         <th>Class Title</th>
+        <th>Status</th>
         <th>Action(s)</th>
       </thead>
       <tbody>
@@ -226,6 +227,12 @@ function ClassRow(object $row, bool $canSubmit)
 {
   $button = '';
 
+  $published = match ($row->published) {
+    0 => 'Unpublished',
+    1 => 'Published',
+    default => 'Pending Review'
+  };
+
   if ($canSubmit) {
     if ($row->event == Aliases::current()) {
       $buttonRoute = Route::_('index.php?option=com_claw&view=skillsubmission&id=' . $row->id);
@@ -243,9 +250,10 @@ HTML;
 
 ?>
   <tr>
-    <td><?php echo ClawCorpLib\Lib\ClawEvents::eventAliasToTitle($row->event) ?></td>
-    <td><?php echo $row->title ?></td>
-    <td><?php echo $button ?></td>
+    <td><?= ClawCorpLib\Lib\ClawEvents::eventAliasToTitle($row->event) ?></td>
+    <td><?= $row->title ?></td>
+    <td><?= $published ?></td>
+    <td><?= $button ?></td>
   </tr>
 <?php
 }
