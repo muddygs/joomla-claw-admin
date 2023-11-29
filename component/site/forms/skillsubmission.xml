@@ -13,9 +13,9 @@
   <field
     name="title"
     type="text"
-    label="Class Title"
+    label="Class Title (50 character limit)"
     required="true"
-    maxLength="30"
+    maxlength="50"
     filter="string"
   />
 
@@ -33,10 +33,12 @@
 
   <field 
     name="description"
-    type="editor"
-    label="Class Description (please exclude information from above) - MAX LENGTH 1000 CHARACTERS"
+    type="textarea"
+    label="Class Description (please exclude information from above; 500 character limit)"
+    maxlength="500"
+    rows="10"
+    required="true"
     filter="safehtml"
-    maxLength="1000"
   />
 
   <field
@@ -57,8 +59,8 @@
     label="Class Equipment"
     description="List needed equipment (e.g., sling, rigging)"
     required="false"
-    maxLength="255"
-    filter="raw"
+    maxlength="255"
+    filter="string"
     rows="3"
     columns="00"
   />
@@ -69,7 +71,7 @@
     label="Copresenters"
     description="Contact information on any copresenters"
     required="false"
-    maxLength="255"
+    maxlength="255"
     filter="string"
     rows="3"
     columns="00"
@@ -81,7 +83,7 @@
     label="Requirements (prerequisites, gear to bring, etc.)"
     description="Describe class prerequisites and/or equipment/gear attendees should bring to class"
     required="false"
-    maxLength="255"
+    maxlength="255"
     rows="3"
     columns="0"
     filter="string"
@@ -92,7 +94,7 @@
     type="textarea"
     label="Other Comments"
     required="false"
-    maxLength="255"
+    maxlength="255"
     rows="3"
     columns="00"
     filter="string"

@@ -15,7 +15,7 @@
       type="text"
       label="Public Name"
       required="true"
-      maxLength="30"
+      maxlength="30"
       filter="string"
     />
 
@@ -24,7 +24,7 @@
       type="text"
       label="Legal Name"
       required="true"
-      maxLength="30"
+      maxlength="30"
       filter="string"
     />
 
@@ -40,7 +40,7 @@
       label="Social Media Tags"
       description="@twitter, @instagram, etc."
       required="false"
-      maxLength="255"
+      maxlength="255"
       filter="string"
     />
 
@@ -49,7 +49,7 @@
       type="text"
       label="Phone Number"
       required="false"
-      maxLength="255"
+      maxlength="255"
       filter="string"
     />
 
@@ -60,19 +60,16 @@
       >
       <option value="Cell">This is a cell phone number</option>
       <option value="SMS">It is OK to SMS (text) this number</option>
-      <option value="xxx">Need manual checkbox handling</option>
     </field>
 
     <field 
       name="bio"
-      type="editor"
-      label="Biography"
-      filter="safehtml"
-      editor="desired"
-      buttons="false"
-      hide="article,image,pagebreak,readmore"
-      maxLength="1000"
+      type="textarea"
+      label="Biography (1000 character limit)"
+      maxlength="1000"
+      rows="10"
       required="true"
+      filter="safehtml"
     />
 
     <field
@@ -113,7 +110,7 @@
       label="Class title and presenter name"
       description="Please provide class and presenter information with whom you are presenting."
       required="false"
-      maxLength="255"
+      maxlength="255"
       showon="copresenter:1"
       filter="string"
     />
@@ -123,7 +120,7 @@
       type="text"
       label="Comments"
       required="false"
-      maxLength="255"
+      maxlength="255"
       filter="string"
     />
   </fieldset>
@@ -133,7 +130,7 @@
     type="hidden"
     label="Submission Date"
     required="false"
-    maxLength="255"
+    maxlength="255"
     readonly="true"
     filter="string"
   />
