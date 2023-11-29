@@ -31,7 +31,7 @@ const replacements = {
 	[String.fromCharCode(8226)]: "*", // bullet
 };
 
-function CLAWmaxarea(textarea: HTMLTextAreaElement, counterspan: HTMLDivElement, max_chars: number) {
+function textareaprogress(textarea: HTMLTextAreaElement, counterspan: HTMLDivElement, max_chars: number) {
 	if ( max_chars < 1) {
 		return;
 	}
@@ -86,14 +86,10 @@ function wordScrubber(textarea: HTMLTextAreaElement) {
 
 // Setup the event handlers
 document.addEventListener("DOMContentLoaded", function () {
-	var textareas = document.getElementsByClassName('counted');
+	var textareas = document.getElementsByTagName('TEXTAREA');
 
 	if (textareas) {
 		for (let i = 0; i < textareas.length; i++) {
-			// Is it textarea
-			if (textareas[i].tagName != 'TEXTAREA') {
-				continue;
-			}
 			// Is there a counter
 			let counter = parseInt(textareas[i].getAttribute('maxlength'));
 			if ( counter < 1) {
@@ -117,8 +113,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 			textareas[i].parentNode.insertBefore(progress, textareas[i].nextSibling);
 
-			textareas[i].addEventListener('focus', () => CLAWmaxarea(textareas[i] as HTMLTextAreaElement, progress, counter), false);
-			textareas[i].addEventListener('input', () => CLAWmaxarea(textareas[i] as HTMLTextAreaElement, progress, counter), false);
+			textareas[i].addEventListener('focus', () => textareaprogress(textareas[i] as HTMLTextAreaElement, progress, counter), false);
+			textareas[i].addEventListener('input', () => textareaprogress(textareas[i] as HTMLTextAreaElement, progress, counter), false);
+			textareaprogress(textareas[i] as HTMLTextAreaElement, progress, counter)
 		}
 	}
 	
