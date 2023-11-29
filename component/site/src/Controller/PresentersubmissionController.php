@@ -23,6 +23,7 @@ use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\Router\Route;
+use Joomla\CMS\Utility\Utility;
 
 /**
  * Controller for a single sponsor record
@@ -64,6 +65,10 @@ class PresentersubmissionController extends FormController
     $data = $form->filter($data);
     $validation = $siteModel->validate($form, $data);
 
+    if ( !array_key_exists('bio', $data) || strlen($data['bio']) > 1500 ) {
+      $app->enqueueMessage('A biography is required / biography limited to 1500 characters.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
+    }
     
     if ( $validation === false ) {
       Helpers::sessionSet('formdata', json_encode($data));
@@ -85,9 +90,19 @@ class PresentersubmissionController extends FormController
         $app->enqueueMessage('A representative photo is required', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       }
       return false;
-      
+    }
+
+    $maxSize = Utility::getMaxUploadSize();
+    if ( array_key_exists('photo_upload', $files ) && $files['photo_upload']['size'] > $maxSize ) {
+      $app->enqueueMessage('The photo you uploaded is too large. Please upload a photo less than ' . $maxSize . ' bytes.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
     }
     
+    if ( strlen($data['bio']) > 1000 ) {
+      $app->enqueueMessage('Biography is too long. Please shorten it to 1000 characters or less.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
+    }
+
     $identity = $app->getIdentity();
 
     // Setup items not included in site model
@@ -98,11 +113,11 @@ class PresentersubmissionController extends FormController
     // If it's not the current event, we want to clear the ID and create
     // a new record.
 
-    if ( $data['event'] != Aliases::current() ) {
+    if ( $data['event'] != Aliases::current(true) ) {
       $data['id'] = 0;
     }
 
-    $data['event'] = Aliases::current();
+    $data['event'] = Aliases::current(true);
     
     if ( $data['id'] == 0 ) {
       $data['published'] = 3; // New submission
@@ -112,11 +127,9 @@ class PresentersubmissionController extends FormController
     $adminModel = $this->getModel('Presenter','Administrator');
     $result = $adminModel->save($data);
 
-    if ( $result ) {
-      // Redirect to the main submission page
-      $this->setRedirect(Route::_('index.php?option=com_claw&view=skillssubmissions', 'Biography save successful.'));
-      ;
-    }
+    // Redirect to the main submission page
+    if ( $result ) $this->setRedirect(Route::_('index.php?option=com_claw&view=skillssubmissions', 'Biography save successful.'));
+
     return $result;
   }
 }

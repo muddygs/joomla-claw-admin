@@ -78,11 +78,11 @@ class SkillsubmissionController extends FormController
     $data['owner'] = $data['uid'] = $identity->id;
     $data['email'] = $identity->email;
 
-    $skills = new Skills($siteModel->db, Aliases::current());
+    $skills = new Skills($siteModel->db, Aliases::current(true));
     $bio = $skills->GetPresenterBios($data['owner']);
     $data['name'] = is_null($bio) ? '' : $bio[0]->name;
 
-    $data['event'] = Aliases::current();
+    $data['event'] = Aliases::current(true);
     $data['length_info'] = (int)$data['length'] ?? 60;
 
     // Get id from the session
@@ -93,14 +93,22 @@ class SkillsubmissionController extends FormController
       $data['submission_date'] = date('Y-m-d');
     }
 
+    if ( strlen($data['description']) > 500 ) {
+      $app->enqueueMessage('Description is too long. Please shorten it to 500 characters or less.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
+    }
+
+    if ( strlen($data['title']) > 50 ) {
+      $app->enqueueMessage('Title is too long. Please shorten it to 50 characters or less.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
+    }
+
     /** @var \ClawCorp\Component\Claw\Administrator\Model\SkillModel */
     $adminModel = $this->getModel('Skill', 'Administrator');
     $result = $adminModel->save($data);
 
-    if ($result) {
-      // $app->enqueueMessage('Class submission save successful.');
-      $this->setRedirect(Route::_('index.php?option=com_claw&view=skillssubmissions', 'Class submission save successful.'));
-    }
+    if ($result) $this->setRedirect(Route::_('index.php?option=com_claw&view=skillssubmissions', 'Class submission save successful.'));
+    
     return $result;
   }
 }
