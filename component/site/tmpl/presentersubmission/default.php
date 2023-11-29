@@ -13,8 +13,12 @@ defined('_JEXEC') or die;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Router\Route;
 
-HTMLHelper::_('behavior.formvalidator');
-HTMLHelper::_('behavior.keepalive');
+/** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
+$wa = $this->document->getWebAssetManager();
+$wa->useScript('keepalive')
+	->useScript('form.validate')
+  ->useScript('com_claw.textarea')
+  ->useStyle('com_claw.textarea');
 
 $view = 'presentersubmission';
 
@@ -31,7 +35,7 @@ endif;
 ?>
 
 <?php if ($this->params->get('se_submissions_open') != 0 || $this->item->id == 0 ) : ?>
-  <form action="<?php echo Route::_('index.php?option=com_claw&view=' . $view . '&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="<?php echo $view ?>" id="<?php echo $view ?>-form" class="form-validate" enctype="multipart/form-data">
+  <form action="<?php echo Route::_('index.php?option=com_claw&view=' . $view . '&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="<?= $view ?>" id="<?= $view ?>-form" class="form-validate" enctype="multipart/form-data">
   <?php endif; ?>
 
   <div class="row form-vertical mb-3">
