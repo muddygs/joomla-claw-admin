@@ -16,6 +16,7 @@ use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Locations;
+use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use Joomla\CMS\Factory;
@@ -121,6 +122,11 @@ class SkillsubmissionModel extends AdminModel
     }
 
     $record->email = $email;
+
+    // Need name from bio
+    $skills = new Skills($db, Aliases::current(true));
+    $bio = $skills->GetPresenterBios($record->owner);
+    $record->name = is_null($bio) ? '' : $bio[0]->name;
     
     return [ $success, (array)$record ];
   }
