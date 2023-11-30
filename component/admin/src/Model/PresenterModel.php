@@ -70,7 +70,7 @@ class PresenterModel extends AdminModel
     // Get the task
     $task = $app->input->get('task');
     if ( $task == 'save2copy' ) {
-      $data['event'] = Aliases::current();
+      $data['event'] = Aliases::current(true);
     }
 
     $new = false;
