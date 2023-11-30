@@ -33,8 +33,8 @@ class HtmlView extends BaseHtmlView
   public Coupon $autoCoupon;
   public string $couponCode = '';
   public int $uid = 0;
-  public \ClawCorpLib\Lib\RegistrantRecord $mainEvent;
-  public \ClawCorpLib\Lib\ClawEvents $events;
+  public ?\ClawCorpLib\Lib\RegistrantRecord $mainEvent = null;
+  public ?\ClawCorpLib\Lib\ClawEvents $events = null;
   public bool $hasMainEvent = false;
   public bool $onsiteActive = false;
   public string $prefix = '';
@@ -96,6 +96,11 @@ class HtmlView extends BaseHtmlView
     $this->form  = $this->get('Form');
     $this->item  = $this->get('Item');
 
+    if ( is_null($this->events) ) {
+      $this->app->enqueueMessage('Direct registration linking not permitted.', 'error');
+      return;
+    }
+
     if ( $this->events->getClawEventInfo()->onsiteActive) {
       if ($this->app->getIdentity()->id != 0) $this->app->logout();
       $coupon = new Coupon('',0);
@@ -118,7 +123,10 @@ class HtmlView extends BaseHtmlView
       $this->autoCoupon = $this->getUserCoupon();
     }
 
-    $this->hasMainEvent =  (new ReflectionClass(self::class))->getProperty('mainEvent')->isInitialized($this);
+    // Easier than reflection: https://bugs.php.net/bug.php?id=79620
+    // $this->hasMainEvent =  (new ReflectionClass(self::class))->getProperty('mainEvent')->isInitialized($this);
+    // TODO: hasMainEvent is unnecessary - replace with !is_null($this->mainEvent)
+    $this->hasMainEvent = !is_null($this->mainEvent);
 
     parent::display($tpl ?? $this->eventAlias);
   }
