@@ -37,7 +37,8 @@ function textareaprogress(textarea: HTMLTextAreaElement, counterspan: HTMLDivEle
 	}
 
 	let current_value = textarea.value;
-	var current_length = current_value.length;
+	//var current_length = current_value.length;
+	var current_length = Array.from(current_value).length;
 	var remaining_chars = max_chars - current_length;
 	let w = 0;
 
