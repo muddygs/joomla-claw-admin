@@ -135,7 +135,7 @@ class PresentersubmissionModel extends AdminModel
     $mtime = 0;
 
     foreach ( $bios AS $bio ) {
-      if ( $bio->event == Aliases::current() ) {
+      if ( $bio->event == Aliases::current(true) ) {
         $id = $bio->id;
         break;
       }
@@ -158,6 +158,7 @@ class PresentersubmissionModel extends AdminModel
       }
     }
 
+    Helpers::sessionSet('photo', '');
     if ($data->photo) {
       Helpers::sessionSet('photo', $data->photo);
     }
@@ -179,7 +180,7 @@ class PresentersubmissionModel extends AdminModel
 
   public function GetEventInfo(): \ClawCorpLib\Lib\EventInfo
   {
-    $events = new ClawEvents(Aliases::current());
+    $events = new ClawEvents(Aliases::current(true));
 
     $info = $events->getClawEventInfo();
     return $info;
