@@ -65,13 +65,11 @@ class PresentersubmissionController extends FormController
     $data = $form->filter($data);
     $validation = $siteModel->validate($form, $data);
 
-    if ( !array_key_exists('bio', $data) || strlen($data['bio']) > 1500 ) {
-      $app->enqueueMessage('A biography is required / biography limited to 1500 characters.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      return false;
-    }
-    
+    // Always cache the form data in case an error gets thrown below
+    // 'formdata' is merged in the Model::loadFormData() method
+    Helpers::sessionSet('formdata', json_encode($data));
+
     if ( $validation === false ) {
-      Helpers::sessionSet('formdata', json_encode($data));
       $errors = $form->getErrors();
 
       foreach ( $errors AS $e ) {
@@ -83,7 +81,7 @@ class PresentersubmissionController extends FormController
 
     $files = $input->files->get('jform');
 
-    if ( !$data['photo'] && !count($files['photo_upload']))
+    if ( !$data['photo'] && (!array_key_exists('photo_upload', $files) || $files['photo_upload']['size'] < 1) )
     {
       $photo = Helpers::sessionGet('photo');
       if ( !$photo ) {
@@ -98,7 +96,11 @@ class PresentersubmissionController extends FormController
       return false;
     }
     
-    if ( strlen($data['bio']) > 1000 ) {
+    $data['bio'] = trim($data['bio']);
+
+    // Replace CR/LF with LF for the purposes of our counting
+    $tmpBio = str_replace("\r\n", "\n", $data['bio']);
+    if ( mb_strlen($tmpBio, 'UTF-8') > 1000 ) {
       $app->enqueueMessage('Biography is too long. Please shorten it to 1000 characters or less.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       return false;
     }
@@ -128,7 +130,11 @@ class PresentersubmissionController extends FormController
     $result = $adminModel->save($data);
 
     // Redirect to the main submission page
-    if ( $result ) $this->setRedirect(Route::_('index.php?option=com_claw&view=skillssubmissions', 'Biography save successful.'));
+    if ( $result ) {
+      $this->setRedirect(Route::_('index.php?option=com_claw&view=skillssubmissions', 'Biography save successful.'));
+    } else {
+      $app->enqueueMessage('An error occurred during save.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+    }
 
     return $result;
   }

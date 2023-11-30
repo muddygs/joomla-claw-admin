@@ -62,14 +62,31 @@ class SkillsubmissionController extends FormController
 
     $validation = $siteModel->validate($form, $data);
 
+    // Always cache the form data in case an error gets thrown below
+    // 'formdata' is merged in the Model::loadFormData() method
+    Helpers::sessionSet('formdata', json_encode($data));
+
     if ($validation === false) {
-      Helpers::sessionSet('formdata', json_encode($data));
       $errors = $form->getErrors();
 
       foreach ($errors as $e) {
         $app->enqueueMessage($e->getMessage(), \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       }
 
+      return false;
+    }
+
+    $data['description'] = trim($data['description']);
+
+    // Replace CR/LF with LF for the purposes of our counting
+    $tmpDescription = str_replace("\r\n", "\n", $data['description']);
+    if ( mb_strlen($tmpDescription, 'UTF-8') > 500 ) {
+      $app->enqueueMessage('Description is too long. Please shorten it to 500 characters or less.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
+    }
+
+    if ( strlen($data['title']) > 50 ) {
+      $app->enqueueMessage('Title is too long. Please shorten it to 50 characters or less.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       return false;
     }
 
@@ -93,21 +110,15 @@ class SkillsubmissionController extends FormController
       $data['submission_date'] = date('Y-m-d');
     }
 
-    if ( strlen($data['description']) > 500 ) {
-      $app->enqueueMessage('Description is too long. Please shorten it to 500 characters or less.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      return false;
-    }
-
-    if ( strlen($data['title']) > 50 ) {
-      $app->enqueueMessage('Title is too long. Please shorten it to 50 characters or less.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      return false;
-    }
-
     /** @var \ClawCorp\Component\Claw\Administrator\Model\SkillModel */
     $adminModel = $this->getModel('Skill', 'Administrator');
     $result = $adminModel->save($data);
 
-    if ($result) $this->setRedirect(Route::_('index.php?option=com_claw&view=skillssubmissions', 'Class submission save successful.'));
+    if ($result) {
+      $this->setRedirect(Route::_('index.php?option=com_claw&view=skillssubmissions', 'Class submission save successful.'));
+    } else {
+      $app->enqueueMessage('An error occurred during save.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+    }
     
     return $result;
   }
