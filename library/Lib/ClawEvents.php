@@ -474,7 +474,7 @@ SQL;
    * @return array 
    * @throws ReflectionException 
    */
-  public static function GetEventList(): array
+  public static function getEventList(): array
   {
     if ( count(self::$_EventList) > 0 ) return self::$_EventList;
 
@@ -518,7 +518,7 @@ SQL;
    */
   public static function isValidEventAlias(string $alias): bool
   {
-    $EventList = self::GetEventList();
+    $EventList = self::getEventList();
     return array_key_exists($alias, $EventList);
   }
 

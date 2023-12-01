@@ -61,7 +61,7 @@ class Config
   {
     if ( count(self::$_titles)) return self::$_titles;
 
-    $eventList = ClawEvents::GetEventList();
+    $eventList = ClawEvents::getEventList();
     $titles = [];
 
     foreach ( $eventList AS $alias => $eventInfo ) {
@@ -77,7 +77,7 @@ class Config
   {
     if ( self::$_current != '' && !$next) return self::$_current;
 
-    $eventList = ClawEvents::GetEventList();
+    $eventList = ClawEvents::getEventList();
     $nextAlias = '';
 
     if ( count($eventList) == 0 ) {
@@ -132,7 +132,7 @@ class Config
 
   public static function getActiveEventAliases(bool $mainOnly = false): array
   {
-    $eventList = ClawEvents::GetEventList();
+    $eventList = ClawEvents::getEventList();
     foreach ( $eventList AS $alias => $eventInfo ) {
       if ( !$eventInfo->active ) {
         unset($eventList[$alias]);
