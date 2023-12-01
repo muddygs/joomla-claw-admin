@@ -413,60 +413,68 @@ class Ebmgmt
   static function autoHideShowShifts(): void {
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    // TODO: run over all active events, just not current event
-    $events = new ClawEvents(Aliases::current());
-    $eventInfo = $events->getClawEventInfo();
-    $prefix = $eventInfo->shiftPrefix;
+    $eventList = ClawEvents::getEventList();
 
-    // HIDE 
+    /** @var \ClawCorpLib\Lib\EventInfo */
+    foreach ( $eventList AS $eventInfo ) {
+      if ( ! $eventInfo->mainAllowed ) continue;
 
-    $query = <<< SQL
+      // Skip past events
+      if ( $eventInfo->end_date < date('Y-m-d H:i:s') ) continue;
+      
+      echo 'Event: '.$eventInfo->description.PHP_EOL;
+
+      $prefix = $eventInfo->shiftPrefix;
+
+      // HIDE 
+      $query = <<< SQL
+        SELECT e.id
+        FROM #__eb_events e
+        JOIN (select r.id, r.event_id, count(r.id) as mycount
+          from #__eb_registrants r WHERE r.published = 1
+          group by r.event_id ) tsum ON tsum.event_id = e.id
+        WHERE e.published =1 AND e.hidden != 1 AND e.event_capacity > 0 AND tsum.mycount >= e.event_capacity AND e.alias LIKE '{$prefix}%'
+  SQL;
+
+      $db->setQuery($query);
+      $fullShifts = $db->loadColumn();
+
+      if ( sizeof($fullShifts) > 0 )
+      {
+        $eventIds = join(',',$fullShifts);
+
+        $q = 'UPDATE #__eb_events SET hidden=1 WHERE id IN ('.$eventIds.')';
+        $db->setQuery($q);
+        $db->execute();
+      }
+
+      echo "Shifts hidden: ".sizeof($fullShifts).PHP_EOL;
+
+      // SHOW
+      
+      $query = <<< SQL
       select e.id, e.title, tsum.mycount, e.event_capacity, e.hidden
       FROM #__eb_events e
       JOIN (select r.id, r.event_id, count(r.id) as mycount
         from #__eb_registrants r WHERE r.published = 1
         group by r.event_id ) tsum ON tsum.event_id = e.id
-      WHERE e.published =1 AND e.hidden != 1 AND e.event_capacity > 0 AND tsum.mycount >= e.event_capacity AND e.alias LIKE '{$prefix}%'
-SQL;
+      WHERE e.published =1 AND e.hidden = 1 AND e.event_capacity > 0 AND tsum.mycount < e.event_capacity AND e.alias LIKE '{$prefix}%'
+  SQL;
 
-    $db->setQuery($query);
-    $fullShifts = $db->loadColumn();
+      $db->setQuery($query);
+      $fullShifts = $db->loadColumn();
 
-    if ( sizeof($fullShifts) > 0 )
-    {
-      $eventIds = join(',',$fullShifts);
+      if ( sizeof($fullShifts) > 0 )
+      {
+        $eventIds = join(',',$fullShifts);
 
-      $q = 'UPDATE #__eb_events SET hidden=1 WHERE id IN ('.$eventIds.')';
-      $db->setQuery($q);
-      $db->execute();
+        $q = 'UPDATE #__eb_events SET hidden=0 WHERE id IN ('.$eventIds.')';
+        $db->setQuery($q);
+        $db->execute();
+      }
+
+      echo "Shifts shown: ".sizeof($fullShifts);
     }
-
-    echo "Shifts hidden: ".sizeof($fullShifts);
-
-    // SHOW
-    
-    $query = <<< SQL
-    select e.id, e.title, tsum.mycount, e.event_capacity, e.hidden
-    FROM #__eb_events e
-    JOIN (select r.id, r.event_id, count(r.id) as mycount
-      from #__eb_registrants r WHERE r.published = 1
-      group by r.event_id ) tsum ON tsum.event_id = e.id
-    WHERE e.published =1 AND e.hidden = 1 AND e.event_capacity > 0 AND tsum.mycount < e.event_capacity AND e.alias LIKE '{$prefix}%'
-SQL;
-
-    $db->setQuery($query);
-    $fullShifts = $db->loadColumn();
-
-    if ( sizeof($fullShifts) > 0 )
-    {
-      $eventIds = join(',',$fullShifts);
-
-      $q = 'UPDATE #__eb_events SET hidden=0 WHERE id IN ('.$eventIds.')';
-      $db->setQuery($q);
-      $db->execute();
-    }
-
-    echo "; Shifts shown: ".sizeof($fullShifts);
   }
 
   public static function rebuildEventIdMapping()
