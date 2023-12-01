@@ -32,17 +32,12 @@ if ($autoLoader) {
   die('Autoloader failed in cron task');
 }
 
-use ClawCorpLib\Lib\Authnetprofile;
+use ClawCorpLib\Lib\Ebmgmt;
 use Joomla\CMS\Component\ComponentHelper;
 
 $componentParams = ComponentHelper::getParams('com_claw');
-$alias = $componentParams->get('profiles_eventalias', '');
-$cronkey = $componentParams->get('profiles_cronkey', '');
-
+$cronkey = $componentParams->get('shifts_cronkey', '');
 $key = $app->input->getString('key', '');
-$cron = $app->input->getString('cron', '');
-$limit = $app->input->getUint('limit', 25);
-$cron = $cron == '' ? true : false;
 
 if ( '' == $cronkey || $key != $cronkey ) exit;
 ?>
@@ -54,15 +49,15 @@ if ( '' == $cronkey || $key != $cronkey ) exit;
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>PROFILES</title>
+  <title>HIDE SHIFTS</title>
 </head>
 
 <body>
+  <pre>
 <?php
 
-$count = Authnetprofile::create( eventAlias: $alias, maximum_records:$limit, cron:$cron );
-
-echo '<h1>Profiles created: ' . $count . '</h1>';
+Ebmgmt::autoHideShowShifts();
 
 ?>
+  </pre>
 </body>
