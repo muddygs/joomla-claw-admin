@@ -48,6 +48,18 @@
 			</field>
 
 			<field 
+				name="se_submissions_bioonly"
+				type="radio"
+				default="0"
+				label="Bios Only Open"
+				description=""
+				class="btn-group btn-group-yesno"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+
+			<field 
 				name="se_survey_link"
 				type="menuitem"
 				label="Survey RS Form Menu Item"
@@ -63,6 +75,42 @@
 				required="true"
 				validate="email"
 			/>
+
+			<field
+				name="se_bio_max_length"
+				type="text"
+				label="Bio Max Length"
+				default="1000"
+				required="true"
+			/>
+
+			<field
+				name="se_class_description_max_length"
+				type="text"
+				label="Class Description Max Length"
+				default="500"
+				required="true"
+			/>
+
+			<field
+				name="se_email_presenter_intro"
+				type="editor"
+				label="Presenter Email Common Intro"
+				description="Opening text to be included in presenter submission emails"
+				width="100%"
+				filter="safehtml"
+			/>
+
+			<field
+				name="se_email_bio_intro"
+				type="editor"
+				label="Class Email Common Intro"
+				description="Opening text to be included in class submission emails"
+				width="100%"
+				filter="safehtml"
+			/>
+
+
 	</fieldset>
 	<fieldset
 		name="cron"
@@ -81,14 +129,6 @@
 			name="profiles_cronkey"
 			type="text"
 			label="Profiles Cron Key"
-			default=""
-			required="false"
-		/>
-
-		<field
-			name="shifts_eventalias"
-			type="text"
-			label="Shifts Event Alias"
 			default=""
 			required="false"
 		/>
