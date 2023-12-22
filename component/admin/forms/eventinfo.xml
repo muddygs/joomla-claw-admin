@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
+  <field
+    name="id"
+    type="hidden"
+    label="JGLOBAL_FIELD_ID_LABEL"
+    class="readonly"
+    default="0"
+    readonly="true"
+  />
+
+  <field
+    name="active"
+    type="radio"
+    label="Event Active:"
+    required="true"
+    default="0"
+    class="btn-group btn-group-yesno"
+  >
+    <option value="1">JYES</option>
+    <option value="0">JNO</option>
+  </field>
+
+  <field
+    name="onsiteActive"
+    type="radio"
+    label="Onsite Active:"
+    required="true"
+    default="0"
+    class="btn-group btn-group-yesno"
+  >
+    <option value="1">JYES</option>
+    <option value="0">JNO</option>
+  </field>
+
+  <field
+    name="alias"
+    type="text"
+    label="Event Alias:"
+    required="true"
+    maxlength="10"
+    filter="string"
+  />
+
+  <field
+    name="description"
+    type="text"
+    label="Event Description:"
+    required="true"
+    maxlength="255"
+    filter="string"
+  />
+
+  <field
+    name="start_date"
+    type="calendar"
+    label="Start Date:"
+    description="Should be Monday before the event starts."
+    required="true"
+    filter="string"
+  />
+
+  <field
+    name="end_date"
+    type="calendar"
+    label="End Date:"
+    description="Should be Tuesday after the event ends."
+    required="true"
+    filter="string"
+  />
+
+  <field
+    name="cancelBy"
+    type="calendar"
+    label="Default Cancel By:"
+    required="false"
+    filter="string"
+  />
+
+  <field
+    name="ebLocationId"
+    type="sql"
+    label="Location:"
+    required="true"
+    query="SELECT id, name FROM #__eb_locations WHERE published = 1"
+    key_field="id"
+    value_field="name"
+  >
+    <option value="">Select Location</option>
+  </field>
+    
+  <field
+    name="prefix"
+    type="text"
+    label="Prefix:"
+    description="Invoice Prefix (e.g., C23)"
+    required="true"
+    maxlength="3"
+    filter="string"
+  />
+
+  <field
+    name="timezone"
+    type="timezone"
+    label="Timezone:"
+    required="true"
+    default="America/New_York"
+  />
+
+  <field
+    name="eventType"
+    type="ClawEventTypesList"
+    label="Event Type:"
+    required="true"
+    default="1"
+    filter="string"
+  />
+
+  <field
+    name="termsArticleId"
+    type="sql"
+    label="Terms Article:"
+    required="true"
+    query="SELECT id, title FROM #__content WHERE state = 1"
+    key_field="id"
+    value_field="title"
+  >
+    <option value="">Select Article</option>
+  </field>
+
+
+
+
+</form>

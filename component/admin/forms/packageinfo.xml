@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
+  <field
+    name="id"
+    type="hidden"
+    label="JGLOBAL_FIELD_ID_LABEL"
+    class="readonly"
+    default="0"
+    readonly="true"
+  />
+
+  <field
+    name="eventAlias"
+    type="ClawEventsList"
+    label="Event Selection"
+    required="true"
+    multiple="false"
+    default=""
+    validate="options" />
+
+  <field name="published"
+    type="list"
+    label="JSTATUS"
+    class="form-select-color-state"
+    default="1"
+    validate="options">
+    <option value="1">JPUBLISHED</option>
+    <option value="0">JUNPUBLISHED</option>
+  </field>
+
+  <field
+    name="description"
+    type="text"
+    label="Event Description:"
+    required="true"
+    maxlength="255"
+    filter="string"
+  />
+
+  <field
+    name="alias"
+    type="text"
+    label="Event Alias:"
+    required="true"
+    class="readonly"
+    default="Assigned during publication"
+    readonly="true"
+  />
+
+  <field
+    name="eventPackageType"
+    type="ClawEventPackageTypeList"
+    label="Ticket Type:"
+    required="true"
+    default=""
+    filter="string"
+  >
+    <option value="">Select Package Type</option>
+  </field>
+
+  <field
+    name="packageInfoType"
+    type="PackageInfoTypesList"
+    label="Package Type:"
+    required="true"
+    default="0"
+  />
+
+  <field
+    name="couponKey"
+    type="text"
+    label="Coupon Key:"
+    required="false"
+    maxlength="1"
+    filter="string"
+  />
+
+  <field
+    name="couponValue"
+    type="text"
+    label="Coupon Value ($):"
+    required="false"
+    filter="float"
+    default="0.00"
+  />
+
+  <field
+    name="fee"
+    type="text"
+    label="Event Fee ($):"
+    required="true"
+    filter="float"
+    default="0.00"
+  />
+
+  <field
+    name="event_id"
+    type="text"
+    label="Event Booking Event:"
+    description="Event Assigned at Deployment"
+    readonly="true"
+    class="readonly"
+  />
+
+  <field
+    name="category"
+    type="EbCategoryList"
+    label="Event Booking Category:"
+    required="true"
+  />
+
+  <field
+    name="minShifts"
+    type="integer"
+    label="Minimum Shifts:"
+    description="Minimum number of shifts required to book"
+    required="true"
+    default="0"
+    first="0"
+    last="10"
+    step="1"
+    showon="isVolunteer:1"
+  />
+
+  <field
+    name="requiresCoupon"
+    type="radio"
+    label="Requires Coupon:"
+    required="true"
+    default="0"
+    class="btn-group btn-group-yesno"
+  >
+    <option value="1">JYES</option>
+    <option value="0">JNO</option>
+  </field>
+
+  <field
+    name="couponAccessGroups"
+    type="UserGroupList"
+    label="Coupon Access Groups:"
+    description="User groups permitted to issue this coupon."
+    required="false"
+    multiple="true"
+    default=""
+  >
+    <option value="">Select Groups</option>
+  </field>
+    
+  <field
+    name="authNetProfile"
+    type="radio"
+    label="Generate Auth.Net Payment Profile:"
+    required="true"
+    default="0"
+    class="btn-group btn-group-yesno"
+  >
+    <option value="1">JYES</option>
+    <option value="0">JNO</option>
+  </field>
+
+  <field
+    name="day"
+    type="ClawDaysList"
+    label="Event Day"
+    description="Select day"
+    multiple="false"
+    default="0"
+    showon="packageInfoType:2,6"
+  >
+  </field>
+
+  <field
+    name="start_time"
+    type="time"
+    label="Start Time"
+    description="Start time of event"
+    required="true"
+    min="00:00"
+    max="23:59"
+    default="00:00"
+    showon="packageInfoType:2,6"
+  />
+
+  <field
+    name="end_time"
+    type="time"
+    label="Ending Time"
+    description="End time of event (less than start goes to next day)"
+    required="true"
+    min="00:00"
+    max="23:59"
+    default="00:00"
+    showon="packageInfoType:2,6"
+  />
+
+  <field
+    name="isVolunteer"
+    type="radio"
+    label="Volunteer Event:"
+    required="true"
+    default="0"
+    class="btn-group btn-group-yesno"
+    showon="packageInfoType:1"
+  >
+    <option value="1">JYES</option>
+    <option value="0">JNO</option>
+  </field>
+
+  <field
+    name="bundleDiscount"
+    type="text"
+    label="Bundle Discount ($):"
+    description="Discount applied when bundled with volunteer package."
+    required="true"
+    filter="uint"
+    default="0"
+    showon="packageInfoType:2"
+  />
+
+  <field
+    name="badgeValue"
+    type="text"
+    label="Badge Value:"
+    description="Very short text to print on badge."
+    required="false"
+    filter="string"
+    default=""
+    showon="packageInfoType:2"
+  />
+
+  <field
+    name="couponOnly"
+    type="radio"
+    label="Coupon Only:"
+    description="Use for duplicate events that map to a different package type."
+    required="true"
+    default="0"
+    class="btn-group btn-group-yesno"
+  >
+    <option value="1">JYES</option>
+    <option value="0">JNO</option>
+  </field>
+
+  <field
+    name="meta"
+    type="text"
+    label="Meta Events for Combos:"
+    description="Comma separated list of event IDs"
+    required="false"
+    filter="string"
+    default=""
+  />
+</form>

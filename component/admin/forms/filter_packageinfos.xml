@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
+	<fields name="filter">
+		<field
+			name="search"
+			type="text"
+			label="Search"
+			description="Value search"
+			hint="JSEARCH_FILTER"
+		/>
+
+		<field
+		  name="event"
+			type="ClawEventsList"
+			label="Event Filter"
+			default="_current_"
+			onchange="this.form.submit();"
+		>
+			<option value="_all_">All Events</option>
+			<option value="_current_">Current Event</option>
+		</field>
+
+	</fields>
+
+	<fields name="list">
+		<field
+			name="fullordering"
+			type="list"
+			label="JGLOBAL_SORT_BY"
+			default="a.description ASC"
+			onchange="this.form.submit();"
+			>
+			<option value="">JGLOBAL_SORT_BY</option>
+			<option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
+			<option value="a.id DESC">JGRID_HEADING_ID_DESC</option>
+			<option value="a.description ASC">Description Ascending</option>
+			<option value="a.description DESC">Description Descending</option>
+			<option value="a.start ASC">Start Ascending</option>
+			<option value="a.start DESC">Start Descending</option>
+			<option value="a.end ASC">End Ascending</option>
+			<option value="a.end DESC">End Descending</option>
+		</field>
+
+		<field
+			name="limit"
+			type="limitbox"
+			label="JGLOBAL_LIST_LIMIT"
+			default="All"
+			onchange="this.form.submit();"
+		/>
+	</fields>
+</form>
