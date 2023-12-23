@@ -10,17 +10,19 @@ enum PackageInfoTypes: int
   case speeddating = 4;
   case sponsorship = 5;
   case daypass = 6;
+  case coupononly = 7;
 
   public function toString(): string
   {
     return match($this) {
-      PackageInfoTypes::none => 'Coupon Only',
+      PackageInfoTypes::none => 'None',
       PackageInfoTypes::main => 'Main',
       PackageInfoTypes::addon => 'Addon',
       PackageInfoTypes::combomeal => 'Combo Meal',
       PackageInfoTypes::speeddating => 'Speed Dating',
       PackageInfoTypes::sponsorship => 'Sponsorship',
       PackageInfoTypes::daypass => 'Day Pass',
+      PackageInfoTypes::coupononly => 'Coupon Only',
     };
 
     throw(new \Exception("Unhandled PackageInfoTypes value: $this->value"));
