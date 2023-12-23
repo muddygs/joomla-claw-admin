@@ -32,12 +32,12 @@
 
   <field
     name="day"
-    type="list"
-    client="administrator"
+    type="ClawDaysList"
     label="Event Day"
     description="Select day"
+    dayfilter="wed,thu,fri,sat,sun"
     multiple="false"
-    default="0"
+    default="wed"
   >
   </field>
 
@@ -47,10 +47,9 @@
     label="Start Time"
     description="Start time of event"
     required="true"
-    min="0"
-    max="2359"
-    step="15"
-    default="0"
+    min="00:00"
+    max="23:59"
+    default="00:00"
   />
   <field
     name="end_time"
@@ -58,10 +57,9 @@
     label="Ending Time"
     description="End time of event"
     required="true"
-    min="0"
-    max="2359"
-    step="15"
-    default="0"
+    min="00:00"
+    max="23:59"
+    default="00:00"
   />
 
   <field
