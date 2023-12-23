@@ -19,8 +19,8 @@ class PackageInfo
     public EbPublishedState $published = EbPublishedState::published;
     public string $description = '';
     public string $alias = '';
-    public EventPackageTypes $eventPackageType;
-    public PackageInfoTypes $packageInfoType = false;
+    public EventPackageTypes $eventPackageType = EventPackageTypes::none;
+    public PackageInfoTypes $packageInfoType = PackageInfoTypes::none;
     public string $couponKey = '';
     public float $couponValue = 0.0;
     public float $fee = 0.0;
