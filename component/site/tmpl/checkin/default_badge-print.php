@@ -7,9 +7,6 @@ use ClawCorpLib\Lib\Jwtwrapper;
 
 Jwtwrapper::redirectOnInvalidToken('badge-print', $this->token);
 
-// TO DO LIST
-// Probably will want to remove form action from badgeStationCheckin.php
-
 /** @var Joomla\CMS\Application\SiteApplication */
 $app = Factory::getApplication();
 /** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
