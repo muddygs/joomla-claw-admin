@@ -81,4 +81,30 @@ enum EventPackageTypes: int
     throw(new \Exception("Invalid EventPackageTypes value: $key"));
   }
 
+  public static function toOptions(): array
+  {
+    $result = [];
+
+    foreach ( EventPackageTypes::cases() as $c ) {
+      if ( $c == EventPackageTypes::none ) continue;
+      if ( $c == EventPackageTypes::vip2 ) continue;
+      if ( $c == EventPackageTypes::addons ) continue;
+      
+      // Convert name to string
+      $name = $c->name;
+      // Remove underscores
+      $name = str_replace('_', ' ', $name);
+      // Capitalize
+      $name = ucwords($name);
+
+      $result[$c->value] = $name;
+    }
+
+    // Sort by value, but retain the original key
+    asort($result);
+
+    return $result;
+  }
+
+
 }
