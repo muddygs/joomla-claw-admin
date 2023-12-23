@@ -2,13 +2,30 @@
 
 namespace ClawCorpLib\Lib;
 
+use ClawCorpLib\Enums\EbPublishedState;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Date\Date;
 use ClawCorpLib\Enums\EventTypes;
-use ClawCorpLib\Helpers\Locations;
 
 class EventInfo
 {
+  private static $_EventList = [];
+
   const startdayofweek = 1; // Monday
+  
+  public string $shiftPrefix = '';
+  public string $description;
+  public int $ebLocationId;
+  public Date $start_date;
+  public Date $end_date;
+  public string $prefix;
+  public Date $cancelBy;
+  public string $timezone;
+  public bool $active;
+  public EventTypes $eventType;
+  public bool $onsiteActive;
+  public int $termsArticleId;
+
   /**
    * Event info object with simple date validation if main events are allowed
    * @param object $info 
@@ -16,73 +33,131 @@ class EventInfo
    * @return void 
    */
   public function __construct(
-    public string $description,
-    public string $location,
-    public string $locationAlias,
-    public string $start_date,
-    public string $end_date,
-    public string $prefix,
-    public string $shiftPrefix,
-    public bool $mainAllowed,
-    public string $cancelBy,
-    public string $timezone,
-    public bool $active,
-    public EventTypes $eventType,
-    public bool $onsiteActive,
-    public int $termsArticleId
+    public string $alias
   )
   {
+    $info = $this->loadEventInfo($alias);
+
+    $this->description = $info->description;
+    $this->ebLocationId = $info->ebLocationId;
+    $this->start_date = Factory::getDate($info->start_date);
+    $this->end_date = Factory::getDate($info->end_date);
+    $this->prefix = strtoupper($info->prefix);
+    $this->cancelBy = Factory::getDate($info->cancelBy);
+    $this->timezone = $info->timezone;
+    $this->active = $info->active;
+    $this->eventType = EventTypes::FindValue($info->eventType);
+    $this->onsiteActive = $info->onsiteActive;
+    $this->termsArticleId = $info->termsArticleId;
+
     // Data validation
 
-    // start_date must be a Monday, only if main event process is enabled
+    // start_date must be a Monday, only if eventType is main
     // this allows refund and virtualclaw to exist in their odd separate way
 
-    if ($this->mainAllowed) {
-      $date = Factory::getDate($this->start_date);
-      if ($date->dayofweek != EventInfo::startdayofweek) {
+    if ( EventTypes::main == $this->eventType ) {
+      $this->shiftPrefix = strtolower($this->prefix) . '-shift-';
+
+      if ($this->start_date->dayofweek != EventInfo::startdayofweek) {
         var_dump($this);
-        die("Event Start Date Must Be: " . EventInfo::startdayofweek . '. Got: ' . $date->dayofweek);
+        die("Event Start Date Must Be: " . EventInfo::startdayofweek . '. Got: ' . $this->start_date->dayofweek);
       }
 
-      $enddate = $date->modify($this->end_date);
-      $enddate->setTime(23, 59, 59);
-      $this->end_date = $enddate->toSql();
+      $this->end_date->setTime(23, 59, 59);
 
       // Validate location exists in eventbooking
-      if ( !Locations::ValidateLocationAlias($this->locationAlias) ) {
-        var_dump($this);
-        die("Location alias not found in eventbooking locations: " . $this->locationAlias);
-      }
+      // if ( !Locations::ValidateLocationAlias($this->ebLocationId) ) {
+      //   var_dump($this);
+      //   die("Location alias not found in eventbooking locations: " . $this->ebLocationId);
+      // }
     }
   }
 
-  /**
-   * Mimics Date object functionality, returning SQL-formatted result relative to event start date
-   * @return string Modified date in SQL format
-   */
-  public function modify(string $modifier, bool $validate = true): string|bool
+  private function loadEventInfo(string $alias): object
   {
-    $date = Factory::getDate($this->start_date);
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
+    $alias = strtolower($alias);
+
+    $query = $db->getQuery(true);
+    $query->select('*')
+      ->from('#__claw_eventinfos')
+      ->where('alias = :alias')
+      ->bind(':alias', $alias);
+    $db->setQuery($query);
+    return $db->loadObject();
+  }
+
+  /**
+   * Mimics Date object functionality, returning event start date modified by the modifier
+   * @param string $modifier
+   * @return Date|bool Modified date 
+   */
+  public function modify(string $modifier ): Date|bool
+  {
+    // Clone because modify changes the original Date object
+    $date = clone $this->start_date;
 
     try {
-      $modifier = $date->modify($modifier);
+      $result = $date->modify($modifier);
     } catch (\Exception $e) {
-      if ($validate == false) return false;
       throw $e;
     }
 
-    if (!is_bool($modifier))
-      return $date->modify($modifier)->toSql();
+    if ( $result === false  ) return false;
 
-    if ($validate == false) return false;
+    // If we're not supposed to validate, then return the start date
+    return $date;
   }
 
   /**
    * Get the Joomla Date object of the event start date
    * @return Date 
    */
-  public function getDate(): \Joomla\CMS\Date\Date
+  public function getDate(): Date
   {
-    return Factory::getDate($this->start_date);
+    return $this->start_date;
   }
+
+  /**
+   * Returns array, indexed by event alias, with "active" EventInfo objects
+   * @return array 
+   */
+  public static function getEventList(): array
+  {
+    if ( count(self::$_EventList) > 0 ) return self::$_EventList;
+
+    $EventList = [];
+
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
+
+    $query = $db->getQuery(true);
+    $query->select(['alias', 'description'])
+      ->from('#__claw_eventinfos')
+      ->where('active='.EbPublishedState::published->value);
+    $db->setQuery($query);
+    $rows = $db->loadObjectList();
+
+    foreach ($rows as $row) {
+      $EventList[strtolower($row->alias)] = new EventInfo($row->alias);
+    }
+
+    self::$_EventList = $EventList;
+    return $EventList;
+  }
+
+  /**
+   * Validates if the event alias is from a valid and active event
+   * @param string $alias 
+   * @return bool 
+   * @throws ReflectionException 
+   */
+  public static function isValidEventAlias(string $alias): bool
+  {
+    if ( count(self::$_EventList) == 0 ) self::getEventList();
+    return array_key_exists(strtolower($alias), self::$_EventList);
+  }
+
+
 }
