@@ -91,6 +91,7 @@
     required="true"
     filter="float"
     default="0.00"
+    showon="packageInfoType!:7"
   />
 
   <field
