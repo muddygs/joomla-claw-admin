@@ -73,8 +73,17 @@ class CoupongeneratorModel extends FormModel
    */
   public function populateCodeTypes(Json $json): array
   {
-    $groups = array_keys(Helpers::getUserGroupsByName());
+    // $groups = array_keys(Helpers::getUserGroupsByName());
     $eventAlias = $json->get('jform[event]', Aliases::current(), 'string');
+
+    $identity = Factory::getApplication()->getIdentity();
+
+    if (!$identity || !$identity->id) {
+      return ['', ''];
+    } else {
+      $groups = $identity->getAuthorisedGroups();
+    }
+
 
     $e = new EventConfig($eventAlias);
 
@@ -86,11 +95,11 @@ class CoupongeneratorModel extends FormModel
       $c = $event->couponKey;
 
       if ( count(array_intersect($groups, $event->couponAccessGroups)) > 0 ) {
-        if ( $event->packageInfoType != PackageInfoTypes::main && $event->couponValue < 1 ) continue;
+        if ( $event->couponValue < 1 ) continue;
 
-        if ( $event->packageInfoType == PackageInfoTypes::main ) {
+        if ( $event->packageInfoType == PackageInfoTypes::main || $event->packageInfoType == PackageInfoTypes::coupononly ) {
           $events[$c] = $event->description . ' (' . $c . ') - $' . $event->couponValue;
-        } else {
+        } else if ( $event->packageInfoType == PackageInfoTypes::addon ) {
           $description = $event->description . ' (' . $c . ') - $' . $event->couponValue;
 
           $addons .= <<< HTML
