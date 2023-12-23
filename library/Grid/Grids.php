@@ -6,11 +6,12 @@ namespace ClawCorpLib\Grid;
 
 use ClawCorpLib\Grid\GridItem;
 use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Lib\Aliases;
 use Joomla\Database\DatabaseDriver;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Ebmgmt;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Factory;
 
 \defined('_JEXEC') or die;
@@ -31,19 +32,18 @@ class Grids
   {
     $days = Helpers::getDays();
 
-    $events = new ClawEvents($this->eventAlias);
-    $eventInfo = $events->getClawEventInfo();
+    $eventInfo = new EventInfo($this->eventAlias);
 
     $newEvents = 0;
     $possibleEvents = 0;
     $this->loadGridsByEventAlias();
 
     // ===== Update these for new imports =====
-    $basetime = strtotime($eventInfo->start_date);
+    $basetime = $eventInfo->start_date->toUnix();
     $prefix = $eventInfo->shiftPrefix;
     $cutoffdate = $eventInfo->start_date;
 
-    $location = ClawEvents::getLocationId($eventInfo->locationAlias);
+    $location = EventBooking::getLocationId($eventInfo->ebLocationId);
 
     $shiftAreas = Config::getColumn('shift_shift_area');
 
@@ -120,7 +120,7 @@ class Grids
       $insert->set('event_date', $s);
       $insert->set('event_end_date', $e);
       $insert->set('event_capacity', $grid->needed);
-      $insert->set('cut_off_date', $cutoffdate);
+      $insert->set('cut_off_date', $cutoffdate->toSql());
       $insert->set('enable_cancel_registration', 0);
 
       $grid->event_id = $insert->insert();

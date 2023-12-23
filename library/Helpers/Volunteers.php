@@ -4,13 +4,9 @@ namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
-use InvalidArgumentException;
+use ClawCorpLib\Lib\EventConfig;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Router\Route;
-use Joomla\Database\DatabaseDriver;
-use Joomla\Database\Exception\UnsupportedAdapterException;
-use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
-use RuntimeException;
 
 class Volunteers
 {
@@ -25,9 +21,9 @@ class Volunteers
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $events = new ClawEvents($clawEventAlias);
-    $info = $events->getClawEventInfo();
-    $shiftEvents = $events->getEventsByCategoryId(ClawEvents::getCategoryIds(Aliases::shiftCategories()), $info);
+    $eventConfig = new EventConfig($clawEventAlias);
+
+    $shiftEvents = $eventConfig->getEventsByCategoryId(ClawEvents::getCategoryIds(Aliases::shiftCategories()));
 
     $eventIds = array_column($shiftEvents, 'id');
 
@@ -48,9 +44,9 @@ class Volunteers
     $rows = $db->loadObjectList();
 
     foreach ($rows as $row) {
-      if (!str_starts_with($row->alias, $info->shiftPrefix)) continue;
+      if (!str_starts_with($row->alias, $eventConfig->eventInfo->shiftPrefix)) continue;
 
-      $sid = (int)(explode('-', substr($row->alias, strlen($info->shiftPrefix)))[1]);
+      $sid = (int)(explode('-', substr($row->alias, strlen($eventConfig->eventInfo->shiftPrefix)))[1]);
 
       // Handle exception for old style shift ids
       if ('l1123' == $clawEventAlias) {
@@ -157,8 +153,7 @@ SQL;
 
   function getEventsByGridID($db, $gid = 0)
   {
-    $events = new clawEvents(Aliases::current(true));
-    $info = $events->getClawEventInfo();
+    $info = new EventInfo(Aliases::current(true));
 
     $query = <<< SQL
 SELECT *

@@ -2,25 +2,26 @@
 
 namespace ClawCorpLib\Helpers;
 
-use ClawCorpLib\Enums\EventPackageTypes;
-use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
 use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
+
+use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventConfig;
 
 class EventBooking
 {
   /**
    * Returns event ID and Title for ticketed events
    */
-  static function LoadTicketedEvents(ClawEvents $e): array
+  public static function LoadTicketedEvents(EventConfig $eventConfig): array
   {
     $result = [];
 
-    $info = $e->getEvent()->getInfo();
-    $events = ClawEvents::getEventsByCategoryId(ClawEvents::getCategoryIds(Aliases::categoriesTicketedEvents), $info);
+    $events = $eventConfig->getEventsByCategoryId(ClawEvents::getCategoryIds(Aliases::categoriesTicketedEvents));
 
     foreach ($events as $e) {
       $result[$e->id] = $e->title;
@@ -33,7 +34,7 @@ class EventBooking
    * Reads session information and returns link to last-visited registration page
    * @return string 
    */
-  static function getRegistrationLink(): string
+  public static function getRegistrationLink(): string
   {
     $eventAlias = Helpers::sessionGet('eventAlias', Aliases::current());
     $regAction  = Helpers::sessionGet('eventAction', EventPackageTypes::none->value);
@@ -52,7 +53,7 @@ class EventBooking
     return $route;
   }
 
-  static function buildRegistrationLink(string $eventAlias, EventPackageTypes $eventAction, string $referrer = ''): string
+  public static function buildRegistrationLink(string $eventAlias, EventPackageTypes $eventAction, string $referrer = ''): string
   {
     $route = Route::_('index.php?option=com_claw&view=registrationoptions&event=' . $eventAlias . '&action='. $eventAction->value);
     if ('' != $referrer) {
@@ -63,7 +64,7 @@ class EventBooking
 
   }
 
-  static function subscribeByRegistrantId($row)
+  public static function subscribeByRegistrantId($row)
   {
     // Ignore mailchimp subscription if not on clawinfo.org (i.e., dev site)
     $uri_path = Uri::getInstance()->getHost();
@@ -138,4 +139,57 @@ class EventBooking
       Helpers::sendErrorNotification($path, $data);
     }
   }
+
+  /**
+   * Converts a location alias to the location id
+   * @param string $locationAlias Location alias
+   * @return int Location ID
+   */
+  public static function getLocationId(string $locationAlias): int
+  {
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
+    $query = 'SELECT `id` FROM #__eb_locations WHERE alias = ' . $db->q($locationAlias);
+    $db->setQuery($query);
+    $result = $db->loadResult();
+    return (int)$result;
+  }
+
+
+  public static function getLocationName(int $locationId): string
+  {
+    $db = Factory::getContainer()->get('DatabaseDriver');
+    $query = $db->getQuery(true);
+    $query
+      ->select('name')
+      ->from('#__eb_locations')
+      ->where('id = ' . $locationId);
+    $db->setQuery($query);
+    $result = $db->loadResult();
+
+    if ( !$result ) {
+      throw new Exception('Location not found: ' . $locationId);
+    }
+
+    return $result;
+  }
+
+  public static function getLocationAlias(int $locationId): string
+  {
+    $db = Factory::getContainer()->get('DatabaseDriver');
+    $query = $db->getQuery(true);
+    $query
+      ->select('alias')
+      ->from('#__eb_locations')
+      ->where('id = ' . $locationId);
+    $db->setQuery($query);
+    $result = $db->loadResult();
+
+    if ( !$result ) {
+      throw new Exception('Location not found: ' . $locationId);
+    }
+
+    return $result;
+  }
+
 }

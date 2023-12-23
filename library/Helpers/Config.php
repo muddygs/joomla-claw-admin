@@ -2,8 +2,8 @@
 
 namespace ClawCorpLib\Helpers;
 
-use ClawCorpLib\Lib\ClawEvents;
-use DateTime;
+use ClawCorpLib\Enums\EventTypes;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Factory;
 
 class Config
@@ -61,11 +61,12 @@ class Config
   {
     if ( count(self::$_titles)) return self::$_titles;
 
-    $eventList = ClawEvents::getEventList();
+    $eventList = EventInfo::getEventList();
     $titles = [];
 
+    /** @var \ClawCorpLib\Lib\EventInfo */
     foreach ( $eventList AS $alias => $eventInfo ) {
-      if ( !$eventInfo->active || !$eventInfo->mainAllowed ) continue;
+      if ( $eventInfo->eventType != EventTypes::main ) continue;
       $titles[$alias] = $eventInfo->description;
     }
 
@@ -77,7 +78,7 @@ class Config
   {
     if ( self::$_current != '' && !$next) return self::$_current;
 
-    $eventList = ClawEvents::getEventList();
+    $eventList = EventInfo::getEventList();
     $nextAlias = '';
 
     if ( count($eventList) == 0 ) {
@@ -86,19 +87,21 @@ class Config
 
     $endDates = [];
 
+    /** @var \ClawCorpLib\Lib\EventInfo */
     foreach ( $eventList AS $alias => $eventInfo ) {
-      if ( !$eventInfo->active || !$eventInfo->mainAllowed ) continue;
+      if ( $eventInfo->eventType != EventTypes::main ) continue;
       
-      $endDates[$eventInfo->end_date] = $alias;
+      $endDates[$eventInfo->end_date->toSql()] = $alias;
     }
 
     // Find earliest event that has not ended
     
     ksort($endDates);
 
+    $now = Factory::getDate()->toSql();
+
     foreach ( array_keys($endDates) AS $endDate ) {
-      // TODO: Use database -> sql date
-      if ( $endDate > date('Y-m-d hh:mm:ss') ) {
+      if ( $endDate > $now ) {
         if ( $next ) {
           if ( $nextAlias == '' ) {
             $nextAlias = $endDates[$endDate];
@@ -132,12 +135,10 @@ class Config
 
   public static function getActiveEventAliases(bool $mainOnly = false): array
   {
-    $eventList = ClawEvents::getEventList();
+    $eventList = EventInfo::getEventList();
+    /** @var \ClawCorpLib\Lib\EventInfo */
     foreach ( $eventList AS $alias => $eventInfo ) {
-      if ( !$eventInfo->active ) {
-        unset($eventList[$alias]);
-      }
-      if ( $mainOnly && !$eventInfo->mainAllowed ) {
+      if ( $mainOnly && $eventInfo->eventType != EventTypes::main ) {
         unset($eventList[$alias]);
       }
     }
