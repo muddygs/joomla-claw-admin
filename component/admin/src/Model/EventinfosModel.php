@@ -116,21 +116,9 @@ class EventInfosModel extends ListModel
     return parent::getStoreId($id);
   }
 
-  public function getItems()
-  {
-    $query = $this->getListQuery();
-
-    $this->db->setQuery($query);
-    $rows = $this->db->loadObjectList();
-
-
-    // Get a storage key.
-    $store = $this->getStoreId();
-
-    // The cache is for other things, like paging, that need data counts, but the view wants the list directly
-    $this->cache[$store] = $rows;
-    return $rows;
-  }
+  // public function getItems()
+  // {
+  // }
 
   /**
    * Get the master query for retrieving a list of countries subject to the model state.
