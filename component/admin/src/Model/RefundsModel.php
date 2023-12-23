@@ -389,7 +389,7 @@ class RefundsModel extends FormModel
       $event_id = $rawRegistrantRow->event_id;
   
       // Lookup event alias
-      $alias = ClawEvents::eventIdToClawEventAlias($event_id);
+      $alias = ClawEvents::eventIdtoAlias($event_id);
   
       if ( $alias !== false ) {
         $registrant = new Registrant($alias, $uid, [$event_id]);

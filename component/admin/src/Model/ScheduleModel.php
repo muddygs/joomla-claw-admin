@@ -17,9 +17,10 @@ use Joomla\CMS\Language\Text;
 
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Helpers\Sponsors;
+use ClawCorpLib\Lib\EventConfig;
+use ClawCorpLib\Lib\EventInfo;
 
 /**
  * Methods to handle a list of records.
@@ -45,6 +46,18 @@ class ScheduleModel extends AdminModel
 		$data['fee_event'] = implode(',',$data['fee_event']);
 		$data['mtime'] = Helpers::mtime();
 
+		$eventInfo = new EventInfo($data['event']);
+
+		if (array_key_exists('day', $data) && in_array($data['day'], Helpers::getDays())) {
+      $day = $eventInfo->modify( $data['day'] ?? '');
+      if ($day !== false) {
+        $data['day'] = $day;
+      } 
+    } else {
+      $data['day'] = $this->getDatabase()->getNullDate();
+    }
+
+
 		return parent::save($data);
 	}
 
@@ -69,20 +82,13 @@ class ScheduleModel extends AdminModel
 		}
 
 		$event = $form->getField('event')->value;
-		$e = new ClawEvents( !empty($event) ? $event : Aliases::current());
-		$info = $e->getEvent()->getInfo();
-
-		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
-		$parentField = $form->getField('day');
-		$days = Helpers::getDateArray($info->start_date, true);
-		foreach(['Wed','Thu','Fri','Sat','Sun'] AS $day) {
-			$parentField->addOption($day, ['value' => $days[$day]]);
-
-		}
+		if (empty($event)) $event = Aliases::current();
+		$eventConfig = new EventConfig($event);
 
 		/** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
 		$parentField = $form->getField('location');
-		$parentField->populateOptions($info->locationAlias);
+		$locationAlias = EventBooking::getLocationAlias($eventConfig->eventInfo->ebLocationId);
+		$parentField->populateOptions($locationAlias);
 
 		$sponsors = Sponsors::GetPublishedSponsors($this->getDatabase());
 
@@ -93,7 +99,7 @@ class ScheduleModel extends AdminModel
 			$parentField->addOption($s->name, ['value' => $s->id]);
 		}
 
-		$events = EventBooking::LoadTicketedEvents($e);
+		$events = EventBooking::LoadTicketedEvents($eventConfig);
 
 		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
 		$parentField = $form->getField('event_id');

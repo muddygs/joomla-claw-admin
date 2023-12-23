@@ -14,14 +14,11 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Filesystem\File;
-use Joomla\CMS\Image\Image;
 
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Mailer;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
-use LogicException;
+use ClawCorpLib\Lib\EventInfo;
 
 /**
  * Methods to handle a list of records.
@@ -224,8 +221,7 @@ class PresenterModel extends AdminModel
     $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
 
     $alias = Aliases::current();
-    $clawEvent = new ClawEvents($alias);
-    $info = $clawEvent->getClawEventInfo();
+    $info = new EventInfo($alias);
 
     $subject = $new ? '[New] ' : '[Updated] ';
     $subject .= $info->description. ' Presenter Application - ';
@@ -252,7 +248,7 @@ HTML;
     $m->appendToMessage('<p>Application Details:</p>');
     $m->appendToMessage($m->arrayToTable($data, ['photo','uid','email','id','mtime', 'orig']));
     
-    $m->appendToMessage('<p>Questions? Please email <a href="'.$notificationEmail.'">Education Coordinator</a></p>');
+    $m->appendToMessage('<p>Questions? Please email <a href="mailto:'.$notificationEmail.'">Education Coordinator</a></p>');
 
     $m->send();
   }

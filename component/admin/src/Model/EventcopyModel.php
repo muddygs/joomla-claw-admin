@@ -18,7 +18,9 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\FormModel;
 use Joomla\Input\Json;
 use ClawCorpLib\Lib\Ebmgmt;
+use ClawCorpLib\Lib\EventInfo;
 use DateTimeImmutable;
+use Joomla\CMS\Date\Date;
 use ReflectionClass;
 
 /**
@@ -64,10 +66,10 @@ class EventcopyModel extends FormModel
     $to = $json->get('jform[to_event]', '', 'string');
 
     // Validate events are valid
-    if (!ClawEvents::isValidEventAlias($from)) {
+    if (!EventInfo::isValidEventAlias($from)) {
       return 'Invalid from event: ' . $from;
     }
-    if (!ClawEvents::isValidEventAlias($to)) {
+    if (!EventInfo::isValidEventAlias($to)) {
       return 'Invalid to event: ' . $to;
     }
 
@@ -143,86 +145,6 @@ class EventcopyModel extends FormModel
     return implode("<br/>", $results);
   }
 
-  public function doCreateEvents(Json $json): string
-  {
-    $log = [];
-
-    $eventAlias = $json->get('jform[to_event]', '', 'string');
-
-    // Validate events are valid
-    if (!ClawEvents::isValidEventAlias($eventAlias)) {
-      return 'Invalid to event: ' . $eventAlias;
-    }
-
-    // Ignore server-specific timezone information
-    date_default_timezone_set('etc/UTC');
-
-    $info = (object)[];
-    $events = [];
-
-    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$eventAlias");
-    /** @var \ClawCorpLib\Event\AbstractEvent */
-    $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
-
-    // Normal constructor does not call with quiet mode set to true
-    /** @var \ClawCorpLib\Lib\EventInfo */
-    $info = $instance->PopulateInfo();
-    $instance->PopulateEvents($info->prefix, true);
-    $events = $instance->getEvents();
-
-    // Base times to offset by "time" parameter for each event
-    $cancel_before_date = $info->cancelBy;
-    $startDate = $this->modify($info->start_date, 'Thursday 9AM');
-    $endDate = $this->modify($info->start_date, 'next Monday midnight');;
-    $cut_off_date = $endDate;
-
-    // start and ending usability of these events
-    $registration_start_date = Factory::getDate()->toSql();
-    $publish_down = $this->modify($info->start_date, '+8 days');
-
-    $article_id = $info->termsArticleId;
-
-    /** @var \ClawCorpLib\Lib\ClawEvent */
-    foreach ($events as $event) {
-      if ($event->alias == '') continue;
-
-      $title = $event->description;
-
-      $start = $startDate;
-      $end = $endDate;
-      $cutoff = $cut_off_date;
-      if ($event->start != '') {
-        $start = $this->modify($info->start_date, $event->start);
-        $end = $this->modify($info->start_date, $event->end);
-
-        $origin = new DateTimeImmutable($start);
-        $target = new DateTimeImmutable($end);
-        $interval = $origin->diff($target);
-        if ($interval->h <= 8) $cutoff = $this->modify($start, '-3 hours');
-      }
-
-      $insert = new ebMgmt($eventAlias, $event->category, $event->alias, $info->prefix . ' ' . $title, $event->description);
-      $insert->set('article_id', $article_id, false);
-      $insert->set('cancel_before_date', $cancel_before_date);
-      $insert->set('cut_off_date', $cutoff);
-      $insert->set('event_date', $start);
-      $insert->set('event_end_date', $end);
-      $insert->set('publish_down', $publish_down);
-
-      $insert->set('individual_price', $event->fee);
-      $insert->set('publish_down', $end);
-      $insert->set('registration_start_date', $registration_start_date);
-      $insert->set('payment_methods', 2); // Credit Cart
-
-      $eventId = $insert->insert();
-      if ($eventId == 0) {
-        $log[] =  "<p>Skipping existing: $title</p>";
-      } else {
-        $log[] =  "<p>Added: $title at event id $eventId</p>";
-      }
-    }
-    return implode("\n", $log);
-  }
 
   public function doCreateSpeedDating(Json $json): string
   {
@@ -231,7 +153,7 @@ class EventcopyModel extends FormModel
     $eventAlias = $json->get('jform[to_event]', '', 'string');
 
     // Validate events are valid
-    if (!ClawEvents::isValidEventAlias($eventAlias)) {
+    if (!EventInfo::isValidEventAlias($eventAlias)) {
       return 'Invalid to event: ' . $eventAlias;
     }
 
@@ -304,7 +226,7 @@ class EventcopyModel extends FormModel
     $eventAlias = $json->get('jform[to_event]', '', 'string');
 
     // Validate events are valid
-    if (!ClawEvents::isValidEventAlias($eventAlias)) {
+    if (!EventInfo::isValidEventAlias($eventAlias)) {
       return 'Invalid to event: ' . $eventAlias;
     }
 
@@ -340,18 +262,13 @@ class EventcopyModel extends FormModel
     $eventAlias = $json->get('jform[to_event]', '', 'string');
 
     // Validate events are valid
-    if (!ClawEvents::isValidEventAlias($eventAlias)) {
+    if (!EventInfo::isValidEventAlias($eventAlias)) {
       return 'Invalid to event: ' . $eventAlias;
     }
 
-    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$eventAlias");
-    /** @var \ClawCorpLib\Event\AbstractEvent */
-    $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
+    $eventInfo = new EventInfo($eventAlias);
 
-    // Normal constructor does not call with quiet mode set to true
-    /** @var \ClawCorpLib\Lib\EventInfo */
-    $eventInfo = $instance->PopulateInfo();
-    /** @var stdObject */
+    // TODO: Convert to use #__claw_events table for lookup
     $config = $instance->Configs();
 
     // start and ending usability of these events
@@ -430,13 +347,13 @@ HTML;
 
       $insert = new ebMgmt($eventAlias, $info->main_category_id, $alias, $title, $description);
       $insert->set('article_id', $eventInfo->termsArticleId, false);
-      $insert->set('cancel_before_date', $cancel_before_date);
-      $insert->set('cut_off_date', $cut_off_date);
+      $insert->set('cancel_before_date', $cancel_before_date->toSql());
+      $insert->set('cut_off_date', $cut_off_date->toSql());
       $insert->set('event_capacity', $info->event_capacity, false);
-      $insert->set('event_date', $event_date);
-      $insert->set('event_end_date', $event_end_date);
+      $insert->set('event_date', $event_date->toSql());
+      $insert->set('event_end_date', $event_end_date->toSql());
       $insert->set('registration_start_date', $registration_start_date);
-      $insert->set('publish_down', $publish_down);
+      $insert->set('publish_down', $publish_down->toSql());
       $insert->set('short_description', $short_description);
       $insert->set('individual_price', $info->individual_price);
 
@@ -486,9 +403,8 @@ HTML;
     return json_encode($grid);
   }
 
-  private function modify(string $start_date, string $m): string
+  private function modify(Date $start_date, string $m): Date
   {
-    $date = Factory::getDate($start_date);
-    return $date->modify($m)->toSql();
+    return $start_date->modify($m);
   }
 }

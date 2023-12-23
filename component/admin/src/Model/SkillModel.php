@@ -21,7 +21,7 @@ use ClawCorpLib\Helpers\Locations;
 use ClawCorpLib\Helpers\Mailer;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventInfo;
 
 /**
  * Methods to handle processing a skill submission
@@ -73,11 +73,10 @@ class SkillModel extends AdminModel
     $app = Factory::getApplication();
 
     $data['mtime'] = Helpers::mtime();
-    $e = new ClawEvents($data['event']);
-    $info = $e->getClawEventInfo();
+    $info = new EventInfo($data['event']);
 
     if (array_key_exists('day', $data) && in_array($data['day'], Helpers::getDays())) {
-      $day = $info->modify(modifier: $data['day'] ?? '', validate: false);
+      $day = $info->modify( $data['day'] ?? '' );
       if ($day !== false) {
         $data['day'] = $day;
       } 
@@ -123,12 +122,11 @@ class SkillModel extends AdminModel
     $eventAlias = !empty($event) ? $event : Aliases::current();
     Helpers::sessionSet('eventAlias', $eventAlias);
 
-		$e = new ClawEvents($eventAlias);
-		$info = $e->getEvent()->getInfo();
+		$info = new EventInfo($eventAlias);
 
 		/** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
 		$parentField = $form->getField('location');
-    $parentField->populateOptions($info->locationAlias);
+    $parentField->populateOptions($info->ebLocationId);
 
     return $form;
   }
@@ -186,8 +184,7 @@ class SkillModel extends AdminModel
     $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
     
     $alias = Aliases::current();
-    $clawEvent = new ClawEvents($alias);
-    $info = $clawEvent->getClawEventInfo();
+    $info = new EventInfo($alias);
 
     $subject = $new ? '[New] ' : '[Updated] ';
     $subject .= $info->description. ' Class Submission - ';
@@ -201,6 +198,9 @@ class SkillModel extends AdminModel
       frommail: $notificationEmail,
       subject: $subject,
     );
+
+    // TODO: Use global config for this
+    // TODO: Substitute the notification email
 
     $m->appendToMessage(
       '<p>Thank you for your interest in presenting at the CLAW/Leather Getaway Skills and Education Program.</p>'.

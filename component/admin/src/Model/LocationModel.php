@@ -14,11 +14,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Form\Field\FormField;
-use Joomla\CMS\Form\Field\ListField;
 use ClawCorp\Component\Claw\Administrator\Helper\LocationHelper;
-use Joomla\CMS\Application\AdministratorApplication;
-use Joomla\CMS\Application\CMSApplication;
 
 /**
  * Methods to handle a list of records.

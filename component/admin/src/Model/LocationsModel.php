@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -14,7 +14,6 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Model\ListModel;
-use Joomla\CMS\Pagination\Pagination;
 
 /**
  * Methods to handle a list of records.
@@ -97,14 +96,10 @@ class LocationsModel extends ListModel
 	 */
 	protected function getStoreId($id = '')
 	{
-		// Override since we are handling getItems manually
-		// $id = '';
-		
 		// Compile the store id.
 		$id .= ':' . serialize($this->getState('filter.name'));
 		$id .= ':' . $this->getState('filter.search');
 		$id .= ':' . $this->getState('filter.state');
-		//$id .= ':' . serialize($this->getState('filter.tag'));
 
 		return parent::getStoreId($id);
 	}
@@ -235,6 +230,7 @@ class LocationsModel extends ListModel
 
 	public function delete(array $cid): bool
 	{
+		// TODO: prevent deletion of locations that are tied to active events
 		$db = $this->getDatabase();
 		$query = $db->getQuery(true);
 		$query->delete($db->quoteName('#__claw_locations'))->where($db->quoteName('id') . ' IN (' . implode(',', $cid) . ')');

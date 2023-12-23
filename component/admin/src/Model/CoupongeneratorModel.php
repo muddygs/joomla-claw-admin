@@ -14,10 +14,11 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\EbCouponAssignments;
 use ClawCorpLib\Enums\EbCouponTypes;
+use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Coupons;
+use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Model\FormModel;
@@ -75,31 +76,29 @@ class CoupongeneratorModel extends FormModel
     $groups = array_keys(Helpers::getUserGroupsByName());
     $eventAlias = $json->get('jform[event]', Aliases::current(), 'string');
 
-    $e = new ClawEvents($eventAlias);
+    $e = new EventConfig($eventAlias);
 
     $events = [0 => 'Select Package'];
     $addons = '';
 
-    /** @var \ClawCorpLib\Lib\ClawEvent */
-    foreach ($e->getEvents() as $event) {
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ($e->packageInfos as $event) {
       $c = $event->couponKey;
 
-      if (count(array_intersect($groups, $event->couponAccessGroups)) > 0) {
-        if (!property_exists($event, 'isAddon')) continue;
+      if ( count(array_intersect($groups, $event->couponAccessGroups)) > 0 ) {
+        if ( $event->packageInfoType != PackageInfoTypes::main && $event->couponValue < 1 ) continue;
 
-        if ($event->isAddon == false) {
+        if ( $event->packageInfoType == PackageInfoTypes::main ) {
           $events[$c] = $event->description . ' (' . $c . ') - $' . $event->couponValue;
         } else {
-          if ($event->couponValue > 0) {
-            $description = $event->description . ' (' . $c . ') - $' . $event->couponValue;
+          $description = $event->description . ' (' . $c . ') - $' . $event->couponValue;
 
-            $addons .= <<< HTML
+          $addons .= <<< HTML
 <div class="form-check">
   <input class="form-check-input" type="checkbox" value="$c" id="addon-$c" name="addon-$c" onclick="updateTotalValue()">
   <label class="form-check-label" for="addon-$c">$description</label>
 </div>
 HTML;
-          }
         }
       }
     }
@@ -118,7 +117,7 @@ HTML;
   public function couponValue(Json $json): float
   {
     $eventAlias = $json->get('jform[event]', Aliases::current(), 'string');
-    $events = new ClawEvents($eventAlias);
+    $events = new EventConfig($eventAlias);
 
     $package = $json->get('jform[packagetype]', '', 'string');
 
@@ -213,7 +212,7 @@ HTML;
     }
   
   
-    $e = new ClawEvents($json->getString('jform[event]',Aliases::current()));
+    $e = new EventConfig($json->getString('jform[event]',Aliases::current()));
   
     $value = $this->couponValue($json);
   
@@ -256,7 +255,7 @@ HTML;
   
     foreach ( $emails AS $i => $email )
     {
-      $note = $e->getClawEventInfo()->prefix . '_' . $admin . '_' . $names[$i];
+      $note = $e->eventInfo->prefix . '_' . $admin . '_' . $names[$i];
   
       $coupon = new Coupons($value, $prefix, $note, $email);
       $coupon->setCouponType(EbCouponTypes::voucher);
@@ -344,35 +343,33 @@ HTML;
       return $result;
     }
   
-    $events = new ClawEvents($eventSelection);
+    $events = new EventConfig($eventSelection);
+    $mainEventIds = $events->getMainEventIds();
+
     $query = $db->getQuery(true);
     $query->select('*')
       ->from('#__eb_coupon_events')
-      ->where('event_id IN ('.implode(',', $events->mainEventIds).')');
+      ->where('event_id IN ('.implode(',', $mainEventIds).')');
     $db->setQuery($query);
     $eventAssignments = $db->loadObjectList();
   
-    if ( $eventAssignments == null || sizeof($eventAssignments) == 0 )
-    {
+    if ( $eventAssignments == null || sizeof($eventAssignments) == 0 ) {
       $result->msg = 'Coupon found but not assigned to a specific main event';
       return $result;
     }
   
-    foreach ( $coupons AS $c )
-    {
+    foreach ( $coupons AS $c ) {
       $email = explode(':',$c->note)[1];
   
-      foreach ( $eventAssignments AS $e )
-      {
+      foreach ( $eventAssignments AS $e ) {
         // Main event?
-        if ( !in_array($e->event_id, $events->mainEventIds) ) continue;
+        if ( !in_array($e->event_id, $mainEventIds) ) continue;
   
         // Is main event. Used already?
         if ( $e->coupon_id == $c->id ) {
           $result->error = true;
   
-          if ( $c->used > 0 )
-          {
+          if ( $c->used > 0 ) {
             $result->msg .= $c->code.' for '.$email.' has been used<br>';
           } else {
             $result->msg .= 'Unused coupon '.$c->code.' exists for '.$email.'<br>';

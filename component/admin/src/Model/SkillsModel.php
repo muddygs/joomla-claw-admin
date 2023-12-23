@@ -11,16 +11,16 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\ListModel;
-
-use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Helpers\Skills;
-use ClawCorpLib\Helpers\Locations;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Router\Route;
 use Joomla\Database\ParameterType;
+
+use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Helpers\Skills;
+use ClawCorpLib\Helpers\Locations;
 
 /**
  * Methods to handle a list of records.

@@ -14,11 +14,12 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\Volunteers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Ebfield;
-use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\Registrants;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\User\UserFactory;
@@ -32,22 +33,20 @@ use Joomla\CMS\WebAsset\Exception\InvalidActionException;
  */
 class ReportsModel extends BaseDatabaseModel
 {
-  public ClawEvents $events;
-  public EventInfo $eventInfo;
+  public EventConfig $eventConfig;
 
   public function __construct($config = array())
   {
     parent::__construct($config);
 
-    $this->events = new ClawEvents(Aliases::current(true));
-    $this->eventInfo = $this->events->getClawEventInfo();
+    $this->eventConfig = new EventConfig(Aliases::current(true));
   }
 
   public function getSpeedDatingItems(): array
   {
     $items = [];
 
-    $events = $this->events->getEventsByCategoryId(ClawEvents::getCategoryIds(['speed-dating']), $this->eventInfo);
+    $events = $this->eventConfig->getEventsByCategoryId(ClawEvents::getCategoryIds(['speed-dating']));
 
     // Sort by event date
     usort($events, function ($a, $b) {
@@ -85,9 +84,9 @@ class ReportsModel extends BaseDatabaseModel
     $totalCount = 0;
     $volTotalCount = 0;
 
-    /** @var \ClawCorpLib\Lib\ClawEvent */
-    foreach ($this->events->getEvents() as $event) {
-      if (!$event->isMainEvent) continue;
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ($this->eventConfig->packageInfos as $event) {
+      if ($event->packageInfoType != PackageInfoTypes::main ) continue;
 
       $records = Registrants::byEventId($event->eventId);
       $fields = ['TSHIRT', 'TSHIRT_VOL'];
@@ -141,7 +140,7 @@ class ReportsModel extends BaseDatabaseModel
       }
     }
 
-    $items['eventInfo'] = $this->eventInfo;
+    $items['eventInfo'] = $this->eventConfig->eventInfo;
     $items['counters'] = $counters;
     $items['volcounters'] = $volcounters;
     $items['totalCount'] = $totalCount;
@@ -174,7 +173,7 @@ class ReportsModel extends BaseDatabaseModel
     }
 
 
-    $items['eventInfo'] = $this->eventInfo;
+    $items['eventInfo'] = $this->eventConfig->eventInfo;
     $items['shifts'] = $shifts;
     $items['coordinators'] = $coordinators;
 
@@ -192,8 +191,6 @@ class ReportsModel extends BaseDatabaseModel
   {
     $items = [];
 
-    $abstractEvent = $this->events->getEvent();
-
     $dinnerField = null;
     $dinnerField = new Ebfield('Dinner');
     $dinnerEventId = 0;
@@ -204,22 +201,22 @@ class ReportsModel extends BaseDatabaseModel
     foreach ( $mealOrderCategory AS $category ) {
       $catId = ClawEvents::getCategoryId($category);
 
-      /** @var \ClawCorpLib\Lib\ClawEvent */
-      foreach ( $abstractEvent->getEvents() AS $clawEvent ) {
-        if ( $clawEvent->category != $catId ) continue;
+      /** @var \ClawCorpLib\Lib\PackageInfo */
+      foreach ( $this->eventConfig->packageInfos AS $packageInfo ) {
+        if ( $packageInfo->category != $catId ) continue;
 
         $subcount = [];
 
         if ( 'dinner' == $category ) {
-          $subcount = $dinnerField->valueCounts($clawEvent->eventId);
-          $dinnerEventId = $clawEvent->eventId;
+          $subcount = $dinnerField->valueCounts($packageInfo->eventId);
+          $dinnerEventId = $packageInfo->eventId;
         }
 
-        $items[$clawEvent->eventId] = (object)[
-          'eventId' => $clawEvent->eventId,
-          'description' => $clawEvent->description,
+        $items[$packageInfo->eventId] = (object)[
+          'eventId' => $packageInfo->eventId,
+          'description' => $packageInfo->description,
           'category' => $category,
-          'count' => Registrants::getRegistrantCount($clawEvent->eventId),
+          'count' => Registrants::getRegistrantCount($packageInfo->eventId),
           'subcount' => $subcount,
         ];
 
@@ -231,14 +228,14 @@ class ReportsModel extends BaseDatabaseModel
         EventPackageTypes::combo_meal_2, 
         EventPackageTypes::combo_meal_3, 
         EventPackageTypes::combo_meal_4] AS $comboMeal ) {
-      if ( is_null($abstractEvent->getClawEvent($comboMeal)) ) continue;
+          /** @var \ClawCorpLib\Lib\PackageInfo */
+      $packageInfo = $this->evenConfig->getClawEvent($comboMeal);
+      if ( $packageInfo == null ) continue;
 
-      $clawEvent = $abstractEvent->getClawEvent($comboMeal);
+      $subcount = $dinnerField->valueCounts($packageInfo->eventId);
 
-      $subcount = $dinnerField->valueCounts($clawEvent->eventId);
-
-      foreach ( $clawEvent->meta AS $eventId ) {
-        $items[$eventId]->count += Registrants::getRegistrantCount($clawEvent->eventId);
+      foreach ( $packageInfo->meta AS $eventId ) {
+        $items[$eventId]->count += Registrants::getRegistrantCount($packageInfo->eventId);
 
         if ( $eventId == $dinnerEventId && $dinnerEventId > 0 ) {
           foreach ( $subcount AS $count ) {
