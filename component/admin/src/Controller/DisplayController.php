@@ -42,7 +42,6 @@ class DisplayController extends BaseController
 #region Coupon Tasks
   public function couponLoadEvent()
   {
-    // TODO: Need to validate checkToken on ALL controllers
     // Check for request forgeries.
     $this->checkToken();
 
