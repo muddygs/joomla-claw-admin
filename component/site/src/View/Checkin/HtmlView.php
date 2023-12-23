@@ -18,6 +18,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\Jwtwrapper;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
@@ -49,6 +50,7 @@ class HtmlView extends BaseHtmlView
 
     // If the user is super admin, allow database controls
     $user = $app->getIdentity();
+    $eventConfig = new EventConfig(Aliases::current(true));
 
     if ( $user->authorise('core.admin') ) {
       $this->state->set('user.admin', true);
@@ -57,9 +59,6 @@ class HtmlView extends BaseHtmlView
 
     // Prepare data for meals checkin
     if ( 'meals-checkin' == $tpl ) {
-      $event = new ClawEvents(Aliases::current(true));
-      $events = $event->getEvents();
-
       // Categories of interest
       $mealCategories = [
         'dinner' => 'International Leather Family Dinner', 
@@ -73,7 +72,8 @@ class HtmlView extends BaseHtmlView
       foreach ( $mealCategories AS $catAlias => $desc ) {
         $catId = ClawEvents::getCategoryId($catAlias);
         $this->meals[-$catId] = $desc;
-        foreach ( $events AS $e ) {
+        /** @var \ClawCorpLib\Lib\PackageInfo */
+        foreach ( $eventConfig->packageInfos AS $e ) {
           if ( $e->category == $catId ) {
             $this->meals[$e->eventId] = '- '.$e->description;
           }
@@ -83,8 +83,7 @@ class HtmlView extends BaseHtmlView
 
     if ( 'volunteer-roll-call' == $tpl ) {
       $shiftCatIds = ClawEvents::getCategoryIds(Aliases::shiftCategories());
-      $event = new ClawEvents(Aliases::current(true));
-      $rows = ClawEvents::getEventsByCategoryId($shiftCatIds, $event->getClawEventInfo());
+      $rows = $eventConfig->getEventsByCategoryId($shiftCatIds);
 
       $this->shifts = [];
       foreach ( $rows AS $row ) {

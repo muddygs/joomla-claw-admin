@@ -12,13 +12,14 @@ namespace ClawCorp\Component\Claw\Site\View\Registrationoptions;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Enums\EventPackageTypes;
-use ClawCorpLib\Helpers\Config;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
+
+use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventConfig;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
@@ -27,9 +28,7 @@ class HtmlView extends BaseHtmlView
   public string $eventAlias;
   public string $action;
   public string $prefix;
-  public \ClawCorpLib\Lib\ClawEvents $events;
-  public \ClawCorpLib\Lib\EventInfo $eventInfo;
-
+  public EventConfig $eventConfig;
   
   public function display($tpl = null)
   {
@@ -48,9 +47,7 @@ class HtmlView extends BaseHtmlView
     
     Helpers::sessionSet('eventAlias', $this->eventAlias);
     Helpers::sessionSet('eventAction', $this->action);
-    $this->events = new ClawEvents($this->eventAlias);
-    $this->eventInfo = $this->events->getClawEventInfo();
-    // $this->prefix = strtolower($this->eventInfo->prefix);
+    $this->eventConfig = new EventConfig($this->eventAlias);
 
     // Validate action
     try {

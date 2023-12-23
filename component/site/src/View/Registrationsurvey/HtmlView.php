@@ -15,6 +15,7 @@ defined('_JEXEC') or die;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Coupon;
+use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Help\Help;
@@ -34,7 +35,7 @@ class HtmlView extends BaseHtmlView
   public string $couponCode = '';
   public int $uid = 0;
   public ?\ClawCorpLib\Lib\RegistrantRecord $mainEvent = null;
-  public ?\ClawCorpLib\Lib\ClawEvents $events = null;
+  public ?\ClawCorpLib\Lib\EventConfig $events = null;
   public bool $hasMainEvent = false;
   public bool $onsiteActive = false;
   public string $prefix = '';
@@ -72,10 +73,10 @@ class HtmlView extends BaseHtmlView
      **************************************************************/
     Helpers::sessionSet('eventAlias', $this->eventAlias);
     
-    $this->events = new ClawEvents($this->eventAlias);
+    $this->events = new EventConfig($this->eventAlias);
     $this->uid = $this->app->getIdentity()->id;
-    $this->onsiteActive = $this->events->getClawEventInfo()->onsiteActive;
-    $this->prefix = $this->events->getClawEventInfo()->prefix;
+    $this->onsiteActive = $this->events->eventInfo->onsiteActive;
+    $this->prefix = $this->events->eventInfo->prefix;
 
     $this->couponCode = trim($this->app->input->get('coupon', '', 'string'));
 
@@ -101,7 +102,7 @@ class HtmlView extends BaseHtmlView
       return;
     }
 
-    if ( $this->events->getClawEventInfo()->onsiteActive) {
+    if ( $this->events->eventInfo->onsiteActive) {
       if ($this->app->getIdentity()->id != 0) $this->app->logout();
       $coupon = new Coupon('',0);
       $this->autoCoupon = $coupon;
@@ -135,7 +136,7 @@ class HtmlView extends BaseHtmlView
   {
     // Has a coupon already been generated for this registrant?
     if ( !$this->hasMainEvent ) {
-      $eventIds = $this->events->getEventIds(mainOnly: true);
+      $eventIds = $this->events->getMainEventIds();
       return $this->getAssignedCoupon($this->uid, $eventIds);
     }
 

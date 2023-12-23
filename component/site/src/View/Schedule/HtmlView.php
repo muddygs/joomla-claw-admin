@@ -19,6 +19,7 @@ use ClawCorpLib\Helpers\Schedule;
 use ClawCorpLib\Helpers\Sponsors;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventInfo;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
@@ -45,8 +46,8 @@ class HtmlView extends BaseHtmlView
     $this->locations = \ClawCorpLib\Helpers\Locations::GetLocationsList();
     $this->sponsors = new Sponsors();
     $schedule = new Schedule($eventAlias, $db);
-    $event = new ClawEvents($eventAlias);
-    $this->eventInfo = $event->getClawEventInfo();
+    
+    $this->eventInfo = new EventInfo($eventAlias);
 
     $dates = Helpers::getDateArray($this->eventInfo->start_date, true);
 
