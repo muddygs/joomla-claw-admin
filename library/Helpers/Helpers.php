@@ -55,7 +55,6 @@ class Helpers
     $ts = explode(':', $t);
     if (count($ts) < 2 || !\is_numeric($ts[0]) || !\is_numeric($ts[1]) || 
       $ts[0] < 0 || $ts[0] > 23 || $ts[1] < 0 || $ts[1] > 59) return false;
-    // return strtotime('1970-01-01 ' . trim($t) . ':00');
     return strtotime('1970-01-01 ' . implode(':', [ $ts[0], $ts[1], '00' ]));
   }
 
@@ -103,11 +102,9 @@ class Helpers
   /**
    * Returns array with short day (Mon,Tue) to sql date for the event week starting Monday
    */
-  public static function getDateArray(string $startDate, bool $dateOnly = false)
+  public static function getDateArray(Date $date, bool $dateOnly = false)
   {
     $result = [];
-
-    $date = Factory::getDate($startDate);
 
     if ($date->dayofweek != 1) // 0 is Sunday
     {
