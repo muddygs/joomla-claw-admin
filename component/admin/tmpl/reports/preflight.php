@@ -15,10 +15,11 @@
  /* Tries to parse all the current event registrations to find errors */
 
 use ClawCorpLib\Enums\EbPublishedState;
+use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Checkin;
-use ClawCorpLib\Lib\ClawEvent;
 use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\Factory;
 use Joomla\CMS\User\UserHelper;
@@ -27,9 +28,9 @@ use Joomla\Database\DatabaseDriver;
 \ClawCorpLib\Helpers\Bootstrap::rawHeader([], ['/media/com_claw/css/print_letter.css']);
 
 $eventAlias = Aliases::current();
-$clawEvents = new ClawEvents($eventAlias);
-$events = $clawEvents->getEvents();
-$eventInfo = $clawEvents->getEvent()->getInfo();
+$clawEvents = new EventConfig($eventAlias);
+$events = $clawEvents->packageInfos;
+$eventInfo = $clawEvents->eventInfo;
 
 $mealPhrases = ['beef','chicken','vege', 'vegan', 'sea bass', 'fish', 'ravioli'];
 $shirtSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'None'];
@@ -41,10 +42,10 @@ $db = Factory::getContainer()->get('DatabaseDriver');
 <?php
 $mainEventIds = [];
 
-/** @var \ClawCorpLib\Lib\ClawEvent */
+/** @var \ClawCorpLib\Lib\PackageInfo */
 foreach ( $events AS $event )
 {
-  if (!$event->isMainEvent ) continue;
+  if ($event->packageInfoType != PackageInfoTypes::main ) continue;
 
   $mainEventIds[] = $event->eventId;
 
@@ -249,7 +250,7 @@ if ( count($duplicateUserIds) > 0 ) {
 // Tracking for duplicate coupon keys
 $couponKeys = [];
 
-/** @var \ClawCorpLib\Lib\ClawEvent */
+/** @var \ClawCorpLib\Lib\PackageInfo */
 foreach ( $events AS $event )
 {
   // Load the EventBooking database item for this event
