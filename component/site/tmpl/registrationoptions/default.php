@@ -86,7 +86,7 @@ switch ($this->action) {
     return;
 }
 
-if ( !$this->eventInfo->onsiteActive ) {
+if ( !$this->eventConfig->eventInfo->onsiteActive ) {
   $blockedPackageTypes = [
     EventPackageTypes::day_pass_fri,
     EventPackageTypes::day_pass_sat,
@@ -153,14 +153,16 @@ $wa->useScript('com_claw.toast');
 <?php
 #endregion Toast
 
-$clawEvents = $this->events;
-$eventInfo = $this->eventInfo;
+//$clawEvents = $this->events;
+$eventInfo = $this->eventConfig->eventInfo;
+$clawEvents = null;
 
 // Cache date limits for this event to filter in .../model/list.php
-Helpers::sessionSet('filter_start' , $eventInfo->start_date);
-Helpers::sessionSet('filter_end' , $eventInfo->end_date);
+Helpers::sessionSet('filter_start' , $eventInfo->start_date->toSql());
+Helpers::sessionSet('filter_end' , $eventInfo->end_date->toSql());
 
-$regEvent = $clawEvents->getEventByKey('eventPackageType', $eventPackageType);
+/** @var \ClawCorpLib\Lib\PackageInfo */
+$regEvent = $this->eventConfig->getClawEvent($eventPackageType);
 
 // Auto add this registration to the cart
 // Remove any other main events that might be in cart
@@ -178,7 +180,7 @@ if ($addons == false && $mainEvent == null) {
   // In case there are any oddball nulls, clean them out
   $cart->remove(null);
 
-  $cartMainEvents = array_intersect($items, $clawEvents->mainEventIds);
+  $cartMainEvents = array_intersect($items, $this->eventConfig->getMainEventIds());
 
   if (sizeof($cartMainEvents) > 1) {
     foreach ( $cartMainEvents AS $c )
@@ -195,10 +197,10 @@ if ( $vipRedirect ) {
   $cart = new \EventbookingHelperCart();
   $cart->reset();
 
-  $vipClawEvent = $this->events->getEvent()->getClawEvent(EventPackageTypes::vip);
+  /** @var \ClawCorpLib\Lib\PackageInfo */
+  $vipClawEvent = $this->eventConfig->getClawEvent(EventPackageTypes::vip);
   $comboMealsAll = $vipClawEvent->meta[0];
-  $vip = $this->events->getEvent()->getEventId(EventPackageTypes::vip);
-  $cart->addEvents([$vip, $comboMealsAll]);
+  $cart->addEvents([$vipClawEvent->eventId, $comboMealsAll]);
 
   // In case they want to come back, fall back to vip
   Helpers::sessionSet('eventAction', EventPackageTypes::vip->value);
@@ -261,19 +263,19 @@ endif;
   $headings = [];
 
   $headings[] = 'Shifts';
-  if ( $this->eventInfo->onsiteActive ) {
+  if ( $this->eventConfig->eventInfo->onsiteActive ) {
     $content[] = contentShiftsOnsite();
   } else {
     $content[] = contentShifts($eventPackageType);
   }
   
   $headings[] = 'Meals';
-  $content[] = contentMeals($this->eventInfo);
+  $content[] = contentMeals($this->eventConfig->eventInfo);
 
   $headings[] = 'Speed Dating';
   $content[] = contentSpeedDating();
 
-  if ( !$this->eventInfo->onsiteActive ) {
+  if ( !$this->eventConfig->eventInfo->onsiteActive ) {
     $headings[] = 'Rentals';
     $content[] = contentRentals();
   }
@@ -354,7 +356,7 @@ HTML;
     return $result;
   }
 
-  function contentMeals(EventInfo &$eventInfo): string
+  function contentMeals(EventInfo $eventInfo): string
   {
     // TODO: temporary use of C24 category for meals
     $result = '';
