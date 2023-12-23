@@ -198,3 +198,51 @@ CREATE TABLE IF NOT EXISTS `#__claw_eventid_mapping` (
   `alias` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`eventid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `#__claw_eventinfos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `alias` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `ebLocationId` int(11) DEFAULT 0,
+  `start_date` datetime DEFAULT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `prefix` varchar(255) DEFAULT NULL,
+  `cancelBy` datetime DEFAULT NULL,
+  `timezone` varchar(255) DEFAULT NULL,
+  `active` boolean DEFAULT 0,
+  `eventType` TINYINT(4) DEFAULT NULL,
+  `onsiteActive` boolean DEFAULT 0,
+  `termsArticleId` int(11) DEFAULT NULL,
+  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`),
+  KEY `fb_alias_INDEX` (`alias`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `#__claw_packages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `eventAlias` varchar(255) DEFAULT NULL,
+  `published` TINYINT(4) DEFAULT NULL,
+  `description` VARCHAR(255) NOT NULL DEFAULT '',
+  `alias` VARCHAR(255) NOT NULL DEFAULT '',
+  `eventPackageType` TINYINT(4) NOT NULL DEFAULT 0,
+  `packageInfoType` TINYINT(4) NOT NULL DEFAULT 0,
+  `couponKey` VARCHAR(10) NOT NULL DEFAULT '',
+  `couponValue` FLOAT NOT NULL DEFAULT 0.0,
+  `fee` FLOAT NOT NULL DEFAULT 0.0,
+  `eventId` INT NOT NULL DEFAULT 0,
+  `category` INT NOT NULL DEFAULT 0,
+  `minShifts` INT NOT NULL DEFAULT 0,
+  `requiresCoupon` BOOLEAN NOT NULL DEFAULT false,
+  `couponAccessGroups` JSON NOT NULL DEFAULT '[]',
+  `authNetProfile` BOOLEAN NOT NULL DEFAULT false,
+  `start` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `end` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `isVolunteer` BOOLEAN NOT NULL DEFAULT false,
+  `bundleDiscount` INT NOT NULL DEFAULT 0,
+  `badgeValue` VARCHAR(255) NOT NULL DEFAULT '',
+  `couponOnly` BOOLEAN NOT NULL DEFAULT false,
+  `meta` JSON NOT NULL DEFAULT '[]',
+  `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`),
+  KEY `fb_eventalias_INDEX` (`eventAlias`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
