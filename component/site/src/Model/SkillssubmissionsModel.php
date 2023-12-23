@@ -16,7 +16,7 @@ use Joomla\CMS\Factory;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\ClawEvents;
-
+use ClawCorpLib\Lib\EventInfo;
 use Exception;
 use InvalidArgumentException;
 use Joomla\CMS\Form\Form;
@@ -66,9 +66,6 @@ class SkillssubmissionsModel extends BaseDatabaseModel
 
   public function GetEventInfo() : \ClawCorpLib\Lib\EventInfo
   {
-    $events = new ClawEvents(Aliases::current(true));
-
-    $info = $events->getClawEventInfo();
-    return $info;
+    return new EventInfo(Aliases::current(true));
   }
 }

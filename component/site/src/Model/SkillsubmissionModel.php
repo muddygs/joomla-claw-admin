@@ -19,6 +19,7 @@ use ClawCorpLib\Helpers\Locations;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Router\Route;
@@ -170,9 +171,6 @@ class SkillsubmissionModel extends AdminModel
 
   public function GetEventInfo(): \ClawCorpLib\Lib\EventInfo
   {
-    $events = new ClawEvents(Aliases::current());
-
-    $info = $events->getClawEventInfo();
-    return $info;
+    return new EventInfo(Aliases::current());
   }
 }

@@ -19,6 +19,7 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Router\Route;
 
 /**
@@ -180,9 +181,6 @@ class PresentersubmissionModel extends AdminModel
 
   public function GetEventInfo(): \ClawCorpLib\Lib\EventInfo
   {
-    $events = new ClawEvents(Aliases::current(true));
-
-    $info = $events->getClawEventInfo();
-    return $info;
+    return new EventInfo(Aliases::current(true));
   }
 }

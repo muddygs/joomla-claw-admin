@@ -20,6 +20,7 @@ use RuntimeException;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\BaseModel;
 use Joomla\Database\DatabaseDriver;
@@ -61,13 +62,12 @@ class RegistrationsurveyModel extends BaseModel
     $coupon = $db->loadRow();
 
     if ($coupon != null) {
-      $events = new ClawEvents(Aliases::current());
+      $events = new EventConfig(Aliases::current());
 
-      /** @var \ClawCorpLib\Lib\ClawEvent $e */
-      foreach ($events->getEvents() as $e) {
+      /** @var \ClawCorpLib\Lib\PackageInfo */
+      foreach ($events->packageInfos as $e) {
         if (substr($couponCode, 0, 1) === $e->couponKey) {
-          $action = $e->eventPackageType;
-          Helpers::sessionSet('eventAction', $action->value);
+          Helpers::sessionSet('eventAction', $e->eventPackageType->value);
           $result = [
             'error' => 0,
             'link' => EventBooking::getRegistrationLink(),

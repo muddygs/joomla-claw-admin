@@ -16,6 +16,7 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Router\Route;
@@ -141,8 +142,7 @@ class SkillslistModel extends BaseDatabaseModel
     }
 
     // Is the event onsite active true?
-    $clawEvent = new ClawEvents($eventAlias);
-    $eventInfo = $clawEvent->getClawEventInfo();
+    $eventInfo = new EventInfo($eventAlias);
 
     $surveyLink = '';
 
