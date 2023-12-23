@@ -5,7 +5,6 @@ namespace ClawCorpLib\Lib;
 use ClawCorpLib\Enums\EbRecordIndexType;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Helpers\EventBooking;
-use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Registrant;
@@ -57,18 +56,18 @@ HTML;
     $shift_count = 0;
     $requires_main_event = false;
 
-    $clawEventAlias = ClawEvents::eventIdToClawEventAlias($this->items[0]->id);
-    $e = new ClawEvents($clawEventAlias);
-    $abstractEvent = $e->getEvent();
-    $info = $abstractEvent->getInfo();
-    $onsiteActive = $e->getClawEventInfo()->onsiteActive;
+    $clawEventAlias = ClawEvents::eventIdtoAlias($this->items[0]->id);
+    $eventConfig = new EventConfig($clawEventAlias);
+
+    $onsiteActive = $eventConfig->eventInfo->onsiteActive;
+    $mainEventIds = $eventConfig->getMainEventIds();
 
     $registrantData = new registrant($clawEventAlias, $app->getIdentity()->id);
     $registrantData->loadCurrentEvents(EbRecordIndexType::eventid);
     $records = $registrantData->records();
 
-    $prefix = strtolower($info->prefix);
-    $shiftPrefix = $info->shiftPrefix;
+    $prefix = strtolower($eventConfig->eventInfo->prefix);
+    $shiftPrefix = $eventConfig->eventInfo->shiftPrefix;
     $shiftCategories = ClawEvents::getCategoryIds(Aliases::shiftCategories());
     $invoiceCategories = ClawEvents::getCategoryIds(Aliases::invoiceCategories);
     $mainRequiredCategories = ClawEvents::getCategoryIds(Aliases::categoriesRequiringMainEvent);
@@ -82,7 +81,7 @@ HTML;
       }
 
       // attendee, educator, vendormart crew, staff/event/entertainer
-      if (in_array($r->event->eventId, $e->mainEventIds)) {
+      if (in_array($r->event->eventId, $mainEventIds)) {
         if (0 == $package_event) {
           $package_event = $r->event->eventId;
         } else {
@@ -105,14 +104,13 @@ HTML;
           'event_date' => $item->event_date,
           'event_end_date' => $item->event_end_date,
           'category_id' => $item->main_category_id,
-          'isMainEvent' => false
         ];
 
         $registrantData->addRecord($item->id, $newRecord);
       }
 
       // (by id) attendee, educator, vendormart crew, staff/event/entertainer
-      if (in_array($item->id, $e->mainEventIds)) {
+      if (in_array($item->id, $mainEventIds)) {
         if ($package_event != 0) {
           $this->submit = '<div class="alert alert-danger">Multiple package events are not allowed. Click the Modify Cart button above to fix your cart.</div>';
           $this->show_error = true;
@@ -152,8 +150,8 @@ HTML;
 
     // Shift count check ignored for onsite
     if (!$onsiteActive) {
-      /** @var ClawCorpLib\Lib\ClawEvent */
-      foreach ($e->getEvents() as $event) {
+      /** @var ClawCorpLib\Lib\PackageInfo */
+      foreach ($eventConfig->packageInfos as $event) {
         if ($event->eventId == $package_event && $shift_count < $event->minShifts) {
           $this->submit = '<div class="alert alert-danger">Please select at least ' . $event->minShifts . ' shifts. Click Modify Cart to add more shifts.</div>';
           $this->show_error = true;
@@ -167,7 +165,7 @@ HTML;
       }
 
       // No shifts allowed for non-packages & VendorMart Crew
-      if ($package_event == $e->getMainEventByPackageType(EventPackageTypes::vendor_crew)->eventId && $shift_count > 0) {
+      if ($package_event == $eventConfig->getMainEventByPackageType(EventPackageTypes::vendor_crew)->eventId && $shift_count > 0) {
         $this->submit = '<div class="alert alert-danger">Your event package does not allow shift selection. Please modify your cart.</div>';
         $this->show_error = true;
       }
@@ -202,7 +200,7 @@ HTML;
     // Collect meal event ids
     $comboCount = 0;
     foreach ( [EventPackageTypes::combo_meal_1, EventPackageTypes::combo_meal_2, EventPackageTypes::combo_meal_3, EventPackageTypes::combo_meal_4] AS $meta ) {
-      $mealEvent = $abstractEvent->getClawEvent($meta);
+      $mealEvent = $eventConfig->getClawEvent($meta);
       if ( is_null($mealEvent) ) continue;
 
       if ( in_array( $mealEvent->eventId, $eventIds ) ) {

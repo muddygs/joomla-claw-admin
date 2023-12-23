@@ -3,7 +3,6 @@
 namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Enums\EventPackageTypes;
-use ClawCorpLib\Events\AbstractEvent;
 
 class CheckinRecord
 {
@@ -47,19 +46,19 @@ class CheckinRecord
   public array $mealIssueMapping = [];
 
   public function __construct(
-    public AbstractEvent $abstractEvent,
+    public EventConfig $eventConfig,
     public int $uid, 
   )
   {
-    // Initialize key ordering based on the implemented AbstractEvent ordering
+    // TODO: Still valid? : Initialize key ordering based on the implemented AbstractEvent ordering
     // Keeping separate since we need to separate these out for badge printing
 
     $dinnerCatId = ClawEvents::getCategoryId('dinner');
     $brunchCatId = ClawEvents::getCategoryId('buffet-breakfast');
     $buffetCatId = ClawEvents::getCategoryId('buffet');
 
-    /** @var \ClawCorpLib\Lib\ClawEvent  */
-    foreach ( $abstractEvent->getEvents() AS $clawEvent) {
+    /** @var \ClawCorpLib\Lib\PackageInfo  */
+    foreach ( $eventConfig->packageInfos AS $clawEvent) {
       switch ($clawEvent->category) {
         case $dinnerCatId:
           $this->dinners[$clawEvent->eventId] = '';

@@ -2,9 +2,9 @@
 
 namespace ClawCorpLib\Lib;
 
+use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Helpers\Config;
 use Joomla\CMS\Factory;
-use ClawCorpLib\Lib\Aliases;
 
 \defined('_JEXEC') or die;
 
@@ -116,7 +116,7 @@ class Ebmgmt
     $query
         ->insert($this->db->quoteName('#__claw_eventid_mapping'))
         ->columns($this->db->quoteName(['eventid','alias']))
-        ->values(implode(',', $this->db->quote([$eventId, $this->eventAlias])));
+        ->values(implode(',', (array)$this->db->quote([$eventId, $this->eventAlias])));
     $this->db->setQuery($query);
     $this->db->execute();
   }
@@ -413,14 +413,15 @@ class Ebmgmt
   static function autoHideShowShifts(): void {
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $eventList = ClawEvents::getEventList();
+    $eventList = EventInfo::getEventList();
+    $now = Factory::getDate();
 
     /** @var \ClawCorpLib\Lib\EventInfo */
     foreach ( $eventList AS $eventInfo ) {
-      if ( ! $eventInfo->mainAllowed ) continue;
+      if ( $eventInfo->eventType != EventTypes::main ) continue;
 
       // Skip past events
-      if ( $eventInfo->end_date < date('Y-m-d H:i:s') ) continue;
+      if ( $eventInfo->end_date < $now ) continue;
       
       echo 'Event: '.$eventInfo->description.PHP_EOL;
 
@@ -486,15 +487,13 @@ class Ebmgmt
     $dates = [];
 
     foreach ( $aliases AS $alias ) {
-      $events = new ClawEvents($alias);
+      $info = new EventInfo($alias);
 
-      $info = $events->getClawEventInfo();
-
-      if ( 'refunds' == $info->description ) continue;
+      if ( EventTypes::refunds == $info->eventType ) continue;
 
       $dates[$alias] = (object)[
-        'start' => $info->start_date,
-        'end' => $info->end_date
+        'start' => $info->start_date->toSql(),
+        'end' => $info->end_date->toSql()
       ];
     }
 
@@ -521,7 +520,7 @@ class Ebmgmt
             $query
               ->insert($db->quoteName('#__claw_eventid_mapping'))
               ->columns($db->quoteName(['eventid','alias']))
-              ->values(implode(',', $db->q([$e->id, $alias])));
+              ->values(implode(',', (array)$db->quote([$e->id, $alias])));
             $db->setQuery($query);
             $db->execute();
 

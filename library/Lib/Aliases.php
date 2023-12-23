@@ -79,7 +79,6 @@ class Aliases {
   const categoriesTicketedEvents = [
     'dinner',
     'buffet',
-    // 'parties',
     'buffet-breakfast'
   ];
 

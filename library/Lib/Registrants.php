@@ -36,7 +36,7 @@ class Registrants
     $db->setQuery($q);
     $userIds = array_unique($db->loadColumn());
 
-    $clawEventAlias = ClawEvents::eventIdToClawEventAlias($eventId);
+    $clawEventAlias = ClawEvents::eventIdtoAlias($eventId);
 
     if ( $clawEventAlias === false ) {
       die("Event from Event ID cannot be determined");

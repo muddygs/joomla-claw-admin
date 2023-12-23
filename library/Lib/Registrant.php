@@ -6,6 +6,8 @@ use Joomla\CMS\Factory;
 
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EbRecordIndexType;
+use ClawCorpLib\Enums\EventTypes;
+use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\Config;
 use UnexpectedValueException;
 
@@ -16,7 +18,7 @@ class Registrant
 
   var $badgeId = '';
 
-  private $clawEvents = null;
+  private EventConfig $eventConfig;
   public int $count = 0;
 
   public function __construct(
@@ -29,8 +31,8 @@ class Registrant
       throw(new UnexpectedValueException('User ID cannot be zero when retrieving registrant record'));
     }
     
-    $this->clawEvents = new ClawEvents($clawEventAlias);
-    $this->badgeId = $this->clawEvents->getClawEventInfo()->prefix.'-'. str_pad($uid, 5, '0', STR_PAD_LEFT);
+    $this->eventConfig = new EventConfig($clawEventAlias);
+    $this->badgeId = $this->eventConfig->eventInfo->prefix.'-'. str_pad($uid, 5, '0', STR_PAD_LEFT);
   }
 
   /**
@@ -40,9 +42,7 @@ class Registrant
    */
   public function getMainEvent(): ?RegistrantRecord
   {
-    $info = $this->clawEvents->getClawEventInfo();
-
-    if ( !$info->mainAllowed ) {
+    if ( $this->eventConfig->eventInfo->eventType != EventTypes::main ) {
       die(__FILE__.': cannot request Main Event for "any"');
     }
     if ( !count($this->_records) ) $this->loadCurrentEvents();
@@ -51,10 +51,10 @@ class Registrant
     foreach ( $this->_records as $r )
     {
       if ( EbPublishedState::published->value == $r->registrant->published ) {
-        if ( in_array($r->event->eventId, $this->clawEvents->mainEventIds)) {
+        if ( in_array($r->event->eventId, $this->eventConfig->getMainEventIds())) {
           $r->registrant->badgeId = $this->badgeId;
-          /** @var \ClawCorpLib\Lib\ClawEvent */
-          $e = $this->clawEvents->getEventByKey('eventId', $r->event->eventId);
+          /** @var \ClawCorpLib\Lib\PackageInfo */
+          $e = $this->eventConfig->getPackageInfoByProperty('eventId', $r->event->eventId);
           $r->registrant->eventPackageType = $e->eventPackageType;
           return $r;
         }
@@ -137,10 +137,8 @@ class Registrant
 
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $info = $this->clawEvents->getClawEventInfo();
-
-    $startDate = $info->start_date;
-    $endDate = $info->end_date;
+    $startDate = $this->eventConfig->eventInfo->start_date->toSql();
+    $endDate = $this->eventConfig->eventInfo->end_date->toSql();
   
     $columns = [
         'e.id as eventId','e.alias','e.title','e.event_date', 'e.event_end_date'
@@ -164,9 +162,9 @@ class Registrant
       ->where($db->qn('r.user_id') . ' = ' . $db->quote($this->uid))
       ->where($db->qn('r.invoice_number') . '!=' . $db->q('0'));
 
-    if ( $info->mainAllowed && !$this->enablePastEvents ) {
-      $q->where($db->qn('e.event_end_date') . '<' . $db->q($endDate))
-      ->where($db->qn('e.event_date') . '>' . $db->q($startDate))
+    if ( $this->eventConfig->eventInfo->eventType == EventTypes::main && !$this->enablePastEvents ) {
+      $q->where($db->qn('e.event_end_date') . '<=' . $db->q($endDate))
+      ->where($db->qn('e.event_date') . '>=' . $db->q($startDate))
       ->where($db->qn('r.published') . '=' . EbPublishedState::published->value);
     }
 
@@ -178,7 +176,7 @@ class Registrant
       $q->where($db->qn('e.id') . ' IS NOT NULL ');
     }
 
-    if ( 'refunds' == $info->description ) {
+    if ( EventTypes::refunds == $this->eventConfig->eventInfo->eventType ) {
       $q->where('('.$db->qn('r.published') . '=' . EbPublishedState::published->value.' OR '.$db->qn('r.published') . '=' . EbPublishedState::cancelled->value.')');
       $q->order($db->qn(['r.transaction_id']));
     }
@@ -191,10 +189,11 @@ class Registrant
 
     foreach( $records AS $index => $record )
     {
-      /** @var \ClawCorpLib\Lib\ClawEvent */
-      $event = $this->clawEvents->getEventByKey('eventId',$record->eventId,$mainOnly);
+      /** @var \ClawCorpLib\Lib\PackageInfo */
+      $event = $this->eventConfig->getPackageInfoByProperty('eventId', $record->event->eventId);
+
       if ( null != $event ) {
-        if ( $event->isMainEvent) $record->couponKey = $event->couponKey;
+        if ( $event->packageInfoType == PackageInfoTypes::main || $event->packageInfoType == PackageInfoTypes::daypass ) $record->couponKey = $event->couponKey;
         $record->eventPackageType = $event->eventPackageType;
       }
 
@@ -458,10 +457,9 @@ class Registrant
 		if (null == $row) die("Whoa! Something bad happened. Sorry. Please let us know how you got here: https://www.clawinfo.org/help");
 
 		$uid = $row->user_id;
-    $alias = ClawEvents::eventIdToClawEventAlias($row->event_id);
+    $alias = ClawEvents::eventIdtoAlias($row->event_id);
 
-    $e = new ClawEvents($alias);
-    $info = $e->getClawEventInfo();
+    $info = new EventInfo($alias);
     return registrant::generateNextInvoiceNumber($info->prefix.'-', $uid);
   }
 

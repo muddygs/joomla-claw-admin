@@ -61,26 +61,25 @@ class Checkin
       $mainEventRegistrantRecord = $registrant->getMainEvent();
     }
     
-    $events = new ClawEvents($alias);
-    $abstractEvent = $events->getEvent();
+    $eventConfig = new EventConfig($alias);
 
     // Cache meal labels
     $badgeValues = [];
-    /** @var \ClawCorpLib\Lib\ClawEvent */
-    foreach ( $events->getEvents() AS $e ) {
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ( $eventConfig->packageInfos AS $e ) {
       if ( $e->badgeValue != '' ) {
         $badgeValues[$e->eventId] = $e->badgeValue;
       }
     }
     
-    $this->r = new CheckinRecord($events->getEvent(), $this->uid);
+    $this->r = new CheckinRecord($eventConfig, $this->uid);
     // Error for no main event
     if ($mainEventRegistrantRecord == null) {
       $this->r->error = 'User does not have a registration package.';
       return false;
     }
 
-    $event = $events->getMainEventByPackageType($mainEventRegistrantRecord->registrant->eventPackageType);
+    $event = $eventConfig->getMainEventByPackageType($mainEventRegistrantRecord->registrant->eventPackageType);
 
     $this->r->package_eventId = $mainEventRegistrantRecord->event->eventId;
     $this->r->id = $mainEventRegistrantRecord->registrant->id;
@@ -128,8 +127,8 @@ class Checkin
     // Combo meals events
     $comboMeals = [];
     foreach ( [EventPackageTypes::combo_meal_1, EventPackageTypes::combo_meal_2, EventPackageTypes::combo_meal_3, EventPackageTypes::combo_meal_4] AS $comboMeal ) {
-      if ( is_null($abstractEvent->getClawEvent($comboMeal)) ) continue;
-      $comboMeals[] = $abstractEvent->getClawEvent($comboMeal);
+      if ( is_null($eventConfig->getClawEvent($comboMeal)) ) continue;
+      $comboMeals[] = $eventConfig->getClawEvent($comboMeal);
     }
 
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
@@ -142,6 +141,7 @@ class Checkin
 
       $comboCount = 0;
 
+      /** @var \ClawCorpLib\Lib\PackageInfo */
       foreach ( $comboMeals AS $comboMeal ) {
         if ( $r->event->eventId == $comboMeal->eventId ) {
           $comboCount++;
@@ -246,13 +246,13 @@ class Checkin
     $this->r->dayPassDay = '';
 
     switch($this->r->package_eventId) {
-      case $abstractEvent->getClawEvent(EventPackageTypes::day_pass_fri)->eventId:
+      case $eventConfig->getClawEvent(EventPackageTypes::day_pass_fri)->eventId:
         $this->r->dayPassDay = 'Fri';
         break;
-      case $abstractEvent->getClawEvent(EventPackageTypes::day_pass_sat)->eventId:
+      case $eventConfig->getClawEvent(EventPackageTypes::day_pass_sat)->eventId:
         $this->r->dayPassDay = 'Sat';
         break;
-      case $abstractEvent->getClawEvent(EventPackageTypes::day_pass_sun)->eventId:
+      case $eventConfig->getClawEvent(EventPackageTypes::day_pass_sun)->eventId:
         $this->r->dayPassDay = 'Sun';
         break;
     }
@@ -306,10 +306,10 @@ class Checkin
     }
 
     // Does this badge have this meal?
-    $events = new ClawEvents(Aliases::current(true));
+    $eventConfig = new EventConfig(Aliases::current(true));
 
-    /** @var \ClawCorpLib\Lib\ClawEvent */
-    $e = $events->getEventByKey('eventId',$eventId, false);
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    $e = $eventConfig->getPackageInfoByProperty('eventId',$eventId, false);
     if (null == $e) {
       return $this->htmlMsg('Unknown event id '.$eventId.' in '.Aliases::current(true), 'btn-dark');
     }
@@ -442,9 +442,9 @@ HTML;
     $results = [];
     $byName = false;
 
-    $e = new ClawEvents(Aliases::current(true));
-    $inMainEventIds = implode(',',$e->mainEventIds);
-    $prefix = $e->getClawEventInfo()->prefix;
+    $eventConfig = new EventConfig(Aliases::current(true));
+    $inMainEventIds = implode(',',$eventConfig->getMainEventIds());
+    $prefix = $eventConfig->eventInfo->prefix;
 
     $issued = ClawEvents::getFieldId('Z_BADGE_ISSUED');
     $search = strtoupper($search);
@@ -514,11 +514,8 @@ HTML;
 
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $events = new clawEvents(Aliases::current(true));
-
-    $mainEvents = $events->mainEventIds;
-
-    $mainEventIds = implode(',',$mainEvents);
+    $eventConfig = new EventConfig(Aliases::current(true));
+    $mainEventIds = implode(',',$eventConfig->getMainEventIds());
 
     $query = $db->getQuery(true);
     $query->select('r.id, r.registration_code')
