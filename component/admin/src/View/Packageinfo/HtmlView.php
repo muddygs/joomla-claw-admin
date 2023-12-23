@@ -21,34 +21,6 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 class HtmlView extends BaseHtmlView
 {
   /**
-   * The \JForm object
-   *
-   * @var  \JForm
-   */
-  protected $form;
-
-  /**
-   * The active item
-   *
-   * @var  object
-   */
-  protected $item;
-
-  /**
-   * The model state
-   *
-   * @var  object
-   */
-  protected $state;
-
-  /**
-   * The actions the user is authorised to perform
-   *
-   * @var  \JObject
-   */
-  protected $canDo;
-
-  /**
    * The search tools form
    *
    * @var    Form
@@ -94,10 +66,6 @@ class HtmlView extends BaseHtmlView
    */
   function display($tpl = null)
   {
-        /** @var $app AdministratorApplication */
-        $app = Factory::getApplication();
-        $data = $app->getUserState('com_claw.edit.packageinfo.data', []);
-    
     $this->form  = $this->get('Form');
     $this->item  = $this->get('Item');
     $this->state = $this->get('State');
