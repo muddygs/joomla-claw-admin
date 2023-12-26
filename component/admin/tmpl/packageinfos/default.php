@@ -11,6 +11,7 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 
+use ClawCorpLib\Enums\PackageInfoTypes;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -47,6 +48,9 @@ $view = "packageinfos";
               <?php echo HTMLHelper::_('searchtools.sort', 'JSTATUS', 'a.published', $listDirn, $listOrder); ?>
             </th>
             <th scope="col">
+              Type
+            </th>
+            <th scope="col">
               <?php echo HTMLHelper::_('searchtools.sort', 'Alias', 'a.alias', $listDirn, $listOrder); ?>
             </th>
             <th scope="col">
@@ -77,9 +81,21 @@ $view = "packageinfos";
               </td>
 
               <td>
-                <a href="<?php echo Route::_('index.php?option=com_claw&task=packageinfo.edit&id=' . $item->id); ?>" title="Edit Package Info">
-                  <?php echo $item->alias ?>
-                </a>
+                <?= PackageInfoTypes::from($item->packageInfoType)->toString()?>
+              </td>
+              <td>
+                <?php
+                  if ( $item->eventId != 0 ): ?>
+                    <a href="<?php echo Route::_('index.php?option=com_eventbooking&view=event&id=' . $item->eventId); ?>" title="Edit in Event Booking" target="_blank">
+                      <?= $item->alias. ' (' . $item->eventId . ')' ?>
+                    </a>
+                  <?php
+                  elseif ( $item->packageInfoType == PackageInfoTypes::coupononly->value ):
+                    echo 'N/A';
+                  else:
+                    echo $item->alias;
+                  endif;
+                ?>
               </td>
 
               <td>
