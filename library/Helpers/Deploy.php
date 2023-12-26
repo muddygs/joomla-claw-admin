@@ -3,6 +3,7 @@
 namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Enums\PackageInfoTypes;
+use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Ebmgmt;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\EventInfo;
@@ -25,11 +26,11 @@ class Deploy
 
     $eventConfig = new EventConfig($eventAlias);
     $info = $eventConfig->eventInfo;
-    $events = $eventConfig->packageInfos;
+    $packageInfos = $eventConfig->packageInfos;
 
     // Base times to offset by "time" parameter for each event
     $cancel_before_date = $info->cancelBy;
-    $startDate = $info->modify('Thursday 9AM');
+    $startDate = $info->modify('Wed 9AM');
     $endDate = $info->modify('next Monday midnight');;
 
     // start and ending usability of these events
@@ -39,23 +40,28 @@ class Deploy
     $article_id = $info->termsArticleId;
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
-    foreach ($events as $event) {
-      $title = $event->description;
-      $event->alias = strtolower($info->prefix . '-' . $event->eventPackageType->name);
+    foreach ($packageInfos as $packageInfo) {
+      if ( $packageInfo->eventId > 0 ) {
+        $log[] =  "<p>Already deployed: $packageInfo->description @ $packageInfo->eventId</p>";
+        continue;
+      }
+
+      $name = str_replace('_', '-', $packageInfo->eventPackageType->name);
+      $packageInfo->alias = strtolower($info->prefix . '-' . $name);
 
       $start = $startDate;
       $end = $endDate;
       $cutoff = $endDate;
 
-      switch ( $event->packageInfoType ) {
+      switch ( $packageInfo->packageInfoType ) {
         case PackageInfoTypes::main:
-          $event->start = $startDate;
-          $event->end = $endDate;
+          $packageInfo->start = $startDate;
+          $packageInfo->end = $endDate;
         break;
         
         case PackageInfoTypes::addon:
-          $start = Factory::getDate($event->start)->toSql();
-          $end = Factory::getDate($event->end)->toSql();
+          $start = Factory::getDate($packageInfo->start)->toSql();
+          $end = Factory::getDate($packageInfo->end)->toSql();
   
           $origin = new DateTimeImmutable($start);
           $target = new DateTimeImmutable($end);
@@ -63,17 +69,28 @@ class Deploy
   
           // If the event is less than 8 hours, then the cutoff is 3 hours before the event
           if ($interval->h <= 8) {
-            $cutoff = Factory::getDate($event->start);
+            $cutoff = Factory::getDate($packageInfo->start);
             $cutoff = $cutoff->modify('-3 hours')->toSql();
           }
         break;
 
+        case PackageInfoTypes::daypass:
+          $start = Factory::getDate($packageInfo->start)->toSql();
+          $end = Factory::getDate($packageInfo->end)->toSql();
+        break;
+
+        case PackageInfoTypes::coupononly:
+          continue 2;
+        break;
+
         default:
-          die('Unhandled event type: ' . $event->packageInfoType->toString());
+          var_dump($packageInfo);
+          die('Unhandled event type: ' . $packageInfo->packageInfoType->toString());
+
         break;
       }
 
-      $insert = new ebMgmt($eventAlias, $event->category, $event->alias, $info->prefix . ' ' . $title, $event->description);
+      $insert = new ebMgmt($eventAlias, $packageInfo->category, $packageInfo->alias, $info->prefix . ' ' . $packageInfo->description, $packageInfo->description);
       $insert->set('article_id', $article_id, false);
       $insert->set('cancel_before_date', $cancel_before_date->toSql());
       $insert->set('cut_off_date', $cutoff);
@@ -81,17 +98,26 @@ class Deploy
       $insert->set('event_end_date', $end);
       $insert->set('publish_down', $publish_down);
 
-      $insert->set('individual_price', $event->fee);
+      $insert->set('individual_price', $packageInfo->fee);
       $insert->set('registration_start_date', $registration_start_date);
       $insert->set('payment_methods', 2); // Credit Cart
 
       $eventId = $insert->insert();
       if ($eventId == 0) {
-        $log[] =  "<p>Skipping existing: $title</p>";
+        $log[] =  "<p>Skipping existing: $packageInfo->description</p>";
+
+        // So the alias exists, let's pull the event id from the database
+        $eventId = ClawEvents::getEventId($packageInfo->alias, true);
+        if ( $eventId != 0) {
+          $packageInfo->eventId = $eventId;
+          $packageInfo->save();
+          $log[] = "<p>Updated: $packageInfo->description at event id $eventId</p>";
+        }
+
       } else {
-        $log[] =  "<p>Added: $title at event id $eventId</p>";
-        $event->eventId = $eventId;
-        $event->save();
+        $log[] =  "<p>Added: $packageInfo->description at event id $eventId</p>";
+        $packageInfo->eventId = $eventId;
+        $packageInfo->save();
       }
     }
     return implode("\n", $log);
