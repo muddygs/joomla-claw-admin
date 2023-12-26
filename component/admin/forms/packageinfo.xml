@@ -16,7 +16,8 @@
     required="true"
     multiple="false"
     default=""
-    validate="options" />
+    validate="options"
+  />
 
   <field name="published"
     type="list"
@@ -143,6 +144,7 @@
     required="false"
     multiple="true"
     default=""
+    layout="joomla.form.field.list-fancy-select"
   >
     <option value="">Select Groups</option>
   </field>
@@ -215,7 +217,7 @@
     required="true"
     filter="uint"
     default="0"
-    showon="packageInfoType:2"
+    showon="packageInfoType:2,3"
   />
 
   <field
@@ -244,11 +246,13 @@
 
   <field
     name="meta"
-    type="text"
+    type="list"
     label="Meta Events for Combos:"
-    description="Comma separated list of event IDs"
+    description="Select combo events."
     required="false"
-    filter="string"
     default=""
+    layout="joomla.form.field.list-fancy-select"
+    multiple="true"
+    showon="packageInfoType:3[OR]eventPackageType:20"
   />
 </form>
