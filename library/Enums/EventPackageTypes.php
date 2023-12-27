@@ -47,6 +47,9 @@ enum EventPackageTypes: int
   case combo_meal_3 = 102;
   case combo_meal_4 = 103;
 
+  case speeddating = 901;
+  case sponsorship = 902;
+
   public function toString(): string
   {
     return match ($this) {
@@ -86,10 +89,16 @@ enum EventPackageTypes: int
     $result = [];
 
     foreach ( EventPackageTypes::cases() as $c ) {
-      if ( $c == EventPackageTypes::none ) continue;
-      if ( $c == EventPackageTypes::vip2 ) continue;
-      if ( $c == EventPackageTypes::addons ) continue;
-      
+      if (
+        $c == EventPackageTypes::none ||
+        $c == EventPackageTypes::vip2 ||
+        $c == EventPackageTypes::addons ||
+        $c == EventPackageTypes::speeddating ||
+        $c == EventPackageTypes::sponsorship
+      ) {
+        continue;
+      }      
+
       // Convert name to string
       $name = $c->name;
       // Remove underscores

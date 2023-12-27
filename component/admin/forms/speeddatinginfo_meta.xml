@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+  <field
+    name="role"
+    type="text"
+    label="Role:"
+    required="true"
+    filter="string"
+  />
+</form>

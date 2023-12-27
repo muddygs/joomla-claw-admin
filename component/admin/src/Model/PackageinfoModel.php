@@ -31,9 +31,9 @@ class PackageinfoModel extends EventconfigModel
 
   public function getForm($data = array(), $loadData = true)
   {
-    $form = parent::getForm($data, $loadData);
+    $form = $this->loadForm('com_claw.packageinfo', 'packageinfo', array('control' => 'jform', 'load_data' => $loadData));
     if (empty($form)) return false;
-
+  
     if ( !$loadData ) return $form;
 
     // Populate combo select list from any deployed events

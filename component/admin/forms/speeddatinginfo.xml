@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
+  <field
+    name="id"
+    type="hidden"
+    label="JGLOBAL_FIELD_ID_LABEL"
+    class="readonly"
+    default="0"
+    readonly="true"
+  />
+
+  <field
+    name="eventAlias"
+    type="ClawEventsList"
+    label="Event Selection"
+    required="true"
+    multiple="false"
+    default=""
+    validate="options" />
+
+  <field name="published"
+    type="list"
+    label="JSTATUS"
+    class="form-select-color-state"
+    default="1"
+    validate="options">
+    <option value="1">JPUBLISHED</option>
+    <option value="0">JUNPUBLISHED</option>
+  </field>
+
+  <field
+    name="description"
+    type="text"
+    label="Event Description:"
+    required="true"
+    maxlength="255"
+    filter="string"
+  />
+
+  <field
+    name="alias"
+    type="text"
+    label="Event Alias:"
+    required="true"
+    class="readonly"
+    default="Assigned during publication"
+    readonly="true"
+  />
+
+  <field
+    name="day"
+    type="ClawDaysList"
+    label="Event Day"
+    description="Select day"
+    multiple="false"
+    default="0"
+  >
+  </field>
+
+  <field
+    name="start_time"
+    type="time"
+    label="Start Time"
+    description="Start time of event (all events 45 minutes)"
+    required="true"
+    min="00:00"
+    max="23:59"
+    default="00:00"
+  />
+
+  <field
+    name="meta"
+    type="subform"
+    label="Enter roles:"
+    required="true"
+    multiple="true"
+    min="1"
+    max="3"
+    formsource="/administrator/components/com_claw/forms/speeddatinginfo_meta.xml"
+  />
+</form>

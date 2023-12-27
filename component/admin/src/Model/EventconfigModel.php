@@ -79,22 +79,12 @@ class EventconfigModel extends AdminModel
   }
 
   /**
-   * Method to get the record form.
+   * Method to get the record form. Implemented by child classes.
    *
-   * @param   array    $data      Data for the form.
-   * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
-   *
-   * @return  Form|boolean  A Form object on success, false on failure
-   *
-   * @since   1.6
    */
   public function getForm($data = array(), $loadData = true)
   {
-    $form = $this->loadForm('com_claw.packageinfo', 'packageinfo', array('control' => 'jform', 'load_data' => $loadData));
-
-    if (empty($form)) return false;
-
-    return $form;
+    die('Must be implemented in child class.');
   }
 
   /**
@@ -123,6 +113,18 @@ class EventconfigModel extends AdminModel
 
         // Remove empty values
         if ( is_array($data->$field) ) $data->$field = array_filter($data->$field);
+      }
+
+      // Speeddating subform needs meta in object format
+      if ($data->packageInfoType == PackageInfoTypes::speeddating->value) {
+        $meta = (object) [];
+
+        for ( $i = 0; $i < sizeof($data->meta); $i++ ) {
+          $key = 'meta'.$i;
+          $meta->$key = (object) ['role' => $data->meta[$i]];
+        }
+
+        $data->meta = $meta;
       }
 
       // Convert start and end times to day, start_time, end_time

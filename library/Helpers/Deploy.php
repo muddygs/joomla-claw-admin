@@ -83,10 +83,16 @@ class Deploy
           continue 2;
         break;
 
-        default:
-          var_dump($packageInfo);
-          die('Unhandled event type: ' . $packageInfo->packageInfoType->toString());
+        // case PackageInfoTypes::speeddating:
+        //   $start = Factory::getDate($packageInfo->start);
+        //   $end = clone $start;
+        //   $end = $end->modify('+45 minutes')->toSql();
+        //   $start = $start->toSql();
+        //   $packageInfo->alias = strtolower($info->prefix . '-sd-' . $name);
+        // break;
 
+        default:
+          continue 2;
         break;
       }
 
