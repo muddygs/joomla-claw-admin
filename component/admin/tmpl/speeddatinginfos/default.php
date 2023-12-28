@@ -54,7 +54,7 @@ $view = "speeddatinginfos";
               <?php echo HTMLHelper::_('searchtools.sort', 'Alias', 'a.alias', $listDirn, $listOrder); ?>
             </th>
             <th scope="col">
-              <?php echo HTMLHelper::_('searchtools.sort', 'Description', 'a.description', $listDirn, $listOrder); ?>
+              <?php echo HTMLHelper::_('searchtools.sort', 'Title', 'a.title', $listDirn, $listOrder); ?>
             </th>
             <th scope="col">Start</th>
             <th scope="col">End</th>
@@ -100,7 +100,7 @@ $view = "speeddatinginfos";
 
               <td>
                 <a href="<?php echo Route::_('index.php?option=com_claw&task=speeddatinginfo.edit&id=' . $item->id); ?>" title="Edit Package Info">
-                  <?php echo $item->description ?>
+                  <?php echo $item->title ?>
                 </a>
               </td>
 

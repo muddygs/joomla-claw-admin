@@ -29,9 +29,9 @@
   </field>
 
   <field
-    name="description"
+    name="title"
     type="text"
-    label="Event Description:"
+    label="Event Title:"
     required="true"
     maxlength="255"
     filter="string"

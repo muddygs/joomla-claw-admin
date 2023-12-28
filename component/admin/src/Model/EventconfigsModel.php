@@ -31,7 +31,8 @@ class EventConfigsModel extends ListModel
     'packageInfoType',
     'eventId',
     'alias',
-    'description',
+    'title',
+    // 'description',
     'start',
     'end',
   ];	
@@ -77,7 +78,7 @@ class EventConfigsModel extends ListModel
    *
    * @since   3.0.1
    */
-  protected function populateState($ordering = 'a.description', $direction = 'ASC')
+  protected function populateState($ordering = 'a.title', $direction = 'ASC')
   {
     $app = Factory::getApplication();
 
@@ -148,7 +149,7 @@ class EventConfigsModel extends ListModel
 
     if (!empty($search)) {
       $search = $this->db->quote('%' . $this->db->escape(trim($search), true) . '%');
-      $query->where('(a.description LIKE ' . $search . ') OR (a.eventAlias LIKE ' . $search . ')');
+      $query->where('(a.title LIKE ' . $search . ') OR (a.eventAlias LIKE ' . $search . ')');
     }
     
     if ( $event != null ) {
@@ -157,7 +158,7 @@ class EventConfigsModel extends ListModel
     }
 
     // Add the list ordering clause.
-    $orderCol  = $this->state->get('list.ordering', 'a.description');
+    $orderCol  = $this->state->get('list.ordering', 'a.title');
     $orderDirn = $this->state->get('list.direction', 'ASC');
 
     $query->order($this->db->escape($orderCol) . ' ' . $this->db->escape($orderDirn));

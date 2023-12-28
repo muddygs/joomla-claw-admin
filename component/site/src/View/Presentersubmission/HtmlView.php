@@ -30,7 +30,23 @@ class HtmlView extends BaseHtmlView
 
     $this->state = $this->get('State');
     $this->form  = $this->get('Form');
+    /** @var \Joomla\CMS\Object\CMSObject */
     $this->item  = $this->get('Item');
+
+    // $input = $app->input;
+    // $data = $input->get('jform', [], 'array');
+
+    // if ( count($data) && $this->state->task == 'submit') {
+    //   // Copy data into $this->item properties
+    //   foreach ($data as $key => $value) {
+    //     $this->item->$key = $value;
+    //     /** @var \Joomla\CMS\Form\FormField */
+		//     $parentField = $this->form->getField($key);
+    //     if (is_object($parentField) && method_exists($parentField, 'setValue')) {
+    //       $parentField->setValue($value);
+    //     }
+    //   }
+    // }
 
     // Validate ownership of the record
     if (property_exists($this->item, 'id')) {

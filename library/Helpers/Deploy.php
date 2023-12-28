@@ -42,7 +42,7 @@ class Deploy
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
       if ( $packageInfo->eventId > 0 ) {
-        $log[] =  "<p>Already deployed: $packageInfo->description @ $packageInfo->eventId</p>";
+        $log[] =  "<p>Already deployed: $packageInfo->title @ $packageInfo->eventId</p>";
         continue;
       }
 
@@ -96,7 +96,7 @@ class Deploy
         break;
       }
 
-      $insert = new ebMgmt($eventAlias, $packageInfo->category, $packageInfo->alias, $info->prefix . ' ' . $packageInfo->description, $packageInfo->description);
+      $insert = new ebMgmt($eventAlias, $packageInfo->category, $packageInfo->alias, $info->prefix . ' ' . $packageInfo->title, $packageInfo->title);
       $insert->set('article_id', $article_id, false);
       $insert->set('cancel_before_date', $cancel_before_date->toSql());
       $insert->set('cut_off_date', $cutoff);
@@ -110,18 +110,18 @@ class Deploy
 
       $eventId = $insert->insert();
       if ($eventId == 0) {
-        $log[] =  "<p>Skipping existing: $packageInfo->description</p>";
+        $log[] =  "<p>Skipping existing: $packageInfo->title</p>";
 
         // So the alias exists, let's pull the event id from the database
         $eventId = ClawEvents::getEventId($packageInfo->alias, true);
         if ( $eventId != 0) {
           $packageInfo->eventId = $eventId;
           $packageInfo->save();
-          $log[] = "<p>Updated: $packageInfo->description at event id $eventId</p>";
+          $log[] = "<p>Updated: $packageInfo->title at event id $eventId</p>";
         }
 
       } else {
-        $log[] =  "<p>Added: $packageInfo->description at event id $eventId</p>";
+        $log[] =  "<p>Added: $packageInfo->title at event id $eventId</p>";
         $packageInfo->eventId = $eventId;
         $packageInfo->save();
       }

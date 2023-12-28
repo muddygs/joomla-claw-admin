@@ -438,7 +438,7 @@ class Authnetprofile {
       foreach ($recordsByEventId as $registrant) {
         $profile = new Authnetprofile($registrant, $cron);
         if ( !$description ) {
-          $description = $event->description;
+          $description = $event->title;
           $profile->profilelog([$description], 'h1');
         }
 

@@ -98,9 +98,9 @@ class CoupongeneratorModel extends FormModel
         if ( $event->couponValue < 1 ) continue;
 
         if ( $event->packageInfoType == PackageInfoTypes::main || $event->packageInfoType == PackageInfoTypes::coupononly ) {
-          $events[$c] = $event->description . ' (' . $c . ') - $' . $event->couponValue;
+          $events[$c] = $event->title . ' (' . $c . ') - $' . $event->couponValue;
         } else if ( $event->packageInfoType == PackageInfoTypes::addon ) {
-          $description = $event->description . ' (' . $c . ') - $' . $event->couponValue;
+          $description = $event->title . ' (' . $c . ') - $' . $event->couponValue;
 
           $addons .= <<< HTML
 <div class="form-check">

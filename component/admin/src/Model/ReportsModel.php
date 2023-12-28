@@ -214,7 +214,7 @@ class ReportsModel extends BaseDatabaseModel
 
         $items[$packageInfo->eventId] = (object)[
           'eventId' => $packageInfo->eventId,
-          'description' => $packageInfo->description,
+          'description' => $packageInfo->title,
           'category' => $category,
           'count' => Registrants::getRegistrantCount($packageInfo->eventId),
           'subcount' => $subcount,

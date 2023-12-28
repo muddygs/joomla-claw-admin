@@ -49,7 +49,7 @@ foreach ( $events AS $event )
 
   $mainEventIds[] = $event->eventId;
 
-  echo "<h2>Checking {$event->description} ({$event->eventId})</h2>\n";
+  echo "<h2>Checking {$event->title} ({$event->eventId})</h2>\n";
   $query = $db->getQuery(true);
   $query->select(['id','user_id'])
     ->from($db->qn('#__eb_registrants'))

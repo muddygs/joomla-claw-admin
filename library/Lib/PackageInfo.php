@@ -17,7 +17,7 @@ use Joomla\CMS\Date\Date;
 class PackageInfo
 {
     public EbPublishedState $published = EbPublishedState::published;
-    public string $description = '';
+    public string $title = '';
     public string $alias = '';
     public EventPackageTypes $eventPackageType = EventPackageTypes::none;
     public PackageInfoTypes $packageInfoType = PackageInfoTypes::none;
@@ -55,7 +55,7 @@ class PackageInfo
 
       $result->id = $this->id;
       $result->published = $this->published->value;
-      $result->description = $this->description;
+      $result->title = $this->title;
       $result->alias = $this->alias;
       $result->eventPackageType = $this->eventPackageType->value;
       $result->packageInfoType = $this->packageInfoType->value;
@@ -94,7 +94,7 @@ class PackageInfo
 
       $this->id = $result->id;
       $this->published = EbPublishedState::from($result->published);
-      $this->description = $result->description;
+      $this->title = $result->title;
       $this->alias = $result->alias;
       $this->eventPackageType = EventPackageTypes::FindValue($result->eventPackageType);
       $this->packageInfoType = PackageInfoTypes::FindValue($result->packageInfoType);
@@ -130,7 +130,7 @@ class PackageInfo
       $eid = $this->eventId;
   
       $url = <<< HTML
-          <a class="$class" href="$baseURL?task=cart.add_cart&id=$eid&pt=$pt">$this->description</a>
+          <a class="$class" href="$baseURL?task=cart.add_cart&id=$eid&pt=$pt">$this->title</a>
   HTML;
       return $url;
     }

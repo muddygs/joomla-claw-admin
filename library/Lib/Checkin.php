@@ -319,9 +319,9 @@ class Checkin
 
     if ( array_search($eventId, $this->r->issuedMealTickets) !== false ) {
       if ( $e->eventPackageType == EventPackageTypes::dinner) {
-        return $this->htmlMsg($e->description . ' ticket already issued: '. $this->r->dinners[$e->eventId], 'btn-dark');
+        return $this->htmlMsg($e->title . ' ticket already issued: '. $this->r->dinners[$e->eventId], 'btn-dark');
       } else {
-        return $this->htmlMsg($e->description . ' ticket already issued', 'btn-dark');
+        return $this->htmlMsg($e->title . ' ticket already issued', 'btn-dark');
       }
     }
 
@@ -380,11 +380,11 @@ class Checkin
       case EventPackageTypes::brunch_sat:
       case EventPackageTypes::brunch_sun:
         if ($this->r->brunches[$e->eventId] == '') {
-          return $this->htmlMsg($e->description.' not assigned to this badge', 'btn-dark');
+          return $this->htmlMsg($e->title.' not assigned to this badge', 'btn-dark');
         }
 
         $this->issueMealTicket($eventId,$ticketEventId);
-        return $this->htmlMsg($e->description.' ticket issued for: '.$this->r->badgeId, 'btn-info');
+        return $this->htmlMsg($e->title.' ticket issued for: '.$this->r->badgeId, 'btn-info');
         break;
 
       case EventPackageTypes::buffet_wed:
@@ -392,11 +392,11 @@ class Checkin
       case EventPackageTypes::buffet_fri:
       case EventPackageTypes::buffet_sun:
         if ($this->r->buffets[$e->eventId] == '') {
-          return $this->htmlMsg($e->description.' not assigned to this badge', 'btn-dark');
+          return $this->htmlMsg($e->title.' not assigned to this badge', 'btn-dark');
         }
 
         $this->issueMealTicket($eventId, $ticketEventId);
-        return $this->htmlMsg($e->description.' ticket issued for: '.$this->r->badgeId, 'btn-info');
+        return $this->htmlMsg($e->title.' ticket issued for: '.$this->r->badgeId, 'btn-info');
         break;
 
       default:

@@ -217,7 +217,7 @@ if ($coupon != '') {
 HTML;
 }
 
-$eventDescription = $addons == false ? $regEvent->description . ' Registration' : $mainEvent->event->title. ' Addons';
+$eventDescription = $addons == false ? $regEvent->title . ' Registration' : $mainEvent->event->title. ' Addons';
 $optionslink = Helpers::sessionGet('optionslink','/');
 
 ?>

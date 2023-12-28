@@ -66,7 +66,7 @@ class PackageinfoModel extends EventconfigModel
           $p->published == EbPublishedState::published &&
           $p->packageInfoType == PackageInfoTypes::addon
         ) {
-          $parentField->addOption($p->description, ['value' => $p->eventId]);
+          $parentField->addOption($p->title, ['value' => $p->eventId]);
         }
       }
     } else if ( $eventPackageType == EventPackageTypes::vip ) {
@@ -80,7 +80,7 @@ class PackageinfoModel extends EventconfigModel
             $p->eventPackageType == EventPackageTypes::combo_meal_3 ||
             $p->eventPackageType == EventPackageTypes::combo_meal_4 )
         ) {
-          $parentField->addOption($p->description, ['value' => $p->eventId]);
+          $parentField->addOption($p->title, ['value' => $p->eventId]);
         }
       }
 

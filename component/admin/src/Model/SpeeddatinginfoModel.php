@@ -25,6 +25,7 @@ class SpeeddatinginfoModel extends EventconfigModel
   public function save($data)
   {
     // Save the data in the session in case of error
+    /** @var \Joomla\CMS\Application\AdministratorApplication */
     $app = Factory::getApplication();
     $app->setUserState('com_claw.edit.packageinfo.data', $data);
 

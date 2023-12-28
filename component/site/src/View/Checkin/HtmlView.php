@@ -75,7 +75,7 @@ class HtmlView extends BaseHtmlView
         /** @var \ClawCorpLib\Lib\PackageInfo */
         foreach ( $eventConfig->packageInfos AS $e ) {
           if ( $e->category == $catId ) {
-            $this->meals[$e->eventId] = '- '.$e->description;
+            $this->meals[$e->eventId] = '- '.$e->title;
           }
         }
       }

@@ -130,7 +130,7 @@ class PackageinfoController extends FormController
       $data['eventPackageType'] = 0;
       $data['couponKey'] = '';
       $data['eventId'] = 0;
-      $data['description'] = 'New Record';
+      $data['title'] = 'New Record';
 
       // Model will use this state in loadFormData() to populate the form
       $this->app->setUserState('com_claw.edit.packageinfo.data', $data);
