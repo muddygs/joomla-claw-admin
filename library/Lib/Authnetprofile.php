@@ -423,7 +423,7 @@ class Authnetprofile {
     // Used for generic registrant access
     $registrants = new \ClawCorpLib\Lib\Registrants('refunds');
 
-    $eventConfig = new EventConfig($eventAlias);
+    $eventConfig = new EventConfig($eventAlias, []);
 
     $count = 0;
 
