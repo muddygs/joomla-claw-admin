@@ -4,165 +4,15 @@ namespace ClawCorpLib\Lib;
 
 use Joomla\CMS\Factory;
 
-use ClawCorpLib\Enums\EventTypes;
-use ClawCorpLib\Helpers\Config;
-
-use ClawCorpLib\Lib\Aliases;
 use UnexpectedValueException;
 
 \defined('_JEXEC') or die;
 
 class ClawEvents
 {
-  private array  $couponRequired = [];
-  private array $overlapEventCategories = [];
-
-  private EventConfig $event;
-
   private static $eventIds = null;
   private static $categoryIds = null;
   private static $fieldIds = null;
-
-  public function __construct(string $clawEventAlias)
-  {
-    if (!in_array($clawEventAlias, Aliases::active())) {
-      die(__FILE__ . ': Invalid event request: ' . $clawEventAlias);
-    }
-
-    self::mapEventAliases();
-    self::mapCategoryAliases();
-    self::mapFieldIds();
-
-    // $this->clawEventAlias = $clawEventAlias;
-
-    if ($clawEventAlias != 'refunds') {
-      $this->event = new EventConfig($clawEventAlias);
-    } else {
-      die('Historic event mapping not yet implemented');
-      $this->defineHistoricEventMapping();
-    }
-
-    if ($this->event->eventInfo->eventType == EventTypes::main) {
-      /** @var \ClawCorpLib\Lib\PackageInfo */
-      foreach ($this->event->packageInfos as $o) {
-        if ($o->requiresCoupon) $this->couponRequired[] = $o->eventId;
-      }
-    }
-
-    $this->couponRequired = array_unique($this->couponRequired);
-
-
-    foreach (Aliases::overlapCategories() as $v) {
-      $this->overlapEventCategories[] = self::$categoryIds[$v]->id;
-    }
-  }
-
-  /**
-   * @param string $key ClawEvent property to search under
-   * @param string $value Value to find
-   * @param bool $mainOnly Main events only (by default) IFF clawEvent
-   * @return null|object Event object (ClawEvent)
-   */
-  // public function getEventByKey(string $key, mixed $value, bool $mainOnly = true): ?\ClawCorpLib\Lib\ClawEvent
-  // {
-  //   $result = null;
-  //   $found = 0;
-
-  //   /** @var \ClawCorpLib\Lib\PackageInfo */
-  //   foreach ($this->event->packageInfos as $e) {
-  //     if (!property_exists($e, $key)) die(__FILE__ . ': Unknown key requested: ' . $key);
-
-  //     if ($mainOnly && !$e->isMainEvent) continue;
-  //     if ( $e->couponOnly ) continue;
-
-  //     if ($e->$key == $value) {
-  //       $result = $e;
-  //       $found++;
-  //     }
-  //   }
-
-  //   if ($found > 1) {
-  //     var_dump($key);
-  //     var_dump($value);
-  //     var_dump($this->event->packageInfos);
-  //     var_dump($result);
-  //     die('Duplicate results found. Did you load multiple events?');
-  //   }
-  //   return $result;
-  // }
-
-  // /**
-  //  * Returns the clawEvent for a given coupon prefix (e.g., A = attendee event )
-  //  * @param string $couponCode Coupon Prefix Letter
-  //  * @return null|clawEvent 
-  //  */
-  // public function getEventByCouponCode(string $couponCode, bool $quiet=false): ?ClawEvent
-  // {
-  //   $result = null;
-  //   $found = 0;
-  //   foreach ($this->event->packageInfos as $e) {
-  //     if ($e->couponKey == $couponCode) {
-  //       $result = $e;
-  //       $found++;
-  //     }
-  //   }
-
-  //   if ( !$quiet) {
-  //     if ($found > 1) die('Duplicate coupon codes loaded. Did you load multiple events?');
-  //     if (0 == $found) die('Unknown coupon code requested: ' . $couponCode);
-  //   }
-
-  //   return $result;
-  // }
-
-  // /**
-  //  * Returns the ClawEvent for a given event package type; the target event must be a main event
-  //  * @param EventPackageTypes $packageType 
-  //  * @return ClawEvent 
-  //  */
-  // public function getMainEventByPackageType(EventPackageTypes $packageType): ClawEvent
-  // {
-  //   $result = null;
-  //   $found = 0;
-  //   /** @var \ClawCorpLib\Lib\ClawEvent */
-  //   foreach ($this->event->getEvents() as $e) {
-  //     if ($e->eventPackageType == $packageType && $e->isMainEvent) {
-  //       $result = $e;
-  //       $found++;
-  //     }
-  //   }
-
-  //   if ($found > 1) die('Duplicate package types loaded. Did you load multiple events?');
-  //   if (0 == $found) {
-  //     die('Unconfigured package type requested: ' . $packageType->name);
-  //   }
-
-  //   return $result;
-  // }
-
-  // /**
-  //  * Returns an array of all the enrolled events in this class when initialized
-  //  * @return array List of event IDs
-  //  */
-  // public function getEventIds(bool $mainOnly = false): array
-  // {
-  //   if ( !$mainOnly) return $this->event->getEventIds();
-
-  //   $result = [];
-  //   foreach ($this->event->getEvents() as $e) {
-  //     if ($e->isMainEvent) $result[] = $e->eventId;
-  //   }
-  //   return $result;
-  // }
-
-  /**
-   * Provides mapping of event alias to event id
-   * @return array Alias to event id mapping
-   */
-  // public static function getEventIds(): array {
-  //     if ( self::$eventIds == null ) self::mapEventAliases();
-  //     return self::$eventIds;
-  // }
 
   /**
    * Converts event alias to its id
@@ -187,29 +37,6 @@ class ClawEvents
   }
 
   /**
-   * Converts event alias to its id
-   * @param string $eventAlias Event alias in Event Booking
-   * @param bool $quiet Quietly return 0 if alias does not exist
-   * @return int Event ID
-   */
-  public static function getEventIdByAlias(string $eventAlias, bool $quiet = false): int
-  {
-    $eventAlias = strtolower(trim($eventAlias));
-
-    if ('' == $eventAlias) die(__FILE__ . ': event alias cannot be blank');
-
-    if (null == self::$eventIds) self::mapEventAliases();
-
-    if (array_key_exists($eventAlias, self::$eventIds)) {
-      return intval(self::$eventIds[$eventAlias]->id);
-    } else {
-      if ($quiet) return 0;
-      throw new UnexpectedValueException(__FILE__ . ': Unknown eventAlias: ' . $eventAlias);
-    }
-  }
-
-
-  /**
    * Given a category alias, return its category id
    * @param string Category alias in Event Booking
    * @return int Category ID
@@ -218,7 +45,7 @@ class ClawEvents
   {
     if (self::$categoryIds == null) self::mapCategoryAliases();
     if (!array_key_exists($categoryAlias, self::$categoryIds)) {
-      die(__FILE__ . ": Unknown category $categoryAlias");
+      throw new UnexpectedValueException(__FILE__ . ': Unknown category alias: ' . $categoryAlias);
     }
 
     return self::$categoryIds[$categoryAlias]->id;
@@ -250,43 +77,6 @@ class ClawEvents
     return $result;
   }
 
-
-//   /** Returns list of event raw rows AND "total_registrants" for each event
-//    * @param array $categoryIds Array of category ids
-//    * @param string $orderBy Any valid database column for eb_events, default "title"
-//    * @return array Array of objects for "id" and "title" of all events sorted by title
-//    */
-//   public static function getEventsByCategoryId(array $categoryIds, EventInfo $clawEventInfo, string $orderBy = 'title'): array
-//   {
-//     /** @var \Joomla\Database\DatabaseDriver */
-//     $db = Factory::getContainer()->get('DatabaseDriver');
-
-//     $startDate = $clawEventInfo->start_date;
-//     $endDate = $clawEventInfo->end_date;
-
-//     $qCategoryIds = implode(',', (array)($db->q($categoryIds)));
-
-//     $query = <<<SQL
-//         SELECT e.*,
-//         ( SELECT COUNT(*) FROM `#__eb_registrants` WHERE event_id = e.id AND published=1 ) AS `total_registrants`
-//         FROM #__eb_events e
-//         WHERE main_category_id IN ($qCategoryIds)
-// SQL;
-
-//     if ($clawEventInfo->eventType == EventTypes::main) {
-//       $query .= ' AND `event_date` >= ' . $db->q($startDate->toSql());
-//       $query .= ' AND `event_end_date` <= ' . $db->q($endDate->toSql());
-//       $query .= ' AND `published`=1';
-//     }
-
-//     $query .= ' ORDER BY ' . $db->qn($orderBy);
-
-//     $db->setQuery($query);
-//     $rows = $db->loadObjectList();
-
-//     return $rows;
-//   }
-
   public static function getCategoryNames(array $categoryAliases): ?array
   {
     /** @var \Joomla\Database\DatabaseDriver */
@@ -300,24 +90,6 @@ class ClawEvents
     $rows = $db->loadObjectList('alias');
 
     return $rows;
-  }
-
-  /**
-   * Returns fields ids for array of array aliases
-   * @param array $fieldNames Array of field aliases
-   * @return array Corresponding field ids
-   */
-  public static function getFieldIds(array $fieldNames): array
-  {
-    if (count($fieldNames) == 0) die(__FILE__ . ': field name array cannot be blank');
-
-    $results = [];
-
-    foreach ($fieldNames as $f) {
-      $results[] = self::getFieldId($f);
-    }
-
-    return $results;
   }
 
   /**
@@ -336,7 +108,7 @@ class ClawEvents
     if (array_key_exists($fieldName, self::$fieldIds)) {
       return intval(self::$fieldIds[$fieldName]->id);
     } else {
-      die(__FILE__ . ': field name unknown: ' . $fieldName);
+      throw new UnexpectedValueException(__FILE__ . ': Unknown field name: ' . $fieldName);
     }
   }
 
@@ -384,37 +156,23 @@ class ClawEvents
     return $result == null ? false : $result;
   }
 
-  /**
-   * This is a special case, used only for refunds, to identify all events that
-   * pulls in all "active" events and merges them into a meta event
-   */
-  private function defineHistoricEventMapping(): void
-  {
-    die("Not yet implemented");
-    // $classname = "\\ClawCorpLib\\Events\\refunds";
-    // $this->event = new $classname('refunds');
-
-    // foreach(Aliases::active() AS $alias ) {
-    //   if ( $alias == 'refunds' ) continue;
-
-    //   $classname = "\\ClawCorpLib\\Events\\$alias";
-    //   $tmp = new $classname($alias);
-    //   $this->event->mergeEvents($tmp->getEvents());
-    // }
-  }
-
   private static function mapEventAliases(): void
   {
     if (self::$eventIds != null) return;
 
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
-
-    $query = 'SELECT alias,id FROM #__eb_events WHERE published=1 ORDER BY id';
+    $query = $db->getQuery(true);
+    $query->select('alias,id')
+      ->from('#__eb_events')
+      ->where('published=1')
+      ->order('id');
     $db->setQuery($query);
     self::$eventIds = $db->loadObjectList('alias');
 
-    if (self::$eventIds == null) die('Event alias db error.');
+    if (self::$eventIds == null) {
+      throw new UnexpectedValueException(__FILE__ . ': Event IDs db error.');
+    }
   }
 
   private static function mapCategoryAliases(): void
@@ -423,11 +181,17 @@ class ClawEvents
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $query = 'SELECT alias,id FROM #__eb_categories WHERE published=1 ORDER BY id';
+    $query = $db->getQuery(true);
+    $query->select('alias,id')
+      ->from('#__eb_categories')
+      ->where('published=1')
+      ->order('id');
     $db->setQuery($query);
     self::$categoryIds = $db->loadObjectList('alias');
 
-    if (self::$categoryIds == null) die('Category alias db error.');
+    if (self::$categoryIds == null) {
+      throw new UnexpectedValueException(__FILE__ . ': Category alias db error.');
+    }
   }
 
   private static function mapFieldIds(): void
@@ -436,16 +200,17 @@ class ClawEvents
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $query = 'SELECT `name`,`id` FROM #__eb_fields WHERE published=1 ORDER BY id';
+    $query = $db->getQuery(true);
+    $query->select('name,id')
+      ->from('#__eb_fields')
+      ->where('published=1')
+      ->order('id');
+
     $db->setQuery($query);
     self::$fieldIds = $db->loadObjectList('name');
 
-    if (self::$fieldIds == null) die('Field IDs db error.');
-  }
-
-  public static function eventAliasToTitle(string $eventAlias): string
-  {
-    $titleList = Config::getTitleMapping();
-    return array_key_exists($eventAlias, $titleList) ? $titleList[$eventAlias] : $eventAlias;
+    if (self::$fieldIds == null) {
+      throw new UnexpectedValueException(__FILE__ . ': Field IDs db error.');
+    }
   }
 }
