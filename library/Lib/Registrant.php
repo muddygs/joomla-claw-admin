@@ -31,7 +31,7 @@ class Registrant
       throw(new UnexpectedValueException('User ID cannot be zero when retrieving registrant record'));
     }
     
-    $this->eventConfig = new EventConfig($clawEventAlias);
+    $this->eventConfig = new EventConfig($clawEventAlias, []);
     $this->badgeId = $this->eventConfig->eventInfo->prefix.'-'. str_pad($uid, 5, '0', STR_PAD_LEFT);
   }
 
