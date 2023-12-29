@@ -5,6 +5,7 @@ namespace ClawCorpLib\Lib;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
+use Exception;
 use Joomla\CMS\Factory;
 
 class EventConfig
@@ -12,32 +13,66 @@ class EventConfig
   public EventInfo $eventInfo;
   public array $packageInfos = [];
 
+  /**
+   * @param string $alias Event alias (required)
+   * @param array $filter By default, only primary registration events are included
+   * @return void 
+   * @throws KeyNotFoundException 
+   */
   public function __construct(
-    public string $alias
+    public string $alias,
+    public array $filter = [
+      PackageInfoTypes::main,
+      PackageInfoTypes::daypass,
+      PackageInfoTypes::addon,
+      PackageInfoTypes::passes
+    ]
   )
   {
+    if ( !EventInfo::isValidEventAlias($this->alias) ) throw(new Exception("Invalid event alias: $this->alias"));
+
     // TODO: Error handling
     $this->eventInfo = new EventInfo($alias);
-    $this->loadPackageInfos();
+
+    // For refunds, we need access to all active EventConfigs and their PackageInfos
+    if ( $this->eventInfo->eventType == EventTypes::refunds ) {
+      $this->filter = [
+        PackageInfoTypes::main,
+        PackageInfoTypes::daypass,
+      ];
+
+      $eventInfos = EventInfo::getEventInfos();
+      $this->loadPackageInfos(array_keys($eventInfos));
+    } else {
+      $this->loadPackageInfos([$this->eventInfo->alias]);
+    }
   }
 
-  private function loadPackageInfos()
+  private function loadPackageInfos(array $aliases = [])
   {
     $db = Factory::getContainer()->get('DatabaseDriver');
+    $aliases = implode(',', (array)($db->q($aliases)));
 
     $query = $db->getQuery(true);
 
     $query->select('*')
       ->from('#__claw_packages')
-      ->where('eventAlias = :alias')
-      ->bind(':alias', $this->alias);
+      ->where('eventAlias IN (:alias)')
+      ->bind(':alias', $aliases);
+
+    if (count($this->filter) > 0) {
+      $packageInfoTypesFilter = implode(',' , array_map(fn($e) => $e->value, $this->filter));
+      $query->where('packageInfoType IN (' . $packageInfoTypesFilter . ')');
+    }
+
+    $query->order('start ASC');
 
     $db->setQuery($query);
 
     $rows = $db->loadObjectList();
 
     foreach ( $rows as $row ) {
-      $this->packageInfos[] = new PackageInfo($this->eventInfo, $row->id);
+      $this->packageInfos[$row->id] = new PackageInfo($this->eventInfo, $row->id);
     }
   }
 
@@ -71,7 +106,7 @@ class EventConfig
    * @param EventPackageTypes $packageType Event alias in Event Booking
    * @return PackageInfo PackageInfo (or null if not found)
    */
-  public function getClawEvent(EventPackageTypes $packageType): ?PackageInfo
+  public function getPackageInfo(EventPackageTypes $packageType): ?PackageInfo
   {
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->packageInfos as $e) {
@@ -85,6 +120,7 @@ class EventConfig
 
   public function getMainEventIds(): array
   {
+    // TODO: validate that $this->filter contains main and daypass
     $result = [];
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->packageInfos as $e) {
