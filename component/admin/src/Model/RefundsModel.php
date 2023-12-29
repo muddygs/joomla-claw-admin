@@ -19,6 +19,7 @@ use Joomla\Input\Json;
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Lib\Authnetprofile;
 use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\Registrant;
 
 require_once JPATH_LIBRARIES . '/claw/External/auth.net/vendor/autoload.php';
@@ -333,8 +334,8 @@ class RefundsModel extends FormModel
         $email = $rows[0]->email;
         $uid = $rows[0]->user_id;
   
-        $events = new ClawEvents('refunds');
-        $mainEventIds = $events->mainEventIds;
+        $events = new EventConfig('refunds');
+        $mainEventIds = array_keys($events->packageInfos);
   
         foreach ($rows as $r) {
           if (in_array($r->event_id, $mainEventIds)) {
