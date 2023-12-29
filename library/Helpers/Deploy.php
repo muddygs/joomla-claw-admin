@@ -24,7 +24,7 @@ class Deploy
     // Ignore server-specific timezone information
     date_default_timezone_set('etc/UTC');
 
-    $eventConfig = new EventConfig($eventAlias);
+    $eventConfig = new EventConfig($eventAlias, []);
     $info = $eventConfig->eventInfo;
     $packageInfos = $eventConfig->packageInfos;
 
