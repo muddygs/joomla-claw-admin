@@ -127,8 +127,8 @@ class Checkin
     // Combo meals events
     $comboMeals = [];
     foreach ( [EventPackageTypes::combo_meal_1, EventPackageTypes::combo_meal_2, EventPackageTypes::combo_meal_3, EventPackageTypes::combo_meal_4] AS $comboMeal ) {
-      if ( is_null($eventConfig->getClawEvent($comboMeal)) ) continue;
-      $comboMeals[] = $eventConfig->getClawEvent($comboMeal);
+      if ( is_null($eventConfig->getPackageInfo($comboMeal)) ) continue;
+      $comboMeals[] = $eventConfig->getPackageInfo($comboMeal);
     }
 
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
@@ -246,13 +246,13 @@ class Checkin
     $this->r->dayPassDay = '';
 
     switch($this->r->package_eventId) {
-      case $eventConfig->getClawEvent(EventPackageTypes::day_pass_fri)->eventId:
+      case $eventConfig->getPackageInfo(EventPackageTypes::day_pass_fri)->eventId:
         $this->r->dayPassDay = 'Fri';
         break;
-      case $eventConfig->getClawEvent(EventPackageTypes::day_pass_sat)->eventId:
+      case $eventConfig->getPackageInfo(EventPackageTypes::day_pass_sat)->eventId:
         $this->r->dayPassDay = 'Sat';
         break;
-      case $eventConfig->getClawEvent(EventPackageTypes::day_pass_sun)->eventId:
+      case $eventConfig->getPackageInfo(EventPackageTypes::day_pass_sun)->eventId:
         $this->r->dayPassDay = 'Sun';
         break;
     }

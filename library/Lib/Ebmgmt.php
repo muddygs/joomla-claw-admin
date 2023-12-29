@@ -413,7 +413,7 @@ class Ebmgmt
   static function autoHideShowShifts(): void {
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $eventList = EventInfo::getEventList();
+    $eventList = EventInfo::getEventInfos();
     $now = Factory::getDate();
 
     /** @var \ClawCorpLib\Lib\EventInfo */

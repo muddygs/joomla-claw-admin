@@ -162,7 +162,7 @@ Helpers::sessionSet('filter_start' , $eventInfo->start_date->toSql());
 Helpers::sessionSet('filter_end' , $eventInfo->end_date->toSql());
 
 /** @var \ClawCorpLib\Lib\PackageInfo */
-$regEvent = $this->eventConfig->getClawEvent($eventPackageType);
+$regEvent = $this->eventConfig->getPackageInfo($eventPackageType);
 
 // Auto add this registration to the cart
 // Remove any other main events that might be in cart
@@ -198,7 +198,7 @@ if ( $vipRedirect ) {
   $cart->reset();
 
   /** @var \ClawCorpLib\Lib\PackageInfo */
-  $vipClawEvent = $this->eventConfig->getClawEvent(EventPackageTypes::vip);
+  $vipClawEvent = $this->eventConfig->getPackageInfo(EventPackageTypes::vip);
   $comboMealsAll = $vipClawEvent->meta[0];
   $cart->addEvents([$vipClawEvent->eventId, $comboMealsAll]);
 

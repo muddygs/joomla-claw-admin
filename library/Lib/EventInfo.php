@@ -123,7 +123,7 @@ class EventInfo
    * Returns array, indexed by event alias, with "active" EventInfo objects
    * @return array 
    */
-  public static function getEventList(): array
+  public static function getEventInfos(): array
   {
     if ( count(self::$_EventList) > 0 ) return self::$_EventList;
 
@@ -155,7 +155,7 @@ class EventInfo
    */
   public static function isValidEventAlias(string $alias): bool
   {
-    if ( count(self::$_EventList) == 0 ) self::getEventList();
+    if ( count(self::$_EventList) == 0 ) self::getEventInfos();
     return array_key_exists(strtolower($alias), self::$_EventList);
   }
 

@@ -188,7 +188,7 @@ HTML;
     }
 
     $shiftCategoryCount = $registrantData->categoryCounts($shiftCategories);
-    if (!$onsiteActive && !$this->show_error && $shiftCategoryCount > 1 && $package_event != ClawEvents::getEventIdByAlias($prefix . '-volunteer-super')) {
+    if (!$onsiteActive && !$this->show_error && $shiftCategoryCount > 1 && $package_event != $eventConfig->getPackageInfo(EventPackageTypes::volunteersuper)->eventId) {
       $this->submit = "<div class=\"alert alert-danger\">Shifts must all come from the same category (e.g., all Guest Services or Badge Check). Modify your cart to correct this error.</div>";
       $this->show_error = true;
     }
@@ -200,7 +200,7 @@ HTML;
     // Collect meal event ids
     $comboCount = 0;
     foreach ( [EventPackageTypes::combo_meal_1, EventPackageTypes::combo_meal_2, EventPackageTypes::combo_meal_3, EventPackageTypes::combo_meal_4] AS $meta ) {
-      $mealEvent = $eventConfig->getClawEvent($meta);
+      $mealEvent = $eventConfig->getPackageInfo($meta);
       if ( is_null($mealEvent) ) continue;
 
       if ( in_array( $mealEvent->eventId, $eventIds ) ) {
