@@ -8,6 +8,7 @@ use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Bootstrap;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\EventInfo;
 
 // Get menu heading information
 echo $this->params->get('heading') ?? '<h1>Presenter Submissions</h1>';
@@ -80,7 +81,9 @@ function BioHtml(object &$__this)
 
   $isCurrent = $__this->bio->event == Aliases::current(true);
 
-  $event = ClawCorpLib\Lib\ClawEvents::eventAliasToTitle($__this->bio->event);
+  $eventInfo = new EventInfo($__this->bio->event);
+  $event = $eventInfo->description;
+
   if ($isCurrent) {
     $event .= ' <span class="badge bg-danger">Current</span>';
   } else {
@@ -247,10 +250,11 @@ function ClassRow(object $row, bool $canSubmit)
 HTML;
   }
 
+  $eventInfo = new EventInfo($row->event);
 
 ?>
   <tr>
-    <td><?= ClawCorpLib\Lib\ClawEvents::eventAliasToTitle($row->event) ?></td>
+    <td><?= $eventInfo->description ?></td>
     <td><?= $row->title ?></td>
     <td><?= $published ?></td>
     <td><?= $button ?></td>
