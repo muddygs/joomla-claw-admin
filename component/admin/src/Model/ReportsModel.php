@@ -39,7 +39,7 @@ class ReportsModel extends BaseDatabaseModel
   {
     parent::__construct($config);
 
-    $this->eventConfig = new EventConfig(Aliases::current(true));
+    $this->eventConfig = new EventConfig(Aliases::current(true), []);
   }
 
   public function getSpeedDatingItems(): array

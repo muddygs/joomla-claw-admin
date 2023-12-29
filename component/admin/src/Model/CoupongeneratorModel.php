@@ -84,8 +84,7 @@ class CoupongeneratorModel extends FormModel
       $groups = $identity->getAuthorisedGroups();
     }
 
-
-    $e = new EventConfig($eventAlias);
+    $e = new EventConfig($eventAlias, []);
 
     $events = [0 => 'Select Package'];
     $addons = '';
@@ -126,14 +125,14 @@ HTML;
   public function couponValue(Json $json): float
   {
     $eventAlias = $json->get('jform[event]', Aliases::current(), 'string');
-    $events = new EventConfig($eventAlias);
+    $events = new EventConfig($eventAlias, []);
 
     $package = $json->get('jform[packagetype]', '', 'string');
 
     if ($package == '') return 0;
   
     // Event
-    $value = $events->getEventByCouponCode($package, true);
+    $value = $events->getEventByCouponCode($package);
     $result = $value == null ? 0 : $value->couponValue;
 
     // Addons
@@ -141,7 +140,7 @@ HTML;
       foreach (array_keys($json->getArray()) as $key) {
         if (substr($key, 0, 6) == 'addon-' && strlen($key) == 7) {
           $a = substr($key, 6, 1);
-          $value = $events->getEventByCouponCode($a, true);
+          $value = $events->getEventByCouponCode($a);
           $result += $value == null ? 0 : $value->couponValue;
         }
       }
@@ -221,7 +220,7 @@ HTML;
     }
   
   
-    $e = new EventConfig($json->getString('jform[event]',Aliases::current()));
+    $e = new EventConfig($json->getString('jform[event]',Aliases::current()), []);
   
     $value = $this->couponValue($json);
   

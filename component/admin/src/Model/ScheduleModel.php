@@ -11,6 +11,7 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\PackageInfoTypes;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
@@ -83,7 +84,7 @@ class ScheduleModel extends AdminModel
 
 		$event = $form->getField('event')->value;
 		if (empty($event)) $event = Aliases::current();
-		$eventConfig = new EventConfig($event);
+		$eventConfig = new EventConfig($event, [PackageInfoTypes::addon]);
 
 		/** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
 		$parentField = $form->getField('location');
@@ -99,13 +100,11 @@ class ScheduleModel extends AdminModel
 			$parentField->addOption($s->name, ['value' => $s->id]);
 		}
 
-		$events = EventBooking::LoadTicketedEvents($eventConfig);
-
 		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
 		$parentField = $form->getField('event_id');
-		foreach ( $events AS $id => $title )
+		foreach ( $eventConfig->packageInfos AS $packageInfo )
 		{
-			$parentField->addOption($title, ['value' => $id]);
+			$parentField->addOption($packageInfo->title, ['value' => $packageInfo->eventId]);
 		}
 
 		return $form;
