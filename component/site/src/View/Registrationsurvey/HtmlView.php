@@ -16,6 +16,7 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Coupon;
 use ClawCorpLib\Lib\EventConfig;
+use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Help\Help;
@@ -52,9 +53,8 @@ class HtmlView extends BaseHtmlView
     $this->eventAlias = $params->get('eventAlias', '');
 
     // Kill on bad event alias
-    // TODO: Need function to test if alias is active and act if not
-    if ( $this->eventAlias == '' ) {
-      $this->app->enqueueMessage('No event alias specified.', 'error');
+    if ( $this->eventAlias == '' || !EventInfo::isValidEventAlias($this->eventAlias)) {
+      $this->app->enqueueMessage('No/invalid event alias specified.', 'error');
       return;
     }
 
