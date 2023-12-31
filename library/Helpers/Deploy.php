@@ -39,6 +39,15 @@ class Deploy
 
     $article_id = $info->termsArticleId;
 
+    $gid_public = Helpers::getGroupId('Public');
+    $gid_registered = Helpers::getGroupId('Registered');
+
+    $count = 0;
+
+    if ( 0 == $gid_public || 0 == $gid_registered ) {
+      die('Invalid group id');
+    }
+
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
       if ( $packageInfo->eventId > 0 ) {
@@ -52,6 +61,9 @@ class Deploy
       $start = $startDate;
       $end = $endDate;
       $cutoff = $endDate;
+
+      $accessGroup = $gid_registered;
+      $reg_start_date = $registration_start_date;
 
       switch ( $packageInfo->packageInfoType ) {
         case PackageInfoTypes::main:
@@ -77,6 +89,18 @@ class Deploy
         case PackageInfoTypes::daypass:
           $start = Factory::getDate($packageInfo->start)->toSql();
           $end = Factory::getDate($packageInfo->end)->toSql();
+          $reg_start_date = $startDate->toSql();
+        break;
+
+        case PackageInfoTypes::passes:
+          $start = Factory::getDate($packageInfo->start)->toSql();
+          $end = Factory::getDate($packageInfo->end)->toSql();
+          $cutoff = '0000-00-00 00:00:00';
+          // Remove any non-ascii char from title
+          $name = preg_replace('/[^\S]+/', '-', $packageInfo->title);
+          $packageInfo->alias = strtolower($info->prefix . '-' . $name);
+          $accessGroup = $gid_public;
+          $reg_start_date = $startDate->toSql();
         break;
 
         case PackageInfoTypes::coupononly:
@@ -96,7 +120,16 @@ class Deploy
         break;
       }
 
-      $insert = new ebMgmt($eventAlias, $packageInfo->category, $packageInfo->alias, $info->prefix . ' ' . $packageInfo->title, $packageInfo->title);
+      $count++;
+
+      $insert = new ebMgmt(
+        eventAlias: $eventAlias, 
+        mainCategoryId: $packageInfo->category, 
+        itemAlias: $packageInfo->alias, 
+        title: $info->prefix . ' ' . $packageInfo->title,
+        description: $packageInfo->title
+      );
+
       $insert->set('article_id', $article_id, false);
       $insert->set('cancel_before_date', $cancel_before_date->toSql());
       $insert->set('cut_off_date', $cutoff);
@@ -105,8 +138,9 @@ class Deploy
       $insert->set('publish_down', $publish_down);
 
       $insert->set('individual_price', $packageInfo->fee);
-      $insert->set('registration_start_date', $registration_start_date);
+      $insert->set('registration_start_date', $reg_start_date);
       $insert->set('payment_methods', 2); // Credit Cart
+      $insert->set('registration_access', $accessGroup);
 
       $eventId = $insert->insert();
       if ($eventId == 0) {
