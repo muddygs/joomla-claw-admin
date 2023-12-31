@@ -57,8 +57,7 @@ class EventConfig
 
     $query->select('*')
       ->from('#__claw_packages')
-      ->where('eventAlias IN (:alias)')
-      ->bind(':alias', $aliases);
+      ->where('eventAlias IN ('. $aliases .')');
 
     if (count($this->filter) > 0) {
       $packageInfoTypesFilter = implode(',' , array_map(fn($e) => $e->value, $this->filter));
