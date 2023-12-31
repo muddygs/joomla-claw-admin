@@ -54,7 +54,9 @@ class EventconfigModel extends AdminModel
 
     $packageInfoType = PackageInfoTypes::FindValue($data['packageInfoType']);
 
-    if ( $packageInfoType == PackageInfoTypes::addon || $packageInfoType == PackageInfoTypes::daypass ) {
+    if ( $packageInfoType == PackageInfoTypes::addon 
+         || $packageInfoType == PackageInfoTypes::daypass
+         || $packageInfoType == PackageInfoTypes::passes ) {
       $start = $data['day'] . ' ' . $data['start_time'];
       $end = $data['day'] . ' ' . $data['end_time'];
 
