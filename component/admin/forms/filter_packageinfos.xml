@@ -20,6 +20,14 @@
 			<option value="_current_">Current Event</option>
 		</field>
 
+		<field
+			name="packageinfotype"
+			type="PackageInfoTypesList"
+			label="Type"
+			default="0"
+			onchange="this.form.submit();"
+		/>
+
 	</fields>
 
 	<fields name="list">

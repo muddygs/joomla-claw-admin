@@ -146,6 +146,7 @@ class EventConfigsModel extends ListModel
     // Filter by search in title.
     $search = $this->getState('filter.search');
     $event = $this->getState('filter.event', '_current_');
+    $type = $this->getState('filter.packageinfotype', '0');
 
     if (!empty($search)) {
       $search = $this->db->quote('%' . $this->db->escape(trim($search), true) . '%');
@@ -155,6 +156,10 @@ class EventConfigsModel extends ListModel
     if ( $event != null ) {
       if ( $event == '_current_' ) $event = Aliases::current();
       $query->where('a.eventAlias = :event')->bind(':event', $event);
+    }
+
+    if ( $type != 0 ) {
+      $query->where('a.packageInfoType = :type')->bind(':type', $type);
     }
 
     // Add the list ordering clause.
