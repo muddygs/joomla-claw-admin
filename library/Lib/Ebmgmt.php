@@ -4,6 +4,7 @@ namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 
 \defined('_JEXEC') or die;
@@ -174,8 +175,12 @@ class Ebmgmt
   {
     $this->ebEventColumns = array_keys($this->db->getTableColumns('#__eb_events'));
 
+    // TODO: Move gid values to global config
+    $gid_public = Helpers::getGroupId('Public');
+    $gid_registered = Helpers::getGroupId('Registered');
+
     $this->defaults = [
-      'access'=>	1,
+      'access'=>	$gid_public,
       'activate_certificate_feature'=>	0,
       'activate_tickets_pdf'=>	0,
       'activate_waiting_list'=>	0,
@@ -274,7 +279,7 @@ class Ebmgmt
       'recurring_type'=>	'NULL',
       'registrant_edit_close_date'=>	"'0000-00-00 00:00:00'",
       'registrants_emailed' => 0,
-      'registration_access'=>	14,
+      'registration_access'=>	$gid_registered,
       'registration_approved_email_body'=>	"''",
       'registration_complete_url'=>	"''",
       'registration_form_message_group'=>	"''",
