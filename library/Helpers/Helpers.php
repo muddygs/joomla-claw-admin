@@ -127,7 +127,7 @@ class Helpers
 #region User Helpers
   public static function getUsersByGroupName(DatabaseDriver $db, string $groupname): array
   {
-    $groupId = Helpers::getGroupId($db, $groupname);
+    $groupId = Helpers::getGroupId($groupname);
 
     if (!$groupId) return [];
 
@@ -201,8 +201,11 @@ class Helpers
     return $groups != null ? $groups : [];
   }
 
-  public static function getGroupId(DatabaseDriver $db, $groupName): int
+  public static function getGroupId(string $groupName): int
   {
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
+
     $query = $db->getQuery(true);
     $query->select($db->qn(['id']))
       ->from($db->qn('#__usergroups'))
