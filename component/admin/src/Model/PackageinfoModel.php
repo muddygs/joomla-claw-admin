@@ -53,12 +53,11 @@ class PackageinfoModel extends EventconfigModel
     $eventPackageType = EventPackageTypes::tryFrom($eventPackageType);
     if ( $eventPackageType == null ) return $form;
 
-    $eventConfig = new EventConfig($eventAlias);
-
     /** @var \Joomla\CMS\Form\Field\ListField */
 		$parentField = $form->getField('meta');
 
     if ( $packageInfoType == PackageInfoTypes::combomeal) {
+      $eventConfig = new EventConfig($eventAlias);
       /** @var \ClawCorpLib\Lib\PackageInfo */
       foreach ( $eventConfig->packageInfos AS $p) {
         if (
@@ -70,6 +69,7 @@ class PackageinfoModel extends EventconfigModel
         }
       }
     } else if ( $eventPackageType == EventPackageTypes::vip ) {
+      $eventConfig = new EventConfig($eventAlias, []);
       /** @var \ClawCorpLib\Lib\PackageInfo */
       foreach ( $eventConfig->packageInfos AS $p) {
         if (
