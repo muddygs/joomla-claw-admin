@@ -49,24 +49,45 @@ class EventconfigModel extends AdminModel
 
     $eventInfo = new EventInfo($data['eventAlias']);
 
-    $data['start'] = $this->getDatabase()->getNullDate();
-    $data['end'] = $this->getDatabase()->getNullDate();
-
     $packageInfoType = PackageInfoTypes::FindValue($data['packageInfoType']);
 
-    if ( $packageInfoType == PackageInfoTypes::addon 
-         || $packageInfoType == PackageInfoTypes::daypass
-         || $packageInfoType == PackageInfoTypes::passes ) {
-      $start = $data['day'] . ' ' . $data['start_time'];
-      $end = $data['day'] . ' ' . $data['end_time'];
+    switch ( $packageInfoType ) {
+      case PackageInfoTypes::main:
+        $data['start'] = $this->getDatabase()->getNullDate();
+        $data['end'] = $this->getDatabase()->getNullDate();
+        break;
 
-      if ( $data['end_time'] < $data['start_time']) $end .= ' +1 day';
+      case PackageInfoTypes::addon:
+      case PackageInfoTypes::daypass:
+      case PackageInfoTypes::passes:
+        $start = $data['day'] . ' ' . $data['start_time'];
+        $end = $data['day'] . ' ' . $data['end_time'];
+  
+        if ( $data['end_time'] < $data['start_time']) $end .= ' +1 day';
+  
+        $startDate = $eventInfo->modify( $start ?? '' );
+        $data['start'] = $startDate !== false ? $startDate->toSql() : $data['start'];
+        
+        $data['start'] = $eventInfo->modify( $start ?? '' )->toSql();
+        $data['end'] = $eventInfo->modify( $end ?? '' )->toSql();
+        break;
 
-      $startDate = $eventInfo->modify( $start ?? '' );
-      $data['start'] = $startDate !== false ? $startDate->toSql() : $data['start'];
-      
-      $data['start'] = $eventInfo->modify( $start ?? '' )->toSql();
-      $data['end'] = $eventInfo->modify( $end ?? '' )->toSql();
+      case PackageInfoTypes::speeddating:
+        $start = $data['day'] . ' ' . $data['start_time'];
+        $end = $data['day'] . ' ' . $data['start_time'] . ' +45 minutes';
+
+        $data['start'] = $eventInfo->modify($start ?? '')->toSql();
+        $data['end'] = $eventInfo->modify($end ?? '')->toSql();
+        break;
+
+      case PackageInfoTypes::sponsorship:
+        break;
+
+      case PackageInfoTypes::equipment:
+        break;
+
+      default:
+        throw(new \Exception("Unhandled PackageInfoTypes value: $packageInfoType->value"));
     }
 
     if ( $data['start'] === false || $data['end'] === false ) {
@@ -129,8 +150,22 @@ class EventconfigModel extends AdminModel
         $data->meta = $meta;
       }
 
+      // Equipment Rental needs meta as a string
+      if ( $data->packageInfoType == PackageInfoTypes::equipment->value ) {
+        $data->meta = ( is_array($data->meta) ? $data->meta[0] : $data->meta );
+      }
+
+      // Package types with specific start and end times that need to be converted
+      // into day, start time and end time
+      $timePackageTypes = [
+        PackageInfoTypes::addon->value,
+        PackageInfoTypes::daypass->value,
+        PackageInfoTypes::speeddating->value,
+        PackageInfoTypes::passes->value,
+      ];
+
       // Convert start and end times to day, start_time, end_time
-      if ( $data->packageInfoType == PackageInfoTypes::addon->value || $data->packageInfoType == PackageInfoTypes::daypass->value ) {
+      if ( in_array( $data->packageInfoType, $timePackageTypes ) ) {
         $start = new Date($data->start);
         $end = new Date($data->end);
         
