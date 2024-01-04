@@ -27,6 +27,7 @@ $view = 'speeddatinginfo';
   <div class="row">
     <div class="col-lg-6">
       <?= $this->form->renderField('title'); ?>
+      <?= $this->form->renderField('description'); ?>
       </div>
       <div class="col-lg-6">
         <?= $this->form->renderField('eventId'); ?>

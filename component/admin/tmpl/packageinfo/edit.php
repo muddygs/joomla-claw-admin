@@ -90,8 +90,12 @@ $view = 'packageinfo';
     <?= $this->form->renderField('couponOnly'); ?>
     <?= $this->form->renderField('couponAccessGroups'); ?>
     <?= $this->form->renderField('bundleDiscount'); ?>
-    
-    
+
+    <?php echo HTMLHelper::_('uitab.endTab'); ?>
+    <?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'description', 'Description'); ?>
+
+    <?= $this->form->renderField('description'); ?>
+
     <?php echo HTMLHelper::_('uitab.endTab'); ?>
     <?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'misc', 'Misc'); ?>
 
