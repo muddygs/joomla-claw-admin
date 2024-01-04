@@ -21,7 +21,7 @@ use ClawCorpLib\Enums\PackageInfoTypes;
 class SpeeddatinginfosModel extends EventconfigsModel
 {
   /**
-   * Get the master query for retrieving a list of countries subject to the model state.
+   * Get the master query for retrieving a list of PackageInfos of type speeddating.
    * 
    * Because "meta" contains all the subtypes for each event, we use JSON_TABLE to extract the subtypes into a row for each subtype.
    *
@@ -40,7 +40,6 @@ class SpeeddatinginfosModel extends EventconfigsModel
     // $query->select('@rownum:=@rownum+1 AS rownum, j.subgroup, a.*');
 
     $packageInfoTypes = [
-      PackageInfoTypes::main->value,
       PackageInfoTypes::speeddating->value,
     ];
 
