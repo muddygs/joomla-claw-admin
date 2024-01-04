@@ -33,7 +33,7 @@ class Coupons
   {
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $this->access = Helpers::getAccessId($db, 'Registered');
+    $this->access = Helpers::getAccessId('Registered');
 
     $this->discount = $discount;
     $this->note = preg_replace("/[^A-Za-z0-9_]/", '', $note);
