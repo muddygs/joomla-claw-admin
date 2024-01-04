@@ -33,10 +33,6 @@ class EventinfoModel extends AdminModel
 
   public function save($data)
   {
-    $input = Factory::getApplication()->getInput();
-    /** @var $app AdministratorApplication */
-    $app = Factory::getApplication();
-
     $data['mtime'] = Helpers::mtime();
 
     return parent::save($data);
