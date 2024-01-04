@@ -103,7 +103,7 @@ class CurrentitemsModel extends ListModel
 	}
 
 	/**
-	 * Get the master query for retrieving a list of countries subject to the model state.
+	 * Get the master query for retrieving a list of current items.
 	 *
 	 * @return  \Joomla\Database\DatabaseQuery
 	 *

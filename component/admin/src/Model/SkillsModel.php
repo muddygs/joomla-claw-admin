@@ -235,7 +235,7 @@ class SkillsModel extends ListModel
     return $items;
   }
   /**
-   * Get the master query for retrieving a list of countries subject to the model state.
+   * Get the master query for retrieving a list of Skills (classes).
    *
    * @return  \Joomla\Database\QueryInterface
    *
