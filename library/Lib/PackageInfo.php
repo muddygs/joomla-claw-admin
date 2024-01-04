@@ -18,6 +18,7 @@ class PackageInfo
 {
     public EbPublishedState $published = EbPublishedState::published;
     public string $title = '';
+    public string $description = '';
     public string $alias = '';
     public EventPackageTypes $eventPackageType = EventPackageTypes::none;
     public PackageInfoTypes $packageInfoType = PackageInfoTypes::none;
@@ -56,6 +57,7 @@ class PackageInfo
       $result->id = $this->id;
       $result->published = $this->published->value;
       $result->title = $this->title;
+      $result->description = $this->description;
       $result->alias = $this->alias;
       $result->eventPackageType = $this->eventPackageType->value;
       $result->packageInfoType = $this->packageInfoType->value;
@@ -94,7 +96,8 @@ class PackageInfo
 
       $this->id = $result->id;
       $this->published = EbPublishedState::from($result->published);
-      $this->title = $result->title;
+      $this->title = $result->title ?? '';
+      $this->description = $result->description ?? '';
       $this->alias = $result->alias;
       $this->eventPackageType = EventPackageTypes::FindValue($result->eventPackageType);
       $this->packageInfoType = PackageInfoTypes::FindValue($result->packageInfoType);
