@@ -51,7 +51,8 @@ class SpeeddatinginfosController extends AdminController
         break;
     }
 
-    $results = Deploy::Speeddating($event);
+    $deploy = new Deploy($event, Deploy::SPEEDDATING);
+    $results = $deploy->deploy();
     echo $results;
 	}
 

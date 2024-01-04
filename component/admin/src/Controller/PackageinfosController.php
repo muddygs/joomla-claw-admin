@@ -54,8 +54,9 @@ class PackageinfosController extends AdminController
         break;
     }
 
-    $results = Deploy::Packages($event);
-    echo $results;
+    $deploy = new Deploy($event, Deploy::PACKAGEINFO);
+    $log = $deploy->deploy();
+    echo $log;
 	}
 
   /**
