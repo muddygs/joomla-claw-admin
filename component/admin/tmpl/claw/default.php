@@ -95,3 +95,16 @@ $content = [
 
 Bootstrap::writeGrid($content, $tags, false, false);
 
+?>
+<hr/>
+<h2>Event Management</h2>
+<?php
+$content = [
+    'globe'      => ['Events','<a href="/administrator/index.php?option=com_claw&view=eventinfos" role="button" class="btn btn-danger">Launch</a>'],
+    'ticket-alt' => ['Packages','<a href="/administrator/index.php?option=com_claw&view=packageinfos" role="button" class="btn btn-danger">Launch</a>'],
+    'user-tag'   => ['Speed Dating','<a href="/administrator/index.php?option=com_claw&view=speeddatinginfos" role="button" class="btn btn-danger">Launch</a>'],
+    'truck-loading'   => ['Rentals','<a href="/administrator/index.php?option=com_claw&view=equipmentrentals" role="button" class="btn btn-danger">Launch</a>'],
+    'dollar-sign'   => ['Sponsorships','<a href="/administrator/index.php?option=com_claw&view=sponsorships" role="button" class="btn btn-danger">Launch</a>'],
+  ];
+
+Bootstrap::writeGrid($content, $tags, false, false);
