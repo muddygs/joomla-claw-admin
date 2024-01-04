@@ -32,7 +32,6 @@ class EventConfigsModel extends ListModel
     'eventId',
     'alias',
     'title',
-    // 'description',
     'start',
     'end',
   ];	
@@ -119,12 +118,8 @@ class EventConfigsModel extends ListModel
     return parent::getStoreId($id);
   }
 
-  // public function getItems()
-  // {
-  // }
-
   /**
-   * Get the master query for retrieving a list of countries subject to the model state.
+   * Get the master query for retrieving a list of PackageInfos. Extended by child classes.
    *
    * @return  \Joomla\Database\DatabaseQuery
    *
