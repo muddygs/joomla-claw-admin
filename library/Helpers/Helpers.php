@@ -217,17 +217,20 @@ class Helpers
     return $groupId != null ? $groupId : 0;
   }
 
-  public static function getAccessId(DatabaseDriver $db, $accessName): int
+  public static function getAccessId($accessLevelName): int
   {
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
+
     $query = $db->getQuery(true);
     $query->select($db->qn(['id']))
       ->from($db->qn('#__viewlevels'))
-      ->where($db->qn('title') . ' LIKE ' . $db->q($accessName));
+      ->where($db->qn('title') . ' LIKE ' . $db->q($accessLevelName));
 
     $db->setQuery($query);
-    $groupId = $db->loadResult();
+    $accessLevelId = $db->loadResult();
 
-    return $groupId != null ? $groupId : 0;
+    return $accessLevelId != null ? $accessLevelId : 0;
   }
 
 
