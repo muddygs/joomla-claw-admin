@@ -49,6 +49,7 @@ enum EventPackageTypes: int
 
   case speeddating = 901;
   case sponsorship = 902;
+  case equipment = 903;
 
   public function toString(): string
   {

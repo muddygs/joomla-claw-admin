@@ -12,6 +12,7 @@ enum PackageInfoTypes: int
   case daypass = 6;
   case coupononly = 7;
   case passes = 8;
+  case equipment = 9;
 
   public function toString(): string
   {
@@ -25,6 +26,7 @@ enum PackageInfoTypes: int
       PackageInfoTypes::daypass => 'Day Pass',
       PackageInfoTypes::coupononly => 'Coupon Only',
       PackageInfoTypes::passes => 'Passes',
+      PackageInfoTypes::equipment => 'Equipment Rental',
     };
 
     throw(new \Exception("Unhandled PackageInfoTypes value: $this->value"));
