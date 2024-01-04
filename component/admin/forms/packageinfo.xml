@@ -39,6 +39,17 @@
   />
 
   <field
+    name="description"
+    type="textarea"
+    label="Event Description:"
+    description="Event description (used for short and long; HTML allowed)"
+    required="false"
+    rows="5"
+    cols="40"
+    filter="safehtml"
+  />
+
+  <field
     name="alias"
     type="text"
     label="Event Alias:"

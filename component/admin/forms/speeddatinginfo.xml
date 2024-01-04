@@ -38,6 +38,14 @@
   />
 
   <field
+    name="description"
+    type="text"
+    label="Brief Description:"
+    required="true"
+    filter="string"
+  />
+
+  <field
     name="alias"
     type="text"
     label="Event Alias:"
