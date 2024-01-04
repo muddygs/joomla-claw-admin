@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
+  <field
+    name="id"
+    type="hidden"
+    label="JGLOBAL_FIELD_ID_LABEL"
+    class="readonly"
+    default="0"
+    readonly="true"
+  />
+
+  <field
+    name="eventAlias"
+    type="ClawEventsList"
+    label="Event Selection"
+    required="true"
+    multiple="false"
+    default=""
+    validate="options" />
+
+  <field name="published"
+    type="list"
+    label="JSTATUS"
+    class="form-select-color-state"
+    default="1"
+    validate="options">
+    <option value="1">JPUBLISHED</option>
+    <option value="0">JUNPUBLISHED</option>
+  </field>
+
+  <field
+    name="title"
+    type="text"
+    label="Event Title:"
+    required="true"
+    maxlength="255"
+    filter="string"
+  />
+
+  <field
+    name="description"
+    type="textarea"
+    label="Brief Description:"
+    required="false"
+    filter="safehtml"
+    rows="5"
+  />
+
+  <field
+    name="alias"
+    type="text"
+    label="Event Alias:"
+    required="true"
+    class="readonly"
+    default="Assigned during publication"
+    readonly="true"
+  />
+
+  <field
+    name="start"
+    type="calendar"
+    label="Rental Start Date/Time"
+    default="0"
+    format="%Y-%m-%d %H:%M"
+    showtime="true"
+  />
+
+  <field
+    name="end"
+    type="calendar"
+    label="Rental Return Date/Time"
+    default="0"
+    format="%Y-%m-%d %H:%M"
+    showtime="true"
+  />
+
+  <field
+    name="fee"
+    type="text"
+    label="Rental Fee ($):"
+    required="true"
+    default="0"
+    filter="integer"
+  />
+
+  <field
+    name="meta"
+    type="text"
+    label="Enter Deposit Amount ($):"
+    required="true"
+    default="0"
+    filter="integer"
+  />
+</form>
