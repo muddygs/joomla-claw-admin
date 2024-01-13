@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -24,6 +25,24 @@ use Joomla\CMS\Uri\Uri;
  */
 class PackageinfoController extends FormController
 {
+  protected function createModel($name, $prefix = '', $config = [])
+  {
+    if (!isset($config['context']))
+      $config['context'] = $this->controllerContext();
+
+    return parent::createModel($name, $prefix, $config);
+  }
+
+  public function cancel($key = null)
+  {
+    $result =  parent::cancel($key);
+    if ($result) {
+      $context = $this->controllerContext();
+      $this->app->setUserState($context . '.data', null);
+    }
+    return $result;
+  }
+
   /**
    * Save implementation that changes use of save2copy to only copy the record
    * into a new record and not save the original record.
@@ -44,14 +63,14 @@ class PackageinfoController extends FormController
     $model   = $this->getModel();
     $table   = $model->getTable();
     $data    = $this->input->post->get('jform', [], 'array');
-    $context = "$this->option.edit.$this->context";
+    $context = $this->controllerContext();
     $task    = $this->getTask();
 
     // Determine the name of the primary key for the data.
     if (empty($key)) {
       $key = $table->getKeyName();
     }
-  
+
     $uri = Uri::getInstance();
     $recordId = $uri->getVar('id', 0);
 
@@ -68,7 +87,7 @@ class PackageinfoController extends FormController
     // $uri->setVar('id', 0);
 
     // Access check.
-    if (!$this->allowSave($data,$key)) {
+    if (!$this->allowSave($data, $key)) {
       $this->setMessage(Text::_('JLIB_APPLICATION_ERROR_SAVE_NOT_PERMITTED'), 'error');
       $this->setRedirect(Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list . $this->getRedirectToListAppend(), false));
 
@@ -112,7 +131,7 @@ class PackageinfoController extends FormController
       return false;
     }
 
-    if ( $task !== 'save2copy' && !$model->save($validData) ) {
+    if ($task !== 'save2copy' && !$model->save($validData)) {
       $this->setMessage(Text::sprintf('JLIB_APPLICATION_ERROR_SAVE_FAILED', $model->getError()), 'error');
       $this->app->setUserState($context . '.data', $data);
 
@@ -124,7 +143,7 @@ class PackageinfoController extends FormController
       return false;
     }
 
-    if ( 'save2copy' === $task ) {
+    if ('save2copy' === $task) {
       $data[$key] = 0;
       $data['alias'] = '';
       $data['eventPackageType'] = 0;
@@ -133,7 +152,7 @@ class PackageinfoController extends FormController
       $data['title'] = 'New Record';
 
       // Model will use this state in loadFormData() to populate the form
-      $this->app->setUserState('com_claw.edit.packageinfo.data', $data);
+      $this->app->setUserState($context . '.data', $data);
     }
 
     switch ($task) {
@@ -142,14 +161,14 @@ class PackageinfoController extends FormController
         $uri->setVar('id', 0);
         $this->setRedirect($uri->toString());
         return true;
-      break;
-        
+        break;
+
       case 'apply':
         // Redirect back to the edit screen.
         $this->setRedirect(
           Route::_('index.php?option=' . $this->option . '&view=' . $this->view_item . $this->getRedirectToItemAppend($recordId, $key), false)
         );
-      break;
+        break;
 
       default:
         $this->app->setUserState($context . '.data', null);
@@ -161,9 +180,14 @@ class PackageinfoController extends FormController
         $this->setRedirect(
           Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list . $this->getRedirectToListAppend(), false)
         );
-      break;
+        break;
     }
 
     return true;
+  }
+
+  private function controllerContext(): string
+  {
+    return implode('.', [$this->option, 'edit', $this->context]);
   }
 }

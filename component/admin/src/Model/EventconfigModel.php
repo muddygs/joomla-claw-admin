@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -36,13 +37,23 @@ class EventconfigModel extends AdminModel
 
   private $jsonFields = ['couponAccessGroups', 'meta'];
 
+  protected $context = 'com_claw.edit.packageinfo';
+
+  public function __construct($config = array())
+  {
+    if (isset($config['context'])) {
+      $this->context = $config['context'];
+    }
+    parent::__construct($config);
+  }
+
   public function save($data)
   {
     // Handle JSON data
-    foreach ( $this->jsonFields as $field ) {
+    foreach ($this->jsonFields as $field) {
       if (isset($data[$field])) {
         // Always make sure we get an array
-        if ( !is_array($data[$field]) ) $data[$field] = [$data[$field]];
+        if (!is_array($data[$field])) $data[$field] = [$data[$field]];
         $data[$field] = json_encode($data[$field]);
       }
     }
@@ -51,7 +62,7 @@ class EventconfigModel extends AdminModel
 
     $packageInfoType = PackageInfoTypes::FindValue($data['packageInfoType']);
 
-    switch ( $packageInfoType ) {
+    switch ($packageInfoType) {
       case PackageInfoTypes::main:
         $data['start'] = $this->getDatabase()->getNullDate();
         $data['end'] = $this->getDatabase()->getNullDate();
@@ -62,14 +73,14 @@ class EventconfigModel extends AdminModel
       case PackageInfoTypes::passes:
         $start = $data['day'] . ' ' . $data['start_time'];
         $end = $data['day'] . ' ' . $data['end_time'];
-  
-        if ( $data['end_time'] < $data['start_time']) $end .= ' +1 day';
-  
-        $startDate = $eventInfo->modify( $start ?? '' );
+
+        if ($data['end_time'] < $data['start_time']) $end .= ' +1 day';
+
+        $startDate = $eventInfo->modify($start ?? '');
         $data['start'] = $startDate !== false ? $startDate->toSql() : $data['start'];
-        
-        $data['start'] = $eventInfo->modify( $start ?? '' )->toSql();
-        $data['end'] = $eventInfo->modify( $end ?? '' )->toSql();
+
+        $data['start'] = $eventInfo->modify($start ?? '')->toSql();
+        $data['end'] = $eventInfo->modify($end ?? '')->toSql();
         break;
 
       case PackageInfoTypes::speeddating:
@@ -87,10 +98,10 @@ class EventconfigModel extends AdminModel
         break;
 
       default:
-        throw(new \Exception("Unhandled PackageInfoTypes value: $packageInfoType->value"));
+        throw (new \Exception("Unhandled PackageInfoTypes value: $packageInfoType->value"));
     }
 
-    if ( $data['start'] === false || $data['end'] === false ) {
+    if ($data['start'] === false || $data['end'] === false) {
       $app = Factory::getApplication();
       $app->enqueueMessage(Text::_('COM_CLAW_ERROR_INVALID_DATE'), 'error');
       return false;
@@ -98,7 +109,14 @@ class EventconfigModel extends AdminModel
 
     $data['mtime'] = Helpers::mtime();
 
-    return parent::save($data);
+    $result = parent::save($data);
+    if ( $result ) {
+      /** @var $app AdministratorApplication */
+      $app = Factory::getApplication();
+      $app->setUserState($this->context . '.data', []);
+    }
+
+    return $result;
   }
 
   /**
@@ -122,28 +140,28 @@ class EventconfigModel extends AdminModel
     // Check the session for previously entered form data.
     /** @var $app AdministratorApplication */
     $app = Factory::getApplication();
-    $data = $app->getUserState('com_claw.edit.packageinfo.data', []);
+    $data = $app->getUserState($this->context. '.data', []);
     if (empty($data)) {
       $data = $this->getItem();
 
-      if ( !$data ) {
+      if (!$data) {
         throw new \Exception('Invalid record ID', 404);
       }
 
       // Handle JSON data
-      foreach ( $this->jsonFields as $field ) {
-        if ( property_exists($data, $field) && is_string($data->$field) ) $data->$field = json_decode($data->$field);
+      foreach ($this->jsonFields as $field) {
+        if (property_exists($data, $field) && is_string($data->$field)) $data->$field = json_decode($data->$field);
 
         // Remove empty values
-        if ( is_array($data->$field) ) $data->$field = array_filter($data->$field);
+        if (is_array($data->$field)) $data->$field = array_filter($data->$field);
       }
 
       // Speeddating subform needs meta in object format
       if ($data->packageInfoType == PackageInfoTypes::speeddating->value) {
         $meta = (object) [];
 
-        for ( $i = 0; $i < sizeof($data->meta); $i++ ) {
-          $key = 'meta'.$i;
+        for ($i = 0; $i < sizeof($data->meta); $i++) {
+          $key = 'meta' . $i;
           $meta->$key = (object) ['role' => $data->meta[$i]];
         }
 
@@ -151,8 +169,8 @@ class EventconfigModel extends AdminModel
       }
 
       // Equipment Rental needs meta as a string
-      if ( $data->packageInfoType == PackageInfoTypes::equipment->value ) {
-        $data->meta = ( is_array($data->meta) ? $data->meta[0] : $data->meta );
+      if ($data->packageInfoType == PackageInfoTypes::equipment->value) {
+        $data->meta = (is_array($data->meta) ? $data->meta[0] : $data->meta);
       }
 
       // Package types with specific start and end times that need to be converted
@@ -165,10 +183,10 @@ class EventconfigModel extends AdminModel
       ];
 
       // Convert start and end times to day, start_time, end_time
-      if ( in_array( $data->packageInfoType, $timePackageTypes ) ) {
+      if (in_array($data->packageInfoType, $timePackageTypes)) {
         $start = new Date($data->start);
         $end = new Date($data->end);
-        
+
         $data->day = strtolower($start->format('D'));
         $data->start_time = $start->format('H:i');
         $data->end_time = $end->format('H:i');

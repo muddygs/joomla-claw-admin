@@ -29,14 +29,15 @@ class DisplayController extends BaseController
    */
   protected $default_view = 'claw';
 
-  public function __construct($config = [], MVCFactoryInterface $factory = null, $app = null, $input = null)
+  protected function createModel($name, $prefix = '', $config = [])
   {
-    parent::__construct($config, $factory, $app, $input);
-  }
-
-  public function display($cachable = false, $urlparams = array())
-  {
-    return parent::display($cachable, $urlparams);
+    $config['context'] = implode('.', [
+      $this->input->get('option', 'com_claw'),
+      $this->input->get('layout', 'edit'),
+      $this->input->get('view', 'claw')
+    ]);
+    
+    return parent::createModel($name, $prefix, $config);
   }
 
 #region Coupon Tasks
