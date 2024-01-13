@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
+  <field
+    name="id"
+    type="hidden"
+    label="JGLOBAL_FIELD_ID_LABEL"
+    class="readonly"
+    default="0"
+    readonly="true"
+  />
+
+  <field
+    name="eventAlias"
+    type="ClawEventsList"
+    label="Event Selection"
+    required="true"
+    multiple="false"
+    default=""
+    validate="options"
+  />
+
+  <field name="published"
+    type="list"
+    label="JSTATUS"
+    class="form-select-color-state"
+    default="1"
+    validate="options">
+    <option value="1">JPUBLISHED</option>
+    <option value="0">JUNPUBLISHED</option>
+  </field>
+
+  <field
+    name="title"
+    type="text"
+    label="Sponsorship Title:"
+    required="true"
+    maxlength="255"
+    filter="string"
+  />
+
+  <field
+    name="description"
+    type="textarea"
+    label="Sponsorship Description:"
+    description="Sponsorship description (used for short and long; HTML allowed)"
+    required="false"
+    rows="5"
+    cols="40"
+    filter="safehtml"
+  />
+
+  <field
+    name="alias"
+    type="text"
+    label="Event Alias:"
+    required="true"
+    class="readonly"
+    default="Assigned during publication"
+    readonly="true"
+  />
+
+
+  <field
+    name="fee"
+    type="text"
+    label="Event Fee ($):"
+    required="true"
+    filter="float"
+    default="0.00"
+    showon="packageInfoType!:7"
+  />
+
+  <field
+    name="event_id"
+    type="text"
+    label="Event Booking ID:"
+    description="Event Assigned at Deployment"
+    readonly="true"
+    class="readonly"
+  />
+
+  <field
+    name="category"
+    type="EbCategoryList"
+    label="Event Booking Category:"
+    required="true"
+  />
+</form>
