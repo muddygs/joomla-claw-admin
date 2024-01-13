@@ -8,6 +8,7 @@ INSERT INTO `#__claw_field_values` (`id`, `fieldname`, `value`, `text`) VALUES
 (0, 'skill_class_type', 'lecture', 'Lecture'),
 (0, 'skill_class_type', 'round', 'Round Table'),
 (0, 'skill_class_type', 'panel', 'Panel'),
+(0, 'skill_class_type', 'workshop', 'Workshop'),
 (0, 'skill_category', 'assplay', 'Ass Play/Sex'),
 (0, 'skill_category', 'bondage', 'Bondage'),
 (0, 'skill_category', 'community', 'Community'),
