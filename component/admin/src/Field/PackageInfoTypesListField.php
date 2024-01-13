@@ -61,6 +61,9 @@ class PackageInfoTypesListField extends ListField
         $currentValue = $this->__get('value') ?? '';
 
         foreach (PackageInfoTypes::toOptions() as $key => $text) {
+            if ( $key == PackageInfoTypes::sponsorship->value ) continue; // Skip sponsorship
+            if ( $key == PackageInfoTypes::speeddating->value ) continue; // Skip speeddating
+
             $options[] = (object)[
                 'value'    => $key,
                 'text'     => $text,
