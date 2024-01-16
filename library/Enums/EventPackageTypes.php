@@ -76,6 +76,31 @@ enum EventPackageTypes: int
     };
   }
 
+  /**
+   * Returns the short name for the package type user in friendly links
+   * Usually <prefix>-reg-<shortname>
+   * @return string
+   */
+  public function toLink(): string
+  {
+    return match ($this) {
+      EventPackageTypes::attendee => 'att',
+      EventPackageTypes::claw_staff => 'claw',
+      EventPackageTypes::event_staff => 'sta',
+      EventPackageTypes::event_talent => 'tal',
+      EventPackageTypes::vendor_crew => 'ven',
+      EventPackageTypes::vendor_crew_extra => 'ven-extra',
+      EventPackageTypes::volunteer2 => 'vol',
+      EventPackageTypes::volunteer3 => 'vol3',
+      EventPackageTypes::volunteersuper => 'super',
+      EventPackageTypes::educator => 'edu',
+      EventPackageTypes::vip => 'vip',
+      EventPackageTypes::vip2 => 'vip2',
+      EventPackageTypes::addons => 'addons',
+      default => ''
+    };
+  }
+
   public static function FindValue(int $key): EventPackageTypes {
     foreach (EventPackageTypes::cases() as $c )
     {
