@@ -141,18 +141,5 @@ class DisplayController extends BaseController
     header('Content-Type: text/plain');
     echo $text;
   }
-
-  public function doCreateSponsorships()
-  {
-    $this->checkToken();
-
-    $json = new Json();
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\EventcopyModel */
-    $model = $this->getModel('Eventcopy');
-    $text = $model->doCreateSponsorships($json);
-    header('Content-Type: text/plain');
-    echo $text;
-  }
-
 #endregion Copy Event
 }
