@@ -112,6 +112,7 @@
 
 
 	</fieldset>
+
 	<fieldset
 		name="cron"
 		label="Cron"
@@ -140,7 +141,23 @@
 			default=""
 			required="false"
 		/>
-
 	</fieldset>
+
+	<fieldset
+	  name="packageinfo"
+		label="Package Info"
+		description="Settings for Package Info">
+
+		<field
+		  name="sponsorship_registration_email"
+			type="editor"
+			label="Sponsorship Registration Email"
+			description="Event Booking Registration Confirmation Email Template"
+			width="100%"
+			filter="safehtml"
+		/>
+	</fieldset>
+
+
 
 </config>
