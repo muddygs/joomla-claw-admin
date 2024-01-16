@@ -44,18 +44,12 @@ class EventBooking
       return '/';
     }
 
-    $route = Route::_('index.php?option=com_claw&view=registrationoptions&event=' . $eventAlias . '&action='. $regAction);
-
-    if ('' != $referrer) {
-      $route .= '&referrer=' . $referrer;
-    }
-
-    return $route;
+    return self::buildRegistrationLink($eventAlias, EventPackageTypes::FindValue($regAction), $referrer);
   }
 
   public static function buildRegistrationLink(string $eventAlias, EventPackageTypes $eventAction, string $referrer = ''): string
   {
-    $route = Route::_('index.php?option=com_claw&view=registrationoptions&event=' . $eventAlias . '&action='. $eventAction->value);
+    $route = Route::link('site','index.php?option=com_claw&view=registrationoptions&event=' . $eventAlias . '&action='. $eventAction->value);
     if ('' != $referrer) {
       $route .= '&referrer=' . $referrer;
     }
@@ -69,7 +63,7 @@ class EventBooking
     // Ignore mailchimp subscription if not on clawinfo.org (i.e., dev site)
     $uri_path = Uri::getInstance()->getHost();
     if (strpos($uri_path, 'clawinfo') === false) {
-      // return;
+      return;
     }
 
     // Load external password file
