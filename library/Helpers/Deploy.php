@@ -2,13 +2,16 @@
 
 namespace ClawCorpLib\Helpers;
 
+use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Ebmgmt;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\EventInfo;
 use DateTimeImmutable;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
+use Joomla\Database\DatabaseDriver;
 
 class Deploy
 {
@@ -19,6 +22,7 @@ class Deploy
 
   private int $gid_public = 0;
   private int $gid_registered = 0;
+  private DatabaseDriver $db;
 
   public function __construct (
     public string $eventAlias,
@@ -35,6 +39,10 @@ class Deploy
     if ( 0 == $this->gid_public || 0 == $this->gid_registered ) {
       die('Invalid group id');
     }
+
+    /** @var \Joomla\Database\DatabaseDriver */
+    $this->db = Factory::getContainer()->get('DatabaseDriver');
+
 
   }
 
@@ -53,6 +61,10 @@ class Deploy
 
       case self::EQUIPMENTRENTAL:
         return $this->Packages();
+      break;
+
+      case self::SPONSORSHIPS:
+        return $this->Sponsorships();
       break;
 
       default:
@@ -76,6 +88,7 @@ class Deploy
     string $registration_start_date,
     string $registration_access,
     string $price_text = '',
+    string $user_email_body = ''
   ): int {
     $insert = new ebMgmt(
       eventAlias: $this->eventAlias, 
@@ -97,6 +110,8 @@ class Deploy
     $insert->set('registration_start_date', $registration_start_date);
     $insert->set('payment_methods', 2); // Credit Cart
     $insert->set('registration_access', $registration_access);
+    $insert->set('user_email_body', $user_email_body);
+    $insert->set('user_email_body_offline', $user_email_body);
 
     $eventId = $insert->insert();
 
@@ -307,6 +322,156 @@ class Deploy
         $packageInfo->eventId = $eventId;
         $packageInfo->save();
       }
+
+      // TODO: still want friendly redirects?
+      $suffix = $packageInfo->eventPackageType->toLink();
+      if ( $suffix != '' ) {
+        $fromLink = strtolower($info->prefix . '-reg-' . $suffix);
+        $toLink = EventBooking::buildRegistrationLink($this->eventAlias, $packageInfo->eventPackageType);
+        $redirect = new Redirects($this->db, '/'.$fromLink, $toLink, $fromLink);
+        $redirect->insert();
+      }
+    }
+
+    // Special link cases
+    // addons
+    $suffix = EventPackageTypes::addons->toLink();
+    $fromLink = strtolower($info->prefix . '-reg-' . $suffix);
+    $toLink = EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::addons);
+    $redirect = new Redirects($this->db, '/'.$fromLink, $toLink, $fromLink);
+    $redirect->insert();
+    // vip2
+    $suffix = EventPackageTypes::vip2->toLink();
+    $fromLink = strtolower($info->prefix . '-reg-' . $suffix);
+    $toLink = EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip2);
+    $redirect = new Redirects($this->db, '/'.$fromLink, $toLink, $fromLink);
+    $redirect->insert();
+
+
+    $log[] = "Deployed $count packages.";
+
+    return '<p>'.implode('</p><p>', $log).'</p>';
+  }
+
+  public function Sponsorships(): string
+  {
+    $log = [];
+    $count = 0;
+
+    // Ignore server-specific timezone information
+    date_default_timezone_set('etc/UTC');
+
+    $eventConfig = new EventConfig($this->eventAlias, []);
+    $info = $eventConfig->eventInfo;
+    $packageInfos = $eventConfig->packageInfos;
+
+    // Map Eventbooking configured categories to supported sponsorships
+    $sponsorshipCategories = ClawEvents::getCategoryIds([
+      'sponsorships-advertising',
+      'sponsorships-logo',
+      'sponsorships-master-sustaining',
+      'sponsorships-black',
+      'sponsorships-blue',
+      'sponsorships-gold',
+      'donations-leather-heart'
+    ], true);
+
+    $componentParams = ComponentHelper::getParams('com_claw');
+    $user_email_body = $componentParams->get('sponsorship_registration_email', '');
+
+    // Base times to offset by "time" parameter for each event
+    $cancel_before_date = $info->cancelBy;
+    $startDate = $info->modify('Wed 9AM');
+    $endDate = $info->modify('next Monday midnight');;
+
+    // start and ending usability of these events
+    $registration_start_date = Factory::getDate()->toSql();
+    $publish_down = $info->modify('+8 days');
+ 
+    $accessGroup = $this->gid_public;
+
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ($packageInfos as $packageInfo) {
+      if ( $packageInfo->eventId > 0 ) {
+        $log[] =  "Already deployed: $packageInfo->title @ $packageInfo->eventId";
+        continue;
+      }
+
+      $packageInfo->alias = strtolower($info->prefix . '_spo_' . preg_replace("/[^A-Za-z0-9]+/", '_', $packageInfo->title));
+
+      $start = $startDate;
+      $end = $endDate;
+      $cutoff = $endDate;
+
+      $reg_start_date = $registration_start_date;
+
+      switch ( $packageInfo->category ) {
+        // We need advertising submitted no later than 3 weeks before the event
+        case $sponsorshipCategories['sponsorships-advertising']:
+          $cutoff = $startDate->modify('-3 weeks')->toSql();
+          break;
+        
+        case $sponsorshipCategories['sponsorships-logo']:
+          $cutoff = $startDate->modify('-1 week')->toSql();
+          break;
+
+        // Buffer until next event
+        case $sponsorshipCategories['sponsorships-master-sustaining']:
+          $cutoff = $startDate->modify('+6 months')->toSql();
+          $end = $cutoff;
+        break;
+
+        // Blue, black, gold are all the same
+        case $sponsorshipCategories['sponsorships-black']:
+        case $sponsorshipCategories['sponsorships-blue']:
+        case $sponsorshipCategories['sponsorships-gold']:
+          $cutoff = $startDate->modify('-1 week')->toSql();
+        break;
+
+        // Leather heart donations are available until the end of the event
+        case $sponsorshipCategories['donations-leather-heart']:
+          $cutoff = $endDate;
+        break;
+
+        default:
+          die('Invalid sponsorship category');
+        break;
+      }
+
+      $eventId = $this->Insert(
+        mainCategoryId: $packageInfo->category, 
+        itemAlias: $packageInfo->alias, 
+        title: $info->prefix . ' ' . $packageInfo->title,
+        description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
+        article_id: $info->termsArticleId,
+        cancel_before_date: $cancel_before_date->toSql(),
+        cut_off_date: $cutoff,
+        event_date: $start,
+        event_end_date: $end,
+        publish_down: $publish_down->toSql(),
+        individual_price: $packageInfo->fee,
+        registration_start_date: $reg_start_date,
+        registration_access: $accessGroup,
+        user_email_body: $user_email_body,
+      );
+
+      if ($eventId == 0) {
+        $log[] =  "Skipping existing: $packageInfo->title";
+
+        // So the alias exists, let's pull the event id from the database
+        $eventId = ClawEvents::getEventId($packageInfo->alias, true);
+        if ( $eventId != 0) {
+          $packageInfo->eventId = $eventId;
+          $packageInfo->save();
+          $log[] = "Updated: $packageInfo->title at event id $eventId";
+        }
+
+      } else {
+        $count++;
+        $log[] =  "Added: $packageInfo->title at event id $eventId";
+        $packageInfo->eventId = $eventId;
+        $packageInfo->save();
+      }
     }
 
     $log[] = "Deployed $count packages.";
@@ -380,8 +545,7 @@ class Deploy
       $titles[] = $packageInfo->title;
     }
 
-    /** @var \Joomla\Database\DatabaseDriver */
-    $db = Factory::getContainer()->get('DatabaseDriver');
+    $db = $this->db;
 
     // Check for existing discount
     $query = $db->getQuery(true);
