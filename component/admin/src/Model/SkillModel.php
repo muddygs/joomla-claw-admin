@@ -12,6 +12,7 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Helpers\EventBooking;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
@@ -78,7 +79,7 @@ class SkillModel extends AdminModel
     if (array_key_exists('day', $data) && in_array($data['day'], Helpers::getDays())) {
       $day = $info->modify( $data['day'] ?? '' );
       if ($day !== false) {
-        $data['day'] = $day;
+        $data['day'] = $day->toSql();
       } 
     } else {
       $data['day'] = $this->getDatabase()->getNullDate();
@@ -126,7 +127,8 @@ class SkillModel extends AdminModel
 
 		/** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
 		$parentField = $form->getField('location');
-    $parentField->populateOptions($info->ebLocationId);
+    $locationAlias = EventBooking::getLocationAlias($info->ebLocationId);
+    $parentField->populateOptions($locationAlias);
 
     return $form;
   }
