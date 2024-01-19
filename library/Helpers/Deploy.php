@@ -42,8 +42,6 @@ class Deploy
 
     /** @var \Joomla\Database\DatabaseDriver */
     $this->db = Factory::getContainer()->get('DatabaseDriver');
-
-
   }
 
   public function deploy(): string
@@ -323,7 +321,7 @@ class Deploy
         $packageInfo->save();
       }
 
-      // TODO: still want friendly redirects?
+      // Create friendly redirects
       $suffix = $packageInfo->eventPackageType->toLink();
       if ( $suffix != '' ) {
         $fromLink = strtolower($info->prefix . '-reg-' . $suffix);
@@ -333,7 +331,7 @@ class Deploy
       }
     }
 
-    // Special link cases
+    // Special friendly redirects cases
     // addons
     $suffix = EventPackageTypes::addons->toLink();
     $fromLink = strtolower($info->prefix . '-reg-' . $suffix);
@@ -346,7 +344,6 @@ class Deploy
     $toLink = EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip2);
     $redirect = new Redirects($this->db, '/'.$fromLink, $toLink, $fromLink);
     $redirect->insert();
-
 
     $log[] = "Deployed $count packages.";
 
@@ -514,7 +511,7 @@ class Deploy
           continue;
         }
 
-        $log[] = $this->addDiscountBundle([$packageInfo, $addon], $addon->bundleDiscount);
+        $log[] = $this->addDiscountBundle($addon->bundleDiscount, $packageInfo, $addon);
 
         $count++;
       }
@@ -531,14 +528,14 @@ class Deploy
    * @param int Dollar amount
    * @return True if added, False on error or duplicate (by title)
    */
-  private function addDiscountBundle(array $packageInfos, int $dollarAmount): string
+  // private function addDiscountBundle(array $packageInfos, int $dollarAmount): string
+  private function addDiscountBundle(int $dollarAmount, \ClawCorpLib\Lib\PackageInfo ...$packageInfos): string
   {
     if ( count($packageInfos) < 2 ) return "Skipping discount bundle: Not enough events";
 
     $eventIds = [];
     $titles = [];
 
-    /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ( $packageInfos AS $packageInfo ) {
       if ( $packageInfo->eventId == 0 ) return "Skipping discount bundle: Invalid event ID";
       $eventIds[] = $packageInfo->eventId;
@@ -594,6 +591,4 @@ class Deploy
 
     return "Added discount: $title";
   }
-
-
 }
