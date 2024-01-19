@@ -30,6 +30,18 @@
 			<option value="">Select Day</option>
 		</field>
 
+		<field name="type"
+			type="sql"
+			label="Class Type"
+			required="false"
+			value_field="text"
+			query="SELECT value,text FROM #__claw_field_values WHERE `fieldname`='skill_class_type' ORDER BY value"
+			default=""
+			onchange="this.form.submit();"
+		>
+			<option value="">Select Type</option>
+		</field>
+
 		<field
 		  name="event"
 			type="ClawEventsList"
