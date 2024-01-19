@@ -113,14 +113,14 @@ class Skills
    * Returns a list of classes for the given event
    * 
    * @param DatabaseDriver $db 
-   * @param bool $published (default: true)
+   * @param bool $publishedOnly (default: true)
    * @return array 
    * @throws UnsupportedAdapterException 
    * @throws QueryTypeAlreadyDefinedException 
    * @throws RuntimeException 
    * @throws InvalidArgumentException 
    */
-  public function GetClassList(bool $published = true): array
+  public function GetClassList(bool $publishedOnly = true): array
   {
     if (count($this->classCache)) return $this->classCache;
 
@@ -130,7 +130,7 @@ class Skills
       ->from($this->db->qn('#__claw_skills'))
       ->where($this->db->qn('event') . ' = :event')->bind(':event', $this->eventAlias);
     
-    if ( $published ) {
+    if ( $publishedOnly ) {
       $query->where($this->db->qn('published') . '= 1')
         ->where($this->db->qn('day') . ' != "0000-00-00"')
         ->where($this->db->qn('time_slot') . ' IS NOT NULL')
@@ -238,7 +238,7 @@ class Skills
     return json_encode($results);
   }
 
-  public function presentersCSV(string $filename)
+  public function presentersCSV(string $filename, bool $publishedOnly = true)
   {
     if ( $this->eventAlias == '' ) {
       // error message
@@ -246,14 +246,21 @@ class Skills
     }
 
     $query = $this->db->getQuery(true);
+
     $columnNames = ['id', 'uid', 'name', 'bio', 'photo'];
+
+    if ( !$publishedOnly )
+      $columnNames = array_keys($this->db->getTableColumns('#__claw_presenters'));
 
     $query->select($this->db->qn($columnNames))
       ->from($this->db->qn('#__claw_presenters'))
-      ->where($this->db->qn('published') . ' = 1')
       ->where($this->db->qn('event') . ' = :event')
       ->bind(':event', $this->eventAlias)
       ->order('name ASC');
+
+    if ( $publishedOnly ) {
+      $query->where($this->db->qn('published') . ' = 1');
+    }
 
     $this->db->setQuery($query);
     $presenters = $this->db->loadObjectList() ?? [];
@@ -286,6 +293,16 @@ class Skills
             // Convert to HTML
             $row[] = Helpers::cleanHtmlForCsv($p->$col);
             break;
+          case 'published':
+            $row[] = match($p->$col) {
+              -2 => 'Trashed',
+              0 => 'Unpublished',
+              1 => 'Published',
+              2 => 'Archived',
+              3 => 'New',
+              default => 'Unknown',
+            };
+            break;
           default:
             $row[] = $p->$col;
             break;
@@ -299,15 +316,15 @@ class Skills
     ob_end_flush();
   }
 
-  public function classesCSV(string $filename)
+  public function classesCSV(string $filename, bool $publishedOnly = true)
   {
     if ( $this->eventAlias == '' ) {
       // error message
       throw new GenericDataException('eventAlias must be specified', 500);
     }
 
-    $this->GetClassList(published: true);
-    $this->GetPresentersList(publishedOnly: true);
+    $this->GetClassList(publishedOnly: $publishedOnly);
+    $this->GetPresentersList(publishedOnly: $publishedOnly);
 
     // Load the global config for com_claw. We need to the RS Form ID
     /** @var Joomla\CMS\Application\AdministratorApplication */
@@ -410,19 +427,33 @@ class Skills
           case 'description':
             $survey = '';
 
-            if ( $surveyLink != '') {
+            if ( $surveyLink != '' && $publishedOnly ) {
               $newurl = $surveyLink . '?form[classTitleParam]=' . $c->id;
               $oldurl = $siteUrl . 'skills_survey_'.$c->id; 
               $redirect = new Redirects($this->db, $oldurl, $newurl, 'survey_'.$c->id);
               $redirectId = $redirect->insert();
               if ( $redirectId ) $survey = 'Survey: ' . $oldurl . '<br/>';
+              $description = $survey . 'Category: ' . $categories[$c->category]->text . '<br/>' . $c->$col;
+            } else {
+              $description = $c->col;
             }
 
             // Convert category to text
-            $description = $survey . 'Category: ' . $categories[$c->category]->text . '<br/>' . $c->$col;
             $description = Helpers::cleanHtmlForCsv($description);
             $row[] = $description;
             break;
+            
+          case 'published':
+            $row[] = match($c->$col) {
+              -2 => 'Trashed',
+              0 => 'Unpublished',
+              1 => 'Published',
+              2 => 'Archived',
+              3 => 'New',
+              default => 'Unknown',
+            };
+            break;
+  
           default:
             $row[] = $c->$col;
             break;
