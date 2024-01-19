@@ -190,7 +190,7 @@ class Registrant
     foreach( $records AS $index => $record )
     {
       /** @var \ClawCorpLib\Lib\PackageInfo */
-      $event = $this->eventConfig->getPackageInfoByProperty('eventId', $record->event->eventId);
+      $event = $this->eventConfig->getPackageInfoByProperty('eventId', $record->eventId);
 
       if ( null != $event ) {
         if ( $event->packageInfoType == PackageInfoTypes::main || $event->packageInfoType == PackageInfoTypes::daypass ) $record->couponKey = $event->couponKey;
