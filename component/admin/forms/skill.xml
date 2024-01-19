@@ -40,7 +40,7 @@
     <option value="">Select a time slot</option>
   </field>
 
-  <field name="class_type"
+  <field name="type"
     type="sql"
     label="Class Type"
     required="false"
