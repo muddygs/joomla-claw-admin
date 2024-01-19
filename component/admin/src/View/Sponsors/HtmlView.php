@@ -101,7 +101,7 @@ class HtmlView extends BaseHtmlView
 
     $user  = $app->getIdentity();
 
-    if ($user->authorise('core.admin', 'com_claw')) {
+    if ($user->authorise('claw.events', 'com_claw')) {
       $toolbar->addNew('sponsor.add');
       $toolbar->delete('sponsors.delete')
 			->text('Deleted Selected')
