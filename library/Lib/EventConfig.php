@@ -11,7 +11,7 @@ use Joomla\CMS\Factory;
 class EventConfig
 {
   public EventInfo $eventInfo;
-  public array $packageInfos = [];
+  public PackageInfos $packageInfos;
 
   /**
    * @param string $alias Event alias (required)
@@ -33,6 +33,7 @@ class EventConfig
 
     // TODO: Error handling
     $this->eventInfo = new EventInfo($alias);
+    $this->packageInfos = new PackageInfos();
 
     // For refunds, we need access to all active EventConfigs and their PackageInfos
     if ( $this->eventInfo->eventType == EventTypes::refunds ) {
@@ -46,6 +47,7 @@ class EventConfig
     } else {
       $this->loadPackageInfos([$this->eventInfo->alias]);
     }
+
   }
 
   private function loadPackageInfos(array $aliases = [])
