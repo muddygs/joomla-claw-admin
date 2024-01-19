@@ -38,6 +38,7 @@ class SkillsModel extends ListModel
     'time_slot',
     'location',
     'track',
+    'type',
     'owner',
     'presenters',
     'mtime',
@@ -269,6 +270,7 @@ class SkillsModel extends ListModel
     $event = $this->getState('filter.event');
     $day = $this->getState('filter.day');
     $presenter = $this->getState('filter.presenter');
+    $type = $this->getState('filter.type');
 
     switch ($event) {
       case '':
@@ -302,6 +304,11 @@ class SkillsModel extends ListModel
     if ( $presenter ) {
       $query->where('a.owner = :presenter');
       $query->bind(':presenter', $presenter);
+    }
+
+    if ( $type ) {
+      $query->where('a.type = :type');
+      $query->bind(':type', $type);
     }
 
     // Add the list ordering clause.
