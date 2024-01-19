@@ -19,74 +19,6 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 class HtmlView extends BaseHtmlView
 {
   /**
-   * The \JForm object
-   *
-   * @var  \JForm
-   */
-  protected $form;
-
-  /**
-   * The active item
-   *
-   * @var  object
-   */
-  protected $item;
-
-  /**
-   * The model state
-   *
-   * @var  object
-   */
-  protected $state;
-
-  /**
-   * The actions the user is authorized to perform
-   *
-   * @var  \JObject
-   */
-  protected $canDo;
-
-  /**
-   * The search tools form
-   *
-   * @var    Form
-   * @since  1.6
-   */
-  public $filterForm;
-
-  /**
-   * The active search filters
-   *
-   * @var    array
-   * @since  1.6
-   */
-  public $activeFilters = [];
-
-  /**
-   * Category data
-   *
-   * @var    array
-   * @since  1.6
-   */
-  protected $categories = [];
-
-  /**
-   * An array of items
-   *
-   * @var    array
-   * @since  1.6
-   */
-  protected $items = [];
-
-  /**
-   * The pagination object
-   *
-   * @var    Pagination
-   * @since  1.6
-   */
-  protected $pagination;
-
-  /**
    * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
    * @return  void
    */
@@ -125,24 +57,20 @@ class HtmlView extends BaseHtmlView
 
     $toolbarButtons = [];
 
-    // If not checked out, can save the item.
-    if ($user->authorise('core.admin', 'com_claw')) {
-        ToolbarHelper::apply('schedule.apply');
-        $toolbarButtons[] = ['save', 'schedule.save'];
+    if ($user->authorise('claw.events', 'com_claw')) {
+      ToolbarHelper::apply('schedule.apply');
+      $toolbarButtons[] = ['save', 'schedule.save'];
 
-        if (true /*$canDo->get('core.create')*/) {
-            $toolbarButtons[] = ['save2new', 'schedule.save2new'];
-        }
+      $toolbarButtons[] = ['save2new', 'schedule.save2new'];
 
-        // If an existing item, can save to a copy.
-        if (!$isNew /*&& $canDo->get('core.create')*/) {
-            $toolbarButtons[] = ['save2copy', 'schedule.save2copy'];
-        }
-    
-        ToolbarHelper::saveGroup(
-            $toolbarButtons,
-            'btn-success'
-        );
+      if ( !$isNew ) {
+          $toolbarButtons[] = ['save2copy', 'schedule.save2copy'];
+      }
+  
+      ToolbarHelper::saveGroup(
+          $toolbarButtons,
+          'btn-success'
+      );
     }
 
     if ($isNew) {
