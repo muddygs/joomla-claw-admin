@@ -21,54 +21,6 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 class HtmlView extends BaseHtmlView
 {
   /**
-   * The search tools form
-   *
-   * @var    Form
-   * @since  1.6
-   */
-  public $filterForm;
-
-  /**
-   * The active search filters
-   *
-   * @var    array
-   * @since  1.6
-   */
-  public $activeFilters = [];
-
-  /**
-   * Category data
-   *
-   * @var    array
-   * @since  1.6
-   */
-  protected $categories = [];
-
-  /**
-   * An array of items
-   *
-   * @var    array
-   * @since  1.6
-   */
-  protected $items = [];
-
-  /**
-   * The pagination object
-   *
-   * @var    Pagination
-   * @since  1.6
-   */
-  protected $pagination;
-
-  /**
-   * The model state
-   *
-   * @var    Registry
-   * @since  1.6
-   */
-  protected $state;
-
-  /**
    * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
    * @return  void
    */
@@ -104,20 +56,22 @@ class HtmlView extends BaseHtmlView
 
     $isNew      = ($this->item->id == 0);
 
-    // $canDo = ContentHelper::getActions('com_countrybase');
-
     $toolbar = Toolbar::getInstance();
 
     ToolbarHelper::title(
       'CLAW Sponsor ' . ($isNew ? 'Add' : 'Edit')
     );
 
-    if ($user->authorise('admin.core', 'com_claw')) {
+    if ($user->authorise('claw.events', 'com_claw')) {
       $isNew ? ToolbarHelper::apply('sponsor.save') : ToolbarHelper::apply('sponsor.apply');
 
        $toolbar->save('sponsor.save');
     }
 
-    $toolbar->cancel('sponsor.cancel', 'JTOOLBAR_CLOSE');
+    if ($isNew) {
+      ToolbarHelper::cancel('schedule.cancel');
+    } else {
+      ToolbarHelper::cancel('schedule.cancel', 'JTOOLBAR_CLOSE');
+    }
   }
 }
