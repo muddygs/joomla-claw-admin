@@ -46,27 +46,12 @@ class Volunteers
     foreach ($rows as $row) {
       if (!str_starts_with($row->alias, $eventConfig->eventInfo->shiftPrefix)) continue;
 
-      $sid = (int)(explode('-', substr($row->alias, strlen($eventConfig->eventInfo->shiftPrefix)))[1]);
+      $pattern = '/-(\d+)-/';
 
-      // Handle exception for old style shift ids
-      if ('l1123' == $clawEventAlias) {
-        $sid = match ($sid) {
-          143 => 21,
-          144 => 22,
-          184 => 23,
-          191 => 24,
-          192 => 25,
-          193 => 26,
-          194 => 27,
-          195 => 28,
-          196 => 29,
-          197 => 30,
-          198 => 31,
-          199 => 32,
-          200 => 33,
-          201 => 34,
-          default => 0,
-        };
+      if (preg_match($pattern, substr($row->alias, strlen($eventConfig->eventInfo->shiftPrefix)), $matches)) {
+          $sid = $matches[1];
+      } else {
+          continue;
       }
 
       if (!array_key_exists($sid, $option)) {
