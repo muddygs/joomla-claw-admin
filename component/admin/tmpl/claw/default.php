@@ -57,7 +57,7 @@ Bootstrap::writeGrid($content, $tags, false, false);
 
 ?>
 <hr/>
-<h2>Exports</h2>
+<h2>Yapp Exports</h2>
 <p>NOTE: Exports are for the current event only.</p>
 <?php
 $content = [
@@ -78,6 +78,8 @@ Bootstrap::writeGrid($content, $tags, false, false);
 $content = [
   'ticket-alt' => ['Presenters','<a href="/administrator/index.php?option=com_claw&view=presenters" role="button" class="btn btn-danger">Launch</a>'],
   'user-tag' => ['Classes','<a href="/administrator/index.php?option=com_claw&view=classes" role="button" class="btn btn-danger">Launch</a>'],
+  'user-friends' => ['Presenters Export','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_presenters&published_only=0&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
+  'list' => ['Classes Export','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_classes&published_only=0&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
 ];
   
 Bootstrap::writeGrid($content, $tags, false, false);
