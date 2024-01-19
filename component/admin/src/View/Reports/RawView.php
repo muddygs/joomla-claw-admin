@@ -12,6 +12,7 @@ namespace ClawCorp\Component\Claw\Administrator\View\Reports;
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 
 class RawView extends BaseHtmlView
@@ -40,6 +41,11 @@ class RawView extends BaseHtmlView
         break;
       case 'meals':
         $this->items = $this->model->getMealCounts();
+        break;
+      case 'csv_presenters':
+      case 'csv_classes':
+        $input = Factory::getApplication()->getInput();
+        $this->publishedOnly = $input->getBool('published_only', true);
         break;
       default:
         break;
