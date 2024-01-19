@@ -26,35 +26,3 @@ function copyEvent() {
       document.getElementById('results').innerHTML = html;
   });
 }
-
-function createEvents() {
-  fetch(copyeventAjaxUrl('doCreateEvents'), copyeventOptions())
-    .then(result => result.text())
-    .then(html => {
-      document.getElementById('results').innerHTML = html;
-  });
-}
-
-function createSpeeddating() {
-  fetch(copyeventAjaxUrl('doCreateSpeedDating'), copyeventOptions())
-    .then(result => result.text())
-    .then(html => {
-      document.getElementById('results').innerHTML = html;
-  });
-}
-
-function createDiscountBundles() {
-  fetch(copyeventAjaxUrl('doCreateDiscountBundles'), copyeventOptions())
-    .then(result => result.text())
-    .then(html => {
-      document.getElementById('results').innerHTML = html;
-  });
-}
-
-function createSponsorships() {
-  fetch(copyeventAjaxUrl('doCreateSponsorships'), copyeventOptions())
-    .then(result => result.text())
-    .then(html => {
-      document.getElementById('results').innerHTML = html;
-  });
-}
