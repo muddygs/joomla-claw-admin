@@ -8,6 +8,20 @@ use Joomla\CMS\Factory;
 
 class Config
 {
+  // Constants for fieldname in #__claw_field_values
+  const CONFIG_COMBO_EVENTS = 'config_combo_events';
+  const CONFIG_DEBUG_EMAIL = 'config_debug_email';
+  const CONFIG_IMAGES = 'config_images';
+  const CONFIG_OVERLAP_CATEGORY = 'config_overlap_category';
+  const CONFIG_SHIFT_CATEGORY = 'config_shift_category';
+  const CONFIG_TIMEZONE = 'config_timezone';
+  const CONFIG_URLPREFIX = 'config_urlprefix';
+  const SHIFT_SHIFT_AREA = 'shift_shift_area';
+  const SKILL_CATEGORY = 'skill_category';
+  const SKILL_CLASS_TYPE = 'skill_class_type';
+  const SKILL_TIME_SLOT = 'skill_time_slot';
+  const SKILL_TRACK = 'skill_track';
+
   // Cache of config values
   private static array $_titles = [];
   private static string $_current = '';
