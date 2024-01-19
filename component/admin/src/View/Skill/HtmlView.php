@@ -21,74 +21,6 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 class HtmlView extends BaseHtmlView
 {
 	/**
-	 * The \JForm object
-	 *
-	 * @var  \JForm
-	 */
-	protected $form;
-
-	/**
-	 * The active item
-	 *
-	 * @var  object
-	 */
-	protected $item;
-
-	/**
-	 * The model state
-	 *
-	 * @var  object
-	 */
-	protected $state;
-
-	/**
-	 * The actions the user is authorized to perform
-	 *
-	 * @var  \JObject
-	 */
-	protected $canDo;
-
-	/**
-	 * The search tools form
-	 *
-	 * @var    Form
-	 * @since  1.6
-	 */
-	public $filterForm;
-
-	/**
-	 * The active search filters
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	public $activeFilters = [];
-
-	/**
-	 * Category data
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	protected $categories = [];
-
-	/**
-	 * An array of items
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	protected $items = [];
-
-	/**
-	 * The pagination object
-	 *
-	 * @var    Pagination
-	 * @since  1.6
-	 */
-	protected $pagination;
-
-	/**
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
 	 * @return  void
 	 */
@@ -108,7 +40,7 @@ class HtmlView extends BaseHtmlView
 		parent::display($tpl);
 	}
 
-		/**
+	/**
 	 * Add the page title and toolbar.
 	 *
 	 * @return  void
