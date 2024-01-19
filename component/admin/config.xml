@@ -158,6 +158,20 @@
 		/>
 	</fieldset>
 
+	<fieldset
+	  name="shifts"
+		label="Shifts"
+		description="Settings for Shifts">
+
+		<field
+		  name="shifts_coordinator_groups"
+			type="usergrouplist"
+			label="Shift Coordinator Groups"
+			description="Do not forget Super Users"
+			layout="joomla.form.field.list-fancy-select"
+			multiple="true"
+		/>
+	</fieldset>
 
 
 </config>
