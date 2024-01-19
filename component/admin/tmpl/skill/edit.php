@@ -51,7 +51,7 @@ $view = 'skill';
 		<?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'general', 'General'); ?>
 
 		<div class="row">
-			<?php echo $this->form->renderField('class_type'); ?>
+			<?php echo $this->form->renderField('type'); ?>
 			<?php echo $this->form->renderField('day'); ?>
 			<div class="col-6">
 				<?php echo $this->form->renderField('time_slot'); ?>

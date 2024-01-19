@@ -50,6 +50,7 @@ $user = $app->getIdentity();
 		    <th scope="col">Day/Time</th>
 		    <th scope="col">Location</th>
         <th scope="col">Track</th>
+        <th scope="col">Class Type</th>
         <th scope="col">Presenter(s)</th>
         <th scope="col">
           <?php echo HTMLHelper::_('searchtools.sort', 'Modification', 'a.mtime', $listDirn, $listOrder); ?>  
@@ -96,6 +97,9 @@ $user = $app->getIdentity();
           </td>
           <td>
             <?php echo $item->track ?>
+          </td>
+          <td>
+            <?= Config::getConfigValuesText(Config::SKILL_CLASS_TYPE, $item->type ?? 'TBD') ?? 'TBD' ?>
           </td>
           <td>
               <?php echo implode('<br/>', $item->presenter_names) ?>
