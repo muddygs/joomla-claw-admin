@@ -17,4 +17,4 @@ use Joomla\CMS\HTML\HTMLHelper;
 
 $skills = new Skills(Factory::getContainer()->get('DatabaseDriver'), Aliases::current());
 $filename = 'Presenters_Export_' . HtmlHelper::date('now', 'Y-m-d_H-i-s') . '.csv';
-$skills->presentersCSV($filename);
+$skills->presentersCSV($filename, $this->publishedOnly);
