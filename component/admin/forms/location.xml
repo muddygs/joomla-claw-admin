@@ -13,8 +13,8 @@
     description="Select parent location if this is a sub-location"
     multiple="false"
     layout="joomla.form.field.list-fancy-select"
-    default="">
-    <option value="">None</option>
+    default="0">
+    <option value="0">None</option>
   </field>
 
   <field name="ordering"
@@ -27,7 +27,8 @@
     type="text"
     label="Location"
     required="true"
-    maxLength="255" />
+    maxLength="255"
+  />
 
   <field name="alias"
     type="sql"
@@ -36,7 +37,9 @@
     key_field="alias"
     value_field="name"
     query="SELECT name,alias FROM #__eb_locations WHERE published=1 ORDER BY name"
-    default="">
+    default=""
+    showon="catid:0"
+  >
     <option value="">None</option>
   </field>
 

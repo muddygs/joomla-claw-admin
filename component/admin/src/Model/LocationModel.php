@@ -36,7 +36,7 @@ class LocationModel extends AdminModel
     $input = Factory::getApplication()->getInput();
     /** @var $app AdministratorApplication */
     $app = Factory::getApplication();
-    $oldcatid = $app->getUserState('com_claw.location.old', array());
+    $oldcatid = $app->getUserState('com_claw.location.old', 0);
 
     if ( 0 == $data['id'] || -1 == $input->data['ordering'] || $oldcatid != $data['catid'] )
     {
@@ -104,14 +104,13 @@ class LocationModel extends AdminModel
     // Check the session for previously entered form data.
     /** @var $app AdministratorApplication */
     $app = Factory::getApplication();
-    $data = $app->getUserState('com_claw.edit.location.data', array());
+    $data = $app->getUserState('com_claw.edit.location.data', []);
 
-    if (empty($data))
-    {
+    if (empty($data)) {
       $data = $this->getItem();
     }
 
-    $app->setUserState("com_claw.location.old", $data->catid);
+    $app->setUserState("com_claw.location.old", $data->catid ?? 0);
 
     return $data;
   }
