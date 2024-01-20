@@ -64,6 +64,8 @@ class EventconfigModel extends AdminModel
 
     switch ($packageInfoType) {
       case PackageInfoTypes::main:
+      case PackageInfoTypes::combomeal:
+      case PackageInfoTypes::coupononly:
         $data['start'] = $this->getDatabase()->getNullDate();
         $data['end'] = $this->getDatabase()->getNullDate();
         break;
