@@ -23,7 +23,17 @@ use Joomla\CMS\Language\Text;
  */
 class EventinfoModel extends AdminModel
 {
-  /**
+  private $jsonFields = [
+    'eb_cat_shifts',
+    'eb_cat_supershifts',
+    'eb_cat_speeddating',
+    'eb_cat_equipment',
+    'eb_cat_sponsorship',
+    'eb_cat_meals',
+    // 'eb_cat_invoice',
+  ];
+
+    /**
    * The prefix to use with controller messages.
    *
    * @var    string
@@ -33,6 +43,15 @@ class EventinfoModel extends AdminModel
 
   public function save($data)
   {
+    // Handle JSON data
+    foreach ($this->jsonFields as $field) {
+      if (isset($data[$field])) {
+        // Always make sure we get an array
+        if (!is_array($data[$field])) $data[$field] = [$data[$field]];
+        $data[$field] = json_encode($data[$field]);
+      }
+    }
+
     $data['mtime'] = Helpers::mtime();
 
     return parent::save($data);
@@ -70,7 +89,17 @@ class EventinfoModel extends AdminModel
     /** @var $app AdministratorApplication */
     $app = Factory::getApplication();
     $data = $app->getUserState('com_claw.edit.eventinfo.data', []);
-    if (empty($data)) $data = $this->getItem();
+    if (empty($data)) {
+      $data = $this->getItem();
+
+      // Handle JSON data
+      foreach ($this->jsonFields as $field) {
+        if (property_exists($data, $field) && is_string($data->$field)) $data->$field = json_decode($data->$field);
+
+        // Remove empty values
+        if (is_array($data->$field)) $data->$field = array_filter($data->$field);
+      }
+    }
 
     return $data;
   }

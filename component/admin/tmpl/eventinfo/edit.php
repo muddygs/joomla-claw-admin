@@ -76,7 +76,7 @@ $view = 'eventinfo';
 
     <div class="row">
       <div class="col-lg-4">
-        <?= $this->form->renderField('locationAlias'); ?>
+        <?= $this->form->renderField('ebLocationId'); ?>
       </div>
       <div class="col-lg-4">
         <?= $this->form->renderField('timezone'); ?>
@@ -84,6 +84,17 @@ $view = 'eventinfo';
       <div class="col-lg-4">
         <?= $this->form->renderField('termsArticleId'); ?>
       </div>
+    </div>
+
+    <h1>Registration Mappings</h1>
+    <div class="row">
+      <?= $this->form->renderField('eb_cat_shifts'); ?>
+      <?= $this->form->renderField('eb_cat_supershifts'); ?>
+      <?= $this->form->renderField('eb_cat_speeddating'); ?>
+      <?= $this->form->renderField('eb_cat_equipment'); ?>
+      <?= $this->form->renderField('eb_cat_sponsorship'); ?>
+      <?= $this->form->renderField('eb_cat_meals'); ?>
+      
     </div>
   </div>
 
