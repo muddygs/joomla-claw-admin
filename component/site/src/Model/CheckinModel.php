@@ -206,7 +206,7 @@ class CheckinModel extends BaseDatabaseModel
     $result['name'] = ucwords($mainEvent->registrant->first_name . ' ' . $mainEvent->registrant->last_name);
     $result['uid'] = $mainEvent->registrant->user_id;
 
-    $shiftCatIds = ClawEvents::getCategoryIds(Aliases::shiftCategories());
+    $shiftCatIds = array_merge($registrant->eventConfig->eventInfo->eb_cat_shifts, $registrant->eventConfig->eventInfo->eb_cat_supershifts);
 
     $shifts = [];
 
@@ -223,7 +223,7 @@ class CheckinModel extends BaseDatabaseModel
       }
     }
 
-    // Sort shifts by title
+    // Sort shifts by time
     usort($shifts, function($a, $b) {
       return strcmp($a['time'], $b['time']);
     });

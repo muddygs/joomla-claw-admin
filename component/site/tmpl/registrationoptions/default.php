@@ -141,7 +141,7 @@ $wa->useScript('com_claw.toast');
 <div class="position-fixed top-50 start-50 translate-middle p-3" style="z-index: 11">
   <div id="liveToast" class="toast rounded-pill" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header rounded-pill">
-      <strong style="line-height:1rem;" class="me-auto small m-1">Event added to cart.<br>Click Cart Button (above) to check out.</strong>
+      <p style="line-height:1rem;" class="me-auto small m-1">Event added to cart.<br>Click Cart Button (above) to check out.</p>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
   </div>
@@ -269,15 +269,15 @@ endif;
   $content[] = contentMeals($this->eventConfig->eventInfo);
 
   $headings[] = 'Speed Dating';
-  $content[] = contentSpeedDating();
+  $content[] = contentSpeedDating($this->eventConfig->eventInfo);
 
   if ( !$this->eventConfig->eventInfo->onsiteActive ) {
     $headings[] = 'Rentals';
-    $content[] = contentRentals();
+    $content[] = contentRentals($this->eventConfig->eventInfo);
   }
 
   $headings[] = 'Community';
-  $content[] = contentLeatherHeart();
+  $content[] = contentLeatherHeart($this->eventConfig->eventInfo);
 
   // $content[] = contentParties();
   Bootstrap::writePillTabs($headings, $content, $tab);
@@ -354,19 +354,9 @@ HTML;
 
   function contentMeals(EventInfo $eventInfo): string
   {
-    // TODO: temporary use of C24 category for meals
     $result = '';
-    $categoryIds = ClawEvents::getCategoryIds([
-      $eventInfo->prefix == 'C24' ? 'dinner-cle' : 'dinner',
-      'buffet',
-      'buffet-breakfast',
-    ]);
-
-    if ( !$eventInfo->onsiteActive ) {
-      $categoryIds[] = ClawEvents::getCategoryId($eventInfo->prefix == 'C24' ? 'meal-combos-cle' : 'meal-combos');
-    }
-
-    foreach ($categoryIds as $id) {
+    
+    foreach ($eventInfo->eb_cat_meals as $id) {
       $content = "{ebcategory $id toast}";
       $prepared = HTMLHelper::_('content.prepare', $content);
       $result .= $prepared;
@@ -375,16 +365,16 @@ HTML;
     return $result;
   }
 
-  function contentSpeedDating(): string
+  function contentSpeedDating(EventInfo $eventInfo): string
   {
-    $categoryIds = ClawEvents::getCategoryIds(['speed-dating']);
+    $categoryIds = $eventInfo->eb_cat_speeddating;
     $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
     return HTMLHelper::_('content.prepare', $content);
   }
 
-  function contentRentals(): string
+  function contentRentals(EventInfo $eventInfo): string
   {
-    $categoryIds = ClawEvents::getCategoryIds(['equipment-rentals']);
+    $categoryIds = $eventInfo->eb_cat_equipment;
     $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
     return HTMLHelper::_('content.prepare', $content);
   }
@@ -398,7 +388,7 @@ HTML;
 HTML;
   }
 
-  function contentLeatherHeart(): string
+  function contentLeatherHeart(EventInfo $eventInfo): string
   {
     $result = <<<HTML
   <div class="border border=info text-white p-3 mx-2 mb-2 rounded">
@@ -409,7 +399,7 @@ HTML;
 
     $result = ''; // for now
 
-    $categoryIds = ClawEvents::getCategoryIds(['donations-leather-heart']);
+    $categoryIds = $eventInfo->eb_cat_sponsorship;
     $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
     $result .= HTMLHelper::_('content.prepare', $content);
 

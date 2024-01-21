@@ -77,12 +77,6 @@ class Aliases {
   // Categories that require main events (other than shifts)
   const categoriesRequiringMainEvent = ['speed-dating', 'dinner', 'buffet-breakfast', 'buffet','meal-combos','equipment-rentals'];
 
-  const categoriesTicketedEvents = [
-    'dinner',
-    'buffet',
-    'buffet-breakfast'
-  ];
-
   // Events listing sponsor icons
   static function sponsorIconDir() {
     return Config::getConfigValuesText(ConfigFieldNames::CONFIG_IMAGES, 'sponsor_icons');

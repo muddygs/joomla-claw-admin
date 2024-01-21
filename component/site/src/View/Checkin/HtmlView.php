@@ -82,7 +82,7 @@ class HtmlView extends BaseHtmlView
     }
 
     if ( 'volunteer-roll-call' == $tpl ) {
-      $shiftCatIds = ClawEvents::getCategoryIds(Aliases::shiftCategories());
+      $shiftCatIds = array_merge($eventConfig->eventInfo->eb_cat_shifts, $eventConfig->eventInfo->eb_cat_supershifts);
       $rows = $eventConfig->getEventsByCategoryId($shiftCatIds);
 
       $this->shifts = [];

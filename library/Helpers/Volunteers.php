@@ -23,7 +23,9 @@ class Volunteers
 
     $eventConfig = new EventConfig($clawEventAlias);
 
-    $shiftEvents = $eventConfig->getEventsByCategoryId(ClawEvents::getCategoryIds(Aliases::shiftCategories()));
+    $shiftEvents = $eventConfig->getEventsByCategoryId(
+      array_merge($eventConfig->eventInfo->eb_cat_shifts, $eventConfig->eventInfo->eb_cat_supershifts)
+    );
 
     $eventIds = array_column($shiftEvents, 'id');
 

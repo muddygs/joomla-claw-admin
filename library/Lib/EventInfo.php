@@ -26,6 +26,14 @@ class EventInfo
   public bool $onsiteActive;
   public int $termsArticleId;
 
+  public array $eb_cat_shifts;
+  public array $eb_cat_supershifts;
+  public array $eb_cat_speeddating;
+  public array $eb_cat_equipment;
+  public array $eb_cat_sponsorship;
+  public array $eb_cat_meals;
+
+
   /**
    * Event info object with simple date validation if main events are allowed
    * @param object $info 
@@ -36,7 +44,7 @@ class EventInfo
     public string $alias
   )
   {
-    $info = $this->loadEventInfo($alias);
+    $info = $this->loadRawEventInfo($alias);
 
     $this->description = $info->description;
     $this->ebLocationId = $info->ebLocationId;
@@ -49,6 +57,14 @@ class EventInfo
     $this->eventType = EventTypes::FindValue($info->eventType);
     $this->onsiteActive = $info->onsiteActive;
     $this->termsArticleId = $info->termsArticleId;
+
+    $this->eb_cat_shifts = json_decode($info->eb_cat_shifts);
+    $this->eb_cat_supershifts = json_decode($info->eb_cat_supershifts);
+    $this->eb_cat_speeddating = json_decode($info->eb_cat_speeddating);
+    $this->eb_cat_equipment = json_decode($info->eb_cat_equipment);
+    $this->eb_cat_sponsorship = json_decode($info->eb_cat_sponsorship);
+    $this->eb_cat_meals = json_decode($info->eb_cat_meals);
+  
 
     // Data validation
 
@@ -73,7 +89,7 @@ class EventInfo
     }
   }
 
-  private function loadEventInfo(string $alias): object
+  private function loadRawEventInfo(string $alias): object
   {
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
@@ -155,8 +171,25 @@ class EventInfo
    */
   public static function isValidEventAlias(string $alias): bool
   {
-    if ( count(self::$_EventList) == 0 ) self::getEventInfos();
-    return array_key_exists(strtolower($alias), self::$_EventList);
+    // If cached, no db lookup, return what we know
+    if ( count(self::$_EventList) != 0 ) {
+      return array_key_exists(strtolower($alias), self::$_EventList);
+    }
+
+    $alias = strtolower($alias);
+    
+    // If not cached, do db lookup
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
+    $query = $db->getQuery(true);
+    $query->select(['alias', 'description'])
+      ->from('#__claw_eventinfos')
+      ->where('active='.EbPublishedState::published->value)
+      ->where('alias = :alias')
+      ->bind(':alias', $alias);
+
+    $db->setQuery($query);
+    return $db->loadResult() != null;
   }
 
 

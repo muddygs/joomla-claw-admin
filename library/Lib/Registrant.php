@@ -18,7 +18,7 @@ class Registrant
 
   var $badgeId = '';
 
-  private EventConfig $eventConfig;
+  public EventConfig $eventConfig;
   public int $count = 0;
 
   public function __construct(

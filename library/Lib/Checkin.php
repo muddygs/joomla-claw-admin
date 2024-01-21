@@ -118,7 +118,7 @@ class Checkin
       if ( $tmpOverride != '' ) $this->r->overridePackage = $tmpOverride;
     }
 
-    $shiftCatIds = ClawEvents::getCategoryIds(Aliases::shiftCategories());
+    $shiftCatIds = array_merge($registrant->eventConfig->eventInfo->eb_cat_shifts, $registrant->eventConfig->eventInfo->eb_cat_supershifts);
     $leatherHeartCatId = ClawEvents::getCategoryId('donations-leather-heart');
 
     $this->r->shifts = '';
