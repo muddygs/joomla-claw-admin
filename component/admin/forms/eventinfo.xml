@@ -128,7 +128,65 @@
     <option value="">Select Article</option>
   </field>
 
+  <field
+    name="eb_cat_shifts"
+    type="EbCategoryList"
+    label="Shift Categories:"
+    description="Exclude Super Volunteer Categories"
+    required="true"
+    multiple="true"
+  />
 
+  <field
+    name="eb_cat_supershifts"
+    type="EbCategoryList"
+    label="Super Volunteer Categories:"
+    description="Supplemental Super Volunteer Categories"
+    required="false"
+    multiple="true"
+  />
 
+  <field
+    name="eb_cat_speeddating"
+    type="EbCategoryList"
+    label="Speed Dating Category:"
+    required="false"
+    multiple="false"
+  />
+
+  <field
+    name="eb_cat_equipment"
+    type="EbCategoryList"
+    label="Equipment Rental Category:"
+    required="false"
+    multiple="false"
+  />
+
+  <field
+    name="eb_cat_sponsorship"
+    type="EbCategoryList"
+    label="Sponsorship Category:"
+    description="For sponsorships available with package registration."
+    required="false"
+    multiple="false"
+  />
+
+  <field
+    name="eb_cat_meals"
+    type="EbCategoryList"
+    label="Meal Categories:"
+    required="true"
+    multiple="true"
+  />
+
+  <!--
+  <field
+    name="eb_cat_invoice"
+    type="EbCategoryList"
+    label="Invoice Categories:"
+    required="true"
+    multiple="true"
+  />
+  -->
 
 </form>

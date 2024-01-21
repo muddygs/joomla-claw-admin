@@ -213,6 +213,12 @@ CREATE TABLE IF NOT EXISTS `#__claw_eventinfos` (
   `eventType` TINYINT(4) DEFAULT NULL,
   `onsiteActive` boolean DEFAULT 0,
   `termsArticleId` int(11) DEFAULT NULL,
+  `eb_cat_shifts` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Shifts' CHECK (json_valid(`eb_cat_shifts`)),
+  `eb_cat_supershifts` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Super Shifts' CHECK (json_valid(`eb_cat_supershifts`)),
+  `eb_cat_speeddating` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Speed Dating' CHECK (json_valid(`eb_cat_speeddating`)),
+  `eb_cat_equipment` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Equipment' CHECK (json_valid(`eb_cat_equipment`)),
+  `eb_cat_sponsorship` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Sponsorships' CHECK (json_valid(`eb_cat_sponsorship`)),
+  `eb_cat_meals` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Meals' CHECK (json_valid(`eb_cat_meals`)),
   `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
   KEY `fb_alias_INDEX` (`alias`)
