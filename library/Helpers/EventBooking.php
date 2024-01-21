@@ -9,27 +9,9 @@ use Joomla\CMS\Uri\Uri;
 
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
-use ClawCorpLib\Lib\EventConfig;
 
 class EventBooking
 {
-  /**
-   * Returns event ID and Title for ticketed events
-   */
-  public static function LoadTicketedEvents(EventConfig $eventConfig): array
-  {
-    $result = [];
-
-    $events = $eventConfig->getEventsByCategoryId(ClawEvents::getCategoryIds(Aliases::categoriesTicketedEvents));
-
-    foreach ($events as $e) {
-      $result[$e->id] = $e->title;
-    }
-
-    return $result;
-  }
-
   /**
    * Reads session information and returns link to last-visited registration page
    * @return string 
