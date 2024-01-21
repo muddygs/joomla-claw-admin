@@ -11,6 +11,7 @@ namespace ClawCorp\Component\Claw\Site\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Helpers\Helpers;
 
 use ClawCorpLib\Helpers\Config;
@@ -33,8 +34,8 @@ class SkillslistModel extends BaseDatabaseModel
     $presenters = $skills->GetPresentersList(true);
     $classes = $skills->GetClassList();
 
-    $classTypes = Config::getColumn('skill_class_type');
-    $classCategories = Config::getColumn('skill_category');
+    $classTypes = Config::getColumn(ConfigFieldNames::SKILL_CLASS_TYPE);
+    $classCategories = Config::getColumn(ConfigFieldNames::SKILL_CATEGORY);
 
     // Prepare data for views
 

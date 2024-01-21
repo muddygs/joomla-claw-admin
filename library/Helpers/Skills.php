@@ -2,6 +2,7 @@
 
 namespace ClawCorpLib\Helpers;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Lib\Aliases;
 use InvalidArgumentException;
 use Joomla\CMS\Component\ComponentHelper;
@@ -201,7 +202,7 @@ class Skills
     // length
     $class->length = (int)$length;
 
-    if ( $class->category != 'None' ) $class->category = Config::getConfigValuesText('skill_category', $class->category);
+    if ( $class->category != 'None' ) $class->category = Config::getConfigValuesText(ConfigFieldNames::SKILL_CATEGORY, $class->category);
 
     // Get the presenters
     $class->presenters = [];
@@ -355,7 +356,7 @@ class Skills
     $columnNames[] = 'end_time';
 
     // Load category strings
-    $categories = Config::getColumn('skill_category');
+    $categories = Config::getColumn(ConfigFieldNames::SKILL_CATEGORY);
 
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="'. $filename . '"');

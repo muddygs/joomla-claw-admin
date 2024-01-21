@@ -2,65 +2,54 @@
 
 namespace ClawCorpLib\Helpers;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Factory;
 
 class Config
 {
-  // Constants for fieldname in #__claw_field_values
-  const CONFIG_COMBO_EVENTS = 'config_combo_events';
-  const CONFIG_DEBUG_EMAIL = 'config_debug_email';
-  const CONFIG_IMAGES = 'config_images';
-  const CONFIG_OVERLAP_CATEGORY = 'config_overlap_category';
-  const CONFIG_SHIFT_CATEGORY = 'config_shift_category';
-  const CONFIG_TIMEZONE = 'config_timezone';
-  const CONFIG_URLPREFIX = 'config_urlprefix';
-  const SHIFT_SHIFT_AREA = 'shift_shift_area';
-  const SKILL_CATEGORY = 'skill_category';
-  const SKILL_CLASS_TYPE = 'skill_class_type';
-  const SKILL_TIME_SLOT = 'skill_time_slot';
-  const SKILL_TRACK = 'skill_track';
-
   // Cache of config values
   private static array $_titles = [];
   private static string $_current = '';
 
   /**
    * Returns an object list (use ->value/->text) of values for a given config fieldname
-   * @param string $section fieldname to get values for
+   * @param ConfigFieldNames $section fieldname to get values for
    * @return array 
    */
-  public static function getColumn(string $section): array
+  public static function getColumn(ConfigFieldNames $section): array
   {
     $db = Factory::getContainer()->get('DatabaseDriver');
+    $fieldName = $section->toString();
 
     $query = $db->getQuery(true);
     $query->select(['value', 'text'])
       ->from('#__claw_field_values')
       ->where('fieldname = :fieldname')
       ->order('value')
-      ->bind(':fieldname', $section);
+      ->bind(':fieldname', $fieldName);
     $db->setQuery($query);
     return $db->loadObjectList('value');
   }
 
   /**
    * Returns an array of the "text" values for a given config fieldname
-   * @param string $section fieldname to get values for
+   * @param ConfigFieldNames $section fieldname to get values for
    * @param string $key (optional) if set, return only text for this value 
    * @return mixed array of "text" values or a single value if $key is set (false on db error) 
    */
-  public static function getConfigValuesText(string $section, string $key = ''): mixed
+  public static function getConfigValuesText(ConfigFieldNames $section, string $key = ''): mixed
   {
     $db = Factory::getContainer()->get('DatabaseDriver');
+    $fieldName = $section->toString();
 
     $query = $db->getQuery(true);
     $query->select(['text'])
       ->from('#__claw_field_values')
       ->where('fieldname = :fieldname')
       ->order('text')
-      ->bind(':fieldname', $section);
+      ->bind(':fieldname', $fieldName);
 
     if ($key != '') {
       $query->where('value = :value')
@@ -71,6 +60,8 @@ class Config
     return $result;
   }
 
+  // TODO: Move all these static functions to EventConfig class
+  
   public static function getTitleMapping(): array
   {
     if ( count(self::$_titles)) return self::$_titles;

@@ -2,6 +2,7 @@
 
 namespace ClawCorpLib\Helpers;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
 use DateTime;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Date\Date;
@@ -12,6 +13,10 @@ use Joomla\Database\DatabaseDriver;
 use LogicException;
 use Joomla\CMS\Uri\Uri;
 use RuntimeException;
+
+// TODO: Separate and put in appropriate classes or merge into main code
+// TODO: where used once
+
 
 class Helpers
 {
@@ -294,7 +299,7 @@ class Helpers
   {
     $mailer = Factory::getMailer();
 
-    $email = Config::getConfigValuesText('config_debug_email', 'email');
+    $email = Config::getConfigValuesText(ConfigFieldNames::CONFIG_DEBUG_EMAIL, 'email');
     $mailer->setSender([$email, 'CLAW']);
     $mailer->setSubject('Some Error Has Occurred');
     $mailer->addRecipient($email);

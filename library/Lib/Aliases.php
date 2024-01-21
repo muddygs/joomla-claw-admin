@@ -4,6 +4,7 @@ namespace ClawCorpLib\Lib;
 
 \defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
@@ -44,11 +45,11 @@ class Aliases {
   const onsiteCoupon = 'ONSITE-CASH'; // TODO: Remove all usage of this
   
   static function shiftCategories() {
-    return Config::getConfigValuesText('config_shift_category');
+    return Config::getConfigValuesText(ConfigFieldNames::CONFIG_SHIFT_CATEGORY);
   }
 
   static function overlapCategories() {
-    return Config::getConfigValuesText('config_overlap_category');
+    return Config::getConfigValuesText(ConfigFieldNames::CONFIG_OVERLAP_CATEGORY);
   }
 
   const invoiceCategories = [
@@ -84,16 +85,16 @@ class Aliases {
 
   // Events listing sponsor icons
   static function sponsorIconDir() {
-    return Config::getConfigValuesText('config_images', 'sponsor_icons');
+    return Config::getConfigValuesText(ConfigFieldNames::CONFIG_IMAGES, 'sponsor_icons');
   }
 
   // Events listing ad base (ads/thumbs used for preview)
   static function adsDir() {
-    return Config::getConfigValuesText('config_images', 'ads');
+    return Config::getConfigValuesText(ConfigFieldNames::CONFIG_IMAGES, 'ads');
   }
 
   // S&E Presenter Images
   static function presentersDir() {
-    return Config::getConfigValuesText('config_images', 'presenters');
+    return Config::getConfigValuesText(ConfigFieldNames::CONFIG_IMAGES, 'presenters');
   }
 }

@@ -10,6 +10,7 @@
  // No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 
+use ClawCorpLib\Enums\ConfigFieldNames;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -99,7 +100,7 @@ $user = $app->getIdentity();
             <?php echo $item->track ?>
           </td>
           <td>
-            <?= Config::getConfigValuesText(Config::SKILL_CLASS_TYPE, $item->type ?? 'TBD') ?? 'TBD' ?>
+            <?= Config::getConfigValuesText(ConfigFieldNames::SKILL_CLASS_TYPE, $item->type ?? 'TBD') ?? 'TBD' ?>
           </td>
           <td>
               <?php echo implode('<br/>', $item->presenter_names) ?>

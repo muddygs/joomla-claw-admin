@@ -4,6 +4,7 @@ namespace ClawCorpLib\Grid;
 
 // This class enforces data format for received form data
 
+use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Grid\GridItem;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\EventBooking;
@@ -45,7 +46,7 @@ class Grids
 
     $location = EventBooking::getLocationId($eventInfo->ebLocationId);
 
-    $shiftAreas = Config::getColumn('shift_shift_area');
+    $shiftAreas = Config::getColumn(ConfigFieldNames::SHIFT_SHIFT_AREA);
 
     foreach ( $shiftAreas AS $k => $o ) {
       if ( $k == 'tbd') continue;
