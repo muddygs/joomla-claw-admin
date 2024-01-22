@@ -67,12 +67,12 @@ class Ebfield
     $query
         ->select('fv.field_value, COUNT(*) as value_count')
         ->from('#__eb_field_values AS fv')
-        ->join('INNER', '#__eb_registrants AS r ON fv.registrant_id = r.id AND r.event_id=' . $eventId)
+        ->join('INNER', $db->qn('#__eb_registrants','r') , 'fv.registrant_id = r.id AND r.event_id=' . $eventId)
         ->where('r.published = 1')
         ->where('fv.field_id = ' . $this->id)
         ->group('fv.field_value');
     $db->setQuery($query);
-    $fieldValues = $db->loadObjectList();
+    $fieldValues = $db->loadObjectList('field_value');
 
     return $fieldValues;
   }
