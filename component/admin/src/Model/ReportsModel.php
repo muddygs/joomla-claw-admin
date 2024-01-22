@@ -17,14 +17,12 @@ use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\Volunteers;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Ebfield;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\Registrants;
+use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\User\UserFactory;
-use Joomla\DI\Exception\KeyNotFoundException;
-use Joomla\CMS\WebAsset\Exception\InvalidActionException;
 
 /**
  * Methods to handle a list of records.
@@ -33,6 +31,8 @@ use Joomla\CMS\WebAsset\Exception\InvalidActionException;
  */
 class ReportsModel extends BaseDatabaseModel
 {
+  use \Joomla\Database\DatabaseAwareTrait;
+
   public EventConfig $eventConfig;
 
   public function __construct($config = array())
@@ -46,7 +46,7 @@ class ReportsModel extends BaseDatabaseModel
   {
     $items = [];
 
-    $events = $this->eventConfig->getEventsByCategoryId(ClawEvents::getCategoryIds(['speed-dating']));
+    $events = $this->eventConfig->getEventsByCategoryId($this->eventConfig->eventInfo->eb_cat_speeddating[0]);
 
     // Sort by event date
     usort($events, function ($a, $b) {
@@ -180,6 +180,24 @@ class ReportsModel extends BaseDatabaseModel
     return $items;
   }
 
+
+  private function findListCustomField(int $categoryId): ?object 
+  {
+    $db = $this->getDatabase();
+
+    $query = $db->getQuery(true);
+    $query->select(['f.id', 'f.name'])
+      ->from($db->quoteName('#__eb_fields', 'f'))
+      ->join('INNER', $db->quoteName('#__eb_field_categories', 'fc'), 'fc.category_id = ' . $db->quote($categoryId))
+      ->where('f.id = fc.field_id')
+      ->where($db->quoteName('fieldtype') . '= \'List\'')
+      ->where($db->quoteName('published') . '= 1');
+
+    $db->setQuery($query);
+    $result =  $db->loadObject();
+    return $result;
+  }
+
   /**
    * Parses meal events and returns counts. WARNING: Assumes "dinner" has only one event.
    * Dinner includes a subcount of meal types and counts.
@@ -192,30 +210,40 @@ class ReportsModel extends BaseDatabaseModel
     $items = [];
 
     $dinnerField = null;
-    $dinnerField = new Ebfield('Dinner');
     $dinnerEventId = 0;
 
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ( $this->eventConfig->packageInfos AS $packageInfo ) {
+      if ( $packageInfo->eventPackageType == EventPackageTypes::dinner ) {
+        $catId = $packageInfo->category;
+        $dinnerCustomField = $this->findListCustomField($catId);
+
+        if ( $dinnerCustomField ) {
+          $dinnerField = new Ebfield($dinnerCustomField->name);
+          $dinnerEventId = $packageInfo->eventId;
+          break;
+        }
+      }
+    }
+
     // Data ordering
-    $mealOrderCategory = ['dinner', 'buffet-breakfast', 'buffet'];
+    $mealCategoryIds = $this->eventConfig->eventInfo->eb_cat_meals;
 
-    foreach ( $mealOrderCategory AS $category ) {
-      $catId = ClawEvents::getCategoryId($category);
-
+    foreach ( $mealCategoryIds AS $catId ) {
       /** @var \ClawCorpLib\Lib\PackageInfo */
       foreach ( $this->eventConfig->packageInfos AS $packageInfo ) {
         if ( $packageInfo->category != $catId ) continue;
 
         $subcount = [];
 
-        if ( 'dinner' == $category ) {
+        if ( $dinnerField && $packageInfo->eventId == $dinnerEventId ) {
           $subcount = $dinnerField->valueCounts($packageInfo->eventId);
-          $dinnerEventId = $packageInfo->eventId;
         }
 
         $items[$packageInfo->eventId] = (object)[
           'eventId' => $packageInfo->eventId,
           'description' => $packageInfo->title,
-          'category' => $category,
+          'category' => $catId,
           'count' => Registrants::getRegistrantCount($packageInfo->eventId),
           'subcount' => $subcount,
         ];
@@ -229,10 +257,11 @@ class ReportsModel extends BaseDatabaseModel
         EventPackageTypes::combo_meal_3, 
         EventPackageTypes::combo_meal_4] AS $comboMeal ) {
           /** @var \ClawCorpLib\Lib\PackageInfo */
-      $packageInfo = $this->evenConfig->getClawEvent($comboMeal);
+      $packageInfo = $this->eventConfig->getPackageInfoByProperty('eventPackageType', $comboMeal, false);
       if ( $packageInfo == null ) continue;
 
-      $subcount = $dinnerField->valueCounts($packageInfo->eventId);
+      if ( $dinnerField )
+        $subcount = $dinnerField->valueCounts($packageInfo->eventId);
 
       foreach ( $packageInfo->meta AS $eventId ) {
         $items[$eventId]->count += Registrants::getRegistrantCount($packageInfo->eventId);
@@ -242,16 +271,20 @@ class ReportsModel extends BaseDatabaseModel
             $comboValue = $count->field_value;
             $comboCount = $count->value_count;
 
-            foreach ( $items[$eventId]->subcount AS $itemCount ) {
-              if ( $itemCount->field_value == $comboValue ) {
-                $itemCount->value_count += $comboCount;
-                break;
-              }
+            if ( array_key_exists($comboValue, $items[$eventId]->subcount) ) {
+              $items[$eventId]->subcount[$comboValue]->value_count += $comboCount;
+            } else {
+              $items[$eventId]->subcount[$comboValue] = (object)[
+                'field_value' => $comboValue,
+                'value_count' => $comboCount,
+              ];
             }
           }
         }
       }
     }
+
+    $items['eventInfo'] = $this->eventConfig->eventInfo;
 
     return $items;
   }
