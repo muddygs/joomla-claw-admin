@@ -57,6 +57,6 @@ class HtmlView extends BaseHtmlView
       $this->action = EventPackageTypes::none;
     }
 
-    parent::display($tpl);
+    parent::display($this->eventAlias);
   }
 }

@@ -86,6 +86,10 @@ switch ($this->action) {
     return;
 }
 
+?>
+<h1>Registration Options for <?= $this->eventConfig->eventInfo->description ?></h1>
+<?php
+
 if ( !$this->eventConfig->eventInfo->onsiteActive ) {
   $blockedPackageTypes = [
     EventPackageTypes::day_pass_fri,
@@ -360,6 +364,14 @@ HTML;
       $content = "{ebcategory $id toast}";
       $prepared = HTMLHelper::_('content.prepare', $content);
       $result .= $prepared;
+    }
+
+    if ( ! $eventInfo->onsiteActive ) {
+      foreach ($eventInfo->eb_cat_combomeals as $id) {
+        $content = "{ebcategory $id toast}";
+        $prepared = HTMLHelper::_('content.prepare', $content);
+        $result .= $prepared;
+      }
     }
 
     return $result;
