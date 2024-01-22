@@ -179,6 +179,14 @@
     multiple="true"
   />
 
+  <field
+    name="eb_cat_combomeals"
+    type="EbCategoryList"
+    label="Combo Meal Category:"
+    required="true"
+    multiple="false"
+  />
+
   <!--
   <field
     name="eb_cat_invoice"

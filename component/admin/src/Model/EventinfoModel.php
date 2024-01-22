@@ -30,6 +30,7 @@ class EventinfoModel extends AdminModel
     'eb_cat_equipment',
     'eb_cat_sponsorship',
     'eb_cat_meals',
+    'eb_cat_combomeals'
     // 'eb_cat_invoice',
   ];
 
@@ -94,7 +95,8 @@ class EventinfoModel extends AdminModel
 
       // Handle JSON data
       foreach ($this->jsonFields as $field) {
-        if (property_exists($data, $field) && is_string($data->$field)) $data->$field = json_decode($data->$field);
+        if ( !property_exists($data, $field) ) continue;
+        if (is_string($data->$field)) $data->$field = json_decode($data->$field);
 
         // Remove empty values
         if (is_array($data->$field)) $data->$field = array_filter($data->$field);

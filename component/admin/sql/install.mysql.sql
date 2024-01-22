@@ -219,6 +219,7 @@ CREATE TABLE IF NOT EXISTS `#__claw_eventinfos` (
   `eb_cat_equipment` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Equipment' CHECK (json_valid(`eb_cat_equipment`)),
   `eb_cat_sponsorship` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Sponsorships' CHECK (json_valid(`eb_cat_sponsorship`)),
   `eb_cat_meals` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Meals' CHECK (json_valid(`eb_cat_meals`)),
+  `eb_cat_combomeals` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Combo Meals' CHECK (json_valid(`eb_cat_meals`)),
   `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
   KEY `fb_alias_INDEX` (`alias`)
