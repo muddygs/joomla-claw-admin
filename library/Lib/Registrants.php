@@ -63,8 +63,7 @@ class Registrants
       ->WHERE($db->qn('published') . '=' . $db->q(EbPublishedState::published->value));
 
     $db->setQuery($query);
-    $count = $db->loadResult();
-    return $count;
+    return $db->loadResult() ?? 0;
   }
 
   /** Returns list of registrant changes filtered on record update (ts_modified)
