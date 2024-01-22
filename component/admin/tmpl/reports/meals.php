@@ -13,7 +13,7 @@
 \ClawCorpLib\Helpers\Bootstrap::rawHeader([], ['/media/com_claw/css/print_letter.css']);
 
 ?>
-<h1>Meal Counts</h1>
+<h1><?= $this->items['eventInfo']->description ?> Meal Counts</h1>
 
 <div class="table-responsive">
   <table class="table table-striped">
@@ -26,7 +26,9 @@
     <tbody>
 <?php
 
-foreach ( $this->items AS $item):
+foreach ( $this->items AS $key => $item):
+  if ( $key == 'eventInfo' ) continue;
+
 ?>
       <tr>
         <td><?php echo $item->description; ?></td>
