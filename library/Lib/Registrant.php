@@ -220,26 +220,24 @@ class Registrant
 
     if ($this->indexType != EbRecordIndexType::default) die ('Cannot merge on non-id index.');
 
+    /** @var \Joomla\Database\DatabaseDriver  */
     $db = Factory::getContainer()->get('DatabaseDriver');
 
     $registrantIds = implode(',', array_keys($this->_records));
 
-    $query = <<< EOT
-  SELECT v.*, f.name
-  FROM #__eb_field_values v
-  LEFT OUTER JOIN #__eb_fields f ON f.id = v.field_id
-  WHERE registrant_id IN ($registrantIds)
-  EOT;
+    $query = $db->getQuery(true);
+    $query->select(['v.*','f.name'])
+      ->from('#__eb_field_values v')
+      ->join('LEFT OUTER', '#__eb_fields f', 'f.id = v.field_id')
+      ->where($db->qn('registrant_id').' IN ('.$registrantIds.')');
 
     if (count($fieldNames) > 0) {
       $fields = implode(',', $db->q($fieldNames));
-      $query .= " AND f.name IN ($fields)";
+      $query->where($db->qn('f.name') . " IN ($fields)");
     }
 
-
-    foreach ( $this->_records as $r )
-    {
-      /** @var \ClawCorpLib\Lib\RegistrantRecord $r */
+    /** @var \ClawCorpLib\Lib\RegistrantRecord */
+    foreach ( $this->_records as $r ) {
       foreach ( $fieldNames as $f ) $r->fieldValue->{$f} = '';
     }
 
