@@ -30,14 +30,6 @@ class Aliases {
     return Config::getCurrentEventAlias();
   }
 
-  static function next() {
-    return Config::getNextEventAlias();
-  }
-
-  static function active() {
-    return Config::getActiveEventAliases();
-  }
-  
   // For refunds, allow past events to be identified
   // Also used for checking if volunteer is in good starting in registrationsurvey.php
   // TODO: Probably need to fix getInactiveEventAliases const past = ['c0423'];
@@ -64,18 +56,6 @@ class Aliases {
 		'sponsorships-logo',
 		'vendormart'
   ];
-
-  const sponsorshipCategories = [
-    'sponsorships-black',
-    'sponsorships-blue',
-    'sponsorships-gold',
-    'sponsorships-master-sustaining',
-    'sponsorships-advertising',
-    'sponsorships-logo'
-  ];
-
-  // Categories that require main events (other than shifts)
-  const categoriesRequiringMainEvent = ['speed-dating', 'dinner', 'buffet-breakfast', 'buffet','meal-combos','equipment-rentals'];
 
   // Events listing sponsor icons
   static function sponsorIconDir() {
