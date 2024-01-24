@@ -390,6 +390,12 @@ class Skills
             $time->modify('+ '.$length .' minutes');
             $row[] = $time->format('g:i A');
             break;
+          case 'owner':
+            if ( !$publishedOnly) {
+              $row[] = $this->presenterCache[$c->$col]->name;
+            } else {
+              $row[] = $c->$col;
+            }
           case 'people':
             if (empty($c->presenters)) {
               $presenterIds = [];
