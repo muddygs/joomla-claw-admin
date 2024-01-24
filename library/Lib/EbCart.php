@@ -69,7 +69,6 @@ HTML;
     $shiftPrefix = $eventConfig->eventInfo->shiftPrefix;
     $shiftCategories = array_merge($eventConfig->eventInfo->eb_cat_shifts, $eventConfig->eventInfo->eb_cat_supershifts);
     $invoiceCategories = ClawEvents::getCategoryIds(Aliases::invoiceCategories);
-    $mainRequiredCategories = ClawEvents::getCategoryIds(Aliases::categoriesRequiringMainEvent);
     $mainRequiredEventIds = $eventConfig->getMainRequiredEventIds();
 
     /** @var ClawCorpLib\Lib\RegistrantRecord */
