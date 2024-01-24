@@ -10,7 +10,6 @@ require_once(JPATH_ROOT . '/components/com_eventbooking/helper/helper.php');
 
 use ClawCorpLib\Helpers\Bootstrap;
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\Registrant;
@@ -266,7 +265,7 @@ endif;
   if ( $this->eventConfig->eventInfo->onsiteActive ) {
     $content[] = contentShiftsOnsite();
   } else {
-    $content[] = contentShifts($eventPackageType);
+    $content[] = contentShifts($this->eventConfig->eventInfo, $eventPackageType);
   }
   
   $headings[] = 'Meals';
@@ -283,32 +282,34 @@ endif;
   $headings[] = 'Community';
   $content[] = contentLeatherHeart($this->eventConfig->eventInfo);
 
-  // $content[] = contentParties();
   Bootstrap::writePillTabs($headings, $content, $tab);
 
   echo contentSponsorships();
 
   // end output
 
-  function categoryLinkButtons(array $categoryAliases, string $urlPrefix): string
+  function categoryLinkButtons(string $urlPrefix, array $categoryIds): string
   {
-    $categoryInfo = ClawEvents::getCategoryNames($categoryAliases);
-
-    $result = '<div class="row row-cols-1 row-cols-sm-2 g-2 px-4 py-2">';
-
-    foreach ($categoryAliases as $alias) {
-      $url = $urlPrefix . $alias;
-      $result .= '<div class="col d-flex flex-wrap">';
-      $result .= '<a href="' . $url . '" class="w-100 btn btn-outline-danger" role="button"><h2>' . $categoryInfo[$alias]->name . '</h2><small class="text-center" style="color:#ffae00">'.$categoryInfo[$alias]->meta_description.'</small></a>';
-      $result .= '</div>';
-    }
-    $result .= '</div>';
-    $result .= '<div class="clearfix"></div>';
-
-    return $result;
+      $categoryInfo = ClawEvents::getRawCategories($categoryIds);
+      $html = [];
+  
+      foreach ($categoryInfo as $alias => $info) {
+          $url = $urlPrefix . $alias;
+          $html[] = <<<HTML
+              <div class="col d-flex flex-wrap">
+                  <a href="$url" class="w-100 btn btn-outline-danger" role="button">
+                      <h2>{$info->name}</h2>
+                      <small class="text-center" style="color:#ffae00">{$info->meta_description}</small>
+                  </a>
+              </div>
+          HTML;
+      }
+  
+      return '<div class="row row-cols-1 row-cols-sm-2 g-2 px-4 py-2">' . implode('', $html) . '</div><div class="clearfix"></div>';
   }
+  
 
-  #region content
+#region content
 
   function contentShiftsOnsite(): string
   {
@@ -330,7 +331,7 @@ HTML;
     return $result;
   }
 
-  function contentShifts( EventPackageTypes $EventPackageType ): string
+  function contentShifts( EventInfo $eventInfo, EventPackageTypes $EventPackageType ): string
   {
     $result = <<<HTML
   <div class="border border=info text-white p-3 mx-2 mb-2 rounded">
@@ -343,15 +344,14 @@ HTML;
 </div>
 HTML;
 
-    $c = Aliases::shiftCategories();
+    $aliases = [];
 
-    if ( $EventPackageType != EventPackageTypes::volunteersuper )
-    {
-      $c = array_diff($c, ['shifts-float']);
+    $categoryIds = $eventInfo->eb_cat_shifts;
+    if ( $EventPackageType == EventPackageTypes::volunteersuper ) {
+      $categoryIds = array_merge($categoryIds, $eventInfo->eb_cat_supershifts);
     }
 
-
-    $result .= categoryLinkButtons($c, '/claw-all-events/shifts/');
+    $result .= categoryLinkButtons('/claw-all-events/shifts/', $categoryIds);
 
     return $result;
   }
@@ -359,19 +359,18 @@ HTML;
   function contentMeals(EventInfo $eventInfo): string
   {
     $result = '';
-    
-    foreach ($eventInfo->eb_cat_meals as $id) {
-      $content = "{ebcategory $id toast}";
-      $prepared = HTMLHelper::_('content.prepare', $content);
-      $result .= $prepared;
+
+    $categories = $eventInfo->eb_cat_meals;
+    if ( ! $eventInfo->onsiteActive ) {
+      $categories = array_merge($categories, $eventInfo->eb_cat_combomeals);
     }
 
-    if ( ! $eventInfo->onsiteActive ) {
-      foreach ($eventInfo->eb_cat_combomeals as $id) {
-        $content = "{ebcategory $id toast}";
-        $prepared = HTMLHelper::_('content.prepare', $content);
-        $result .= $prepared;
-      }
+    $categoryInfo = ClawEvents::getRawCategories($categories);;
+    
+    foreach ($categoryInfo as $info) {
+      $content = "{ebcategory {$info->id} toast}";
+      $result .= $info->description;
+      $result .= HTMLHelper::_('content.prepare', $content);
     }
 
     return $result;
