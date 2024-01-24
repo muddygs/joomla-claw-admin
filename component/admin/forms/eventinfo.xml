@@ -165,10 +165,18 @@
   <field
     name="eb_cat_sponsorship"
     type="EbCategoryList"
-    label="Sponsorship Category:"
+    label="Community Sponsorship Category:"
     description="For sponsorships available with package registration."
     required="false"
     multiple="false"
+  />
+
+  <field
+    name="eb_cat_sponsorships"
+    type="EbCategoryList"
+    label="General Sponsorship Categories:"
+    required="true"
+    multiple="true"
   />
 
   <field
@@ -177,6 +185,7 @@
     label="Meal Categories:"
     required="true"
     multiple="true"
+    description="Exclude combo meal category."
   />
 
   <field

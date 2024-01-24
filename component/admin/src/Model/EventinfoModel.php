@@ -29,6 +29,7 @@ class EventinfoModel extends AdminModel
     'eb_cat_speeddating',
     'eb_cat_equipment',
     'eb_cat_sponsorship',
+    'eb_cat_sponsorships',
     'eb_cat_meals',
     'eb_cat_combomeals'
     // 'eb_cat_invoice',

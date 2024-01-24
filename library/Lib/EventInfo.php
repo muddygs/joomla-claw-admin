@@ -31,6 +31,7 @@ class EventInfo
   public array $eb_cat_speeddating;
   public array $eb_cat_equipment;
   public array $eb_cat_sponsorship;
+  public array $eb_cat_sponsorships;
   public array $eb_cat_meals;
   public array $eb_cat_combomeals;
 
@@ -42,7 +43,7 @@ class EventInfo
    * @return void 
    */
   public function __construct(
-    public string $alias
+    public readonly string $alias
   )
   {
     $info = $this->loadRawEventInfo($alias);
@@ -64,6 +65,7 @@ class EventInfo
     $this->eb_cat_speeddating = json_decode($info->eb_cat_speeddating);
     $this->eb_cat_equipment = json_decode($info->eb_cat_equipment);
     $this->eb_cat_sponsorship = json_decode($info->eb_cat_sponsorship);
+    $this->eb_cat_sponsorships = json_decode($info->eb_cat_sponsorships);
     $this->eb_cat_meals = json_decode($info->eb_cat_meals);
     $this->eb_cat_combomeals = json_decode($info->eb_cat_combomeals);
   

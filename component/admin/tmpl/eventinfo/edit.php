@@ -93,6 +93,7 @@ $view = 'eventinfo';
       <?= $this->form->renderField('eb_cat_speeddating'); ?>
       <?= $this->form->renderField('eb_cat_equipment'); ?>
       <?= $this->form->renderField('eb_cat_sponsorship'); ?>
+      <?= $this->form->renderField('eb_cat_sponsorships'); ?>
       <?= $this->form->renderField('eb_cat_meals'); ?>
       <?= $this->form->renderField('eb_cat_combomeals'); ?>
       

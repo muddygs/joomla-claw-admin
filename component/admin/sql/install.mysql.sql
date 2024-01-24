@@ -217,9 +217,10 @@ CREATE TABLE IF NOT EXISTS `#__claw_eventinfos` (
   `eb_cat_supershifts` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Super Shifts' CHECK (json_valid(`eb_cat_supershifts`)),
   `eb_cat_speeddating` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Speed Dating' CHECK (json_valid(`eb_cat_speeddating`)),
   `eb_cat_equipment` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Equipment' CHECK (json_valid(`eb_cat_equipment`)),
-  `eb_cat_sponsorship` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Sponsorships' CHECK (json_valid(`eb_cat_sponsorship`)),
+  `eb_cat_sponsorship` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Sponsorship' CHECK (json_valid(`eb_cat_sponsorship`)),
+  `eb_cat_sponsorships` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Sponsorships' CHECK (json_valid(`eb_cat_sponsorships`)),
   `eb_cat_meals` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Meals' CHECK (json_valid(`eb_cat_meals`)),
-  `eb_cat_combomeals` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Combo Meals' CHECK (json_valid(`eb_cat_meals`)),
+  `eb_cat_combomeals` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Combo Meals' CHECK (json_valid(`eb_cat_combomeals`)),
   `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
   KEY `fb_alias_INDEX` (`alias`)
