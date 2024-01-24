@@ -130,7 +130,15 @@ class Deploy
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
-      foreach ( $packageInfo->meta AS $session ) {
+      foreach ( $packageInfo->meta AS $metaKey => $metaRow ) {
+        $role = $metaRow->role;
+        $eventId = $metaRow->eventId;
+
+        if ( $eventId > 0 ) {
+          $log[] =  "Already deployed: $packageInfo->title $role @ $eventId";
+          continue;
+        }
+
         $start = Factory::getDate($packageInfo->start)->toSql();
         $end = Factory::getDate($packageInfo->end)->toSql();
         $cancel_before_date = $start;
@@ -139,8 +147,8 @@ class Deploy
         // start and ending usability of these events
         $registration_start_date = Factory::getDate()->toSql();
 
-        $title = $info->prefix . ' ' . $packageInfo->title . ' (' . $session . ')';
-        $alias = strtolower(preg_replace('/[^\S]+/', '_', implode('-', [$info->prefix, 'sd', $packageInfo->title, $session])));
+        $title = $info->prefix . ' ' . $packageInfo->title . ' (' . $role . ')';
+        $alias = strtolower(preg_replace('/[^\S]+/', '_', implode('-', [$info->prefix, 'sd', $packageInfo->title, $role])));
 
         $eventId = $this->Insert(
           mainCategoryId: $packageInfo->category, 
@@ -162,17 +170,16 @@ class Deploy
           $log[] =  "Skipping existing: $title";
   
           // So the alias exists, let's pull the event id from the database
-          $eventId = ClawEvents::getEventId($packageInfo->alias, true);
+          $eventId = ClawEvents::getEventId($alias, true);
           if ( $eventId != 0) {
-            $packageInfo->eventId = $eventId;
+            $packageInfo->meta->$metaKey->eventId = $eventId;
             $packageInfo->save();
             $log[] = "Updated: $title at event id $eventId";
           }
-  
         } else {
           $count++;
           $log[] =  "Added: $title at event id $eventId";
-          $packageInfo->eventId = $eventId;
+          $packageInfo->meta->$metaKey->eventId = $eventId;
           $packageInfo->save();
         }
   

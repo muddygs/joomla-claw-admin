@@ -37,7 +37,7 @@ class PackageInfo
     public int $bundleDiscount = 0;
     public string $badgeValue = '';
     public bool $couponOnly = false;
-    public array $meta = []; // JSON
+    public array|object $meta = []; // JSON
 
     public function __construct(
       public EventInfo $eventInfo,

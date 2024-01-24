@@ -30,7 +30,7 @@ class SpeeddatinginfoModel extends EventconfigModel
     $app->setUserState('com_claw.edit.packageinfo.data', $data);
 
     // Convert meta to a single column array
-    $data['meta'] = array_column($data['meta'], 'role');
+    //$data['meta'] = array_column($data['meta'], 'role');
     $data['packageInfoType'] = PackageInfoTypes::speeddating->value;
     $data['eventPackageType'] = EventPackageTypes::speeddating->value;
 

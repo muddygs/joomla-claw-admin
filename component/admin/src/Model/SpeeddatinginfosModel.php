@@ -23,7 +23,8 @@ class SpeeddatinginfosModel extends EventconfigsModel
   /**
    * Get the master query for retrieving a list of PackageInfos of type speeddating.
    * 
-   * Because "meta" contains all the subtypes for each event, we use JSON_TABLE to extract the subtypes into a row for each subtype.
+   * Because "meta" contains all the subtypes for each event id, 
+   * we use JSON_TABLE to extract each subtype into a row with subtype and eventId columns.
    *
    * @return  \Joomla\Database\DatabaseQuery
    *
@@ -33,8 +34,15 @@ class SpeeddatinginfosModel extends EventconfigsModel
   {
     $query = parent::getListQuery();
 
+    $selects = [
+      'a.*',
+      'jt.key_name',
+      'JSON_UNQUOTE(JSON_EXTRACT(a.meta, CONCAT(\'$.\', jt.key_name, \'.role\'))) AS role',
+      'JSON_UNQUOTE(JSON_EXTRACT(a.meta, CONCAT(\'$.\', jt.key_name, \'.eventId\'))) AS eventId',
+    ];
+
     // Since the base select cannot be appended, we just redeclare it here with everything
-    $query->select('j.subgroup, a.*');
+    $query->select(implode(',', $selects));
 
     // Future reference: if a unique row id is needed, use this:
     // $query->select('@rownum:=@rownum+1 AS rownum, j.subgroup, a.*');
@@ -45,8 +53,8 @@ class SpeeddatinginfosModel extends EventconfigsModel
 
     $query->where('a.packageInfoType IN (' . implode(',', $packageInfoTypes) . ')');
     // Join over the JSON table.
-    $query->join('INNER', 'JSON_TABLE(a.meta, \'$[*]\' COLUMNS (subgroup VARCHAR(50) PATH \'$\')) AS j');
-
+    // $query->join('INNER', 'JSON_TABLE(a.meta, \'$[*]\' COLUMNS (subgroup VARCHAR(50) PATH \'$\')) AS j');
+    $query->join('CROSS', 'JSON_TABLE(JSON_KEYS(a.meta), \'$[*]\' COLUMNS (key_name VARCHAR(255) PATH \'$\')) AS jt');
 
     // Initialize the row number variable.
     // $this->db->setQuery('SET @row_number = 0;');

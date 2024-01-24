@@ -61,7 +61,7 @@ class EventConfig
       ->from('#__claw_packages')
       ->where('eventAlias IN ('. $aliases .')');
 
-    if (count($this->filter) > 0) {
+    if ( !empty($this->filter) ) {
       $packageInfoTypesFilter = implode(',' , array_map(fn($e) => $e->value, $this->filter));
       $query->where('packageInfoType IN (' . $packageInfoTypesFilter . ')');
     }
@@ -121,12 +121,54 @@ class EventConfig
 
   public function getMainEventIds(): array
   {
-    // TODO: validate that $this->filter contains main and daypass
+    if ( !empty($this->filter) && 
+      !in_array(PackageInfoTypes::main, $this->filter) && 
+      !in_array(PackageInfoTypes::daypass, $this->filter)
+    ) {
+      throw(new Exception('getMainEventIds() requires main and daypass in filter'));
+    }
+
     $result = [];
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->packageInfos as $e) {
       if ($e->packageInfoType == PackageInfoTypes::main || $e->packageInfoType == PackageInfoTypes::daypass) {
         $result[] = $e->eventId;
+      }
+    }
+
+    $result = array_unique($result);
+    sort($result);
+
+    return $result;
+  }
+
+  public function getMainRequiredEventIds(): array
+  {
+    $packageInfoTypes = [
+      PackageInfoTypes::addon,
+      PackageInfoTypes::combomeal,
+      PackageInfoTypes::equipment,
+      PackageInfoTypes::speeddating, // Last entry
+    ];
+
+    if ( !empty($this->filter) &&
+      count(array_intersect($this->filter, $packageInfoTypes)) != count($packageInfoTypes)
+    ) {
+      throw(new Exception('getMainEventIds() requires main and daypass in filter'));
+    }
+
+    // TODO: Speeddating is a damned mess. Need to process all the events by roles
+    array_pop($packageInfoTypes);
+
+    $result = [];
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ($this->packageInfos as $e) {
+      if ( in_array($e->packageInfoType, $packageInfoTypes) ) {
+        if ( $e->eventId ) $result[] = $e->eventId;
+      } elseif ( $e->packageInfoType == PackageInfoTypes::speeddating ) {
+        foreach ( $e->meta AS $meta ) {
+          if ( $meta->eventId ) $result[] = $meta->eventId;
+        }
       }
     }
 

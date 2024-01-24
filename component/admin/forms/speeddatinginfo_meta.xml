@@ -7,4 +7,13 @@
     required="true"
     filter="string"
   />
+  <field
+    name="eventId"
+    type="text"
+    label="Event ID:"
+    required="true"
+    default="0"
+    filter="integer"
+    readonly="true"
+  />
 </form>

@@ -87,7 +87,7 @@ $view = "speeddatinginfos";
                 <?php
                   if ( $item->eventId != 0 ): ?>
                     <a href="<?php echo Route::_('index.php?option=com_eventbooking&view=event&id=' . $item->eventId); ?>" title="Edit in Event Booking" target="_blank">
-                      <?= $item->alias. ' (' . $item->eventId . ')' ?>
+                      <?= $item->role . ' (' . $item->eventId . ')' ?>
                     </a>
                   <?php
                   elseif ( $item->packageInfoType == PackageInfoTypes::coupononly->value ):

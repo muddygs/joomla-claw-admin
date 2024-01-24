@@ -158,18 +158,6 @@ class EventconfigModel extends AdminModel
         if (is_array($data->$field)) $data->$field = array_filter($data->$field);
       }
 
-      // Speeddating subform needs meta in object format
-      if ($data->packageInfoType == PackageInfoTypes::speeddating->value) {
-        $meta = (object) [];
-
-        for ($i = 0; $i < sizeof($data->meta); $i++) {
-          $key = 'meta' . $i;
-          $meta->$key = (object) ['role' => $data->meta[$i]];
-        }
-
-        $data->meta = $meta;
-      }
-
       // Equipment Rental needs meta as a string
       if ($data->packageInfoType == PackageInfoTypes::equipment->value) {
         $data->meta = (is_array($data->meta) ? $data->meta[0] : $data->meta);

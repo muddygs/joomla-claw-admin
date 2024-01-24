@@ -57,7 +57,7 @@ HTML;
     $requires_main_event = false;
 
     $clawEventAlias = ClawEvents::eventIdtoAlias($this->items[0]->id);
-    $eventConfig = new EventConfig($clawEventAlias);
+    $eventConfig = new EventConfig($clawEventAlias, []);
 
     $onsiteActive = $eventConfig->eventInfo->onsiteActive;
     $mainEventIds = $eventConfig->getMainEventIds();
@@ -70,6 +70,7 @@ HTML;
     $shiftCategories = array_merge($eventConfig->eventInfo->eb_cat_shifts, $eventConfig->eventInfo->eb_cat_supershifts);
     $invoiceCategories = ClawEvents::getCategoryIds(Aliases::invoiceCategories);
     $mainRequiredCategories = ClawEvents::getCategoryIds(Aliases::categoriesRequiringMainEvent);
+    $mainRequiredEventIds = $eventConfig->getMainRequiredEventIds();
 
     /** @var ClawCorpLib\Lib\RegistrantRecord */
     foreach ($records as $r) {
@@ -129,7 +130,7 @@ HTML;
         $this->invoice_event = true;
       }
 
-      if (in_array($item->main_category_id, $mainRequiredCategories)) {
+      if (in_array($item->id, $mainRequiredEventIds)) {
         $requires_main_event = true;
         $this->non_invoice_event = true;
         continue;
