@@ -26,7 +26,7 @@ class ClawEvents
 
     if ('' == $eventAlias) die(__FILE__ . ': event alias cannot be blank');
 
-    if (null == self::$eventIds) self::mapEventAliases();
+    if (null == self::$eventIds) self::cacheEventAliases();
 
     if (array_key_exists($eventAlias, self::$eventIds)) {
       return intval(self::$eventIds[$eventAlias]->id);
@@ -43,12 +43,24 @@ class ClawEvents
    */
   public static function getCategoryId(string $categoryAlias): int
   {
-    if (self::$categoryIds == null) self::mapCategoryAliases();
+    if (self::$categoryIds == null) self::cacheCategoryAliases();
     if (!array_key_exists($categoryAlias, self::$categoryIds)) {
       throw new UnexpectedValueException(__FILE__ . ': Unknown category alias: ' . $categoryAlias);
     }
 
-    return self::$categoryIds[$categoryAlias]->id;
+    return self::$categoryIds[$categoryAlias];
+  }
+
+  /**
+   * Given a category id, return its category alias
+   * @param int Category ID
+   * @return bool|string Category alias in Event Booking (false if not found)
+   */
+  public static function getCategoryAlias(int $categoryId): bool|string
+  {
+    if (self::$categoryIds == null) self::cacheCategoryAliases();
+    
+    return array_search($categoryId, self::$categoryIds);
   }
 
   /**
@@ -58,7 +70,7 @@ class ClawEvents
    */
   public static function getCategoryIds(array $categoryAliases, bool $associative = false): array
   {
-    if (self::$categoryIds == null) self::mapCategoryAliases();
+    if (self::$categoryIds == null) self::cacheCategoryAliases();
 
     if (count($categoryAliases) == 0) die('List of aliases must be provided');
 
@@ -77,7 +89,7 @@ class ClawEvents
     return $result;
   }
 
-  public static function getCategoryNames(array $categoryAliases): ?array
+  public static function getRawCategories(array $categoryIds): ?array
   {
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
@@ -85,7 +97,7 @@ class ClawEvents
     $query = $db->getQuery(true);
     $query->select('*')
       ->from($db->qn('#__eb_categories'))
-      ->where($db->qn('alias') . ' IN (' . implode(',', (array)($db->q($categoryAliases))) . ')');
+      ->where($db->qn('id') . ' IN (' . implode(',', (array)($db->q($categoryIds))) . ')');
     $db->setQuery($query);
     $rows = $db->loadObjectList('alias');
 
@@ -103,7 +115,7 @@ class ClawEvents
 
     if ('' == $fieldName) die(__FILE__ . ': field name cannot be blank');
 
-    if (null == self::$fieldIds) self::mapFieldIds();
+    if (null == self::$fieldIds) self::cacheFieldIds();
 
     if (array_key_exists($fieldName, self::$fieldIds)) {
       return intval(self::$fieldIds[$fieldName]->id);
@@ -156,7 +168,7 @@ class ClawEvents
     return $result == null ? false : $result;
   }
 
-  private static function mapEventAliases(): void
+  private static function cacheEventAliases(): void
   {
     if (self::$eventIds != null) return;
 
@@ -175,7 +187,7 @@ class ClawEvents
     }
   }
 
-  private static function mapCategoryAliases(): void
+  private static function cacheCategoryAliases(): void
   {
     if (self::$categoryIds != null) return;
     /** @var \Joomla\Database\DatabaseDriver */
@@ -187,14 +199,14 @@ class ClawEvents
       ->where('published=1')
       ->order('id');
     $db->setQuery($query);
-    self::$categoryIds = $db->loadObjectList('alias');
+    self::$categoryIds = $db->loadAssocList('alias','id');
 
     if (self::$categoryIds == null) {
       throw new UnexpectedValueException(__FILE__ . ': Category alias db error.');
     }
   }
 
-  private static function mapFieldIds(): void
+  private static function cacheFieldIds(): void
   {
     if (self::$fieldIds != null) return;
     /** @var \Joomla\Database\DatabaseDriver */
