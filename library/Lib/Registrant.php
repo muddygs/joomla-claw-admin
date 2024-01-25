@@ -69,7 +69,7 @@ class Registrant
    * @param int $uid 
    * @return array eventId => RegistrantRecord
    */
-  public static function getMainEvents(int $uid): array
+  public static function getHistoricalMainEvents(int $uid): array
   {
     // Array of registrant records
     $result = [];
