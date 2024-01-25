@@ -258,7 +258,7 @@ class ReportsModel extends BaseDatabaseModel
         EventPackageTypes::combo_meal_4] AS $comboMeal ) {
           /** @var \ClawCorpLib\Lib\PackageInfo */
       $packageInfo = $this->eventConfig->getPackageInfoByProperty('eventPackageType', $comboMeal, false);
-      if ( $packageInfo == null ) continue;
+      if ( is_null($packageInfo) ) continue;
 
       if ( $dinnerField )
         $subcount = $dinnerField->valueCounts($packageInfo->eventId);
