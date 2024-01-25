@@ -365,7 +365,7 @@ HTML;
       $categories = array_merge($categories, $eventInfo->eb_cat_combomeals);
     }
 
-    $categoryInfo = ClawEvents::getRawCategories($categories);;
+    $categoryInfo = ClawEvents::getRawCategories($categories);
     
     foreach ($categoryInfo as $info) {
       $content = "{ebcategory {$info->id} toast}";
