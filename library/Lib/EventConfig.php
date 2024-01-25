@@ -181,9 +181,11 @@ class EventConfig
   public function getEventByCouponCode(string $couponCode): ?PackageInfo
   {
     $result = null;
+    $couponCode = strtolower($couponCode);
+    
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->packageInfos as $e) {
-      if ($e->couponKey == $couponCode) {
+      if (strtolower($e->couponKey) == $couponCode) {
         $result = $e;
         break;
       }
