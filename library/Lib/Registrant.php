@@ -458,7 +458,7 @@ class Registrant
     $alias = ClawEvents::eventIdtoAlias($row->event_id);
 
     $info = new EventInfo($alias);
-    return registrant::generateNextInvoiceNumber($info->prefix.'-', $uid);
+    return Registrant::generateNextInvoiceNumber($info->prefix.'-', $uid);
   }
 
   public static function generateNextInvoiceNumber(string $prefix, int $uid): string
