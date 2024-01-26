@@ -34,8 +34,6 @@ class Aliases {
   // Also used for checking if volunteer is in good starting in registrationsurvey.php
   // TODO: Probably need to fix getInactiveEventAliases const past = ['c0423'];
 
-  const onsiteCoupon = 'ONSITE-CASH'; // TODO: Remove all usage of this
-  
   static function shiftCategories() {
     return Config::getConfigValuesText(ConfigFieldNames::CONFIG_SHIFT_CATEGORY);
   }
