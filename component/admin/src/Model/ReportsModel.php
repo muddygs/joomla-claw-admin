@@ -46,7 +46,7 @@ class ReportsModel extends BaseDatabaseModel
   {
     $items = [];
 
-    $events = $this->eventConfig->getEventsByCategoryId($this->eventConfig->eventInfo->eb_cat_speeddating[0]);
+    $events = $this->eventConfig->getEventsByCategoryId([$this->eventConfig->eventInfo->eb_cat_speeddating[0]]);
 
     // Sort by event date
     usort($events, function ($a, $b) {
