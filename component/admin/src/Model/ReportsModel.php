@@ -46,20 +46,21 @@ class ReportsModel extends BaseDatabaseModel
   {
     $items = [];
 
-    $events = $this->eventConfig->getEventsByCategoryId([$this->eventConfig->eventInfo->eb_cat_speeddating[0]]);
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ($this->eventConfig->packageInfos as $packageInfo) {
 
-    // Sort by event date
-    usort($events, function ($a, $b) {
-      return $a->event_date > $b->event_date;
-    });
+      if ($packageInfo->packageInfoType != PackageInfoTypes::speeddating) continue;
+      if ($packageInfo->published != EbPublishedState::published) continue;
 
-    foreach ($events as $event) {
-      $items[$event->id] = (object)[];
-      $items[$event->id]->event_id = $event->id;
-      $items[$event->id]->title = $event->title;
+      foreach ( $packageInfo->meta AS $meta) {
+        $object = (object)[];
+        $object->event_id = $meta->eventId;
+        $object->title = $packageInfo->title. ' ('.$meta->role.') - '. $packageInfo->start->format('D g:i A');
 
-      $registrants = Registrants::byEventId($event->id, [EbPublishedState::published, EbPublishedState::waitlist]);
-      $items[$event->id]->registrants = $registrants;
+        $registrants = Registrants::byEventId($meta->eventId, [EbPublishedState::published, EbPublishedState::waitlist]);
+        $object->registrants = $registrants;
+        $items[] = $object;
+      }
     }
 
     return $items;
