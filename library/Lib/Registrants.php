@@ -42,11 +42,11 @@ class Registrants
       die("Event from Event ID cannot be determined");
     }
 
-    foreach ( $userIds as $uid )
-    {
+    foreach ( $userIds as $uid ) {
       $r = new Registrant($clawEventAlias, $uid, [$eventId], true);
       $r->loadCurrentEvents();
-      $results[] = $r;
+
+      if ( count($r->records()) > 0) $results[] = $r;
     }
 
     return $results;
