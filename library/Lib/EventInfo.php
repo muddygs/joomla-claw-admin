@@ -95,6 +95,8 @@ class EventInfo
 
   private function loadRawEventInfo(string $alias): object
   {
+    if ( empty($alias) ) throw new \Exception('Event alias cannot be empty');
+    
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
     $alias = strtolower($alias);
