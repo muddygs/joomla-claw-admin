@@ -72,6 +72,8 @@ class EventConfig
 
     $rows = $db->loadObjectList();
 
+    if ( is_null($rows) ) return;
+
     foreach ( $rows as $row ) {
       $this->packageInfos[$row->id] = new PackageInfo($this->eventInfo, $row->id);
     }
