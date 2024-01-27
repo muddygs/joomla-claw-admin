@@ -29,7 +29,7 @@ use Joomla\Database\DatabaseDriver;
 
 $eventAlias = Aliases::current();
 $clawEvents = new EventConfig($eventAlias);
-$events = $clawEvents->packageInfos;
+$packageInfos = $clawEvents->packageInfos;
 $eventInfo = $clawEvents->eventInfo;
 
 $mealPhrases = ['beef','chicken','vege', 'vegan', 'sea bass', 'fish', 'ravioli'];
@@ -43,17 +43,17 @@ $db = Factory::getContainer()->get('DatabaseDriver');
 $mainEventIds = [];
 
 /** @var \ClawCorpLib\Lib\PackageInfo */
-foreach ( $events AS $event )
+foreach ( $packageInfos AS $packageInfo )
 {
-  if ($event->packageInfoType != PackageInfoTypes::main ) continue;
+  if ($packageInfo->packageInfoType != PackageInfoTypes::main ) continue;
 
-  $mainEventIds[] = $event->eventId;
+  $mainEventIds[] = $packageInfo->eventId;
 
-  echo "<h2>Checking {$event->title} ({$event->eventId})</h2>\n";
+  echo "<h2>Checking {$packageInfo->title} ({$packageInfo->eventId})</h2>\n";
   $query = $db->getQuery(true);
   $query->select(['id','user_id'])
     ->from($db->qn('#__eb_registrants'))
-    ->where($db->qn('event_id') . '=' . $db->q($event->eventId))
+    ->where($db->qn('event_id') . '=' . $db->q($packageInfo->eventId))
     ->where($db->qn('published') . '=' . $db->q(EbPublishedState::published->value))
     ->order($db->qn('id'));
 
@@ -251,18 +251,30 @@ if ( count($duplicateUserIds) > 0 ) {
 $couponKeys = [];
 
 /** @var \ClawCorpLib\Lib\PackageInfo */
-foreach ( $events AS $event )
+foreach ( $packageInfos AS $packageInfo )
 {
+  $eventRow = (object)[];
+
   // Load the EventBooking database item for this event
-  $eventRow = ClawEvents::loadEventRow($event->eventId);
-
-  if ( $event->couponKey != '') $couponKeys[] = $event->couponKey;
-
-  if ( property_exists($event, 'fee') && $event->fee != $eventRow->individual_price ) {
-    $fee = "<span class=\"text-danger\">{$event->fee} != {$eventRow->individual_price}</span>";
+  if ( $packageInfo->eventId == 0 ) {
+    $eventRow->title = "<span class=\"text-danger\">{$packageInfo->title} Not deployed</span>";
+    $eventRow->published = EbPublishedState::any;
   } else {
-    $fee = $event->fee ?? 0;
+    $eventRow = ClawEvents::loadEventRow($packageInfo->eventId);
+
+    if ( $packageInfo->couponKey != '') $couponKeys[] = $packageInfo->couponKey;
+
+    if ( property_exists($packageInfo, 'fee') && $packageInfo->fee != $eventRow->individual_price ) {
+      $fee = "<span class=\"text-danger\">{$packageInfo->fee} != {$eventRow->individual_price}</span>";
+    } else {
+      $fee = $packageInfo->fee ?? 0;
+    }
   }
+
+  if ( $packageInfo->published != EbPublishedState::published) {
+    $eventRow->published = EbPublishedState::any;
+  }
+
 
   $published = $eventRow->published == EbPublishedState::published->value ?
     'PUBLISHED' : 
@@ -270,9 +282,9 @@ foreach ( $events AS $event )
 
   ?>
   <tr>
-    <td><?= $event->eventId ?></td>
+    <td><?= $packageInfo->eventId ?></td>
     <td><?= $eventRow->title ?></td>
-    <td><?= $event->couponKey ?></td>
+    <td><?= $packageInfo->couponKey ?></td>
     <td><?= $published ?></td>
     <td><?= $fee ?></td>
   </tr>
