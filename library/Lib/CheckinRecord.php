@@ -58,16 +58,16 @@ class CheckinRecord
     $buffetCatId = ClawEvents::getCategoryId('buffet');
 
     /** @var \ClawCorpLib\Lib\PackageInfo  */
-    foreach ( $eventConfig->packageInfos AS $clawEvent) {
-      switch ($clawEvent->category) {
+    foreach ( $eventConfig->packageInfos AS $packageInfo) {
+      switch ($packageInfo->category) {
         case $dinnerCatId:
-          $this->dinners[$clawEvent->eventId] = '';
+          $this->dinners[$packageInfo->eventId] = '';
           break;
         case $brunchCatId:
-          $this->brunches[$clawEvent->eventId] = '';
+          $this->brunches[$packageInfo->eventId] = '';
           break;
         case $buffetCatId:
-          $this->buffets[$clawEvent->eventId] = '';
+          $this->buffets[$packageInfo->eventId] = '';
           break;
       }
     }
