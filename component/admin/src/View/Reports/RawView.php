@@ -47,6 +47,9 @@ class RawView extends BaseHtmlView
         $input = Factory::getApplication()->getInput();
         $this->publishedOnly = $input->getBool('published_only', true);
         break;
+      case 'csv_artshow':
+        $this->items = $this->model->getArtShowSubmissions();
+        break;
       default:
         break;
     }

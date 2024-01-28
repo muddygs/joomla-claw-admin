@@ -10,5 +10,6 @@
 		<action name="claw.skills" title="Skills" />
 		<action name="claw.volunteers" title="Volunteer Management" />
 		<action name="claw.events" title="Events Management" />
+		<action name="claw.reports" title="Reports Access" />
 	</section>
 </access>

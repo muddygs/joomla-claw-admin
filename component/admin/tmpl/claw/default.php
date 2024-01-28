@@ -51,6 +51,7 @@ $content = [
   'list' => ['Volunteer Detail','<a href="/administrator/index.php?option=com_claw&view=reports&layout=volunteer_detail&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
   'tshirt' => ['Shirts','<a href="/administrator/index.php?option=com_claw&view=reports&layout=shirts&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
   'utensils' => ['Meals','<a href="/administrator/index.php?option=com_claw&view=reports&layout=meals&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
+  'paint-brush' => ['Art Show','<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_artshow&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
 ];
 
 Bootstrap::writeGrid($content, $tags, false, false);

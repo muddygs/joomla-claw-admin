@@ -12,17 +12,18 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 \defined('_JEXEC') or die;
 
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\User\UserFactory;
+
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
+use ClawCorpLib\Helpers\Rsform;
 use ClawCorpLib\Helpers\Volunteers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Ebfield;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\Registrants;
-use Joomla\CMS\Factory;
-use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use Joomla\CMS\User\UserFactory;
 
 /**
  * Methods to handle a list of records.
@@ -286,6 +287,41 @@ class ReportsModel extends BaseDatabaseModel
     }
 
     $items['eventInfo'] = $this->eventConfig->eventInfo;
+
+    return $items;
+  }
+
+  public function getArtShowSubmissions()
+  {
+    $items = [];
+    $items['eventInfo'] = $this->eventConfig->eventInfo;
+    $items['submissions'] = [];
+
+    $formAlias = $this->eventConfig->eventInfo->alias.'-artshow';
+
+    try {
+      $form = new Rsform($this->getDatabase(), $formAlias);
+    }
+    catch (\Exception $e) {
+      return $items;
+    }
+
+    $submissionsIds = $form->getSubmissionIds();
+
+    if ( is_null($submissionsIds) ) return $items;
+
+    foreach ( $submissionsIds AS $submissionId ) {
+      $submissionData = $form->getSubmissionData($submissionId);
+
+      $data = (object)[];
+      $data->submissionId = $submissionId;
+
+      foreach ( $submissionData AS $field ) {
+        $data->{$field->FieldName} = $field->FieldValue;
+      }
+
+      $items['submissions'][$submissionId] = $data;
+    }
 
     return $items;
   }
