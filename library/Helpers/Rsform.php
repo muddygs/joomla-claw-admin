@@ -6,41 +6,58 @@ use Joomla\Database\DatabaseDriver;
 
 class Rsform
 {
+  private int $formId;
 
-  public static function getFormId(DatabaseDriver $db, string $formAlias): int
+  public function __construct(
+    public DatabaseDriver $db,
+    public readonly string $formAlias
+  )
   {
-    $query = "SELECT FormId FROM #__rsform_forms WHERE FormName = " . $db->q($formAlias);
-    $db->setQuery($query);
+    $this->formId = $this->getFormId($db, $formAlias);
+
+    if ( $this->formId == null )
+    {
+      throw new \Exception("Unknown form alias: ".$formAlias);
+    }
+  }
+
+  private function getFormId(DatabaseDriver $db, string $formAlias): ?int
+  {
+    $query = $this->db->getQuery(true);
+    $query->select('FormId')
+      ->from($this->db->quoteName('#__rsform_forms'))
+      ->where($this->db->quoteName('FormName') . ' = ' . $this->db->q($formAlias));
+    $this->db->setQuery($query);
+
     $result = $db->loadResult();
 
-    if (null == $result) {
-      die("Unknown form alias: " . $formAlias);
-    }
+    return $result;
+  }
+
+  public function getSubmissionIds(): ?array
+  {
+    $query = $this->db->getQuery(true);
+    $query->select('SubmissionId')
+      ->from($this->db->quoteName('#__rsform_submissions'))
+      ->where($this->db->quoteName('FormId') . ' = ' . $this->db->q($this->formId))
+      ->order('SubmissionId ASC');
+    $this->db->setQuery($query);
+
+    $result = $this->db->loadColumn();
 
     return $result;
   }
 
-  public static function getSubmissionIds(DatabaseDriver $db, int $formId): array
+  public function getSubmissionData(int $submissionId): ?array
   {
-    $query = "SELECT SubmissionId FROM #__rsform_submissions WHERE FormId = " . $db->q($formId) . ' ORDER BY SubmissionId ASC';
-    $db->setQuery($query);
-    $result = $db->loadColumn();
+    $query = $this->db->getQuery(true);
+    $query->select(['FieldName', 'FieldValue'])
+      ->from($this->db->quoteName('#__rsform_submission_values'))
+      ->where($this->db->quoteName('FormId') . ' = ' . $this->db->q($this->formId))
+      ->where($this->db->quoteName('SubmissionId') . ' = ' . $this->db->q($submissionId));
+    $this->db->setQuery($query);
 
-    if (null == $result) {
-      die("No data or unknown form id: " . $formId);
-    }
-
-    return $result;
-  }
-
-  public static function getSubmissionData(DatabaseDriver $db, int $formId, int $submissionId): array
-  {
-    $query = "SELECT FieldName,FieldValue FROM #__rsform_submission_values WHERE FormId=" . $db->q($formId) . " AND SubmissionId=" . $db->q($submissionId);
-    $db->setQuery($query);
-    $result = $db->loadObjectList('FieldName');
-    if (null == $result) {
-      die("Error Loading Data for Submission Id: " . $submissionId);
-    }
+    $result = $this->db->loadObjectList('FieldName');
 
     return $result;
   }
