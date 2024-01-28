@@ -369,7 +369,6 @@ HTML;
     
     foreach ($categoryInfo as $info) {
       $content = "{ebcategory {$info->id} toast}";
-      $result .= $info->description;
       $result .= HTMLHelper::_('content.prepare', $content);
     }
 
