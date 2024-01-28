@@ -23,8 +23,6 @@ class EquipmentrentalsModel extends EventconfigsModel
   /**
    * Get the master query for retrieving a list of equipment rental PackageInfo records.
    * 
-   * Because "meta" contains all the subtypes for each event, we use JSON_TABLE to extract the subtypes into a row for each subtype.
-   *
    * @return  \Joomla\Database\DatabaseQuery
    *
    * @since   1.6
