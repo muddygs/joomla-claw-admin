@@ -334,8 +334,8 @@ class RefundsModel extends FormModel
         $email = $rows[0]->email;
         $uid = $rows[0]->user_id;
   
-        $events = new EventConfig('refunds');
-        $mainEventIds = array_keys($events->packageInfos);
+        $eventConfig = new EventConfig('refunds');
+        $mainEventIds = $eventConfig->getMainEventIds();
   
         foreach ($rows as $r) {
           if (in_array($r->event_id, $mainEventIds)) {
