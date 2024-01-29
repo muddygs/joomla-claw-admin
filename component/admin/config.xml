@@ -1,177 +1,188 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
 
-	<fieldset
-		name="permissions"
-		label="JCONFIG_PERMISSIONS_LABEL"
-		description="JCONFIG_PERMISSIONS_DESC"
-		>
+  <fieldset
+    name="permissions"
+    label="JCONFIG_PERMISSIONS_LABEL"
+    description="JCONFIG_PERMISSIONS_DESC"
+    >
 
-		<field
-			name="rules"
-			type="rules"
-			label="JCONFIG_PERMISSIONS_LABEL"
-			filter="rules"
-			validate="rules"
-			component="com_claw"
-			section="component"
-		 />
-	</fieldset>
-	<fieldset
-		name="skills"
-		label="S&amp;E"
-		description="Settings for Skills and Education"
-		>
-			<field
-				name="se_group"
-				type="UserGroupList"
-				label="Submission Group"
-				description="Select group allowed to submit"
-				layout="joomla.form.field.list-fancy-select"
-				checksuperusergroup="1"
-				default=""
-				multiple="0"
-				>
-				<option value="0">Select group</option>
-			</field>
+    <field
+      name="rules"
+      type="rules"
+      label="JCONFIG_PERMISSIONS_LABEL"
+      filter="rules"
+      validate="rules"
+      component="com_claw"
+      section="component"
+     />
+  </fieldset>
+  <fieldset
+    name="skills"
+    label="S&amp;E"
+    description="Settings for Skills and Education"
+    >
+      <field
+        name="se_group"
+        type="UserGroupList"
+        label="Submission Group"
+        description="Select group allowed to submit"
+        layout="joomla.form.field.list-fancy-select"
+        checksuperusergroup="1"
+        default=""
+        multiple="0"
+        >
+        <option value="0">Select group</option>
+      </field>
 
-			<field 
-				name="se_submissions_open"
-				type="radio"
-				default="0"
-				label="Submissions Open"
-				description=""
-				class="btn-group btn-group-yesno"
-			>
-				<option value="1">JYES</option>
-				<option value="0">JNO</option>
-			</field>
+      <field 
+        name="se_submissions_open"
+        type="radio"
+        default="0"
+        label="Submissions Open"
+        description=""
+        class="btn-group btn-group-yesno"
+      >
+        <option value="1">JYES</option>
+        <option value="0">JNO</option>
+      </field>
 
-			<field 
-				name="se_submissions_bioonly"
-				type="radio"
-				default="0"
-				label="Bios Only Open"
-				description=""
-				class="btn-group btn-group-yesno"
-			>
-				<option value="1">JYES</option>
-				<option value="0">JNO</option>
-			</field>
+      <field 
+        name="se_submissions_bioonly"
+        type="radio"
+        default="0"
+        label="Bios Only Open"
+        description=""
+        class="btn-group btn-group-yesno"
+      >
+        <option value="1">JYES</option>
+        <option value="0">JNO</option>
+      </field>
 
-			<field 
-				name="se_survey_link"
-				type="menuitem"
-				label="Survey RS Form Menu Item"
-			>
-				<option value="">JDEFAULT</option>
-			</field>
+      <field 
+        name="se_survey_link"
+        type="menuitem"
+        label="Survey RS Form Menu Item"
+      >
+        <option value="">JDEFAULT</option>
+      </field>
 
-			<field
-				name="se_notification_email"
-				type="email"
-				label="Notification Email"
-				default="education@clawinfo.org"
-				required="true"
-				validate="email"
-			/>
+      <field
+        name="se_notification_email"
+        type="email"
+        label="Notification Email"
+        default="education@clawinfo.org"
+        required="true"
+        validate="email"
+      />
 
-			<field
-				name="se_bio_max_length"
-				type="text"
-				label="Bio Max Length"
-				default="1000"
-				required="true"
-			/>
+      <field
+        name="se_bio_max_length"
+        type="text"
+        label="Bio Max Length"
+        default="1000"
+        required="true"
+      />
 
-			<field
-				name="se_class_description_max_length"
-				type="text"
-				label="Class Description Max Length"
-				default="500"
-				required="true"
-			/>
+      <field
+        name="se_class_description_max_length"
+        type="text"
+        label="Class Description Max Length"
+        default="500"
+        required="true"
+      />
 
-			<field
-				name="se_email_presenter_intro"
-				type="editor"
-				label="Presenter Email Common Intro"
-				description="Opening text to be included in presenter submission emails"
-				width="100%"
-				filter="safehtml"
-			/>
+      <field
+        name="se_email_presenter_intro"
+        type="editor"
+        label="Presenter Email Common Intro"
+        description="Opening text to be included in presenter submission emails"
+        width="100%"
+        filter="safehtml"
+      />
 
-			<field
-				name="se_email_bio_intro"
-				type="editor"
-				label="Class Email Common Intro"
-				description="Opening text to be included in class submission emails"
-				width="100%"
-				filter="safehtml"
-			/>
+      <field
+        name="se_email_bio_intro"
+        type="editor"
+        label="Class Email Common Intro"
+        description="Opening text to be included in class submission emails"
+        width="100%"
+        filter="safehtml"
+      />
 
 
-	</fieldset>
+  </fieldset>
 
-	<fieldset
-		name="cron"
-		label="Cron"
-		description="Settings for Cron Tasks">
+  <fieldset
+    name="cron"
+    label="Cron"
+    description="Settings for Cron Tasks">
 
-		<field
-			name="profiles_eventalias"
-			type="text"
-			label="Profiles Event Alias"
-			default=""
-			required="false"
-		/>
+    <field
+      name="profiles_eventalias"
+      type="text"
+      label="Profiles Event Alias"
+      default=""
+      required="false"
+    />
 
-		<field
-			name="profiles_cronkey"
-			type="text"
-			label="Profiles Cron Key"
-			default=""
-			required="false"
-		/>
+    <field
+      name="profiles_cronkey"
+      type="text"
+      label="Profiles Cron Key"
+      default=""
+      required="false"
+    />
 
-		<field
-			name="shifts_cronkey"
-			type="text"
-			label="Shifts Cron Key"
-			default=""
-			required="false"
-		/>
-	</fieldset>
+    <field
+      name="shifts_cronkey"
+      type="text"
+      label="Shifts Cron Key"
+      default=""
+      required="false"
+    />
+  </fieldset>
 
-	<fieldset
-	  name="packageinfo"
-		label="Package Info"
-		description="Settings for Package Info">
+  <fieldset
+    name="packageinfo"
+    label="Package Info"
+    description="Settings for Package Info">
 
-		<field
-		  name="sponsorship_registration_email"
-			type="editor"
-			label="Sponsorship Registration Email"
-			description="Event Booking Registration Confirmation Email Template"
-			width="100%"
-			filter="safehtml"
-		/>
-	</fieldset>
+    <field
+      name="sponsorship_registration_email"
+      type="editor"
+      label="Sponsorship Registration Email"
+      description="Event Booking Registration Confirmation Email Template"
+      width="100%"
+      filter="safehtml"
+    />
 
-	<fieldset
-	  name="shifts"
-		label="Shifts"
-		description="Settings for Shifts">
+    <field
+      name="eb_cat_nonpackageinfo"
+      type="EbCategoryList"
+      label="Non-Package Categories"
+      description="Registration for these categories do not require a package."
+      required="false"
+      multiple="true"
+      addfieldprefix="ClawCorp\Component\Claw\Administrator\Field"
+    />
 
-		<field
-		  name="shifts_coordinator_groups"
-			type="usergrouplist"
-			label="Shift Coordinator Groups"
-			description="Do not forget Super Users"
-			layout="joomla.form.field.list-fancy-select"
-			multiple="true"
-		/>
-	</fieldset>
+  </fieldset>
+
+  <fieldset
+    name="shifts"
+    label="Shifts"
+    description="Settings for Shifts">
+
+    <field
+      name="shifts_coordinator_groups"
+      type="usergrouplist"
+      label="Shift Coordinator Groups"
+      description="Do not forget Super Users"
+      layout="joomla.form.field.list-fancy-select"
+      multiple="true"
+    />
+  </fieldset>
 
 
 </config>
