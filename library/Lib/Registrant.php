@@ -335,7 +335,7 @@ class Registrant
       $l = $db->q('%-'.str_pad($uidCandidate, 5, '0', STR_PAD_LEFT).'-%');
       $invoiceWhereOr .= 'invoice_number LIKE '.$l.' OR ';
     }
-    $invoiceWhereOr .= 'registration_code = '.$db->q($regid);
+    $invoiceWhereOr .= 'BINARY `registration_code` = '.$db->q($regid);
 
     $q = $db->getQuery(true);
     $q->select('user_id')
@@ -347,11 +347,7 @@ class Registrant
     }
 
     $db->setQuery($q);
-    $uid = $db->loadResult();
-
-    if (is_null($uid)) {
-      $uid = 0;
-    }
+    $uid = $db->loadResult() ?? 0;
 
     return $uid;
   }
@@ -369,11 +365,7 @@ class Registrant
 
     $q = "SELECT user_id FROM #__eb_registrants WHERE id = $r";
     $db->setQuery($q);
-    $uid = $db->loadResult();
-
-    if (is_null($uid)) {
-      $uid = 0;
-    }
+    $uid = $db->loadResult() ?? 0;
 
     return $uid;
   }
@@ -456,6 +448,11 @@ class Registrant
 
 		$uid = $row->user_id;
     $alias = ClawEvents::eventIdtoAlias($row->event_id);
+
+    // TODO: Check for non-event registrations, such as donations
+    if ( false === $alias ) {
+      $alias = Aliases::current(true);
+    }
 
     $info = new EventInfo($alias);
     return Registrant::generateNextInvoiceNumber($info->prefix.'-', $uid);
