@@ -10,11 +10,11 @@
   <fields name="params">
     <fieldset name="options">
       <field name="ScheduleEvent"
-        type="text"
-        label="Event"
-        required="true"
-        maxlength="5" />
-
+				type="ClawEventsList"
+				label="Event"
+				description="Alias of the event for class display."
+				addfieldprefix="ClawCorp\Component\Claw\Administrator\Field"
+			/>
       <field name="ShowLocation"
         type="radio"
         label="Show Location"

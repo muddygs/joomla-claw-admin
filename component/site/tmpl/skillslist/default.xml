@@ -12,11 +12,11 @@
 		<!-- Options -->
 		<fieldset name="options">
 			<field name="event_alias"
-				type="text"
-				label="Event Alias"
+				type="ClawEventsList"
+				label="Event"
 				description="Alias of the event for class display."
-				size="40"
-				default="" />
+				addfieldprefix="ClawCorp\Component\Claw\Administrator\Field"
+			/>
 
 			<field name="list_type"
 				type="list"
