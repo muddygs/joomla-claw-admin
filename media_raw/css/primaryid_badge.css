@@ -133,7 +133,7 @@ body {
 .barcodeportrait {
 	z-index: 1000;
 	position: absolute;
-	transform: translate(0mm, 70mm);
+	transform: translate(10mm, 33mm);
 }
 
 /* .barcodelandscape img, .barcodeportrait img
