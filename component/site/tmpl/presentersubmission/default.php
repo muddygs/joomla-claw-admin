@@ -27,16 +27,20 @@ $this->document->setTitle("Biography Submission");
 $header = $this->params->get('BioHeader') ?? '';
 echo $header;
 
-if ($this->params->get('se_submissions_open') == 0 || $this->item->id != 0) :
-?>
-  <h1>Submissions are currently closed. You may view only your biography.</h1>
-<?php
-endif;
+if ( !$this->canEditBio ) {
+  if ( $this->item->id != 0) {
+    echo "<h1>Submissions are currently closed. You may view only your biography.</h1>";
+  } elseif ( $this->canAddOnlyBio) {
+    echo "<h1>You may add your bio, but after submission, no further edits are permitted.</h1>";
+  } else {
+    echo "<h1>Submissions are currently closed.</h1>";    
+  }
+}
 ?>
 
-<?php if ($this->params->get('se_submissions_open') != 0 || $this->item->id == 0 ) : ?>
+<?php if ($this->canEditBio || ( $this->canAddOnlyBio && 0 == $this->item->id )) : ?>
   <form action="<?php echo Route::_('index.php?option=com_claw&view=' . $view . '&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="<?= $view ?>" id="<?= $view ?>-form" class="form-validate" enctype="multipart/form-data">
-  <?php endif; ?>
+<?php endif; ?>
 
   <div class="row form-vertical mb-3">
     <div class="col-12 col-md-6">
@@ -87,8 +91,11 @@ endif;
     <?php echo $this->form->renderField('comments'); ?>
   </div>
 
-  <?php if ($this->params->get('se_submissions_open') != 0 || $this->item->id == 0) : ?>
-    <button type="button" class="btn btn-primary" onclick="Joomla.submitbutton('<?php echo $view ?>.submit')">Submit for <?php echo $this->eventInfo->description ?></button>
+  <?php if ($this->canEditBio || ( $this->canAddOnlyBio && 0 == $this->item->id )) : ?>
+    <button type="button" class="btn btn-primary" 
+      onclick="Joomla.submitbutton('<?php echo $view ?>.submit')">
+      Submit for <?php echo $this->eventInfo->description ?>
+    </button>
     <?php echo $this->form->renderField('event'); ?>
     <input type="hidden" name="idx" value="<?php echo $this->item->id ?>" />
     <input type="hidden" name="task" value="" />
@@ -97,6 +104,6 @@ endif;
 
   <a href="/index.php?option=com_claw&view=skillssubmissions" role="button" class="btn btn-success">Back</a>
 
-  <?php if ($this->params->get('se_submissions_open') != 0) : ?>
+<?php if ($this->canEditBio || ( $this->canAddOnlyBio && 0 == $this->item->id )) : ?>
   </form>
 <?php endif;

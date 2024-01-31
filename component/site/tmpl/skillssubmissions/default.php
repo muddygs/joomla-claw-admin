@@ -51,15 +51,19 @@ function BioHtml(object &$__this)
     ?>
       <h2>No recent biography on file</h2>
     <?php
-    if ($__this->params->get('se_submissions_open') == 0):
+    if ( !$__this->canEditBio && $__this->canAddOnlyBio ):
     ?>
       <h3 class="text-warning">Submissions are closed, but you may submit a biography (typically used for late entry).
         After submission, you will no longer be able to edit it.</h3>
     <?php
+    elseif ( !$__this->canEditBio && !$__this->canAddOnlyBio ):
+      ?>
+      <h3 class="text-warning">Submissions are closed. You may not submit a biography.</h3>
+    <?php
     else:
     ?>
       <h3 class="text-warning">Submissions are open for <?php echo $__this->eventInfo->description ?>.
-        You may add your biography.</h3>
+        You may add and edit your biography.</h3>
     <?php
     endif;
 

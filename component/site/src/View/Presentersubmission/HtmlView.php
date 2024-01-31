@@ -16,10 +16,23 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\EventInfo;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
 {
+  public bool $canEdit = false;
+  public bool $canAddOnly = false;
+  public ?EventInfo $eventInfo = null;
+
+  public function __construct($config = array())
+  {
+    parent::__construct($config);
+
+    $this->eventInfo = new EventInfo(Aliases::current(true));
+  }
+
   public function display($tpl = null)
   {
     // Check that user is in the submission group
@@ -32,21 +45,6 @@ class HtmlView extends BaseHtmlView
     $this->form  = $this->get('Form');
     /** @var \Joomla\CMS\Object\CMSObject */
     $this->item  = $this->get('Item');
-
-    // $input = $app->input;
-    // $data = $input->get('jform', [], 'array');
-
-    // if ( count($data) && $this->state->task == 'submit') {
-    //   // Copy data into $this->item properties
-    //   foreach ($data as $key => $value) {
-    //     $this->item->$key = $value;
-    //     /** @var \Joomla\CMS\Form\FormField */
-		//     $parentField = $this->form->getField($key);
-    //     if (is_object($parentField) && method_exists($parentField, 'setValue')) {
-    //       $parentField->setValue($value);
-    //     }
-    //   }
-    // }
 
     // Validate ownership of the record
     if (property_exists($this->item, 'id')) {
@@ -83,19 +81,17 @@ class HtmlView extends BaseHtmlView
       $app->redirect('/');
     }
 
+    $this->canEditBio = $this->params->get('se_submissions_open') != 0;
+    $this->canAddOnlyBio = $this->params->get('se_submissions_bioonly') != 0;
+
     // In read-only mode? New bios accepted, but current ones are locked
 
-    if ($this->params->get('se_submissions_open') == 0 && $this->item->id > 0) {
+    if ( !$this->canEditBio && $this->item->id > 0) {
       $fieldSet = $this->form->getFieldset('userinput');
       foreach ($fieldSet as $field) {
         $this->form->setFieldAttribute($field->getAttribute('name'), 'readonly', 'true');
       }
     }
-
-    // Event Naming
-    /** @var \ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel */
-    $model = $this->getModel();
-    $this->eventInfo = $model->GetEventInfo(true);
 
     parent::display($tpl);
   }

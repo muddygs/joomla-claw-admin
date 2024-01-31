@@ -12,17 +12,26 @@ namespace ClawCorp\Component\Claw\Site\View\Skillssubmissions;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
-
+use ClawCorpLib\Lib\EventInfo;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
 {
+  public bool $canEdit = false;
+  public bool $canAddOnly = false;
+  public ?EventInfo $eventInfo = null;
+
+  public function __construct($config = array())
+  {
+    parent::__construct($config);
+
+    $this->eventInfo = new EventInfo(Aliases::current(true));
+  }
+
   /**
    * Execute and display a template script.
    *
@@ -74,7 +83,8 @@ class HtmlView extends BaseHtmlView
       throw new GenericDataException(implode("\n", $errors), 500);
     }
 
-    $this->eventInfo = $model->GetEventInfo();
+    $this->canEditBio = $this->params->get('se_submissions_open') != 0;
+    $this->canAddOnlyBio = $this->params->get('se_submissions_bioonly') != 0;
 
     parent::display($tpl);
   }
