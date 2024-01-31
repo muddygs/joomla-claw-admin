@@ -54,6 +54,7 @@
         label="Bios Only Open"
         description=""
         class="btn-group btn-group-yesno"
+        showon="se_submissions_open:0"
       >
         <option value="1">JYES</option>
         <option value="0">JNO</option>
@@ -147,6 +148,27 @@
     name="packageinfo"
     label="Package Info"
     description="Settings for Package Info">
+
+    <field
+      name="packaginfo_public_group"
+      type="usergrouplist"
+      label="Public Group"
+      description="Select Joomla &quot;public&quot; group"
+      checksuperusergroup="1"
+      default="1"
+      multiple="false"
+    />
+
+    <field
+      name="packaginfo_registered_group"
+      type="usergrouplist"
+      label="Registered Group"
+      description="Select Joomla &quot;Registered&quot; group"
+      checksuperusergroup="1"
+      default="1"
+      multiple="false"
+    />
+
 
     <field
       name="sponsorship_registration_email"
