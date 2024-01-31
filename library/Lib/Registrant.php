@@ -9,6 +9,7 @@ use ClawCorpLib\Enums\EbRecordIndexType;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\Config;
+use Joomla\CMS\Component\ComponentHelper;
 use UnexpectedValueException;
 
 class Registrant
@@ -209,7 +210,7 @@ class Registrant
    * 
    * @param array $field_ids String array of custom field aliases
   */
-  function mergeFieldValues(array $fieldNames = []): void
+  function mergeFieldValues(array $fieldNames): void
   {
     if ( count($this->_records) < 1 ) {
       if ( !$this->enablePastEvents ) die('Cannot merge until records loaded.');
@@ -232,7 +233,7 @@ class Registrant
       ->where($db->qn('registrant_id').' IN ('.$registrantIds.')');
 
     if (count($fieldNames) > 0) {
-      $fields = implode(',', $db->q($fieldNames));
+      $fields = implode(',', (array)$db->q($fieldNames));
       $query->where($db->qn('f.name') . " IN ($fields)");
     }
 
@@ -449,9 +450,24 @@ class Registrant
 		$uid = $row->user_id;
     $alias = ClawEvents::eventIdtoAlias($row->event_id);
 
-    // TODO: Check for non-event registrations, such as donations
-    if ( false === $alias ) {
-      $alias = Aliases::current(true);
+    if ( false === $alias) {
+      // Load from global config, defaults to clean Joomla group install
+      $componentParams = ComponentHelper::getParams('com_claw');
+      $nonEventCategories = $componentParams->get('eb_cat_nonpackageinfo', []);
+
+      /** @var \Joomla\Database\DatabaseDriver */
+      $db     = Factory::getContainer()->get('DatabaseDriver');
+
+      $query  = $db->getQuery(true);
+      $query->select('main_category_id')
+        ->from('#__eb_events')
+        ->where('id = ' . $db->q($row->event_id));
+      $db->setQuery($query);
+      $mainCategory = $db->loadResult();
+
+      if ( !is_null($mainCategory) && in_array($mainCategory, $nonEventCategories) ) {
+        $alias = Aliases::current(true);
+      }
     }
 
     $info = new EventInfo($alias);
@@ -462,11 +478,12 @@ class Registrant
   {
     $uid = str_pad($uid, 5, '0', STR_PAD_LEFT);
 
+    /** @var \Joomla\Database\DatabaseDriver */
 		$db     = Factory::getContainer()->get('DatabaseDriver');
 		$query  = $db->getQuery(true);
 		$query->select('invoice_number')
+      ->from('#__eb_registrants')
 			->where('invoice_number LIKE "' . $prefix . $uid . '%"');
-		$query->from('#__eb_registrants');
 
 		$db->setQuery($query);
 		$invoice_numbers = $db->loadColumn();
