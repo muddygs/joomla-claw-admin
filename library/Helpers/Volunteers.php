@@ -2,10 +2,7 @@
 
 namespace ClawCorpLib\Helpers;
 
-use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\EventConfig;
-use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Factory;
 
 class Volunteers
@@ -89,68 +86,5 @@ class Volunteers
     $row->coordinators = json_decode($row->coordinators);
 
     return $row;
-  }
-
-  /**
-   * Retrieves array of volunteer shift grids associated with the specific
-   * or current user
-   * 
-   * @param int $uid Lookup for a specific UID or 0 (for use signed in user)
-   * @param string $adminGroup If user is in this group, returns all enabled shifts
-   * @return array Shift grid IDs
-   */
-
-  function getGridIDByUser(int $uid = 0, string $adminGroup = ''): array
-  {
-    $db = Factory::getContainer()->get('DatabaseDriver');
-
-    $groupNames = [];
-
-    if (0 == $uid) {
-      $uid = Factory::getUser()->id;
-    }
-
-    if ($uid != 0) $groupNames = Helpers::getUserGroupsByName($uid);
-
-    if (0 == $uid) return [];
-
-    $query = <<< SQL
-SELECT DISTINCT g.id
-FROM `s1fi8_fabrik_shift_grids` g
-LEFT OUTER JOIN `s1fi8_fabrik_coord` AS c ON c.coordinator_user = $uid
-LEFT OUTER JOIN `s1fi8_fabrik_shift_grids_repeat_other_coordinators` AS o ON o.other_coordinators=c.id
-WHERE (g.coordinator = c.id OR g.id = o.parent_id) AND g.enabled = 1
-ORDER BY g.shift_title
-SQL;
-
-    if ('' != $adminGroup && array_key_exists($adminGroup, $groupNames)) {
-      // New query for admins
-      $query = <<< SQL
-SELECT id
-FROM `s1fi8_fabrik_shift_grids`
-WHERE enabled = 1
-ORDER BY shift_title
-SQL;
-    }
-
-    $db->setQuery($query);
-    $rows = $db->loadColumn();
-    return $rows;
-  }
-
-  function getEventsByGridID($db, $gid = 0)
-  {
-    $info = new EventInfo(Aliases::current(true));
-
-    $query = <<< SQL
-SELECT *
-FROM `s1fi8_eb_events`
-WHERE alias RLIKE '^{$info->shiftPrefix}.*-$gid-[[:digit:]]+-.*$' AND published=1
-ORDER BY event_date
-SQL;
-
-    $db->setQuery($query);
-    $rows = $db->loadObjectList('id');
-    return $rows;
   }
 }
