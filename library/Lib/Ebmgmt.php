@@ -5,6 +5,7 @@ namespace ClawCorpLib\Lib;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 
 \defined('_JEXEC') or die;
@@ -175,9 +176,10 @@ class Ebmgmt
   {
     $this->ebEventColumns = array_keys($this->db->getTableColumns('#__eb_events'));
 
-    // TODO: Move gid values to global config
-    $gid_public = Helpers::getGroupId('Public');
-    $gid_registered = Helpers::getGroupId('Registered');
+    // Load from global config, defaults to clean Joomla group install
+    $componentParams = ComponentHelper::getParams('com_claw');
+    $gid_public = $componentParams->get('packaginfo_public_group', '1');
+    $gid_registered = $componentParams->get('packaginfo_registered_group', '2');
 
     $this->defaults = [
       'access'=>	$gid_public,
