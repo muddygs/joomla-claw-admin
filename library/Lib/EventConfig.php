@@ -245,24 +245,22 @@ class EventConfig
 
     $qCategoryIds = implode(',', (array)($db->q($categoryIds)));
 
-    $query = <<<SQL
-        SELECT e.*,
-        ( SELECT COUNT(*) FROM `#__eb_registrants` WHERE event_id = e.id AND published=1 ) AS `total_registrants`
-        FROM #__eb_events e
-        WHERE main_category_id IN ($qCategoryIds)
-SQL;
+    $query = $db->getQuery(true);
+    $query->select([
+        'e.*',
+        '( SELECT COUNT(*) FROM `#__eb_registrants` WHERE event_id = e.id AND published=1 ) AS `total_registrants`'
+      ])
+      ->from('#__eb_events e')
+      ->where('main_category_id IN (' . $qCategoryIds . ')')
+      ->order($db->qn($orderBy));
 
     if ($this->eventInfo->eventType == EventTypes::main) {
-      $query .= ' AND `event_date` >= ' . $db->q($startDate->toSql());
-      $query .= ' AND `event_end_date` <= ' . $db->q($endDate->toSql());
-      $query .= ' AND `published`=1';
+      $query->where('`event_date` >= ' . $db->q($startDate->toSql()))
+        ->where('`event_end_date` <= ' . $db->q($endDate->toSql()))
+        ->where('`published`=1');
     }
 
-    $query .= ' ORDER BY ' . $db->qn($orderBy);
-
     $db->setQuery($query);
-    $rows = $db->loadObjectList();
-
-    return $rows;
+    return $db->loadObjectList() ?? [];
   }
 }
