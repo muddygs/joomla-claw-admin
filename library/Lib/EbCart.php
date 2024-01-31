@@ -52,7 +52,7 @@ HTML;
       $app->redirect('https://www.clawinfo.org/', 'You must be signed in to use this resource. Please use the Registration menu.', $msgType = 'error');
     }
 
-    $package_event = 0;
+    $packageEventId = 0;
     $shift_count = 0;
     $requires_main_event = false;
 
@@ -81,8 +81,8 @@ HTML;
 
       // attendee, educator, vendormart crew, staff/event/entertainer
       if (in_array($r->event->eventId, $mainEventIds)) {
-        if (0 == $package_event) {
-          $package_event = $r->event->eventId;
+        if (0 == $packageEventId) {
+          $packageEventId = $r->event->eventId;
         } else {
           # TODO: queue up error message and redirect to helpdesk?
           $this->submit = '<div class="alert alert-danger">There is a problem with your registration due to multiple event registrations. Please contact guest services at https://www.clawinfo.org/help.</div>';
@@ -110,12 +110,12 @@ HTML;
 
       // (by id) attendee, educator, vendormart crew, staff/event/entertainer
       if (in_array($item->id, $mainEventIds)) {
-        if ($package_event != 0) {
+        if ($packageEventId != 0) {
           $this->submit = '<div class="alert alert-danger">Multiple package events are not allowed. Click the Modify Cart button above to fix your cart.</div>';
           $this->show_error = true;
           break;
         } else {
-          $package_event = $item->id;
+          $packageEventId = $item->id;
           $this->non_invoice_event = true;
           // $regType = Helpers::sessionGet('regtype');
           // if ($regType == '') {
@@ -150,21 +150,21 @@ HTML;
     // Shift count check ignored for onsite
     if (!$onsiteActive) {
       /** @var ClawCorpLib\Lib\PackageInfo */
-      foreach ($eventConfig->packageInfos as $event) {
-        if ($event->eventId == $package_event && $shift_count < $event->minShifts) {
-          $this->submit = '<div class="alert alert-danger">Please select at least ' . $event->minShifts . ' shifts. Click Modify Cart to add more shifts.</div>';
+      foreach ($eventConfig->packageInfos as $packageInfo) {
+        if ($packageInfo->eventId == $packageEventId && $shift_count < $packageInfo->minShifts) {
+          $this->submit = '<div class="alert alert-danger">Please select at least ' . $packageInfo->minShifts . ' shifts. Click Modify Cart to add more shifts.</div>';
           $this->show_error = true;
           break;
         }
       }
 
-      if ( !$package_event && $shift_count > 0 ) {
+      if ( !$packageEventId && $shift_count > 0 ) {
         $this->submit = '<div class="alert alert-danger">Please select package registration to go with your shifts. Click Modify Cart to add your package.</div>';
         $this->show_error = true;
       }
 
       // No shifts allowed for non-packages & VendorMart Crew
-      if ($package_event == $eventConfig->getMainEventByPackageType(EventPackageTypes::vendor_crew)->eventId && $shift_count > 0) {
+      if ($packageEventId == $eventConfig->getMainEventByPackageType(EventPackageTypes::vendor_crew)->eventId && $shift_count > 0) {
         $this->submit = '<div class="alert alert-danger">Your event package does not allow shift selection. Please modify your cart.</div>';
         $this->show_error = true;
       }
@@ -175,7 +175,7 @@ HTML;
       }
     }
 
-    if ( $requires_main_event && !$package_event ) {
+    if ( $requires_main_event && !$packageEventId ) {
       $this->submit = '<div class="alert alert-danger">Some items in your cart require a CLAW package. Click the Modify Cart button above to add an event registration.</div>';
       $this->show_error = true;
     }
@@ -187,7 +187,7 @@ HTML;
     }
 
     $shiftCategoryCount = $registrantData->categoryCounts($shiftCategories);
-    if (!$onsiteActive && !$this->show_error && $shiftCategoryCount > 1 && $package_event != $eventConfig->getPackageInfo(EventPackageTypes::volunteersuper)->eventId) {
+    if (!$onsiteActive && !$this->show_error && $shiftCategoryCount > 1 && $packageEventId != $eventConfig->getPackageInfo(EventPackageTypes::volunteersuper)->eventId) {
       $this->submit = "<div class=\"alert alert-danger\">Shifts must all come from the same category (e.g., all Guest Services or Badge Check). Modify your cart to correct this error.</div>";
       $this->show_error = true;
     }
