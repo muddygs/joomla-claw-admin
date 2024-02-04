@@ -52,7 +52,6 @@ class SchedulesModel extends ListModel
       $config['filter_fields'] = [];
 
       foreach ($this->list_fields as $f) {
-        //$config['filter_fields'][] = $f;
         $config['filter_fields'][] = 'a.' . $f;
       }
     }
@@ -113,7 +112,6 @@ class SchedulesModel extends ListModel
     $id .= ':' . serialize($this->getState('filter.name'));
     $id .= ':' . $this->getState('filter.search');
     $id .= ':' . $this->getState('filter.state');
-    //$id .= ':' . serialize($this->getState('filter.tag'));
 
     return parent::getStoreId($id);
   }
@@ -182,19 +180,13 @@ class SchedulesModel extends ListModel
     $query->select('TIME_FORMAT(a.start_time, "%h:%i %p") AS start_time_text');
     $query->select('TIME_FORMAT(a.end_time, "%h:%i %p") AS end_time_text');
 
-    // Filter by search in title.
+    // Get filter values
     $search = $this->getState('filter.search');
     $published = $this->getState('filter.published');
     $day = $this->getState('filter.dayfilter');
-    $event = $this->getState('filter.event', '_current_');
+    $event = $this->getState('filter.event', Aliases::current());
 
     if ($day != null) {
-      // $e = new ClawEvents(Aliases::current());
-      // $info = $e->getEvent()->getInfo();
-      // $days = Helpers::getDateArray($info->start_date, true);
-      // if (array_key_exists($day, $days)) {
-      //   $query->where('a.day =' . $db->quote($days[$day]));
-      // }
       date_default_timezone_set('etc/UTC');
       $dayInt = date('w', strtotime($day)); 
 
@@ -205,8 +197,7 @@ class SchedulesModel extends ListModel
       }
     }
 
-    if ( $event != null ) {
-      if ( $event == '_current_' ) $event = Aliases::current();
+    if ( $event != 'all' ) {
       $query->where('a.event = :event')->bind(':event', $event);
     }
 

@@ -141,7 +141,7 @@ class VendorsModel extends ListModel
 
     // Filter by search in title.
     $search = $this->getState('filter.search');
-    $event = $this->getState('filter.event', '_current_');
+    $event = $this->getState('filter.event', Aliases::current());
     $published = $this->getState('filter.published', -999);
 
     if (!empty($search))
@@ -150,8 +150,7 @@ class VendorsModel extends ListModel
       $query->where('(a.name LIKE ' . $search . ')');
     }
 
-    if ( $event != null ) {
-      if ( $event == '_current_' ) $event = Aliases::current();
+    if ( $event != 'all' ) {
       $query->where('a.event = :event')->bind(':event', $event);
     }
 

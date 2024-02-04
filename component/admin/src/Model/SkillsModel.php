@@ -142,15 +142,7 @@ class SkillsModel extends ListModel
   {
     $items = parent::getItems();
 
-    $event = $this->getState('filter.event');
-    switch ($event) {
-      case '':
-      case '_current_':
-        $event = Aliases::current();
-        break;
-      case '_all_':
-        $event = '';
-    }
+    $event = $this->getState('filter.event', Aliases::current());
 
     $locations = Locations::GetLocationsList();
     $skills = new Skills($this->getDatabase(), $event);
@@ -267,28 +259,16 @@ class SkillsModel extends ListModel
       $query->where( 'a.title LIKE ' . $search );
     }
     
-    $event = $this->getState('filter.event');
+    $event = $this->getState('filter.event', Aliases::current());
     $day = $this->getState('filter.day');
     $presenter = $this->getState('filter.presenter');
     $type = $this->getState('filter.type');
 
-    switch ($event) {
-      case '':
-      case '_current_':
-        $event = Aliases::current();
-        break;
-      case '_all_':
-        $event = '';
-    }
-
     Helpers::sessionSet('eventAlias', $event);
     
-    if ( $event != '' )
-    {
-      $query->where('a.event = :event')
-      ->bind(':event', $event);
+    if ( $event != 'all' ) {
+      $query->where('a.event = :event')->bind(':event', $event);
     }
-    
     
     if ( $day ) {
       date_default_timezone_set('etc/UTC');

@@ -144,21 +144,10 @@ class ShiftsModel extends ListModel
 			$query->where('(a.title LIKE ' . $search . ')');
 		}
 
-    $event = $this->getState('filter.event');
+    $event = $this->getState('filter.event', Aliases::current());
 
-    switch ($event) {
-      case '':
-      case '_current_':
-        $event = Aliases::current();
-        break;
-      case '_all_':
-        $event = '';
-    }
-    
-    if ( $event != '' )
-    {
-      $query->where('a.event = :event')
-      ->bind(':event', $event);
+		if ( $event != 'all' ) {
+      $query->where('a.event = :event')->bind(':event', $event);
     }
 
 		$shiftArea = $this->getState('filter.shift_area');

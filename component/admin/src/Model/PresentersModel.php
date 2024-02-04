@@ -151,26 +151,19 @@ class PresentersModel extends ListModel
       $query->where('(a.name LIKE ' . $search . ')');
     }
 
-    $event = $this->getState('filter.event');
+    $event = $this->getState('filter.event', Aliases::current());
 
-    switch ($event) {
-      case '':
-      case '_current_':
-        $event = Aliases::current();
-        break;
-      case '_all_':
-        $event = '';
-    }
-    
-    if ( $event != '' )
-    {
-      $query->where('a.event = :event')
-      ->bind(':event', $event);
+    if ( $event != 'all' ) {
+      $query->where('a.event = :event')->bind(':event', $event);
     }
 
     // Add the list ordering clause.
-    $orderCol  = $this->state->get('list.ordering', 'a.name');
-    $orderDirn = $this->state->get('list.direction', 'ASC');
+    $orderCol  = $this->getState('list.ordering', 'a.name');
+    $orderDirn = $this->getState('list.direction', 'ASC');
+
+    // TODO: Fix this
+    /* s/$this->state->get/$this->getState/g */
+
 
     $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
     return $query;
