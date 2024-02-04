@@ -52,12 +52,11 @@ class ScheduleModel extends AdminModel
 		if (array_key_exists('day', $data) && in_array($data['day'], Helpers::getDays())) {
       $day = $eventInfo->modify( $data['day'] ?? '');
       if ($day !== false) {
-        $data['day'] = $day;
+        $data['day'] = $day->toSql();
       } 
     } else {
       $data['day'] = $this->getDatabase()->getNullDate();
     }
-
 
 		return parent::save($data);
 	}
