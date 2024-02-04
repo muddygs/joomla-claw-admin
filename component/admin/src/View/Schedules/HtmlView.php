@@ -117,11 +117,5 @@ class HtmlView extends BaseHtmlView
 			->message('JGLOBAL_CONFIRM_DELETE')
 			->listCheck(true);
 		}
-
-		// $tmpl = $app->input->getCmd('tmpl');
-		// if ($tmpl !== 'component')
-		// {
-		// 	ToolbarHelper::help('countrybase', true);
-		// }
 	}
 }
