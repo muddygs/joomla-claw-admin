@@ -34,6 +34,7 @@ class EventInfo
   public array $eb_cat_sponsorships;
   public array $eb_cat_meals;
   public array $eb_cat_combomeals;
+  public array $eb_cat_invoicables;
 
 
   /**
@@ -68,6 +69,7 @@ class EventInfo
     $this->eb_cat_sponsorships = json_decode($info->eb_cat_sponsorships);
     $this->eb_cat_meals = json_decode($info->eb_cat_meals);
     $this->eb_cat_combomeals = json_decode($info->eb_cat_combomeals);
+    $this->eb_cat_invoicables = json_decode($info->eb_cat_invoicables);
   
 
     // Data validation
