@@ -96,6 +96,7 @@ $view = 'eventinfo';
       <?= $this->form->renderField('eb_cat_sponsorships'); ?>
       <?= $this->form->renderField('eb_cat_meals'); ?>
       <?= $this->form->renderField('eb_cat_combomeals'); ?>
+      <?= $this->form->renderField('eb_cat_invoicables'); ?>
       
     </div>
   </div>
