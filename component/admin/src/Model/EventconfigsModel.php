@@ -140,7 +140,7 @@ class EventConfigsModel extends ListModel
 
     // Filter by search in title.
     $search = $this->getState('filter.search');
-    $event = $this->getState('filter.event', '_current_');
+    $event = $this->getState('filter.event', Aliases::current());
     $type = $this->getState('filter.packageinfotype', '0');
 
     if (!empty($search)) {
@@ -148,8 +148,7 @@ class EventConfigsModel extends ListModel
       $query->where('(a.title LIKE ' . $search . ') OR (a.eventAlias LIKE ' . $search . ')');
     }
     
-    if ( $event != null ) {
-      if ( $event == '_current_' ) $event = Aliases::current();
+    if ( $event != 'all' ) {
       $query->where('a.eventAlias = :event')->bind(':event', $event);
     }
 
