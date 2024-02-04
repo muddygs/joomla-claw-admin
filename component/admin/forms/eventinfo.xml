@@ -192,18 +192,16 @@
     name="eb_cat_combomeals"
     type="EbCategoryList"
     label="Combo Meal Category:"
-    required="true"
+    required="false"
     multiple="false"
   />
 
-  <!--
   <field
-    name="eb_cat_invoice"
+    name="eb_cat_invoicables"
     type="EbCategoryList"
     label="Invoice Categories:"
-    required="true"
+    required="false"
     multiple="true"
   />
-  -->
 
 </form>
