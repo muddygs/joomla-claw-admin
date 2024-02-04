@@ -19,112 +19,113 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 
 class HtmlView extends BaseHtmlView
 {
-	/**
-	 * The search tools form
-	 *
-	 * @var    Form
-	 * @since  1.6
-	 */
-	public $filterForm;
+  /**
+   * The search tools form
+   *
+   * @var    Form
+   * @since  1.6
+   */
+  public $filterForm;
 
-	/**
-	 * The active search filters
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	public $activeFilters = [];
+  /**
+   * The active search filters
+   *
+   * @var    array
+   * @since  1.6
+   */
+  public $activeFilters = [];
 
-	/**
-	 * Category data
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	protected $categories = [];
+  /**
+   * Category data
+   *
+   * @var    array
+   * @since  1.6
+   */
+  protected $categories = [];
 
-	/**
-	 * An array of items
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	protected $items = [];
+  /**
+   * An array of items
+   *
+   * @var    array
+   * @since  1.6
+   */
+  protected $items = [];
 
-	/**
-	 * The pagination object
-	 *
-	 * @var    Pagination
-	 * @since  1.6
-	 */
-	protected $pagination;
+  /**
+   * The pagination object
+   *
+   * @var    Pagination
+   * @since  1.6
+   */
+  protected $pagination;
 
-	/**
-	 * The model state
-	 *
-	 * @var    Registry
-	 * @since  1.6
-	 */
-	protected $state;
+  /**
+   * The model state
+   *
+   * @var    Registry
+   * @since  1.6
+   */
+  protected $state;
 
-	/**
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 * @return  void
-	 */
-	function display($tpl = null)
-	{
-		/** @var SkillsModel $model */
-		$model               = $this->getModel();
-		$this->state         = $model->getState();
-		$this->items         = $model->getItems();
-		$this->pagination    = $model->getPagination();
-		$this->filterForm    = $model->getFilterForm();
-		$this->activeFilters = $model->getActiveFilters();
+  /**
+   * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+   * @return  void
+   */
+  function display($tpl = null)
+  {
+    /** @var SkillsModel $model */
+    $model               = $this->getModel();
+    $this->state         = $model->getState();
+    $this->items         = $model->getItems();
+    $this->pagination    = $model->getPagination();
+    $this->filterForm    = $model->getFilterForm();
+    $this->activeFilters = $model->getActiveFilters();
 
-		// Flag indicates to not add limitstart=0 to URL
-		$this->pagination->hideEmptyLimitstart = true;
+    // Flag indicates to not add limitstart=0 to URL
+    $this->pagination->hideEmptyLimitstart = true;
 
-		// Check for errors.
-		if (count($errors = $this->get('Errors'))) {
-			throw new GenericDataException(implode("\n", $errors), 500);
-		}
+    // Check for errors.
+    if (count($errors = $this->get('Errors'))) {
+      throw new GenericDataException(implode("\n", $errors), 500);
+    }
 
-		$this->addToolbar();
+    $this->addToolbar();
 
-		parent::display($tpl);
-	}
+    parent::display($tpl);
+  }
 
-	protected function addToolbar(): void
-	{
-		$app = Factory::getApplication();
+  protected function addToolbar(): void
+  {
+    $app = Factory::getApplication();
 
-		ToolbarHelper::title('Shifts');
+    ToolbarHelper::title('Shifts');
 
-		// Get the toolbar object instance
-		$toolbar = Toolbar::getInstance('toolbar');
+    // Get the toolbar object instance
+    $toolbar = Toolbar::getInstance('toolbar');
 
-		$user  = $app->getIdentity();
+    $user  = $app->getIdentity();
 
-		if ($user->authorise('core.admin', 'com_claw')) {
-			$toolbar->addNew('shift.add');
+    if ($user->authorise('core.admin', 'com_claw')) {
+      $toolbar->addNew('shift.add');
 
-			$toolbar->delete('shift.delete')
-			->text('Delete')
-			->listCheck(true);
-			
-			$toolbar->basicButton('process','Create Events','shifts.process')
-			->icon('fas fa-calendar')
-			->buttonClass('btn')
-			->listCheck(false);
+      $toolbar->delete('shift.delete')
+      ->text('Delete')
+      ->listCheck(true);
+      
+      $toolbar->basicButton('process','Create Events','shifts.process')
+      ->icon('fas fa-calendar')
+      ->buttonClass('btn')
+      ->listCheck(false);
 
-			$toolbar->confirmButton('reset','Reset Events','shifts.reset')
-			->icon('fas fa-exclamation-triangle')
-			->buttonClass('btn')
-			->listCheck(false)
-			->message('Are you sure you want to reset all events?');
+      // TODO: This is not implemented, but I might want to in the future
+      // $toolbar->confirmButton('reset','Reset Events','shifts.reset')
+      // ->icon('fas fa-exclamation-triangle')
+      // ->buttonClass('btn')
+      // ->listCheck(false)
+      // ->message('Are you sure you want to reset all events?');
 
-		}
+    }
 
-		ToolbarHelper::divider();
-	}
+    ToolbarHelper::divider();
+  }
 }
