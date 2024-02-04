@@ -3,12 +3,10 @@
 use ClawCorpLib\Enums\SponsorshipType;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Locations;
-use ClawCorpLib\Lib\Aliases;
 
 \defined('_JEXEC') or die;
 
 $locationView = $this->params->get('ShowLocation') ? '' : 'd-none';
-$adsdir = Aliases::adsDir();
 
 ?>
   <div class="container">
@@ -58,7 +56,7 @@ foreach ($this->items AS $item) {
   $poster = $item->poster;
   $thumb = '';
   if ( !empty($poster)) {
-    $thumb = $adsdir. '/thumb/' . $poster;
+    $thumb = $this->adsdir. '/thumb/' . $poster;
     $thumb = <<<HTML
 <button id="show-img-$id" type="button" class="btn btn-default p-0 align-top" data-bs-toggle="modal" data-bs-target="#modal-$id"><img src="$thumb"/></button>
 <div id="modal-$id" class="modal fade" aria-labelledby="modal-{$id}Label" aria-hidden="true" tabindex="-1" role="dialog">
@@ -68,7 +66,7 @@ foreach ($this->items AS $item) {
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
   </div>
   <div class="modal-body">
-    <img src="$adsdir$poster" class="img-responsive" style="width: 100%;">
+    <img src="{$this->adsdir}$poster" class="img-responsive" style="width: 100%;">
   </div> 
 </div>
 </div>
