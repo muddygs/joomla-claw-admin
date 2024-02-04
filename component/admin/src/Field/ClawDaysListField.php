@@ -144,8 +144,8 @@ class ClawDaysListField extends ListField
                     'text'     => ucfirst($day),
                     'disable'  => false,
                     'class'    => '',
-                    'selected' => $day == $currentValue ? true : false,
-                    'checked'  => $day == $currentValue ? true : false,
+                    'selected' => $day == $currentValue,
+                    'checked'  => $day == $currentValue,
                     'onclick'  => '',
                     'onchange' => ''
                 ];
