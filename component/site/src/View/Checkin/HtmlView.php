@@ -13,7 +13,6 @@ namespace ClawCorp\Component\Claw\Site\View\Checkin;
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\JwtStates;
-use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
