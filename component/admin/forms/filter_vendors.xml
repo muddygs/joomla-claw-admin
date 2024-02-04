@@ -12,11 +12,10 @@
 		<field name="event"
       type="ClawEventsList"
       label="Event Filter"
-      default="_current_"
-      onchange="this.form.submit();">
-      <option value="_all_">All Events</option>
-      <option value="_current_">Current Event</option>
-    </field>
+      default="0"
+			all="true"
+      onchange="this.form.submit();"
+		/>
 
 		<field name="published"
 			type="list"

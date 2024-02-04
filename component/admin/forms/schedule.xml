@@ -14,6 +14,7 @@
     type="ClawEventsList"
     label="Event"
     required="true"
+    all="false"
   />
 
   <field

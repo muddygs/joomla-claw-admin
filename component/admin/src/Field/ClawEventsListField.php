@@ -2,9 +2,10 @@
 
 namespace ClawCorp\Component\Claw\Administrator\Field;
 
-use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Form\Field\ListField;
 use ClawCorpLib\Lib\Aliases;
+use Joomla\CMS\HTML\HTMLHelper;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('JPATH_PLATFORM') or die;
@@ -24,6 +25,48 @@ class ClawEventsListField extends ListField
      * @since  1.7.0
      */
     protected $type = 'ClawEventsList';
+    protected bool $all;
+
+    // Methods to add "all" parameter to field
+    public function __get($name)
+    {
+        switch ($name) {
+            case 'all':
+                return $this->$name;
+        }
+
+        return parent::__get($name);
+    }
+
+    public function __set($name, $value)
+    {
+        switch ($name) {
+            case 'all':
+                $this->all == false;
+
+                if ( strtolower($value) === 'true' ) {
+                    $this->all = true;
+                }
+                break;
+
+            default:
+                parent::__set($name, $value);
+        }
+    }
+
+    public function setup(\SimpleXMLElement $element, $value, $group = null)
+    {
+        $result = parent::setup($element, $value, $group);
+
+        if ($result == true) {
+            $this->all = false;
+            if ( strtolower($this->element['all']) === 'true' ) {
+                $this->all = true;
+            }
+        }
+
+        return $result;
+    }
 
 
     /**
@@ -40,7 +83,6 @@ class ClawEventsListField extends ListField
 
         $data['options'] = (array) $this->getOptions();
 
-        // VALID for other menus -- future reference $db = $this->getDatabase();
         $currentValue = $this->__get('value');
         if ( empty($currentValue) ) {
             $data['value'] = Aliases::current();
@@ -59,21 +101,35 @@ class ClawEventsListField extends ListField
     protected function getOptions()
     {
         $options = parent::getOptions();
+        
+        $currentValue = $this->__get('value') ?? Aliases::current();
+        $options[] = HTMLHelper::_('select.option', '0', 'Select Event');
 
-        // TODO: Fix so that _current_ isn't necessary; this code is missing checks for selected/checked/disable
-        // TODO: See LocationListField.php for example
-        foreach(Config::getTitleMapping() AS $alias => $title ) {
+        foreach(EventConfig::getTitleMapping() AS $alias => $title ) {
             $options[] = (object)[
                 'value'    => $alias,
                 'text'     => $title,
                 'disable'  => false,
                 'class'    => '',
-                'selected' => false,
-                'checked'  => false,
+                'selected' => $alias == $currentValue,
+                'checked'  => $alias == $currentValue,
                 'onclick'  => '',
                 'onchange' => ''
             ];
 		}
+
+        if ( $this->all ) {
+        $options[] = (object)[
+                'value'    => 'all',
+                'text'     => 'All Events',
+                'disable'  => false,
+                'class'    => '',
+                'selected' => 'all' == $currentValue,
+                'checked'  => 'all' == $currentValue,
+                'onclick'  => '',
+                'onchange' => ''
+            ];
+        }
 
         // Because this is what ListField (parent) does; I do not know if necessary
         reset($options);
