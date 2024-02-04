@@ -3,10 +3,8 @@ CREATE TABLE IF NOT EXISTS `#__claw_configuration` (
   `key` VARCHAR(50) NOT NULL,
   `input` TEXT NOT NULL,
   `value` TEXT NOT NULL,
-  `event` VARCHAR(10) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_key` (`key`),
-  KEY `idx_event` (`event`);
+  KEY `idx_key` (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__claw_locations`(
@@ -183,7 +181,9 @@ CREATE TABLE IF NOT EXISTS `#__claw_field_values` (
   `fieldname` VARCHAR(255) DEFAULT NULL,
   `value` VARCHAR(255) DEFAULT NULL,
   `text` VARCHAR(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `event` VARCHAR(10) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_event` (`event`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__claw_eventid_mapping` (
