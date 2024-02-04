@@ -2,31 +2,11 @@
 
 namespace ClawCorpLib\Helpers;
 
-use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\User\UserHelper;
 
 class Bootstrap
 {
   public static $tabGuids = [];
-
-  public static function getSponsorTag($sponsorImg, $sponsorName, $sponsorLink)
-  {
-    $tag = '';
-
-    $link = empty($sponsorLink) ? '' : $sponsorLink;
-
-    if (!empty($link)) {
-      $tag = "<a href=\"$link\" alt=\"$sponsorName\" title=\"$sponsorName\" target=\"_blank\">";
-    }
-
-    $img = Aliases::sponsorIconDir() . $sponsorImg;
-    $tag = $tag . "<img src=\"$img\" class=\"img-fluid mx-auto\"/>";
-    if (!empty($link)) {
-      $tag = $tag . '</a>';
-    }
-
-    return $tag;
-  }
 
   /**
    * Writes out HTML for pilled tabs in Bootstrap 5
