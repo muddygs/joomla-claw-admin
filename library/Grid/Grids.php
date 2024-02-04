@@ -46,7 +46,8 @@ class Grids
 
     $location = EventBooking::getLocationId($eventInfo->ebLocationId);
 
-    $shiftAreas = Config::getColumn(ConfigFieldNames::SHIFT_SHIFT_AREA);
+    $config = new Config($eventInfo->alias);
+    $shiftAreas = $config->getColumn(ConfigFieldNames::SHIFT_SHIFT_AREA);
 
     foreach ( $shiftAreas AS $k => $o ) {
       if ( $k == 'tbd') continue;

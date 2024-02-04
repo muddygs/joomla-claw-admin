@@ -6,8 +6,8 @@ use Joomla\CMS\Router\Route;
 
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Bootstrap;
-use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\EventInfo;
 
 // Get menu heading information
@@ -157,7 +157,7 @@ function BioHtml(object &$__this)
     <?php
     else :
       $buttonRoute = Route::_('index.php?option=com_claw&task=copybio&id=' . $__this->bio->id);
-      $msg = 'Resubmit for ' . Config::getTitleMapping()[Aliases::current()];
+      $msg = 'Resubmit for ' . EventConfig::getTitleMapping()[Aliases::current(true)];
     ?>
       <h3 class="text-warning">Submissions are closed, but you may submit a biography.
         After submission, please contact the skills coordinator with your updated information.</h3>
@@ -174,7 +174,7 @@ function BioHtml(object &$__this)
       $msg = 'Edit Biography';
     } else {
       $buttonRoute = Route::_('index.php?option=com_claw&task=copybio&id=' . $__this->bio->id);
-      $msg = 'Resubmit for ' . Config::getTitleMapping()[Aliases::current()];
+      $msg = 'Resubmit for ' . EventConfig::getTitleMapping()[Aliases::current(true)];
     }
     ?>
     <a name="add-biography" id="add-biography" class="btn btn-danger" href="<?= $buttonRoute ?>" role="button"><?= $msg ?></a>
@@ -183,7 +183,7 @@ function BioHtml(object &$__this)
   endif;
 }
 
-function ClassesHtml(object &$__this)
+function ClassesHtml(object $__this)
 {
   $skillRoute = Route::_('index.php?option=com_claw&view=skillsubmission');
 
@@ -241,12 +241,12 @@ function ClassRow(object $row, bool $canSubmit)
   };
 
   if ($canSubmit) {
-    if ($row->event == Aliases::current()) {
+    if ($row->event == Aliases::current(true)) {
       $buttonRoute = Route::_('index.php?option=com_claw&view=skillsubmission&id=' . $row->id);
       $msg = 'View/Edit Class';
     } else {
       $buttonRoute = Route::_('index.php?option=com_claw&task=copyskill&id=' . $row->id);
-      $msg = 'Resubmit for ' . Config::getTitleMapping()[Aliases::current()];
+      $msg = 'Resubmit for ' . EventConfig::getTitleMapping()[Aliases::current(true)];
     }
 
     $button = <<< HTML

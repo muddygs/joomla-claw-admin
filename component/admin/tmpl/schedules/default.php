@@ -15,7 +15,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Button\PublishedButton;
 
-use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Lib\EventConfig;
 
 $wa = $this->document->getWebAssetManager();
 $wa->useScript('table.columns');
@@ -72,7 +72,7 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
                 ?>
               </td>
           <td>
-            <?=Config::getTitleMapping()[$item->event] ?? 'TBD' ?>
+            <?= EventConfig::getTitleMapping()[$item->event] ?? 'TBD' ?>
           </td>
           <td>
             <?= $item->day_text ?? '' ?>

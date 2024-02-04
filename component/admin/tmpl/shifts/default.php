@@ -17,7 +17,7 @@ use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Button\PublishedButton;
 use Joomla\CMS\User\UserFactoryInterface;
 
-use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Lib\EventConfig;
 
 /** @var \Joomla\CMS\WebAsset\WebAssetManager $wa */
 $wa = $this->document->getWebAssetManager();
@@ -93,7 +93,7 @@ $user = $app->getIdentity();
             <?php echo $item->shift_area ?>
           </td>
           <td>
-            <?= Config::getTitleMapping()[$item->event] ?>
+            <?= EventConfig::getTitleMapping()[$item->event] ?>
           </td>
           <td>
             <?php echo $item->id ?>

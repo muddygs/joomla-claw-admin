@@ -11,15 +11,12 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 
-use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Button\PublishedButton;
-use Joomla\CMS\Session\Session;
-
-use ClawCorpLib\Lib\Aliases;
 
 $wa = $this->document->getWebAssetManager();
 $wa->useScript('table.columns');
@@ -90,7 +87,7 @@ $user = $app->getIdentity();
               </td>
 
               <td>
-                <?php echo Config::getTitleMapping()[$item->event] ?? 'TBD' ?>
+                <?php echo EventConfig::getTitleMapping()[$item->event] ?? 'TBD' ?>
               </td>
 
               <td>

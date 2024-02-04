@@ -16,7 +16,6 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 
 use ClawCorpLib\Enums\EventPackageTypes;
-use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventConfig;
@@ -40,7 +39,7 @@ class HtmlView extends BaseHtmlView
     $this->action = $input->get('action', '', 'STRING');
     
     // Validate event and action
-    $activeEvents = Config::getActiveEventAliases(mainOnly: true);
+    $activeEvents = EventConfig::getActiveEventAliases(mainOnly: true);
     if ( !in_array($this->eventAlias, $activeEvents) ) {
       $this->eventAlias = Aliases::current();
     }

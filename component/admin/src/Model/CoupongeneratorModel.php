@@ -15,7 +15,6 @@ defined('_JEXEC') or die;
 use ClawCorpLib\Enums\EbCouponAssignments;
 use ClawCorpLib\Enums\EbCouponTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
-use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Coupons;
 use ClawCorpLib\Lib\EventConfig;
@@ -345,7 +344,7 @@ HTML;
   
     $eventSelection = $json->getString('jform[event]','');
   
-    if ( !in_array($eventSelection, Config::getActiveEventAliases()) )
+    if ( !in_array($eventSelection, EventConfig::getActiveEventAliases()) )
     {
       $result->msg = 'Please select an event.';
       return $result;

@@ -18,6 +18,7 @@ use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Button\PublishedButton;
 
 use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Lib\EventConfig;
 
 /** @var \Joomla\CMS\WebAsset\WebAssetManager $wa */
 $wa = $this->document->getWebAssetManager();
@@ -81,7 +82,7 @@ $user = $app->getIdentity();
           </td>
 
           <td>
-            <?= Config::getTitleMapping()[$item->event] ?? 'TBD' ?>
+            <?= EventConfig::getTitleMapping()[$item->event] ?? 'TBD' ?>
           </td>
 
           <td>
@@ -100,7 +101,7 @@ $user = $app->getIdentity();
             <?php echo $item->track ?>
           </td>
           <td>
-            <?= Config::getConfigValuesText(ConfigFieldNames::SKILL_CLASS_TYPE, $item->type ?? 'TBD') ?? 'TBD' ?>
+            <?= array_key_exists($item->type, $this->skill_class_types) ? $this->skill_class_types[$item->type] : 'TBD' ?>
           </td>
           <td>
               <?php echo implode('<br/>', $item->presenter_names) ?>

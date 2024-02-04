@@ -34,8 +34,9 @@ class SkillslistModel extends BaseDatabaseModel
     $presenters = $skills->GetPresentersList(true);
     $classes = $skills->GetClassList();
 
-    $classTypes = Config::getColumn(ConfigFieldNames::SKILL_CLASS_TYPE);
-    $classCategories = Config::getColumn(ConfigFieldNames::SKILL_CATEGORY);
+    $config = new Config($eventAlias);
+    $classTypes = $config->getColumn(ConfigFieldNames::SKILL_CLASS_TYPE);
+    $classCategories = $config->getColumn(ConfigFieldNames::SKILL_CATEGORY);
 
     // Prepare data for views
 

@@ -13,6 +13,11 @@ class EventConfig
   public EventInfo $eventInfo;
   public PackageInfos $packageInfos;
 
+  // Cache of config values
+  private static array $_titles = [];
+  private static string $_current = '';
+  
+
   /**
    * @param string $alias Event alias (required)
    * @param array $filter By default, only primary registration events are included
@@ -263,4 +268,83 @@ class EventConfig
     $db->setQuery($query);
     return $db->loadObjectList() ?? [];
   }
+
+#region Event Alias Initialization
+
+public static function getTitleMapping(): array
+  {
+    if ( count(self::$_titles)) return self::$_titles;
+
+    $eventList = EventInfo::getEventInfos();
+    $titles = [];
+
+    /** @var \ClawCorpLib\Lib\EventInfo */
+    foreach ( $eventList AS $alias => $eventInfo ) {
+      if ( $eventInfo->eventType != EventTypes::main ) continue;
+      $titles[$alias] = $eventInfo->description;
+    }
+
+    self::$_titles = $titles;
+    return $titles;
+  }
+
+  public static function getCurrentEventAlias(): string
+  {
+    if ( self::$_current != '' ) return self::$_current;
+
+    $eventList = EventInfo::getEventInfos();
+
+    if ( count($eventList) == 0 ) {
+      die('No events found in Config::getCurrentEvent().');
+    };
+
+    $endDates = [];
+
+    /** @var \ClawCorpLib\Lib\EventInfo */
+    foreach ( $eventList AS $alias => $eventInfo ) {
+      if ( $eventInfo->eventType != EventTypes::main ) continue;
+      
+      $endDates[$eventInfo->end_date->toSql()] = $alias;
+    }
+
+    // Find earliest event that has not ended
+    
+    ksort($endDates);
+
+    $now = Factory::getDate()->toSql();
+
+    foreach ( array_keys($endDates) AS $endDate ) {
+      if ( $endDate > $now ) {
+        self::$_current = $endDates[$endDate];
+        break;
+      }
+    }
+
+    if ( self::$_current == '' ) {
+      // Failsafe-ish: Get last item in array
+      self::$_current = array_pop($endDates);
+    }
+
+    if ( self::$_current == '' ) {
+      die('No current event found in EventConfig::getCurrentEvent().');
+    }
+
+    return self::$_current;
+  }
+
+  public static function getActiveEventAliases(bool $mainOnly = false): array
+  {
+    $eventList = EventInfo::getEventInfos();
+    /** @var \ClawCorpLib\Lib\EventInfo */
+    foreach ( $eventList AS $alias => $eventInfo ) {
+      if ( $mainOnly && $eventInfo->eventType != EventTypes::main ) {
+        unset($eventList[$alias]);
+      }
+    }
+    return array_keys($eventList);
+  }
+
+
+
+#endregion
 }

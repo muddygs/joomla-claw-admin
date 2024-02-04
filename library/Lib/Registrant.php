@@ -8,7 +8,7 @@ use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EbRecordIndexType;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
-use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Component\ComponentHelper;
 use UnexpectedValueException;
 
@@ -76,7 +76,7 @@ class Registrant
     $result = [];
 
     // Get list of active events with mainAllowed = true
-    $aliases = Config::getActiveEventAliases(mainOnly: true);
+    $aliases = EventConfig::getActiveEventAliases(mainOnly: true);
 
     foreach ( $aliases as $alias ) {
       $r = new Registrant($alias, $uid);

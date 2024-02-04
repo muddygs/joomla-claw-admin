@@ -4,6 +4,7 @@ namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\EventInfo;
 use InvalidArgumentException;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
@@ -21,13 +22,15 @@ class Skills
 {
   private array $presenterCache = [];
   private array $classCache = [];
+  private EventInfo $eventInfo;
 
   // constructor
   public function __construct(
     public DatabaseDriver $db,
-    public string $eventAlias = ''
+    public readonly string $eventAlias = ''
   )
   {
+    $this->eventInfo = new EventInfo($eventAlias);
   }
 
   public function GetPresentersList(bool $publishedOnly = false): array
@@ -49,8 +52,9 @@ class Skills
     }
 
     if ( $this->eventAlias != '' ) {
+      $eventAlias = $this->eventAlias;
       $query->where($this->db->qn('event') . ' = :event')
-      ->bind(':event', $this->eventAlias);
+      ->bind(':event', $eventAlias);
     }
 
     $this->db->setQuery($query);
@@ -73,8 +77,9 @@ class Skills
       ->bind(':uid', $pid);
 
     if ( $this->eventAlias != '' ) {
+      $eventAlias = $this->eventAlias;
       $query->where($this->db->qn('event') . ' = :event')
-      ->bind(':event', $this->eventAlias);
+      ->bind(':event', $eventAlias);
     }
 
     $query->order('mtime');
@@ -99,8 +104,9 @@ class Skills
       ->bind(':copresenters', $pid);
 
     if ( $this->eventAlias != '' ) {
+      $eventAlias = $this->eventAlias;
       $query->where($this->db->qn('event') . ' = :event')
-      ->bind(':event', $this->eventAlias);
+      ->bind(':event', $eventAlias);
     }
 
     $query->order('mtime');
@@ -127,9 +133,10 @@ class Skills
 
     $query = $this->db->getQuery(true);
 
+    $eventAlias = $this->eventAlias;
     $query->select('*')
       ->from($this->db->qn('#__claw_skills'))
-      ->where($this->db->qn('event') . ' = :event')->bind(':event', $this->eventAlias);
+      ->where($this->db->qn('event') . ' = :event')->bind(':event', $eventAlias);
     
     if ( $publishedOnly ) {
       $query->where($this->db->qn('published') . '= 1')
@@ -148,11 +155,12 @@ class Skills
   public function GetPresenter(int $uid, bool $published = true): ?object
   {
     $query = $this->db->getQuery(true);
+    $eventAlias = $this->eventAlias;
 
     $query->select('*')
       ->from($this->db->qn('#__claw_presenters'))
       ->where($this->db->qn('uid') . ' = :uid')->bind(':uid', $uid)
-      ->where($this->db->qn('event') . ' = :event')->bind(':event', $this->eventAlias);
+      ->where($this->db->qn('event') . ' = :event')->bind(':event', $eventAlias);
 
     if ( $published ) {
       $query->where($this->db->qn('published') . ' = 1');
@@ -171,10 +179,11 @@ class Skills
   {
     $query = $this->db->getQuery(true);
 
+    $eventAlias = $this->eventAlias;
     $query->select('*')
       ->from($this->db->qn('#__claw_skills'))
       ->where($this->db->qn('id') . ' = :cid')->bind(':cid', $cid)
-      ->where($this->db->qn('event') . ' = :event')->bind(':event', $this->eventAlias)
+      ->where($this->db->qn('event') . ' = :event')->bind(':event', $eventAlias)
       ->where($this->db->qn('published') . ' = 1');
 
     $this->db->setQuery($query);
@@ -202,7 +211,8 @@ class Skills
     // length
     $class->length = (int)$length;
 
-    if ( $class->category != 'None' ) $class->category = Config::getConfigValuesText(ConfigFieldNames::SKILL_CATEGORY, $class->category);
+    $config = new Config($this->eventAlias);
+    if ( $class->category != 'None' ) $class->category = $config->getConfigValuesText(ConfigFieldNames::SKILL_CATEGORY, $class->category);
 
     // Get the presenters
     $class->presenters = [];
@@ -253,10 +263,11 @@ class Skills
     if ( !$publishedOnly )
       $columnNames = array_keys($this->db->getTableColumns('#__claw_presenters'));
 
+    $eventAlias = $this->eventAlias;
     $query->select($this->db->qn($columnNames))
       ->from($this->db->qn('#__claw_presenters'))
       ->where($this->db->qn('event') . ' = :event')
-      ->bind(':event', $this->eventAlias)
+      ->bind(':event', $eventAlias)
       ->order('name ASC');
 
     if ( $publishedOnly ) {
@@ -356,7 +367,8 @@ class Skills
     $columnNames[] = 'end_time';
 
     // Load category strings
-    $categories = Config::getColumn(ConfigFieldNames::SKILL_CATEGORY);
+    $config = new Config($this->eventInfo->alias);
+    $categories = $config->getColumn(ConfigFieldNames::SKILL_CATEGORY);
 
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="'. $filename . '"');
@@ -482,11 +494,12 @@ class Skills
     $query = $this->db->getQuery(true);
     $columnNames = ['id', 'uid', 'name', 'bio', 'photo'];
 
+    $eventAlias = $this->eventAlias;
     $query->select($this->db->qn($columnNames))
       ->from($this->db->qn('#__claw_presenters'))
       ->where($this->db->qn('published') . ' = 1')
       ->where($this->db->qn('event') . ' = :event')
-      ->bind(':event', $this->eventAlias)
+      ->bind(':event', $eventAlias)
       ->order('name ASC');
 
     $this->db->setQuery($query);

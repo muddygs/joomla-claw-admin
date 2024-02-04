@@ -12,13 +12,14 @@ namespace ClawCorp\Component\Claw\Site\View\Schedule;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Helpers\Config;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Schedule;
 use ClawCorpLib\Helpers\Sponsors;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\EventInfo;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
@@ -42,6 +43,9 @@ class HtmlView extends BaseHtmlView
 
     $db = Factory::getContainer()->get('DatabaseDriver');
     $eventAlias =  $this->params->get('ScheduleEvent') ?? Aliases::current();
+
+    $config = new Config($eventAlias);
+    $this->adsdir = $config->getConfigValuesText(ConfigFieldNames::CONFIG_IMAGES, 'ads');
 
     $this->locations = \ClawCorpLib\Helpers\Locations::GetLocationsList();
     $this->sponsors = new Sponsors();

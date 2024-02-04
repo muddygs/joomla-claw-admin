@@ -11,11 +11,15 @@ namespace ClawCorp\Component\Claw\Administrator\View\Skills;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
+
+use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Lib\Aliases;
 
 /**
  * View class for CLAW Skills & Education listing
@@ -77,7 +81,7 @@ class HtmlView extends BaseHtmlView
 	 */
 	function display($tpl = null)
 	{
-		/** @var SkillsModel $model */
+		/** @var \ClawCorp\Component\Claw\Administrator\Model\SkillsModel */
 		$model               = $this->getModel();
 		$this->state         = $model->getState();
 		$this->items         = $model->getItems();
@@ -94,6 +98,10 @@ class HtmlView extends BaseHtmlView
 		}
 
 		$this->addToolbar();
+
+		$event = array_key_exists('event', $this->activeFilters) ? $this->activeFilters['event'] : Aliases::current();
+		$config = new Config($event);
+		$this->skill_class_types = $config->getConfigValuesText(ConfigFieldNames::SKILL_CLASS_TYPE);
 
 		parent::display($tpl);
 	}

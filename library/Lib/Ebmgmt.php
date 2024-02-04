@@ -3,8 +3,7 @@
 namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Enums\EventTypes;
-use ClawCorpLib\Helpers\Config;
-use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 
@@ -419,7 +418,7 @@ class Ebmgmt
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $aliases = Config::getActiveEventAliases();
+    $aliases = EventConfig::getActiveEventAliases();
     $dates = [];
 
     foreach ( $aliases AS $alias ) {

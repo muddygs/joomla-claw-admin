@@ -2,8 +2,10 @@
 
 namespace ClawCorpLib\Lib;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Enums\EbRecordIndexType;
 use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
@@ -58,6 +60,7 @@ HTML;
 
     $clawEventAlias = ClawEvents::eventIdtoAlias($this->items[0]->id);
     $eventConfig = new EventConfig($clawEventAlias, []);
+    $config = new Config($clawEventAlias);
 
     $onsiteActive = $eventConfig->eventInfo->onsiteActive;
     $mainEventIds = $eventConfig->getMainEventIds();
@@ -68,7 +71,7 @@ HTML;
 
     $shiftPrefix = $eventConfig->eventInfo->shiftPrefix;
     $shiftCategories = array_merge($eventConfig->eventInfo->eb_cat_shifts, $eventConfig->eventInfo->eb_cat_supershifts);
-    $invoiceCategories = ClawEvents::getCategoryIds(Aliases::invoiceCategories);
+    $invoiceCategories = $eventConfig->eventInfo->eb_cat_invoicables;
     $mainRequiredEventIds = $eventConfig->getMainRequiredEventIds();
 
     /** @var ClawCorpLib\Lib\RegistrantRecord */
@@ -180,7 +183,7 @@ HTML;
       $this->show_error = true;
     }
 
-    $overlap = $registrantData->checkOverlaps(ClawEvents::getCategoryIds(Aliases::overlapCategories()));
+    $overlap = $registrantData->checkOverlaps(ClawEvents::getCategoryIds($config->getConfigValuesText(ConfigFieldNames::CONFIG_OVERLAP_CATEGORY)));
     if (count($overlap) > 0) {
       $this->submit = "<div class=\"alert alert-danger\">You have overlapping or touching events ({$overlap[0]->event->title} and {$overlap[1]->event->title}). Modify your cart to correct this error.</div>";
       $this->show_error = true;

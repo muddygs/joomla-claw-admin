@@ -11,6 +11,8 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Helpers\Config;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
@@ -106,7 +108,9 @@ class PresenterModel extends AdminModel
     $tmp_name = $files['photo_upload']['tmp_name'];
     // $mime = $files['photo_upload']['type'];
     $error = $files['photo_upload']['error'];
-    $presentersDir = Aliases::presentersDir();
+
+    $config = new Config($data['event']);
+    $presentersDir = $config->getConfigValuesText(ConfigFieldNames::CONFIG_IMAGES, 'presenters');
   
     $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'orig', $data['uid'].'.jpg']);
     $thumb = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'web', $data['uid'].'.jpg']);
@@ -222,6 +226,9 @@ class PresenterModel extends AdminModel
 
     $alias = Aliases::current();
     $info = new EventInfo($alias);
+    $config = new Config($alias);
+    $presentersDir = $config->getConfigValuesText(ConfigFieldNames::CONFIG_IMAGES, 'presenters');
+
 
     $subject = $new ? '[New] ' : '[Updated] ';
     $subject .= $info->description. ' Presenter Application - ';
@@ -234,7 +241,7 @@ class PresenterModel extends AdminModel
       fromname: 'CLAW Skills and Education',
       frommail: $notificationEmail,
       subject: $subject,
-      attachments: [implode(DIRECTORY_SEPARATOR, [Aliases::presentersDir(), 'orig', $data['uid'].'.jpg'])]
+      attachments: [implode(DIRECTORY_SEPARATOR, [$presentersDir, 'orig', $data['uid'].'.jpg'])]
     );
 
     $header = <<< HTML

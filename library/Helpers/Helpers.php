@@ -3,6 +3,7 @@
 namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Lib\Aliases;
 use DateTime;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Date\Date;
@@ -299,7 +300,8 @@ class Helpers
   {
     $mailer = Factory::getMailer();
 
-    $email = Config::getConfigValuesText(ConfigFieldNames::CONFIG_DEBUG_EMAIL, 'email');
+    $config = new Config(Aliases::current(true));
+    $email = $config->getConfigValuesText(ConfigFieldNames::CONFIG_DEBUG_EMAIL, 'email');
     $mailer->setSender([$email, 'CLAW']);
     $mailer->setSubject('Some Error Has Occurred');
     $mailer->addRecipient($email);
