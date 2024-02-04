@@ -42,16 +42,10 @@ class PackageinfosController extends AdminController
 
 		$event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
 
-    switch ($event) {
-      case '':
-      case '_current_':
-        $event = Aliases::current();
-        break;
-      case '_all_':
-        $app = Factory::getApplication();
-        $app->enqueueMessage('Event selection not valid for deployment.', 'error');
-        return false;
-        break;
+    if ( $event == 'all' ) {
+      $app = Factory::getApplication();
+      $app->enqueueMessage('Event selection not valid for deployment.', 'error');
+      return false;
     }
 
     $deploy = new Deploy($event, Deploy::PACKAGEINFO);

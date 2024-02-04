@@ -21,58 +21,41 @@ use Joomla\CMS\MVC\Controller\AdminController;
  */
 class ShiftsController extends AdminController
 {
-	public function process()
-	{
-		$filter = $this->app->getInput()->get('filter', '', 'string');
+  public function process()
+  {
+    $filter = $this->app->getInput()->get('filter', '', 'string');
 
-		$event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
+    $event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
 
-    switch ($event) {
-      case '':
-      case '_current_':
-        $event = Aliases::current();
-        break;
-      case '_all_':
-        $event = '';
-    }
+    $grid = new Grids($event);
+    $grid->createEvents();
+  }
 
-		$grid = new Grids($event);
-		$grid->createEvents();
-	}
+  // TODO: Implement this method
+  // public function reset()
+  // {
+  // 	$filter = $this->app->getInput()->get('filter', '', 'string');
 
-	public function reset()
-	{
-		$filter = $this->app->getInput()->get('filter', '', 'string');
+  // 	$event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
 
-		$event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
+  // 	$grid = new Grids($event);
+  // 	$grid->resetEvents();
+  // }
 
-		switch ($event) {
-			case '':
-			case '_current_':
-				$event = Aliases::current();
-				break;
-			case '_all_':
-				$event = '';
-		}
-
-		$grid = new Grids($event);
-		$grid->resetEvents();
-	}
-
-	/**
-	 * Proxy for getModel.
-	 *
-	 * @param   string  $name    The model name. Optional.
-	 * @param   string  $prefix  The class prefix. Optional.
-	 * @param   array   $config  The array of possible config values. Optional.
-	 *
-	 * @return  \Joomla\CMS\MVC\Model\BaseDatabaseModel
-	 *
-	 * @since   1.6
-	 */
-	public function getModel($name = 'Shift', $prefix = 'Administrator', $config = array('ignore_request' => true))
-	{
-		return parent::getModel($name, $prefix, $config);
-	}
+  /**
+   * Proxy for getModel.
+   *
+   * @param   string  $name    The model name. Optional.
+   * @param   string  $prefix  The class prefix. Optional.
+   * @param   array   $config  The array of possible config values. Optional.
+   *
+   * @return  \Joomla\CMS\MVC\Model\BaseDatabaseModel
+   *
+   * @since   1.6
+   */
+  public function getModel($name = 'Shift', $prefix = 'Administrator', $config = array('ignore_request' => true))
+  {
+    return parent::getModel($name, $prefix, $config);
+  }
 
 }
