@@ -153,8 +153,8 @@ class EventInfosModel extends ListModel
     $query->where('a.eventType != '. $db->quote(EventTypes::refunds->value));
 
     // Add the list ordering clause.
-    $orderCol  = $this->state->get('list.ordering', 'a.start_date');
-    $orderDirn = $this->state->get('list.direction', 'DESC');
+    $orderCol  = $this->getState('list.ordering', 'a.start_date');
+    $orderDirn = $this->getState('list.direction', 'DESC');
 
     $query->order($this->db->escape($orderCol) . ' ' . $this->db->escape($orderDirn));
     return $query;

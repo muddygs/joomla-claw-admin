@@ -157,8 +157,8 @@ class EventConfigsModel extends ListModel
     }
 
     // Add the list ordering clause.
-    $orderCol  = $this->state->get('list.ordering', 'a.title');
-    $orderDirn = $this->state->get('list.direction', 'ASC');
+    $orderCol  = $this->getState('list.ordering', 'a.title');
+    $orderDirn = $this->getState('list.direction', 'ASC');
 
     $query->order($this->db->escape($orderCol) . ' ' . $this->db->escape($orderDirn));
     return $query;

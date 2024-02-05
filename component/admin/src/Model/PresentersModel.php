@@ -162,7 +162,7 @@ class PresentersModel extends ListModel
     $orderDirn = $this->getState('list.direction', 'ASC');
 
     // TODO: Fix this
-    /* s/$this->state->get/$this->getState/g */
+    /* s/$this->getState/$this->getState/g */
 
 
     $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
