@@ -26,7 +26,7 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
 ?>
 <div class="container">
 <form action="<?=Route::_('index.php?option=com_claw&view=schedules'); ?>" method="post" name="adminForm" id="adminForm">
-  <?=LayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
+  <?= LayoutHelper::render( 'joomla.searchtools.default', ['view' => $this] ); ?>
 
   <div class="table-responsive">
     <table class="table table-striped table-bordered" id="schedulesList">
@@ -114,7 +114,9 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
     </table>
   </div>
 
-  <?=$this->pagination->getListFooter(); ?>
+  <div class="row">
+    <?=$this->pagination->getListFooter(); ?>
+  </div>
   <input type="hidden" name="task" value="">
   <input type="hidden" name="boxchecked" value="0">
   <?=HTMLHelper::_('form.token'); ?>
