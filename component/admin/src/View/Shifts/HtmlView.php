@@ -62,7 +62,7 @@ class HtmlView extends BaseHtmlView
   /**
    * The model state
    *
-   * @var    Registry
+   * @var    \Joomla\CMS\Object\CMSObject
    * @since  1.6
    */
   protected $state;
@@ -73,7 +73,7 @@ class HtmlView extends BaseHtmlView
    */
   function display($tpl = null)
   {
-    /** @var SkillsModel $model */
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\ShiftsModel $model */
     $model               = $this->getModel();
     $this->state         = $model->getState();
     $this->items         = $model->getItems();
@@ -101,7 +101,7 @@ class HtmlView extends BaseHtmlView
     ToolbarHelper::title('Shifts');
 
     // Get the toolbar object instance
-    $toolbar = Toolbar::getInstance('toolbar');
+    $toolbar = Toolbar::getInstance();
 
     $user  = $app->getIdentity();
 
