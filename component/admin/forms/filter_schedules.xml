@@ -27,7 +27,7 @@
     />
 
 		<field
-		  name="dayfilter"
+		  name="day"
 			type="list"
 			label="Day"
 			onchange="this.form.submit();"

@@ -52,6 +52,7 @@ class SchedulesModel extends ListModel
       $config['filter_fields'] = [];
 
       foreach ($this->list_fields as $f) {
+        $config['filter_fields'][] = $f;
         $config['filter_fields'][] = 'a.' . $f;
       }
     }
@@ -183,7 +184,7 @@ class SchedulesModel extends ListModel
     // Get filter values
     $search = $this->getState('filter.search');
     $published = $this->getState('filter.published');
-    $day = $this->getState('filter.dayfilter');
+    $day = $this->getState('filter.day');
     $event = $this->getState('filter.event', Aliases::current());
 
     if ($day != null) {
@@ -212,8 +213,8 @@ class SchedulesModel extends ListModel
     }
 
     // Add the list ordering clause.
-    $orderCol  = $this->state->get('list.ordering', 'a.day');
-    $orderDirn = $this->state->get('list.direction', 'ASC');
+    $orderCol  = $this->getState('list.ordering', 'a.day');
+    $orderDirn = $this->getState('list.direction', 'ASC');
 
     $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
 
