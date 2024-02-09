@@ -42,11 +42,7 @@ class ClawEventsListField extends ListField
     {
         switch ($name) {
             case 'all':
-                $this->all == false;
-
-                if ( strtolower($value) === 'true' ) {
-                    $this->all = true;
-                }
+                $this->all == strtolower($value) === 'true' ? true : false;
                 break;
 
             default:
@@ -59,10 +55,7 @@ class ClawEventsListField extends ListField
         $result = parent::setup($element, $value, $group);
 
         if ($result == true) {
-            $this->all = false;
-            if ( strtolower($this->element['all']) === 'true' ) {
-                $this->all = true;
-            }
+            $this->all = strtolower($this->element['all'] ?? 'false') === 'true';
         }
 
         return $result;
