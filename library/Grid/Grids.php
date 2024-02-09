@@ -7,7 +7,6 @@ namespace ClawCorpLib\Grid;
 use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Grid\GridItem;
 use ClawCorpLib\Helpers\Config;
-use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\Database\DatabaseDriver;
 use ClawCorpLib\Lib\ClawEvents;
@@ -40,11 +39,11 @@ class Grids
     $this->loadGridsByEventAlias();
 
     // ===== Update these for new imports =====
-    $basetime = $eventInfo->start_date->toUnix();
-    $prefix = $eventInfo->shiftPrefix;
-    $cutoffdate = $eventInfo->start_date;
+    $baseUnixTime = $eventInfo->start_date->toUnix();
+    $aliasPrefix = $eventInfo->shiftPrefix;
+    $cut_off_date = $eventInfo->start_date->toSql();
 
-    $location = EventBooking::getLocationId($eventInfo->ebLocationId);
+    $location = $eventInfo->ebLocationId;
 
     $config = new Config($eventInfo->alias);
     $shiftAreas = $config->getColumn(ConfigFieldNames::SHIFT_SHIFT_AREA);
@@ -94,7 +93,7 @@ class Grids
       $main_category_id = $shiftAreas[$grid->shift_area]->category_id;
       $title = ucwords($grid->title);
 
-      $btime = $basetime + (array_search($grid->day, $days)+1) * 86400; // seconds in a day
+      $btime = $baseUnixTime + (array_search($grid->day, $days)+1) * 86400; // seconds in a day
       $offset = Helpers::timeToInt($grid->time);
 
       if ( $offset === false ) die('Time error');
@@ -104,14 +103,11 @@ class Grids
 
       $s = date('Y-m-d H:i:s', $stime);
       $stitle = date('D h:iA', $stime);
-      //if ( $stitle == '12:00AM' ) $stitle = 'Midnight';
-      //if ( $stitle == '12:00PM' ) $stitle = 'Noon';
+      
       $e = date('Y-m-d H:i:s', $etime);
       $etitle = date('D h:iA', $etime);
-      //if ( $etitle == '12:00AM' ) $etitle = 'Midnight';
-      //if ( $etitle == '12:00PM' ) $etitle = 'Noon';
       
-      $alias = strtolower($prefix.preg_replace('/[^a-z0-9_]+/','_',strtolower($title)).'-'.$grid->id.'-'.$grid->grid_id.'-'.$grid->day);
+      $alias = strtolower($aliasPrefix.preg_replace('/[^a-z0-9_]+/','_',strtolower($title)).'-'.$grid->id.'-'.$grid->grid_id.'-'.$grid->day);
       $title = implode(' ', [$eventInfo->prefix, $title, "($stitle-$etitle)"]);
 
       $description = implode('<br/>', [$grid->description, $grid->requirements]);
@@ -122,7 +118,7 @@ class Grids
       $insert->set('event_date', $s);
       $insert->set('event_end_date', $e);
       $insert->set('event_capacity', $grid->needed);
-      $insert->set('cut_off_date', $cutoffdate->toSql());
+      $insert->set('cut_off_date', $cut_off_date);
       $insert->set('enable_cancel_registration', 0);
 
       $grid->event_id = $insert->insert();
