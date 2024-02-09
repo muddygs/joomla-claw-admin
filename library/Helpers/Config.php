@@ -2,63 +2,52 @@
 
 namespace ClawCorpLib\Helpers;
 
-use ClawCorpLib\Enums\ConfigFieldNames;
-use ClawCorpLib\Enums\EventTypes;
-use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Factory;
+use Joomla\Database\DatabaseDriver;
+
+use ClawCorpLib\Enums\ConfigFieldNames;
 
 class Config
 {
-  // Cache of config values
-  private static array $_titles = [];
-  private static string $_current = '';
+  private DatabaseDriver $db;
 
   public function __construct(
     public readonly string $eventConfigAlias)
   {
+    $this->db = Factory::getContainer()->get('DatabaseDriver');
   }
 
   /**
-   * Returns an object list (use ->value/->text) of values for a given config fieldname
-   * @param ConfigFieldNames $section fieldname to get values for
-   * @return array 
+   * Returns config value
+   * @param ConfigFieldNames $section Section name
+   * @param string $key Key name
+   * @return string Value or null if not found 
    */
-  public function getColumn(ConfigFieldNames $section): array
+  public function getConfigText(ConfigFieldNames $section, string $key): ?string
   {
-    $db = Factory::getContainer()->get('DatabaseDriver');
-    $fieldName = $section->toString();
-
-    $configAlias = $this->eventConfigAlias;
-
-    $query = $db->getQuery(true);
-    $query->select(['value', 'text'])
-      ->from('#__claw_field_values')
-      ->where('fieldname = :fieldname')
-      ->where('event = :event')
-      ->order('value')
-      ->bind(':fieldname', $fieldName)
-      ->bind(':event', $configAlias);
-    
-    $db->setQuery($query);
-    return $db->loadObjectList('value');
+    $query = $this->buildGetQuery($section, $key);
+    $this->db->setQuery($query);
+    return $this->db->loadResult();
   }
 
   /**
-   * Returns an array of the "text" values for a given config fieldname
+   * Returns an associative array of the "key=>text" values for a given config section
    * @param ConfigFieldNames $section fieldname to get values for
-   * @param string $key (optional) if set, return only text for this value 
-   * @return mixed array of "text" values or a single value if $key is set (false on db error) 
+   * @return array List or null if not found 
    */
-  public function getConfigValuesText(ConfigFieldNames $section, string $key = ''): mixed
+  public function getConfigValuesText(ConfigFieldNames $section): ?array
   {
-    /** @var \Joomla\Database\DatabaseDriver */
-    $db = Factory::getContainer()->get('DatabaseDriver');
-    $fieldName = $section->toString();
+    $query = $this->buildGetQuery($section);
+    $this->db->setQuery($query);
+    return $this->db->loadAssocList('value','text');
+  }
 
-    // Need a local variable for the bind to work
+  private function buildGetQuery(ConfigFieldNames $section, string $key = ''): \Joomla\Database\DatabaseQuery
+  {
+    $fieldName = $section->toString();
     $configAlias = $this->eventConfigAlias;
 
-    $query = $db->getQuery(true);
+    $query = $this->db->getQuery(true);
     $query->select(['value','text'])
       ->from('#__claw_field_values')
       ->where('fieldname = :fieldname')
@@ -71,27 +60,7 @@ class Config
       $query->where('value = :value')
         ->bind(':value', $key);
     }
-    $db->setQuery($query);
-    $result = $key != '' ? $db->loadResult() : $db->loadAssocList('value','text');
-    return $result;
-  }
 
-  // TODO: Move all these static functions to EventConfig class
-  
-  public static function getTitleMapping(): array
-  {
-    if ( count(self::$_titles)) return self::$_titles;
-
-    $eventList = EventInfo::getEventInfos();
-    $titles = [];
-
-    /** @var \ClawCorpLib\Lib\EventInfo */
-    foreach ( $eventList AS $alias => $eventInfo ) {
-      if ( $eventInfo->eventType != EventTypes::main ) continue;
-      $titles[$alias] = $eventInfo->description;
-    }
-
-    self::$_titles = $titles;
-    return $titles;
+    return $query;
   }
 }
