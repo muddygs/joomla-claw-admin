@@ -1,12 +1,3 @@
-CREATE TABLE IF NOT EXISTS `#__claw_configuration` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `key` VARCHAR(50) NOT NULL,
-  `input` TEXT NOT NULL,
-  `value` TEXT NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_key` (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `#__claw_locations`(
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `ordering` INT(11) DEFAULT NULL,
