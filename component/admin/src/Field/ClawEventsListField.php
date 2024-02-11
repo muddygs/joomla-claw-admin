@@ -42,7 +42,7 @@ class ClawEventsListField extends ListField
     {
         switch ($name) {
             case 'all':
-                $this->all == strtolower($value) === 'true' ? true : false;
+                $this->all == (strtolower($value) === 'true') ? true : false;
                 break;
 
             default:

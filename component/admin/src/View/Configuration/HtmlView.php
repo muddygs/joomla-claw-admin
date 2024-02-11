@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -25,59 +25,8 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
  * @license     GNU General Public License version 3; see LICENSE
  */
 
-/**
- * Main "Hello World" Admin View
- */
 class HtmlView extends BaseHtmlView
 {
-	/**
-	 * The search tools form
-	 *
-	 * @var    Form
-	 * @since  1.6
-	 */
-	public $filterForm;
-
-	/**
-	 * The active search filters
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	public $activeFilters = [];
-
-	/**
-	 * Category data
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	protected $categories = [];
-
-	/**
-	 * An array of items
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	protected $items = [];
-
-	/**
-	 * The pagination object
-	 *
-	 * @var    Pagination
-	 * @since  1.6
-	 */
-	protected $pagination;
-
-	/**
-	 * The model state
-	 *
-	 * @var    Registry
-	 * @since  1.6
-	 */
-	protected $state;
-
 	/**
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
 	 * @return  void
@@ -112,13 +61,7 @@ class HtmlView extends BaseHtmlView
 		$isNew      = ($this->item->id == 0);
 		$user  = Factory::getApplication()->getIdentity();
 
-		// $canDo = ContentHelper::getActions('com_countrybase');
-
 		$toolbar = Toolbar::getInstance();
-		// TODO: Update to Joomla 5 API...no clue how to implement the Interface yet
-		// $IToolbar = new ToolbarFactoryInterface();
-		// $toolbar = $IToolbar->createToolbar();
-
 		ToolbarHelper::title(
 			'CLAW Configuration ' . ($isNew ? 'Add' : 'Edit')
 		);
@@ -127,17 +70,17 @@ class HtmlView extends BaseHtmlView
 		{
 			if ($isNew)
 			{
-				$toolbar->apply('currentitem.save');
+				$toolbar->apply('configuration.save');
 			}
 			else
 			{
-				$toolbar->apply('currentitem.apply');
+				$toolbar->apply('configuration.apply');
 			}
-			$toolbar->save('currentitem.save');
+			$toolbar->save('configuration.save');
 
 		}
 
-		$toolbar->cancel('currentitem.cancel', 'JTOOLBAR_CLOSE');
+		$toolbar->cancel('configuration.cancel', 'JTOOLBAR_CLOSE');
 
 		if ($user->authorise('core.admin', 'com_claw') || $user->authorise('core.options', 'com_claw'))
 		{

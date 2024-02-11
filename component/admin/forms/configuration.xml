@@ -1,6 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
+  <field
+    name="id"
+    type="hidden"
+    label="JGLOBAL_FIELD_ID_LABEL"
+    class="readonly"
+    default="0"
+    readonly="true"
+  />
 
+  <field
+    name="event"
+    type="ClawEventsList"
+    label="Event Selection:"
+    required="true"
+    multiple="false"
+    default=""
+    validate="options"
+    filter="string"
+  />
+
+  <field
+    name="fieldname"
+    type="ConfigFieldNamesList"
+    label="Section:"
+    required="true"
+    multiple="false"
+    filter="int"
+  />
+
+  <field
+    name="value"
+    type="text"
+    label="Key:"
+    required="true"
+    maxLength="30"
+    filter="string"
+  />
+
+  <field
+    name="text"
+    type="text"
+    label="Value:"
+    required="true"
+    maxLength="30"
+    filter="string"
+  />
 
 
 </form>

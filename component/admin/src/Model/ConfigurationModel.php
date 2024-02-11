@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -11,6 +11,7 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
@@ -28,28 +29,6 @@ class ConfigurationModel extends AdminModel
 	 * @var    string
 	 */
 	protected $text_prefix = 'COM_CLAW_CONFIGURATION';
-
-	private $keys = [
-		'current' => 'string',
-		'active' => 'string,array',
-		'past' => 'string,array',
-		'location' => 'EB_LOCATION',
-		'timezone' => 'timezone',
-		'timezonedb' => 'timezone',
-		'defaultPrefix' => 'string',
-		'onsiteActive' => 'boolean',
-		'surveyOpen' => 'boolean',
-		'onsiteCouponPrefix' => 'string',
-		'shiftCategories' => 'EB_CATEGORY_LIST',
-		'overlapCategories' => 'EB_CATEGORY_LIST',
-		'invoiceCategories' => 'EB_CATEGORY_LIST',
-		'sponsorshipCategories' => 'EB_CATEGORY_LIST',
-		'categoriesRequiringMainEvent' => 'EB_CATEGORY_LIST',
-		'imagedir' => 'string',
-		'adsdir' => 'string',
-		'vendordir' => 'string',
-		'eventTitleMapping' => 'string',
-	];
 
 	/**
 	 * Method to get the record form.
@@ -85,11 +64,13 @@ class ConfigurationModel extends AdminModel
 	{
 		// Check the session for previously entered form data.
 		$app = Factory::getApplication();
-		$data = $app->getUserState('com_claw.edit.configuration.data', array());
+		$data = $app->getUserState('com_claw.edit.configuration.data', []);
 
-		if (empty($data))
-		{
+		if (empty($data)) {
 			$data = $this->getItem();
+
+			// Convert the fieldname to an int
+			$data->fieldname = ConfigFieldNames::fromString($data->fieldname)->value ?? 0;
 		}
 
 		return $data;
@@ -97,11 +78,17 @@ class ConfigurationModel extends AdminModel
 
 	public function save($data): bool
 	{
-		$db = $this->getDatabase();
-		$db->truncateTable('#__claw_configuration');
+		// Verify the section value
+		$fieldname = ConfigFieldNames::tryFrom($data['fieldname']);
+		if ( $fieldname === null ) {
+			$app = Factory::getApplication();
+			$app->enqueueMessage('Invalid fieldname', 'error');
+			return false;
+		}
 
+		$data['fieldname'] = $fieldname->toString();
 
-		return true;
+		return parent::save($data);
 	}
 
 	/**
@@ -118,9 +105,6 @@ class ConfigurationModel extends AdminModel
 	 */
 	public function getTable($name = 'Configuration', $prefix = 'Table', $options = array())
 	{
-//		$name = 'Currentitems';
-//		$prefix = 'Table';
-
 		if ($table = $this->_createTable($name, $prefix, $options))
 		{
 			return $table;

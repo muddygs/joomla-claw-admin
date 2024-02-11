@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -21,8 +21,6 @@ use Joomla\Database\DatabaseDriver;
  */
 class ConfigurationTable extends Table
 {
-	protected $_jsonEncode = ['value'];
-
 	/**
 	 * Constructor
 	 *
@@ -32,6 +30,6 @@ class ConfigurationTable extends Table
 	 */
 	public function __construct(DatabaseDriver $db)
 	{
-		parent::__construct('#__claw_configuration', 'id', $db);
+		parent::__construct('#__claw_field_values', 'id', $db);
 	}
 }
