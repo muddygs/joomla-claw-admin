@@ -14,20 +14,8 @@ defined('_JEXEC') or die;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 
-/**
- * @package     Joomla.Administrator
- * @subpackage  com_claw
- *
- * @copyright   Copyright (C) 2020 John Smith. All rights reserved.
- * @license     GNU General Public License version 3; see LICENSE
- */
-
-/**
- * Main "Hello World" Admin View
- */
 class HtmlView extends BaseHtmlView
 {
 	/**
