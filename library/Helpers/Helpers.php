@@ -18,7 +18,10 @@ use RuntimeException;
 // TODO: Separate and put in appropriate classes or merge into main code
 // TODO: where used once
 
-
+/**
+ * Class Helpers
+ * @package ClawCorpLib\Helpers
+ */
 class Helpers
 {
 
@@ -53,15 +56,19 @@ class Helpers
 
   /**
    * Returns hh:mm formatted string as seconds
-   * @param mixed $t 
+   * @param string $time 
    * @return int|bool 
    */
-  public static function timeToInt($t): int|bool
+  public static function timeToSeconds(string $time): int|bool
   {
-    $ts = explode(':', $t);
-    if (count($ts) < 2 || !\is_numeric($ts[0]) || !\is_numeric($ts[1]) || 
-      $ts[0] < 0 || $ts[0] > 23 || $ts[1] < 0 || $ts[1] > 59) return false;
-    return strtotime('1970-01-01 ' . implode(':', [ $ts[0], $ts[1], '00' ]));
+    $timeParts = explode(':', $time);
+    if (count($timeParts) !== 2 || !is_numeric($timeParts[0]) || !is_numeric($timeParts[1]) || 
+      $timeParts[0] < 0 || $timeParts[0] > 23 || $timeParts[1] < 0 || $timeParts[1] > 59) {
+      return false;
+    }
+    
+    $seconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60);
+    return $seconds;
   }
 
   public static function dateToDay(string $date): string
@@ -108,7 +115,7 @@ class Helpers
   /**
    * Returns array with short day (Mon,Tue) to sql date for the event week starting Monday
    */
-  public static function getDateArray(Date $date, bool $dateOnly = false)
+  public static function getDateArray(Date $date, bool $dateOnly = false): array
   {
     $result = [];
 
@@ -301,7 +308,7 @@ class Helpers
     $mailer = Factory::getMailer();
 
     $config = new Config(Aliases::current(true));
-    $email = $config->getConfigValuesText(ConfigFieldNames::CONFIG_DEBUG_EMAIL, 'email');
+    $email = $config->getConfigText(ConfigFieldNames::CONFIG_DEBUG_EMAIL, 'email');
     $mailer->setSender([$email, 'CLAW']);
     $mailer->setSubject('Some Error Has Occurred');
     $mailer->addRecipient($email);
