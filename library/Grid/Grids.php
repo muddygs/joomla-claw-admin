@@ -46,12 +46,12 @@ class Grids
     $location = $eventInfo->ebLocationId;
 
     $config = new Config($eventInfo->alias);
-    $shiftAreas = $config->getColumn(ConfigFieldNames::SHIFT_SHIFT_AREA);
+    $categoryIds = $config->getConfigValuesText(ConfigFieldNames::SHIFT_SHIFT_AREA);
 
-    foreach ( $shiftAreas AS $k => $o ) {
+    foreach ( array_keys($categoryIds) AS $k ) {
       if ( $k == 'tbd') continue;
       $categoryId = ClawEvents::getCategoryId('shifts-'.$k);
-      $o->category_id = $categoryId;
+      $categoryIds[$k] = $categoryId;
     }
 
     ?>
@@ -90,11 +90,11 @@ class Grids
         continue;
       }
 
-      $main_category_id = $shiftAreas[$grid->shift_area]->category_id;
+      $main_category_id = $categoryIds[$grid->shift_area];
       $title = ucwords($grid->title);
 
       $btime = $baseUnixTime + (array_search($grid->day, $days)+1) * 86400; // seconds in a day
-      $offset = Helpers::timeToInt($grid->time);
+      $offset = Helpers::timeToSeconds($grid->time);
 
       if ( $offset === false ) die('Time error');
       
