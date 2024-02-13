@@ -212,7 +212,7 @@ class Skills
     $class->length = (int)$length;
 
     $config = new Config($this->eventAlias);
-    if ( $class->category != 'None' ) $class->category = $config->getConfigValuesText(ConfigFieldNames::SKILL_CATEGORY, $class->category);
+    if ( $class->category != 'None' ) $class->category = $config->getConfigText(ConfigFieldNames::SKILL_CATEGORY, $class->category);
 
     // Get the presenters
     $class->presenters = [];

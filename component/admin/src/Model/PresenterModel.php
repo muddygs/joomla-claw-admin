@@ -110,7 +110,7 @@ class PresenterModel extends AdminModel
     $error = $files['photo_upload']['error'];
 
     $config = new Config($data['event']);
-    $presentersDir = $config->getConfigValuesText(ConfigFieldNames::CONFIG_IMAGES, 'presenters');
+    $presentersDir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters');
   
     $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'orig', $data['uid'].'.jpg']);
     $thumb = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'web', $data['uid'].'.jpg']);
@@ -227,7 +227,7 @@ class PresenterModel extends AdminModel
     $alias = Aliases::current();
     $info = new EventInfo($alias);
     $config = new Config($alias);
-    $presentersDir = $config->getConfigValuesText(ConfigFieldNames::CONFIG_IMAGES, 'presenters');
+    $presentersDir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters');
 
 
     $subject = $new ? '[New] ' : '[Updated] ';

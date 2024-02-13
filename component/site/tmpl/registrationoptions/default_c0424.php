@@ -1,6 +1,7 @@
 <?php
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Enums\EventPackageTypes;
 use Joomla\CMS\Factory;
 
@@ -9,6 +10,7 @@ require_once(JPATH_ROOT . '/components/com_eventbooking/helper/database.php');
 require_once(JPATH_ROOT . '/components/com_eventbooking/helper/helper.php');
 
 use ClawCorpLib\Helpers\Bootstrap;
+use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\EventInfo;
@@ -344,14 +346,19 @@ HTML;
 </div>
 HTML;
 
-    $aliases = [];
-
     $categoryIds = $eventInfo->eb_cat_shifts;
     if ( $EventPackageType == EventPackageTypes::volunteersuper ) {
       $categoryIds = array_merge($categoryIds, $eventInfo->eb_cat_supershifts);
     }
 
-    $result .= categoryLinkButtons('/claw-all-events/shifts/', $categoryIds);
+    $config = new Config($eventInfo->alias);
+    $baseURL = $config->getConfigText(ConfigFieldNames::CONFIG_URLPREFIX, 'shifts');
+
+    if ( null == $baseURL ) {
+      die('shift base URL not found');
+    }
+
+    $result .= categoryLinkButtons($baseURL, $categoryIds);
 
     return $result;
   }
