@@ -9,7 +9,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 
 /**
- * Wrapper for #__claw_packages table
+ * Wrapper for #__claw_packages row
  *  
  * @package ClawCorpLib\Lib
  * @since 24.4.1
@@ -41,13 +41,14 @@ class PackageInfo
 
     public function __construct(
       public EventInfo $eventInfo,
-      public int $id = 0
+      public int $id
     ) {
-      $this->alias = $eventInfo->alias;
-
-      if ( $id > 0 ) {
-        $this->loadPackageInfo($id);
+      if ( $this->id == 0 ) {
+        throw new \Exception("PackageInfo::__construct() called with no package ID");
       }
+
+      $this->alias = $eventInfo->alias;
+      $this->fromSqlRow();
     }
 
     public function toSqlObject()
@@ -81,8 +82,9 @@ class PackageInfo
       return $result;
     }
 
-    public function loadPackageInfo(int $id) {
+    private function fromSqlRow() {
       $db = Factory::getContainer()->get('DatabaseDriver');
+      $id = $this->id;
 
       $query = $db->getQuery(true);
       $query->select('*')
@@ -117,44 +119,6 @@ class PackageInfo
       $this->badgeValue = $result->badgeValue;
       $this->couponOnly = $result->couponOnly;
       $this->meta = json_decode($result->meta);
-    }
-
-    public function getCartLink(string $class = '', string $baseURL = '/claw-all-events'): string
-    {
-      if ( 0 == $this->id || 0 == $this->eventId ) {
-        die("PackageInfo::getCartLink() called with no package/event ID");
-      }
-
-      if ('' == $class) {
-        $class = 'btn btn-primary eb-register-button eb-colorbox-addcart cboxElement';
-      }
-  
-      $pt = microtime(true);
-      $eid = $this->eventId;
-  
-      $url = <<< HTML
-          <a class="$class" href="$baseURL?task=cart.add_cart&id=$eid&pt=$pt">$this->title</a>
-  HTML;
-      return $url;
-    }
-
-    public function getEventRow(): ?object
-    {
-      if ( 0 == $this->id || 0 == $this->eventId) {
-        die("PackageInfo::getCartLink() called with no package/event ID");
-      }
-
-      $db = Factory::getContainer()->get('DatabaseDriver');
-      $query = $db->getQuery(true);
-      $query->select('*')
-        ->from('#__eb_events')
-        ->where('id = :id')
-        ->bind(':id', $this->eventId);
-      $db->setQuery($query);
-  
-      $results = $db->loadObject();
-  
-      return $results;
     }
 
     public function save(): bool
