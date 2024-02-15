@@ -27,7 +27,13 @@ class Config
   {
     $query = $this->buildGetQuery($section, $key);
     $this->db->setQuery($query);
-    return $this->db->loadResult();
+    $row = $this->db->loadObject();
+
+    if ( !is_null($row) ) {
+      return $row->text;
+    }
+
+    return null;
   }
 
   /**
