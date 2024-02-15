@@ -132,12 +132,12 @@ HTML;
   
     // Event
     $value = $events->getEventByCouponCode($package);
-    $result = $value == null ? 0 : $value->couponValue;
+    $result = is_null($value) ? 0 : $value->couponValue;
 
     // Addons
     if ($result) {
       foreach (array_keys($json->getArray()) as $key) {
-        if (substr($key, 0, 6) == 'addon-' && strlen($key) == 7) {
+        if (strpos($key, 'addon-') === 0 && strlen($key) === 7) {
           $a = substr($key, 6, 1);
           $value = $events->getEventByCouponCode($a);
           $result += $value == null ? 0 : $value->couponValue;

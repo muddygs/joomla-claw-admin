@@ -194,6 +194,12 @@ class EventConfig
     foreach ($this->packageInfos as $e) {
       if (strtolower($e->couponKey) == $couponCode) {
         $result = $e;
+
+        // Merge event id for couponOnly package infos
+        if ( $result->couponOnly) {
+          $otherEvent = $this->getPackageInfoByProperty('eventPackageType', $result->eventPackageType);
+          $result->eventId = $otherEvent->eventId;
+        }
         break;
       }
     }

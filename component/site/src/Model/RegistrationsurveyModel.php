@@ -12,13 +12,13 @@ namespace ClawCorp\Component\Claw\Site\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\EventBooking;
 use Exception;
 use Joomla\Database\Exception\DatabaseNotFoundException;
 use RuntimeException;
 
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Factory;
@@ -40,8 +40,8 @@ class RegistrationsurveyModel extends BaseModel
    */
   public function RegistrationSurveyCouponStatus(string $coupon): string
   {
-    // Get the database
-    $db = Factory::getDbo();
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     $result = [
       'error' => 1,
@@ -62,7 +62,14 @@ class RegistrationsurveyModel extends BaseModel
     $coupon = $db->loadRow();
 
     if ($coupon != null) {
-      $events = new EventConfig(Aliases::current());
+      $events = new EventConfig(Aliases::current(),
+      [
+        PackageInfoTypes::main,
+        PackageInfoTypes::daypass,
+        PackageInfoTypes::addon,
+        PackageInfoTypes::passes,
+        PackageInfoTypes::coupononly,
+      ]);
 
       /** @var \ClawCorpLib\Lib\PackageInfo */
       foreach ($events->packageInfos as $e) {
