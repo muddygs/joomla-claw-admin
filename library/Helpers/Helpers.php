@@ -62,7 +62,7 @@ class Helpers
   public static function timeToSeconds(string $time): int|bool
   {
     $timeParts = explode(':', $time);
-    if (count($timeParts) !== 2 || !is_numeric($timeParts[0]) || !is_numeric($timeParts[1]) || 
+    if (!is_numeric($timeParts[0]) || !is_numeric($timeParts[1]) || 
       $timeParts[0] < 0 || $timeParts[0] > 23 || $timeParts[1] < 0 || $timeParts[1] > 59) {
       return false;
     }
@@ -97,7 +97,7 @@ class Helpers
       $minute = $matches[2];
 
       $time = DateTime::createFromFormat('H:i', "$hour:$minute");
-      return $time->format('g:i A');
+      return $time->format('g:iA');
     }
 
     if (str_starts_with($time, '00:00')) {
@@ -106,7 +106,7 @@ class Helpers
       $time = "Noon";
     } else {
       date_default_timezone_set('etc/UTC');
-      $time = date('g:i A', strtotime(substr($time, 0, 5)));
+      $time = date('g:iA', strtotime(substr($time, 0, 5)));
     }
 
     return $time;
