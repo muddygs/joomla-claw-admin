@@ -97,6 +97,15 @@ class Grids
       $offset = Helpers::timeToSeconds($grid->time);
 
       if ( $offset === false ) die('Time error');
+
+      if ( $grid->length < 1 ) {
+        ?>
+        <tr>
+          <td colspan="5">Invalid length for <?= $title ?> on <?= $grid->day ?></td>
+        </tr>
+        <?php
+        continue;
+      }
       
       $stime = $btime + $offset;
 			$etime = $stime + $grid->length*60*60;
