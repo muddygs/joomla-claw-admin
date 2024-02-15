@@ -16,7 +16,7 @@ class GridItem
     public int $id,
     public string $grid_id,
     public string $time,
-    public int $length,
+    public float $length,
     public string $title,
     public string $description,
     public string $event,
