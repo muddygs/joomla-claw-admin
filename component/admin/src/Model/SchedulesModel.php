@@ -25,7 +25,6 @@ use Joomla\Database\ParameterType;
  */
 class SchedulesModel extends ListModel
 {
-
   private array $list_fields = [
     'id',
     'published',
@@ -130,7 +129,7 @@ class SchedulesModel extends ListModel
     // Load cache of all published sponsors
     $sponsorsQuery = $db->getQuery(true);
     $sponsorsQuery->select($db->quoteName(['id', 'name']))
-      ->from($db->quoteName('#__claw_sponsors'))
+      ->from($db->quoteName($this->getTable('sponsors')->getTableName()))
       ->where($db->quoteName('published') . '=1');
     $db->setQuery($sponsorsQuery);
     $sponsors = $db->loadAssocList('id', 'name');
@@ -170,10 +169,11 @@ class SchedulesModel extends ListModel
         }, $this->list_fields)
       )
     )
-      ->from($db->quoteName('#__claw_schedule', 'a'));
+      ->from($db->quoteName($this->getTable()->getTableName(), 'a'));
 
+    $locationsTable = $this->getTable('locations');
 
-    $query->join('LEFT OUTER', $db->quoteName('#__claw_locations', 'l') . ' ON ' .
+    $query->join('LEFT OUTER', $db->quoteName($locationsTable->getTableName(), 'l') . ' ON ' .
       $db->quoteName('l.id') . ' = ' . $db->quoteName('a.location'));
     $query->select($db->quoteName('l.value', 'location_text'));
 
@@ -228,6 +228,21 @@ class SchedulesModel extends ListModel
     return $query;
   }
 
+  public function publish(array $cid, int $state): bool
+  {
+    $db = $this->getDatabase();
+    $cid = $db->quote($cid);
+
+    $query = $db->getQuery(true);
+    $query->update($db->quoteName($this->getTable()->getTableName()))
+      ->set($db->quoteName('published') . ' = ' . (int) $state)
+      ->where($db->quoteName('id') . ' IN (' . implode(',', (array)$cid) . ')');
+    $db->setQuery($query);
+    $db->execute();
+    return true;
+  }
+
+
   public function delete(array $cid): bool
   {
     $db = $this->getDatabase();
@@ -235,7 +250,8 @@ class SchedulesModel extends ListModel
     $cid = $db->quote($cid);
 
     $query = $db->getQuery(true);
-    $query->delete($db->quoteName('#__claw_schedule'))->where($db->quoteName('id') . ' IN (' . implode(',', (array)$cid) . ')');
+    $query->delete($db->quoteName($this->getTable()->getTableName()))
+      ->where($db->quoteName('id') . ' IN (' . implode(',', (array)$cid) . ')');
     $db->setQuery($query);
     $db->execute();
     return true;
