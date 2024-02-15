@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -11,6 +11,7 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\ListModel;
 
@@ -21,6 +22,15 @@ use Joomla\CMS\MVC\Model\ListModel;
  */
 class SponsorsModel extends ListModel
 {
+protected $db;
+
+  private array $list_fields = [
+    'id',
+    'published',
+    'name',
+    'type',
+  ];	
+
 	/**
 	 * Constructor.
 	 *
@@ -31,17 +41,19 @@ class SponsorsModel extends ListModel
 	 */
 	public function __construct($config = array())
 	{
-		if (empty($config['filter_fields']))
-		{
-			$config['filter_fields'] = array(
-					'id', 'a.id',
-					'published', 'a.published',
-					'name', 'a.name',
-					'type', 'a.type',
-			);
+		if (empty($config['filter_fields'])) {
+			$config['filter_fields'] = [];
+      
+      foreach( $this->list_fields AS $f )
+      {
+        $config['filter_fields'][] = $f;
+        $config['filter_fields'][] = 'a.'.$f;
+      }
 		}
 
 		parent::__construct($config);
+
+    $this->db = $this->getDatabase();
 	}
 
 	/**
@@ -111,21 +123,14 @@ class SponsorsModel extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$db    = $this->getDatabase();
+		$db    = $this->db;
 		$query = $db->getQuery(true);
 
 		// Select the required fields from the table.
 		$query->select(
 			$this->getState(
-				'list.select',
-				[
-					$db->quoteName('a.id'),
-					$db->quoteName('a.published'),
-					$db->quoteName('a.ordering'),
-					$db->quoteName('a.name'),
-					$db->quoteName('a.type'),
-				]
-			)
+				'list.select', array_map( function($a) use($db) { return $db->quoteName('a.'.$a); }, $this->list_fields)
+      )
 		)
 		->from($db->quoteName('#__claw_sponsors', 'a'));
 
