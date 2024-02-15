@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -142,7 +142,7 @@ class VendorsModel extends ListModel
     // Filter by search in title.
     $search = $this->getState('filter.search');
     $event = $this->getState('filter.event', Aliases::current());
-    $published = $this->getState('filter.published', -999);
+    $published = $this->getState('filter.published');
 
     if (!empty($search))
     {
@@ -154,7 +154,7 @@ class VendorsModel extends ListModel
       $query->where('a.event = :event')->bind(':event', $event);
     }
 
-    if ( $published != -999)
+    if ( $published != '' )
       $query->where('a.published = :published')->bind(':published', $published);
 
     // Add the list ordering clause.
@@ -165,15 +165,25 @@ class VendorsModel extends ListModel
     return $query;
   }
 
+  public function publish(array $cid, int $state): bool
+  {
+    $db = $this->getDatabase();
+    $query = $db->getQuery(true);
+    $query->update($db->quoteName('#__claw_vendors'))->set($db->quoteName('published') . ' = ' . (int) $state)->where($db->quoteName('id') . ' IN (' . implode(',', $cid) . ')');
+    $db->setQuery($query);
+    $db->execute();
+    return true;
+  }
+
   public function delete(array $cid): bool
-	{
-		$db = $this->getDatabase();
-		$query = $db->getQuery(true);
-		$query->delete($db->quoteName('#__claw_vendors'))->where($db->quoteName('id') . ' IN (' . implode(',', $cid) . ')');
-		$db->setQuery($query);
-		$db->execute();
-		return true;
-	}
+  {
+    $db = $this->getDatabase();
+    $query = $db->getQuery(true);
+    $query->delete($db->quoteName('#__claw_vendors'))->where($db->quoteName('id') . ' IN (' . implode(',', $cid) . ')');
+    $db->setQuery($query);
+    $db->execute();
+    return true;
+  }
 
   public function saveorder($pks = [], $order = null)
 	{
