@@ -140,7 +140,7 @@ HTML;
   ?>
   <div class="row row-striped g-0 <?=$featuredClass?>">
     <div class="col-9 col-lg-10 g-0 row">
-      <div class="col-12 col-lg-2 pt-lg-2 pb-lg-2 mt-2 mb-2 tight"><?=$stime.'-'.$etime?></div>
+      <div class="col-12 col-lg-2 pt-lg-2 pb-lg-2 mt-2 mb-2 tight"><?=$stime?>&ndash;<?=$etime?></div>
   <?php
   if ( $thumb != ''):
   else:
