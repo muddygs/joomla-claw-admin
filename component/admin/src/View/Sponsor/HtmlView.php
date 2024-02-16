@@ -69,9 +69,9 @@ class HtmlView extends BaseHtmlView
     }
 
     if ($isNew) {
-      ToolbarHelper::cancel('schedule.cancel');
+      ToolbarHelper::cancel('sponsor.cancel');
     } else {
-      ToolbarHelper::cancel('schedule.cancel', 'JTOOLBAR_CLOSE');
+      ToolbarHelper::cancel('sponsor.cancel', 'JTOOLBAR_CLOSE');
     }
   }
 }
