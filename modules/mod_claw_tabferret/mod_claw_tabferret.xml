@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module"
+  client="site"
+  method="upgrade">
+
+  <name>CLAW Tab Ferret</name>
+  <creationDate>February 2024</creationDate>
+  <author>CLAW Corp.</author>
+  <authorUrl>https://www.clawinfo.org/</authorUrl>
+  <copyright>(c) 2024 CLAW Corp.</copyright>
+  <license>GPLv2</license>
+  <version>0.1.0</version>
+  <description>Displays articles and modules in Bootstrap Tabs</description>
+
+  <files>
+    <filename module="mod_claw_tabferret">mod_claw_tabferret.php</filename>
+    <folder>tmpl</folder>
+  </files>
+
+  <config>
+    <fields name="params">
+      <fieldset name="basic">
+
+        <field name="tab-fields"
+          type="subform"
+          label="Tabs"
+          multiple="true"
+          min="1"
+          max="6">
+          <form>
+            <field name="tab_title"
+              type="text"
+              label="Title" />
+            <field name="tab_type"
+              type="list"
+              label="Type"
+              default="article"
+              description="Select the type of content to display in this tab">
+              <option value="article">Article</option>
+              <option value="module">Module</option>
+            </field>
+
+            <field name="tab_article"
+              type="sql"
+              default="0"
+              label="Article"
+              query="SELECT id, CONCAT(title, ' (', id, ')') AS title FROM #__content WHERE state = 1 ORDER BY id DESC"
+              key_field="id"
+              value_field="title"
+              showon="tab_type:article">
+              <option value="0">- Select Article -</option>
+            </field>
+
+            <field name="tab_module"
+              type="sql"
+              default="0"
+              label="Article"
+              query="SELECT id, CONCAT(title, ' (', id, ')') AS title FROM #__modules WHERE published = 1 ORDER BY id DESC"
+              key_field="id"
+              value_field="title"
+              showon="tab_type:module">
+              <option value="0">- Select Module -</option>
+            </field>
+
+            <field name="tab_isdefault"
+              type="radio"
+              default="0"
+              label="Default Tab"
+              description=""
+              class="btn-group btn-group-yesno">
+              <option value="1">JYES</option>
+              <option value="0">JNO</option>
+            </field>
+
+            <field name="tab_showoptional"
+              type="radio"
+              default="0"
+              label="Optional Display?"
+              description=""
+              class="btn-group btn-group-yesno">
+              <option value="1">JYES</option>
+              <option value="0">JNO</option>
+            </field>
+
+            <field name="tab_showonsite"
+              type="radio"
+              default="0"
+              label="Show Onsite/Offsite Active?"
+              description=""
+              class="btn-group btn-group-yesno"
+              showon="tab_showoptional:1">
+            >
+              <option value="0">Not Onsite</option>
+              <option value="1">Onsite</option>
+            </field>
+
+          </form>
+        </field>
+        </fieldset>
+      </fields>
+    </config>
+  </extension>
