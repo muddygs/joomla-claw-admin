@@ -65,15 +65,15 @@ class EventInfo
     $this->onsiteActive = $info->onsiteActive;
     $this->termsArticleId = $info->termsArticleId;
 
-    $this->eb_cat_shifts = json_decode($info->eb_cat_shifts);
-    $this->eb_cat_supershifts = json_decode($info->eb_cat_supershifts);
-    $this->eb_cat_speeddating = json_decode($info->eb_cat_speeddating);
-    $this->eb_cat_equipment = json_decode($info->eb_cat_equipment);
-    $this->eb_cat_sponsorship = json_decode($info->eb_cat_sponsorship);
-    $this->eb_cat_sponsorships = json_decode($info->eb_cat_sponsorships);
-    $this->eb_cat_meals = json_decode($info->eb_cat_meals);
-    $this->eb_cat_combomeals = json_decode($info->eb_cat_combomeals);
-    $this->eb_cat_invoicables = json_decode($info->eb_cat_invoicables);
+    $this->eb_cat_shifts = json_decode($info->eb_cat_shifts ?? '[]');
+    $this->eb_cat_supershifts = json_decode($info->eb_cat_supershifts ?? '[]');
+    $this->eb_cat_speeddating = json_decode($info->eb_cat_speeddating ?? '[]');
+    $this->eb_cat_equipment = json_decode($info->eb_cat_equipment ?? '[]');
+    $this->eb_cat_sponsorship = json_decode($info->eb_cat_sponsorship ?? '[]');
+    $this->eb_cat_sponsorships = json_decode($info->eb_cat_sponsorships ?? '[]');
+    $this->eb_cat_meals = json_decode($info->eb_cat_meals ?? '[]');
+    $this->eb_cat_combomeals = json_decode($info->eb_cat_combomeals ?? '[]');
+    $this->eb_cat_invoicables = json_decode($info->eb_cat_invoicables ?? '[]');
   
 
     // Data validation
