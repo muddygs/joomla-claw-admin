@@ -3,12 +3,12 @@
   method="upgrade">
 
   <name>CLAW</name>
-  <creationDate>2024-JAN-31</creationDate>
+  <creationDate>2024-FEB-16</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
-  <copyright>(c) 2023 CLAW Corp.</copyright>
+  <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>24.4.3</version>
+  <version>24.4.4</version>
   <description>CLAW Data Administration</description>
 
   <namespace path="src/">ClawCorp\Component\Claw</namespace>
@@ -48,10 +48,6 @@
         img="class:banners">
             Dashboard
       </menu>
-      <menu link="option=com_claw&amp;view=configuration"
-        img="class:banners">
-            Config
-      </menu>
       <menu link="option=com_claw&amp;view=locations"
         img="class:banners">
             Locations
@@ -80,6 +76,11 @@
         img="class:banners">
             Skills Classes
       </menu>
+      <menu link="option=com_claw&amp;view=configurations"
+        img="class:banners">
+          Config
+      </menu>
+
     </submenu>
 
     <dashboards>
