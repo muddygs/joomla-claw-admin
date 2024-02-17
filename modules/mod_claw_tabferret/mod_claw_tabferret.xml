@@ -10,7 +10,7 @@
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
   <version>0.1.0</version>
-  <description>Displays articles and modules in Bootstrap Tabs</description>
+  <description>Displays articles and modules using Bootstrap methods</description>
 
   <files>
     <filename module="mod_claw_tabferret">mod_claw_tabferret.php</filename>
@@ -20,10 +20,26 @@
   <config>
     <fields name="params">
       <fieldset name="basic">
+        <field name="type"
+          type="list"
+          label="Type"
+          default="tabs"
+          description="Select the method to display the content">
+          <option value="tabs">Tabs</option>
+          <option value="accordion">Accordion</option>
+          <option value="carousel">Carousel</option>
+        </field>
+
+        <field name="carousel_interval"
+          type="text"
+          label="Carousel Interval"
+          default="5"
+          description="Set the interval for the carousel in seconds"
+          showon="type:carousel" />
 
         <field name="tab-fields"
           type="subform"
-          label="Tabs"
+          label="Content"
           multiple="true"
           min="1"
           max="6">
@@ -47,6 +63,7 @@
               query="SELECT id, CONCAT(title, ' (', id, ')') AS title FROM #__content WHERE state = 1 ORDER BY id DESC"
               key_field="id"
               value_field="title"
+              layout="joomla.form.field.list-fancy-select"
               showon="tab_type:article">
               <option value="0">- Select Article -</option>
             </field>
