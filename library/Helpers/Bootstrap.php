@@ -2,6 +2,7 @@
 
 namespace ClawCorpLib\Helpers;
 
+use Joomla\CMS\Factory;
 use Joomla\CMS\User\UserHelper;
 
 class Bootstrap
@@ -147,4 +148,13 @@ class Bootstrap
     </html>
     <?php
   }
+
+
+  public static function loadContentById(int $id)
+  {
+    $table = Factory::getApplication()->bootComponent('com_content')->getMVCFactory()->createTable('Article', 'Content', []);
+    $table->load($id);
+    return $table;
+  }
+
 }
