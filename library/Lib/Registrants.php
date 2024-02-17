@@ -21,15 +21,14 @@ class Registrants
 
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $eid = $db->q($eventId);
-
     $published = '(' . implode(',', $db->quote(array_column($publishedStatus, 'value'))) . ')';
 
     $q = $db->getQuery(true);
 
     $q->select($db->qn('user_id'))
       ->from($db->qn('#__eb_registrants'))
-      ->where($db->qn('event_id') . '=' . $eid)
+      ->where($db->qn('event_id') . '= :eventid')
+      ->bind(':eventid', $eventId, 'int')
       ->where($db->qn('published') . ' IN ' . $published)
       ->order($db->qn(['published', 'invoice_number']));
 
