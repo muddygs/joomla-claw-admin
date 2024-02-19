@@ -10,6 +10,7 @@ use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\EventInfo;
 use DateTimeImmutable;
 use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseDriver;
 
@@ -77,16 +78,17 @@ class Deploy
     string $title,
     string $description,
     string $article_id,
-    string $cancel_before_date,
-    string $cut_off_date,
-    string $event_date,
-    string $event_end_date,
-    string $publish_down,
+    Date $cancel_before_date,
+    Date $cut_off_date,
+    Date $event_date,
+    Date $event_end_date,
+    Date $publish_down,
     string $individual_price,
-    string $registration_start_date,
+    Date $registration_start_date,
     string $registration_access,
     string $price_text = '',
-    string $user_email_body = ''
+    string $user_email_body = '',
+    string $payment_methods = '2',
   ): int {
     $insert = new ebMgmt(
       eventAlias: $this->eventAlias, 
@@ -97,16 +99,16 @@ class Deploy
     );
 
     $insert->set('article_id', $article_id, false);
-    $insert->set('cancel_before_date', $cancel_before_date);
-    $insert->set('cut_off_date', $cut_off_date);
-    $insert->set('event_date', $event_date);
-    $insert->set('event_end_date', $event_end_date);
-    $insert->set('publish_down', $publish_down);
+    $insert->set('cancel_before_date', $cancel_before_date->toSql());
+    $insert->set('cut_off_date', $cut_off_date->toSql());
+    $insert->set('event_date', $event_date->toSql());
+    $insert->set('event_end_date', $event_end_date->toSql());
+    $insert->set('publish_down', $publish_down->toSql());
 
     $insert->set('individual_price', $individual_price);
     $insert->set('price_text', $price_text);
-    $insert->set('registration_start_date', $registration_start_date);
-    $insert->set('payment_methods', 2); // Credit Cart
+    $insert->set('registration_start_date', $registration_start_date->toSql());
+    $insert->set('payment_methods', $payment_methods); // Credit Card
     $insert->set('registration_access', $registration_access);
     $insert->set('user_email_body', $user_email_body);
     $insert->set('user_email_body_offline', $user_email_body);
@@ -139,13 +141,13 @@ class Deploy
           continue;
         }
 
-        $start = Factory::getDate($packageInfo->start)->toSql();
-        $end = Factory::getDate($packageInfo->end)->toSql();
+        $start = $packageInfo->start;
+        $end = $packageInfo->end;
         $cancel_before_date = $start;
         $cutoff = $start;
 
         // start and ending usability of these events
-        $registration_start_date = Factory::getDate()->toSql();
+        $registration_start_date = Factory::getDate();
 
         $title = $info->prefix . ' ' . $packageInfo->title . ' (' . $role . ')';
         $alias = strtolower(preg_replace('/[^\S]+/', '_', implode('-', [$info->prefix, 'sd', $packageInfo->title, $role])));
@@ -243,11 +245,11 @@ class Deploy
         break;
         
         case PackageInfoTypes::addon:
-          $start = Factory::getDate($packageInfo->start)->toSql();
-          $end = Factory::getDate($packageInfo->end)->toSql();
+          $start = $packageInfo->start;
+          $end = $packageInfo->end;
   
-          $origin = new DateTimeImmutable($start);
-          $target = new DateTimeImmutable($end);
+          $origin = new DateTimeImmutable($start->toSql());
+          $target = new DateTimeImmutable($end->toSql());
           $interval = $origin->diff($target);
   
           // If the event is less than 8 hours, then the cutoff is 3 hours before the event
@@ -262,25 +264,25 @@ class Deploy
         break;
 
         case PackageInfoTypes::daypass:
-          $start = Factory::getDate($packageInfo->start)->toSql();
-          $end = Factory::getDate($packageInfo->end)->toSql();
-          $reg_start_date = $startDate->toSql();
+          $start = $packageInfo->start;
+          $end = $packageInfo->end;
+          $reg_start_date = $startDate;
         break;
 
         case PackageInfoTypes::passes:
-          $start = Factory::getDate($packageInfo->start)->toSql();
-          $end = Factory::getDate($packageInfo->end)->toSql();
+          $start = $packageInfo->start;
+          $end = $packageInfo->end;
           $cutoff = '0000-00-00 00:00:00';
           // Remove any non-ascii char from title
           $name = preg_replace('/[^\S]+/', '-', $packageInfo->title);
           $packageInfo->alias = strtolower($info->prefix . '-' . $name);
           $accessGroup = $this->gid_public;
-          $reg_start_date = $startDate->toSql();
+          $reg_start_date = $startDate;
         break;
 
         case PackageInfoTypes::equipment:
-          $start = Factory::getDate($packageInfo->start)->toSql();
-          $end = Factory::getDate($packageInfo->end)->toSql();
+          $start = $packageInfo->start;
+          $end = $packageInfo->end;
           $cutoff = $startDate->toSql();
         break;
         
@@ -299,11 +301,11 @@ class Deploy
         title: $info->prefix . ' ' . $packageInfo->title,
         description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
         article_id: $info->termsArticleId,
-        cancel_before_date: $cancel_before_date->toSql(),
+        cancel_before_date: $cancel_before_date,
         cut_off_date: $cutoff,
         event_date: $start,
         event_end_date: $end,
-        publish_down: $publish_down->toSql(),
+        publish_down: $publish_down,
         individual_price: $packageInfo->fee,
         price_text: $price_text,
         registration_start_date: $reg_start_date,
@@ -365,7 +367,7 @@ class Deploy
     // Ignore server-specific timezone information
     date_default_timezone_set('etc/UTC');
 
-    $eventConfig = new EventConfig($this->eventAlias, []);
+    $eventConfig = new EventConfig($this->eventAlias, [PackageInfoTypes::sponsorship]);
     $info = $eventConfig->eventInfo;
     $packageInfos = $eventConfig->packageInfos;
 
@@ -389,7 +391,7 @@ class Deploy
     $endDate = $info->modify('next Monday midnight');;
 
     // start and ending usability of these events
-    $registration_start_date = Factory::getDate()->toSql();
+    $registration_start_date = Factory::getDate();
     $publish_down = $info->modify('+8 days');
  
     $accessGroup = $this->gid_public;
@@ -403,38 +405,36 @@ class Deploy
 
       $packageInfo->alias = strtolower($info->prefix . '_spo_' . preg_replace("/[^A-Za-z0-9]+/", '_', $packageInfo->title));
 
-      $start = $startDate;
-      $end = $endDate;
-      $cutoff = $endDate;
-
-      $reg_start_date = $registration_start_date;
+      $end = clone($endDate);
+      $cutoff = clone($startDate);
 
       switch ( $packageInfo->category ) {
         // We need advertising submitted no later than 3 weeks before the event
         case $sponsorshipCategories['sponsorships-advertising']:
-          $cutoff = $startDate->modify('-3 weeks')->toSql();
+          $cutoff->modify('-3 weeks');
           break;
         
         case $sponsorshipCategories['sponsorships-logo']:
-          $cutoff = $startDate->modify('-1 week')->toSql();
+          $cutoff->modify('-1 week');
           break;
 
         // Buffer until next event
         case $sponsorshipCategories['sponsorships-master-sustaining']:
-          $cutoff = $startDate->modify('+6 months')->toSql();
+          $cutoff->modify('+6 months');
           $end = $cutoff;
+          $publish_down = $cutoff;
         break;
 
         // Blue, black, gold are all the same
         case $sponsorshipCategories['sponsorships-black']:
         case $sponsorshipCategories['sponsorships-blue']:
         case $sponsorshipCategories['sponsorships-gold']:
-          $cutoff = $startDate->modify('-1 week')->toSql();
+          $cutoff->modify('-1 week');
         break;
 
         // Leather heart donations are available until the end of the event
         case $sponsorshipCategories['donations-leather-heart']:
-          $cutoff = $endDate;
+          $cutoff = clone($endDate);
         break;
 
         default:
@@ -448,15 +448,16 @@ class Deploy
         title: $info->prefix . ' ' . $packageInfo->title,
         description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
         article_id: $info->termsArticleId,
-        cancel_before_date: $cancel_before_date->toSql(),
+        cancel_before_date: $cancel_before_date,
         cut_off_date: $cutoff,
-        event_date: $start,
+        event_date: $startDate,
         event_end_date: $end,
-        publish_down: $publish_down->toSql(),
+        publish_down: $publish_down,
         individual_price: $packageInfo->fee,
-        registration_start_date: $reg_start_date,
-        registration_access: $accessGroup,
+        registration_start_date: $registration_start_date,
+        registration_access: $this->gid_registered,
         user_email_body: $user_email_body,
+        payment_methods: '2,5' // Credit Card, Invoice
       );
 
       if ($eventId == 0) {
