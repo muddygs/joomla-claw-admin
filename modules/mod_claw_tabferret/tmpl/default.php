@@ -31,4 +31,14 @@ foreach ( $tabFields as $tabField ) {
     }
 }
 
+if ( empty($tabs) ) {
+    Factory::getApplication()->enqueueMessage('No tabs to display', 'warning');
+    return;
+}
+
+if ( count($tabs) == 1 ) {
+    echo $tabContents[0];
+    return;
+}
+
 Bootstrap::writePillTabs($tabs, $tabContents);
