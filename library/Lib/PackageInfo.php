@@ -7,9 +7,11 @@ use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
+use Joomla\Database\DatabaseDriver;
 
 /**
  * Wrapper for #__claw_packages row
+ * TODO: Reimplement as a Table class
  *  
  * @package ClawCorpLib\Lib
  * @since 24.4.1
@@ -39,6 +41,8 @@ class PackageInfo
     public bool $couponOnly = false;
     public array|object $meta = []; // JSON
 
+    private DatabaseDriver $db;
+
     public function __construct(
       public EventInfo $eventInfo,
       public int $id
@@ -46,6 +50,8 @@ class PackageInfo
       if ( $this->id == 0 ) {
         throw new \Exception("PackageInfo::__construct() called with no package ID");
       }
+
+      $this->db = Factory::getContainer()->get('DatabaseDriver');
 
       $this->alias = $eventInfo->alias;
       $this->fromSqlRow();
@@ -71,8 +77,8 @@ class PackageInfo
       $result->requiresCoupon = $this->requiresCoupon ? 1 : 0;
       $result->couponAccessGroups = json_encode($this->couponAccessGroups);
       $result->authNetProfile = $this->authNetProfile ? 1 : 0;
-      $result->start = $this->start->toSql();
-      $result->end = $this->end->toSql();
+      $result->start = is_null($this->start) ? $this->db->getNullDate() : $this->start->toSql();
+      $result->end = is_null($this->end) ? $this->db->getNullDate() : $this->end->toSql();
       $result->isVolunteer = $this->isVolunteer ? 1 : 0;
       $result->bundleDiscount = $this->bundleDiscount;
       $result->badgeValue = $this->badgeValue;
@@ -83,8 +89,10 @@ class PackageInfo
     }
 
     private function fromSqlRow() {
-      $db = Factory::getContainer()->get('DatabaseDriver');
+      $db = $this->db;
       $id = $this->id;
+
+      $nullDate = $db->getNullDate();
 
       $query = $db->getQuery(true);
       $query->select('*')
@@ -100,7 +108,6 @@ class PackageInfo
       $this->published = EbPublishedState::from($result->published);
       $this->title = $result->title ?? '';
       $this->description = $result->description ?? '';
-      $this->alias = $result->alias;
       $this->eventPackageType = EventPackageTypes::FindValue($result->eventPackageType);
       $this->packageInfoType = PackageInfoTypes::FindValue($result->packageInfoType);
       $this->couponKey = $result->couponKey;
@@ -112,8 +119,8 @@ class PackageInfo
       $this->requiresCoupon = $result->requiresCoupon;
       $this->couponAccessGroups = json_decode($result->couponAccessGroups);
       $this->authNetProfile = $result->authNetProfile;
-      $this->start = new Date($result->start);
-      $this->end = new Date($result->end);
+      $this->start = $result->start === $nullDate ? null : new Date($result->start);
+      $this->end = $result->end === $nullDate ? null : new Date($result->end);
       $this->isVolunteer = $result->isVolunteer;
       $this->bundleDiscount = $result->bundleDiscount;
       $this->badgeValue = $result->badgeValue;
@@ -123,7 +130,7 @@ class PackageInfo
 
     public function save(): bool
     {
-      $db = Factory::getContainer()->get('DatabaseDriver');
+      $db = $this->db;
 
       $data = $this->toSqlObject();
 
