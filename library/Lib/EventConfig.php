@@ -2,11 +2,19 @@
 
 namespace ClawCorpLib\Lib;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
+use ClawCorpLib\Helpers\Config;
 use Exception;
+use InvalidArgumentException;
 use Joomla\CMS\Factory;
+use Joomla\Database\Exception\UnsupportedAdapterException;
+use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
+use RuntimeException;
+use Joomla\DI\Exception\KeyNotFoundException;
+use UnexpectedValueException;
 
 class EventConfig
 {
@@ -16,8 +24,14 @@ class EventConfig
   // Cache of config values
   private static array $_titles = [];
   private static string $_current = '';
-  
 
+  public const DEFAULT_FILTERS = [
+    PackageInfoTypes::main,
+    PackageInfoTypes::daypass,
+    PackageInfoTypes::addon,
+    PackageInfoTypes::passes
+  ];
+  
   /**
    * @param string $alias Event alias (required)
    * @param array $filter By default, only primary registration events are included
@@ -26,12 +40,7 @@ class EventConfig
    */
   public function __construct(
     public string $alias,
-    public array $filter = [
-      PackageInfoTypes::main,
-      PackageInfoTypes::daypass,
-      PackageInfoTypes::addon,
-      PackageInfoTypes::passes
-    ]
+    public array $filter = self::DEFAULT_FILTERS
   )
   {
     if ( !EventInfo::isValidEventAlias($this->alias) ) throw(new Exception("Invalid event alias: $this->alias"));
@@ -149,37 +158,59 @@ class EventConfig
     return $result;
   }
 
+  /**
+   * For the current Event, finds all non-main event id that should require
+   * a main package for registration (addons, meals, shifts, etc.)
+   * @return array Event IDs
+   * @throws Exception 
+   * @throws UnsupportedAdapterException 
+   * @throws QueryTypeAlreadyDefinedException 
+   * @throws RuntimeException 
+   * @throws InvalidArgumentException 
+   * @throws KeyNotFoundException 
+   * @throws UnexpectedValueException 
+   */
   public function getMainRequiredEventIds(): array
   {
     $packageInfoTypes = [
       PackageInfoTypes::addon,
       PackageInfoTypes::combomeal,
       PackageInfoTypes::equipment,
-      PackageInfoTypes::speeddating, // Last entry
     ];
 
-    if ( !empty($this->filter) &&
-      count(array_intersect($this->filter, $packageInfoTypes)) != count($packageInfoTypes)
-    ) {
-      throw(new Exception('getMainEventIds() requires main and daypass in filter'));
+    if ( !empty($this->filter) ) {
+      throw(new Exception('EventConfig() should be constructed with [] event filter.'));
     }
-
-    // TODO: Speeddating is a damned mess. Need to process all the events by roles
-    array_pop($packageInfoTypes);
 
     $result = [];
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->packageInfos as $e) {
       if ( in_array($e->packageInfoType, $packageInfoTypes) ) {
         if ( $e->eventId ) $result[] = $e->eventId;
-      } elseif ( $e->packageInfoType == PackageInfoTypes::speeddating ) {
+      } 
+      // Speeddating is a damned mess. Need to process all the events by roles
+      elseif ( $e->packageInfoType == PackageInfoTypes::speeddating ) {
         foreach ( $e->meta AS $meta ) {
           if ( $meta->eventId ) $result[] = $meta->eventId;
         }
       }
     }
 
-    $result = array_unique($result);
+    // Add in shifts
+    $config = new Config($this->alias);
+    $shiftAliases = array_keys($config->getConfigValuesText(ConfigFieldNames::SHIFT_SHIFT_AREA));
+
+    // Remove TDB from our array
+    $shiftAliases = array_diff($shiftAliases, ['tbd']);
+
+    // Prepend "shift-" to all values in $shiftAliases
+    $shiftAliases = array_map( function($a) { return 'shifts-'.$a; }, $shiftAliases);
+    $shiftCategoryIds = ClawEvents::getCategoryIds($shiftAliases);
+
+    $shiftEvents = $this->getEventsByCategoryId($shiftCategoryIds, 'id');
+
+    $eventIds = array_column($shiftEvents, 'id');
+    $result = array_unique(array_merge($result, $eventIds));
     sort($result);
 
     return $result;
