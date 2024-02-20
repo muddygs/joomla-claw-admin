@@ -9,9 +9,15 @@ use Joomla\CMS\HTML\HTMLHelper;
 // var_dump($params);
 
 $tabFields = $params->get('tab-fields', (object)[]);
+$carouselInterval = $params->get('carousel_interval', 5);
+$carouselRefresh = $params->get('carousel_refresh', 300);
 
-$tabs = [];
-$tabContents = [];
+/** @var \Joomla\CMS\Application */
+$app = Factory::getApplication();
+$document = $app->getDocument();
+$document->setMetaData('refresh', $carouselRefresh, 'http-equiv');
+
+$carouselContents = [];
 
 foreach ( $tabFields as $tabField ) {
     switch ( $tabField->tab_type ) {
@@ -20,27 +26,25 @@ foreach ( $tabFields as $tabField ) {
             $table = Bootstrap::loadContentById($articleId);
 
             if ( property_exists($table, 'introtext')) {
-                $tabContents[] = HTMLHelper::_('content.prepare', $table->introtext);
-                $tabs[] = $tabField->tab_title;
+                $carouselContents[] = HTMLHelper::_('content.prepare', $table->introtext);
             }
             break;
         case 'module':
             $moduleId = $tabField->tab_module;
             $module = Bootstrap::loadModuleById($moduleId);
-            $tabs[] = $tabField->tab_title;
-            $tabContents[] = $module;
+            $carouselContents[] = $module;
             break;
     }
 }
 
-if ( empty($tabs) ) {
+if ( empty($carouselContents) ) {
     Factory::getApplication()->enqueueMessage('No content to display', 'warning');
     return;
 }
 
-if ( count($tabs) == 1 ) {
-    echo $tabContents[0];
+if ( count($carouselContents) == 1 ) {
+    echo $carouselContents[0];
     return;
 }
 
-Bootstrap::writePillTabs($tabs, $tabContents);
+Bootstrap::writeCarouselContents($carouselContents, $carouselInterval);

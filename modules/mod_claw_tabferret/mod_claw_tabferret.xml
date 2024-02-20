@@ -11,10 +11,12 @@
   <license>GPLv2</license>
   <version>0.1.0</version>
   <description>Displays articles and modules using Bootstrap methods</description>
+	<namespace path="src">ClawCorp\Module\ClawTabferret</namespace>
 
   <files>
     <filename module="mod_claw_tabferret">mod_claw_tabferret.php</filename>
     <folder>tmpl</folder>
+    <folder>src</folder>
   </files>
 
   <config>
@@ -32,8 +34,14 @@
 
         <field name="carousel_interval"
           type="text"
-          label="Carousel Interval"
+          label="Carousel Interval (seconds)"
           default="5"
+          description="Set the interval for the carousel in seconds"
+          showon="type:carousel" />
+        <field name="carousel_refresh"
+          type="text"
+          label="Carousel Refresh (seconds)"
+          default="300"
           description="Set the interval for the carousel in seconds"
           showon="type:carousel" />
 
@@ -75,6 +83,7 @@
               query="SELECT id, CONCAT(title, ' (', id, ')') AS title FROM #__modules WHERE published = 1 ORDER BY id DESC"
               key_field="id"
               value_field="title"
+              layout="joomla.form.field.list-fancy-select"
               showon="tab_type:module">
               <option value="0">- Select Module -</option>
             </field>
