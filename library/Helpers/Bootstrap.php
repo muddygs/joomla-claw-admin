@@ -2,8 +2,14 @@
 
 namespace ClawCorpLib\Helpers;
 
+use Exception;
+use InvalidArgumentException;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Helper\ModuleHelper;
+use Joomla\CMS\Table\Table;
 use Joomla\CMS\User\UserHelper;
+use RuntimeException;
+use UnexpectedValueException;
 
 class Bootstrap
 {
@@ -78,6 +84,23 @@ class Bootstrap
     }
   }
 
+  public static function writeCarouselContents(array $carouselContents, int $intervalSeconds = 2)
+  {
+    $guid = UserHelper::genRandomPassword(8);
+    $intervalMS = $intervalSeconds * 1000;
+?>
+<div id="<?= $guid ?>" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-config='{"pause":false}'>
+  <div class="carousel-inner">
+    <?php foreach ($carouselContents as $i => $content) : ?>
+      <div class="carousel-item <?= $i == 0 ? 'active' : '' ?>" data-bs-interval="<?= $intervalMS?>">
+        <?= $content ?>
+      </div>
+    <?php endforeach; ?>
+  </div>
+</div>
+<?php
+  }
+
   /**
    * Generates HTML based on Bootstrap 5 flex. Input is array with icon and content.
    */
@@ -150,11 +173,49 @@ class Bootstrap
   }
 
 
-  public static function loadContentById(int $id)
+  /**
+   * Given an article ID, load the article and return the Table object
+   * @param int $id 
+   * @return Table 
+   */
+  public static function loadContentById(int $id): ?Table
   {
-    $table = Factory::getApplication()->bootComponent('com_content')->getMVCFactory()->createTable('Article', 'Content', []);
+    /** @var \Joomla\CMS\Application */
+    $app = Factory::getApplication();
+    $component = $app->bootComponent('com_content');
+    $mvcFactory = $component->getMVCFactory();
+    $table = $mvcFactory->createTable('Article', 'Content', []);
+
+    if ( is_null($table) ) throw new RuntimeException('Could not load Article table');
     $table->load($id);
     return $table;
   }
+
+  /** 
+   * Loads and renders the module (copy of PlgContentLoadmodule::loadid)
+   *
+   * @param   string  $id  The id of the module
+   *
+   * @return  mixed
+   *
+   * @since   3.9.0
+   */
+    public static function loadModuleById($id): string
+    {
+        /** @var \Joomla\CMS\Application */
+        $app = Factory::getApplication();
+        $document = $app->getDocument();
+        $renderer = $document->loadRenderer('module');
+        $modules  = ModuleHelper::getModuleById($id);
+        $params   = ['style' => 'none'];
+        ob_start();
+
+        if ($modules->id > 0) {
+            echo $renderer->render($modules, $params);
+        }
+
+        return ob_get_clean();
+    }
+
 
 }
