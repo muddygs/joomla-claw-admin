@@ -1,4 +1,9 @@
-# 2024.4.4 (2024-FEB-16)
+# 2024.4.5 (2024-FEB-20)
+  1. Improved event deployment, especially for sponsorships that do not have specific end/start dates
+  1. Fixed problem with retrieving event IDs that require a main event in order to register
+  1. Tab Ferret module beginnings (not quite ready for live deployment)
+
+# 2024.4.4 (2024-FEB-16) - Not deployed
 
   1. Revamped Config/EventConfig methods
   1. Removed "\_current_" and "\_all_" as values utilized where ClawEventsListField is utilized

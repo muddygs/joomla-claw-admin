@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension type="package" method="upgrade">
 	<name>CLAW</name>
-	<creationDate>2024-FEB-16</creationDate>
+	<creationDate>2024-FEB-20</creationDate>
 	<author>CLAW Corp.</author>
 	<authorUrl>https://www.clawinfo.org/</authorUrl>
 	<copyright>(c) 2024 CLAW Corp.</copyright>
 	<license>GNU/GPLv2</license>
-	<version>24.4.4</version>
+	<version>24.4.5</version>
 	<description>CLAW Data and Systems Administration</description>
 
 	<scriptfile>script.php</scriptfile>
