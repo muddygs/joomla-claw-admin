@@ -70,7 +70,7 @@ class ConfigurationModel extends AdminModel
 			$data = $this->getItem();
 
 			// Convert the fieldname to an int
-			$data->fieldname = ConfigFieldNames::fromString($data->fieldname)->value ?? 0;
+			$data->fieldname = is_null($data->fieldname) ? 0 : ConfigFieldNames::fromString($data->fieldname)->value ?? 0;
 		}
 
 		return $data;
