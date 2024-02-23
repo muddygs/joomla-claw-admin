@@ -59,10 +59,13 @@ class HtmlView extends BaseHtmlView
     $model = $this->getModel();
     $this->eventAlias = $this->params->get('event_alias', Aliases::current());
 
-    $this->list = $model->GetConsolidatedList($this->eventAlias);
+    $this->list = $model->GetConsolidatedList($this->eventAlias, $this->list_type);
     
     $this->listType = $this->params->get('list_type') ?? 'simple';
     $this->urlTab = $app->input->get('tab', 'overview', 'string');
+
+    $this->include_room = $this->params->get('include_room', 0);
+    $this->enable_surveys = $this->params->get('enable_surveys', 0);
 
     if ( !property_exists($this->list->tabs, $this->urlTab) ) {
       $this->urlTab = 'overview';
