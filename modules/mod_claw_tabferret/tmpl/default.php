@@ -13,11 +13,28 @@ $tabFields = $params->get('tab-fields', (object)[]);
 $tabs = [];
 $tabContents = [];
 
+// Use global configuration time zone to filter articles based on publication dates
+$config = Factory::getApplication()->getConfig();
+$timeZone = $config->get('offset');
+$timeZoneObject = new DateTimeZone($timeZone);
+
 foreach ( $tabFields as $tabField ) {
     switch ( $tabField->tab_type ) {
         case 'article':
             $articleId = $tabField->tab_article;
             $table = Bootstrap::loadContentById($articleId);
+
+            $publishUp = $table->publish_up;
+            $publishDown = $table->publish_down;
+            $now = Factory::getDate('now', $timeZoneObject);
+
+            if ( $publishUp && $publishUp > $now ) {
+                continue 2;
+            }
+
+            if ( $publishDown && $publishDown < $now ) {
+                continue 2;
+            }
 
             if ( property_exists($table, 'introtext')) {
                 $tabContents[] = HTMLHelper::_('content.prepare', $table->introtext);
