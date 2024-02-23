@@ -139,10 +139,10 @@ class Skills
       ->where($this->db->qn('event') . ' = :event')->bind(':event', $eventAlias);
     
     if ( $publishedOnly ) {
-      $query->where($this->db->qn('published') . '= 1')
-        ->where($this->db->qn('day') . ' != "0000-00-00"')
-        ->where($this->db->qn('time_slot') . ' IS NOT NULL')
-        ->where($this->db->qn('time_slot') . ' != ""');
+      $query->where($this->db->qn('published') . '= 1');
+        // ->where($this->db->qn('day') . ' != "0000-00-00"')
+        // ->where($this->db->qn('time_slot') . ' IS NOT NULL')
+        // ->where($this->db->qn('time_slot') . ' != ""');
     }
 
     $query->order('day ASC, time_slot ASC, title ASC');
@@ -202,14 +202,20 @@ class Skills
     $class->location = $location->value != '' ? $location->value : 'TBD';
 
     // day
-    $class->day = date('l', strtotime($class->day));
+    if ( $class->day == '0000-00-00' ) {
+      $class->day = 'TBA';
+      $class->time = '';
+      $class->length = 'TBA';
+    } else {
+      $class->day = date('l', strtotime($class->day));
 
-    [$time, $length] = explode(':', $class->time_slot);
-    // time
-    $class->time = Helpers::formatTime($time);
+      [$time, $length] = explode(':', $class->time_slot);
+      // time
+      $class->time = Helpers::formatTime($time);
 
-    // length
-    $class->length = (int)$length;
+      // length
+      $class->length = (int)$length;
+    }
 
     $config = new Config($this->eventAlias);
     if ( $class->category != 'None' ) $class->category = $config->getConfigText(ConfigFieldNames::SKILL_CATEGORY, $class->category);
