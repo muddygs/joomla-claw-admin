@@ -25,7 +25,11 @@ defined('_JEXEC') or die;
       </div>
       <div class="row">
         <div class="col text-center">
-          <h3><?= $this->class->day ?> <?= $this->class->time ?> (<?= $this->class->length ?> minutes)</h3>
+          <h3>
+            <?php if ($this->class->day != 'TBA'): ?>
+              <?= $this->class->day ?> <?= $this->class->time ?> (<?= $this->class->length ?> minutes)
+            <?php endif ?>
+          </h3>
         </div>
         <div class="col-12 text-center">Room: <?= $this->class->location ?></div>
         <div class="col-12 p-1 m-2 text-center">Topic area: <?= $this->class->category ?></div>

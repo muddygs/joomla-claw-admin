@@ -21,7 +21,6 @@ foreach ( $tabInfo['ids'] AS $classId ) {
   $startTime = Helpers::formatTime(substr($timeSlot[0], 0, 2).':'.substr($timeSlot[0], 2, 2));
   $classLength = (int)$timeSlot[1]; // in minutes
 
-  //TODO: $room = 'TBA';
   $room = Locations::GetLocationById($class->location)->value;
 
   // Merge presenters
@@ -61,7 +60,7 @@ foreach ( $tabInfo['ids'] AS $classId ) {
   ?>
     <div class="row row-striped">
       <div class="col-8 col-lg-5 pt-1 pb-1 mt-2 mt-lg-1 mb-2 mb-lg-1" ><?= $title ?>&nbsp;<i class="fa fa-chevron-right"></i></div>
-      <div class="col-4 col-lg-3 pt-1 pb-1 mt-2 mt-lg-1 mb-2 mb-lg-1" ><?= $room ?></div>
+      <div class="col-4 col-lg-3 pt-1 pb-1 mt-2 mt-lg-1 mb-2 mb-lg-1" ><?php if ($this->include_room) echo $room; ?></div>
       <div class="col-8 col-lg-3 pt-1 pb-1 mt-2 mt-lg-1 mb-2 mb-lg-1" ><?= $presenter_links ?></div>
       <div class="col-4 col-lg-1 pt-1 pb-1 mt-2 mt-lg-1 mb-2 mb-lg-1" ><?= $survey ?></div>
     </div>

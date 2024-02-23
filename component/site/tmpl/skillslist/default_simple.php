@@ -11,6 +11,8 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Router\Route;
 
+if ( $this->list_type == 'simple' ) $this->tabId='';
+
 foreach ( $this->list->tabs->overview['category'] AS $simple_item )
 {
   if ( !count($simple_item['ids']) ) continue;
