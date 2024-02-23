@@ -70,7 +70,7 @@ HTML;
     $records = $registrantData->records();
 
     $shiftPrefix = $eventConfig->eventInfo->shiftPrefix;
-    $shiftCategories = array_merge($eventConfig->eventInfo->eb_cat_shifts, $eventConfig->eventInfo->eb_cat_supershifts);
+    $shiftCategoryIds = array_merge($eventConfig->eventInfo->eb_cat_shifts, $eventConfig->eventInfo->eb_cat_supershifts);
     $invoiceCategories = $eventConfig->eventInfo->eb_cat_invoicables;
     $mainRequiredEventIds = $eventConfig->getMainRequiredEventIds();
 
@@ -135,7 +135,6 @@ HTML;
       if (in_array($item->id, $mainRequiredEventIds)) {
         $requires_main_event = true;
         $this->non_invoice_event = true;
-        continue;
       }
 
       // if (in_array($item->main_category_id, $customNonInvoice)) {
@@ -143,7 +142,7 @@ HTML;
       // 	continue;
       // }
 
-      if (in_array($item->main_category_id, $shiftCategories)) {
+      if (in_array($item->main_category_id, $shiftCategoryIds)) {
         $shift_count++;
         $this->non_invoice_event = true;
         continue;
@@ -189,7 +188,7 @@ HTML;
       $this->show_error = true;
     }
 
-    $shiftCategoryCount = $registrantData->categoryCounts($shiftCategories);
+    $shiftCategoryCount = $registrantData->categoryCounts($shiftCategoryIds);
     if (!$onsiteActive && !$this->show_error && $shiftCategoryCount > 1 && $packageEventId != $eventConfig->getPackageInfo(EventPackageTypes::volunteersuper)->eventId) {
       $this->submit = "<div class=\"alert alert-danger\">Shifts must all come from the same category (e.g., all Guest Services or Badge Check). Modify your cart to correct this error.</div>";
       $this->show_error = true;
