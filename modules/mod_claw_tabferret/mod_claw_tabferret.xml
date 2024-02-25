@@ -9,12 +9,12 @@
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>0.1.0</version>
+  <version>4.3.0</version>
   <description>Displays articles and modules using Bootstrap methods</description>
 	<namespace path="src">ClawCorp\Module\ClawTabferret</namespace>
 
   <files>
-    <filename module="mod_claw_tabferret">mod_claw_tabferret.php</filename>
+    <filename module="mod_claw_tabferret">services</filename>
     <folder>tmpl</folder>
     <folder>src</folder>
   </files>
@@ -22,28 +22,26 @@
   <config>
     <fields name="params">
       <fieldset name="basic">
-        <field name="type"
-          type="list"
-          label="Type"
-          default="tabs"
-          description="Select the method to display the content">
-          <option value="tabs">Tabs</option>
-          <option value="accordion">Accordion</option>
-          <option value="carousel">Carousel</option>
-        </field>
+        <field
+					name="layout"
+					type="modulelayout"
+					label="JFIELD_ALT_LAYOUT_LABEL"
+					class="form-select"
+					validate="moduleLayout"
+				/>
 
         <field name="carousel_interval"
           type="text"
           label="Carousel Interval (seconds)"
           default="5"
           description="Set the interval for the carousel in seconds"
-          showon="type:carousel" />
+          showon="layout:_:carousel" />
         <field name="carousel_refresh"
           type="text"
           label="Carousel Refresh (seconds)"
           default="300"
           description="Set the interval for the carousel in seconds"
-          showon="type:carousel" />
+          showon="layout:_:carousel" />
 
         <field name="tab-fields"
           type="subform"
@@ -88,6 +86,16 @@
               <option value="0">- Select Module -</option>
             </field>
 
+            <field name="tab_enabled"
+              type="radio"
+              default="1"
+              label="Default Tab"
+              description=""
+              class="btn-group btn-group-yesno">
+              <option value="1">JYES</option>
+              <option value="0">JNO</option>
+            </field>
+
             <field name="tab_isdefault"
               type="radio"
               default="0"
@@ -114,7 +122,7 @@
               label="Show Onsite/Offsite Active?"
               description=""
               class="btn-group btn-group-yesno"
-              showon="tab_showoptional:1">
+              showon="tab_showoptional:1"
             >
               <option value="0">Not Onsite</option>
               <option value="1">Onsite</option>
