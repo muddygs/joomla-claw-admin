@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   (document.getElementById("search") as HTMLInputElement)?.addEventListener("change",searchChange);
-  (document.getElementById('submitBatch') as HTMLInputElement)?.addEventListener('click', doBatchPrint );
   (document.getElementById("submit") as HTMLInputElement)?.addEventListener('click',doCheckin);
   (document.getElementById("submitPrint") as HTMLInputElement)?.addEventListener('click',function(){doPrint()});
   (document.getElementById("submitPrintIssue") as HTMLInputElement)?.addEventListener('click',function(){doPrint(true)});
@@ -256,11 +255,24 @@ function doPrint(mode:boolean = false) {
   window.open(`${printUrl}&action=${action}&registration_code=${registration_code}&token=${badgeToken}&page=${page}&ts=${ts}`, '_blank');
 }
 
-function doBatchPrint() {
-  const batch_quantity = (document.getElementById('batchcount') as HTMLInputElement).value;
+function doBatchPrint(type:number = 0) {
+  let batch_quantity = -1;
+
+  switch (type) {
+  case 0:
+    batch_quantity = parseInt((document.getElementById('batchcount0') as HTMLInputElement).value);  
+    break;
+  case 1:
+    batch_quantity = parseInt((document.getElementById('batchcount1') as HTMLInputElement).value);  
+    break;
+  case 2:
+    batch_quantity = parseInt((document.getElementById('batchcount0') as HTMLInputElement).value);  
+    break;
+  }
+
   const printUrl = checkinAjaxUrl('checkinPrint');
   const ts = Date.now();
-  window.open(`${printUrl}&action=printbatch&quantity=${batch_quantity}&token=${badgeToken}&page=${page}&ts=${ts}`, '_blank');
+  window.open(`${printUrl}&action=printbatch&quantity=${batch_quantity}&token=${badgeToken}&page=${page}&type=${type}&ts=${ts}`, '_blank');
 }
 
 function clearDisplay() {
@@ -279,9 +291,12 @@ function getBatchCount() {
   };
 
   fetch(checkinAjaxUrl('checkinGetCount'), checkinOptions(data))
-    .then(result => result.text())
-    .then(html => {
-      document.getElementById('badgeCount').innerHTML = html;
+    .then(result => result.json())
+    .then(json => {
+      document.getElementById('attendeeCount').innerHTML = json.attendee;
+      document.getElementById('volunteerCount').innerHTML = json.volunteer;
+      document.getElementById('remainderCount').innerHTML = json.remainder;
+      document.getElementById('badgeCount').innerHTML = json.all;
     });
 
   setTimeout(() => {

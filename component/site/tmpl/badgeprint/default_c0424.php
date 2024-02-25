@@ -68,18 +68,18 @@ ClawCorpLib\Helpers\Bootstrap::rawHeader(['/media/com_claw/js/print_badge.js'], 
       case EventPackageTypes::vendor_crew_extra:
         $image = 'vendorcrewextra.svg';
         break;
-      case EventPackageTypes::day_pass_fri:
-        $image = 'fri.svg';
-        $orientation = $dayPassOrientation;
-        break;
-      case EventPackageTypes::day_pass_sat:
-        $image = 'sat.svg';
-        $orientation = $dayPassOrientation;
-        break;
-      case EventPackageTypes::day_pass_sun:
-        $image = 'sun.svg';
-        $orientation = $dayPassOrientation;
-        break;
+      // case EventPackageTypes::day_pass_fri:
+      //   $image = 'fri.svg';
+      //   $orientation = $dayPassOrientation;
+      //   break;
+      // case EventPackageTypes::day_pass_sat:
+      //   $image = 'sat.svg';
+      //   $orientation = $dayPassOrientation;
+      //   break;
+      // case EventPackageTypes::day_pass_sun:
+      //   $image = 'sun.svg';
+      //   $orientation = $dayPassOrientation;
+      //   break;
       case EventPackageTypes::vip:
         $image = 'vip.svg';
         break;

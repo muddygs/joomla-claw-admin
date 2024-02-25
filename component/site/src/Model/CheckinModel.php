@@ -11,11 +11,13 @@ namespace ClawCorp\Component\Claw\Site\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\JwtStates;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Checkin;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Ebregistrant;
+use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\Jwtwrapper;
 use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
@@ -143,10 +145,39 @@ class CheckinModel extends BaseDatabaseModel
     return $r;
   }
 
-  public function JwtGetCount(string $token)
+  public function JwtGetCount(string $token): array
   {
     Jwtwrapper::redirectOnInvalidToken(page: 'badge-print', token: $token);
-    return Checkin::getUnprintedBadgeCount();
+
+    $eventConfig = new EventConfig(Aliases::current(true));
+    $attendee = $eventConfig->getMainEventByPackageType(EventPackageTypes::attendee);
+
+    $attendeeCount = Checkin::getUnprintedBadgeCount($attendee->eventId);
+
+    $volunteerCount = 0;
+    // Handle all the volunteer categories
+    $vol = [
+      EventPackageTypes::volunteer2,
+      EventPackageTypes::volunteer3,
+      EventPackageTypes::volunteersuper,
+      EventPackageTypes::event_talent,
+    ];
+
+    foreach ( $vol AS $v ) {
+      $volunteerCount += Checkin::getUnprintedBadgeCount($eventConfig->getMainEventByPackageType($v)->eventId);
+    }
+
+    $all = Checkin::getUnprintedBadgeCount(0);
+    $remainder = $all - $attendeeCount - $volunteerCount;
+
+    $result = [
+      'all' => $all,
+      'attendee' => $attendeeCount,
+      'volunteer' => $volunteerCount,
+      'remainder' => $remainder
+    ];
+
+    return $result;
   }
 
   public function JwtMealCheckin(string $token, string $registration_code, string $meal)

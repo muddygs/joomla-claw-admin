@@ -496,9 +496,10 @@ HTML;
     return 0 == $field ? [] : explode(',',$field);
   }
 
-  static function getUnprintedBadgeCount(): int 
+  static function getUnprintedBadgeCount(int $eventId): int 
   {
-    return count(Checkin::getUnprintedBadges());
+    if ( $eventId == 0 ) return count(Checkin::getUnprintedBadges([]));
+    return count(Checkin::getUnprintedBadges([$eventId]));
   }
 
   /**
@@ -507,22 +508,24 @@ HTML;
    * @param int $limit Maximum entries to return (default is all)
    * @return array registration_codes array
    */
-  static function getUnprintedBadges(int $limit = 0 ): array
+  static function getUnprintedBadges(array $mainEventIds, int $limit = 0 ): array
   {
     $badgeFieldId = ClawEvents::getFieldId('Z_BADGE_PRINTED');
     $published = EbPublishedState::published->value;
 
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $eventConfig = new EventConfig(Aliases::current(true));
-    $mainEventIds = implode(',',$eventConfig->getMainEventIds());
+    if ( count($mainEventIds) == 0) {
+      $eventConfig = new EventConfig(Aliases::current(true));
+      $mainEventIds = $eventConfig->getMainEventIds();
+    }
 
     $query = $db->getQuery(true);
     $query->select('r.id, r.registration_code')
       ->from('#__eb_registrants r')
       ->leftJoin('#__eb_field_values v ON v.registrant_id=r.id AND v.field_id='.$badgeFieldId)
       ->where('published = '.$published)
-      ->where('event_id IN ('.$mainEventIds.')')
+      ->where('event_id IN (' . implode(',',array_map(fn($n) => $db->q($n), $mainEventIds)) . ')')
       ->where('(r.ts_modified > v.field_value OR v.id IS NULL )')
       ->order('r.invoice_number');
 

@@ -255,6 +255,7 @@ class DisplayController extends BaseController
     $view->token = $this->input->get('token', '', 'string');
     $view->page = $this->input->get('page', '', 'string');
     $view->quantity = $this->input->get('quantity', 0, 'uint');
+    $view->type = $this->input->get('type', 0, 'uint');
 
     $view->display();
   }
@@ -279,15 +280,15 @@ class DisplayController extends BaseController
   {
     $this->checkToken();
 
-    $json = new Json();
-    $token = $json->get('token', '', 'string');
+    $array = new Json();
+    $token = $array->get('token', '', 'string');
 
     /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
     $siteModel = $this->getModel('Checkin');
-    $text = $siteModel->JwtGetCount(token: $token);
+    $array = $siteModel->JwtGetCount(token: $token);
 
-    header('Content-Type: text/plain');
-    echo $text;
+    header('Content-Type: application/json');
+    echo json_encode($array);
   }
 
   public function mealCheckin()
