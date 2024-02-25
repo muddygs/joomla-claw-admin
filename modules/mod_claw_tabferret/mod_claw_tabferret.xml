@@ -4,7 +4,7 @@
   method="upgrade">
 
   <name>CLAW Tab Ferret</name>
-  <creationDate>February 2024</creationDate>
+  <creationDate>2024-02-25</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
@@ -14,9 +14,9 @@
 	<namespace path="src">ClawCorp\Module\ClawTabferret</namespace>
 
   <files>
-    <filename module="mod_claw_tabferret">services</filename>
-    <folder>tmpl</folder>
+    <folder module="mod_claw_tabferret">services</folder>
     <folder>src</folder>
+    <folder>tmpl</folder>
   </files>
 
   <config>
