@@ -52,6 +52,7 @@ class ClawTabferretHelper
         case 'article':
           $articleId = $tabField->tab_article;
           $table = $this->loadContentById($articleId);
+          if ( is_null($table) ) continue 2;
 
           $publishUp = $table->publish_up;
           $publishDown = $table->publish_down;
@@ -70,6 +71,7 @@ class ClawTabferretHelper
           // No need for date filtering since loadModuleById() handles it
           $moduleId = $tabField->tab_module;
           $module = $this->loadModuleById($moduleId);
+          if ( empty($module) ) continue 2;
           $tabs[] = $tabField->tab_title;
           $tabContents[] = $module;
           break;
