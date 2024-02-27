@@ -2,7 +2,7 @@
 
 /**
  * @package     CLAW.TabFerret
- * @subpackage  mod_claw_tabferret
+ * @subpackage  mod_claw_sponsors
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
@@ -33,8 +33,8 @@ return new class () implements ServiceProviderInterface {
      */
     public function register(Container $container): void
     {
-        $container->registerServiceProvider(new ModuleDispatcherFactory('\\ClawCorp\\Module\\ClawTabferret'));
-        $container->registerServiceProvider(new HelperFactory('\\ClawCorp\\Module\\ClawTabferret\\Site\\Helper'));
+        $container->registerServiceProvider(new ModuleDispatcherFactory('\\ClawCorp\\Module\\Sponsors'));
+        $container->registerServiceProvider(new HelperFactory('\\ClawCorp\\Module\\Sponsors\\Site\\Helper'));
 
         $container->registerServiceProvider(new Module());
     }
