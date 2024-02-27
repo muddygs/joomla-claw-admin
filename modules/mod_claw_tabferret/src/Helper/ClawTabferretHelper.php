@@ -38,28 +38,19 @@ class ClawTabferretHelper
   public function getTabData(Registry $params, SiteApplication $app): array
   {
     $tabFields = $params->get('tab-fields', (object)[]);
+    $tabActive = null;
 
     $tabs = [];
     $tabContents = [];
 
-    // Use global configuration time zone to filter articles based on publication dates
-    $config = $app->getConfig();
-    $timeZone = $config->get('offset');
-    $timeZoneObject = new DateTimeZone($timeZone);
-
     foreach ($tabFields as $tabField) {
+      if ( !$tabField->tab_enabled ) continue;
+
       switch ($tabField->tab_type) {
         case 'article':
           $articleId = $tabField->tab_article;
           $table = $this->loadContentById($articleId);
           if ( is_null($table) ) continue 2;
-
-          $publishUp = $table->publish_up;
-          $publishDown = $table->publish_down;
-          $now = Factory::getDate('now', $timeZoneObject);
-
-          if ($publishUp && $publishUp > $now) continue 2;
-          if ($publishDown && $publishDown < $now) continue 2;
 
           // TODO: Handle readmore?
           if (property_exists($table, 'introtext')) {
@@ -68,7 +59,6 @@ class ClawTabferretHelper
           }
           break;
         case 'module':
-          // No need for date filtering since loadModuleById() handles it
           $moduleId = $tabField->tab_module;
           $module = $this->loadModuleById($moduleId);
           if ( empty($module) ) continue 2;
@@ -76,6 +66,8 @@ class ClawTabferretHelper
           $tabContents[] = $module;
           break;
       }
+
+      if ( null === $tabActive && $tabField->tab_isdefault ) $tabActive = count($tabs) - 1;
     }
 
     $carouselInterval = $params->get('carousel_interval', 5);
@@ -86,9 +78,12 @@ class ClawTabferretHelper
       'refresh' => $carouselRefresh
     ];
 
+    if ( null == $tabActive ) $tabActive = 0;
+
     return [
       $tabs,
       $tabContents,
+      $tabActive,
       $carouselConfig
     ];
   }
@@ -106,8 +101,22 @@ class ClawTabferretHelper
     $mvcFactory = $component->getMVCFactory();
     $table = $mvcFactory->createTable('Article', 'Content', []);
 
-    if (is_null($table)) throw new RuntimeException('Could not load Article table');
+    if ( is_null($table) ) return null;
     $table->load($id);
+
+    if ( $table->state != 1 ) return null;
+
+    // Use global configuration time zone to filter articles based on publication dates
+    $config = $app->getConfig();
+    $timeZone = $config->get('offset');
+    $timeZoneObject = new DateTimeZone($timeZone);
+
+    $publishUp = $table->publish_up;
+    $publishDown = $table->publish_down;
+    $now = Factory::getDate('now', $timeZoneObject);
+
+    if ( ($publishUp && $publishUp > $now) || ($publishDown && $publishDown < $now) ) return null;
+
     return $table;
   }
 
@@ -122,6 +131,8 @@ class ClawTabferretHelper
    */
   private function loadModuleById($id): string
   {
+    // No need for date filtering since getModuleById() handles it
+
     /** @var \Joomla\CMS\Application */
     $app = Factory::getApplication();
     $document = $app->getDocument();

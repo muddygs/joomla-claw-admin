@@ -17,7 +17,8 @@ $guid = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP
 
 // Write the tabs
 ?>
-<ul class="nav nav-pills nav-fill mb-3" id="pills-tab-<?= $guid ?>" role="tablist">
+<div class="d-flex align-items-start">
+<div class="nav flex-column nav-pills me-3" id="pills-tab-<?= $guid ?>" role="tablist" aria-orientation="vertical" style="flex-shrink:0">
   <?php
   foreach ($tabs as $i => $title) {
     $active = $i == $tabActive ? 'active' : '';
@@ -25,13 +26,11 @@ $guid = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP
     $tabName = strtolower($title);
     $tabName = preg_replace("/[^\w]/", '', $tabName);
   ?>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link <?= $active ?>" id="pills-<?= $tabName ?>-tab" data-bs-toggle="pill" data-bs-target="#pills-<?= $tabName ?>" role="tab" aria-controls="pills-<?= $tabName ?>" aria-selected="<?= $aria ?>"><?= $title ?></button>
-    </li>
+    <button class="mb-1 nav-link <?= $active ?>" id="pills-<?= $tabName ?>-tab" data-bs-toggle="pill" data-bs-target="#pills-<?= $tabName ?>" type="button" role="tab" aria-controls="pills-<?= $tabName ?>" aria-selected="<?= $aria ?>"><?= $title ?></button>
   <?php
   }
   ?>
-</ul>
+</div>
 <?php
 
 
@@ -50,7 +49,7 @@ foreach ($tabs as $i => $title) {
   $tabName = preg_replace("/[^\w]/", '', $tabName);
 
   ?>
-    <div class="tab-pane fade <?= $active ?>" id="pills-<?= $tabName ?>" role="tabpanel" aria-labelledby="pills-<?= $tabName ?>-tab">
+    <div class="tab-pane fade <?= $active ?>" id="pills-<?= $tabName ?>" role="tabpanel" aria-labelledby="pills-<?= $tabName ?>-tab" tabindex="0">
       <?php
       echo current($tabContents);
       next($tabContents);
@@ -59,5 +58,6 @@ foreach ($tabs as $i => $title) {
   <?php
 }
 ?>
+</div>
 </div>
 

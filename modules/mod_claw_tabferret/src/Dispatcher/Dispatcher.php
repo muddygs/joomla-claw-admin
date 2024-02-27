@@ -36,10 +36,11 @@ class Dispatcher extends AbstractModuleDispatcher implements HelperFactoryAwareI
     {
         $data = parent::getLayoutData();
 
-        [$tabTitles, $tabData, $config] = $this->getHelperFactory()->getHelper('ClawTabferretHelper')->getTabData($data['params'], $data['app']);
+        [$tabTitles, $tabData, $tabActive, $config] = $this->getHelperFactory()->getHelper('ClawTabferretHelper')->getTabData($data['params'], $data['app']);
 
         $data['tabs'] = $tabTitles;
         $data['tabContents'] = $tabData;
+        $data['tabActive'] = $tabActive;
         $data['config'] = $config;
 
         return $data;

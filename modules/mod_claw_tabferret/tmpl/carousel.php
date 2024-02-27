@@ -1,7 +1,6 @@
 <?php
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Helpers\Bootstrap;
 use Joomla\CMS\Factory;
 
 /** @var \Joomla\CMS\Application */
@@ -19,4 +18,18 @@ if ( count($tabs) == 1 ) {
     return;
 }
 
-Bootstrap::writeCarouselContents($tabContents, $config->interval);
+$guid = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),1,8);
+
+$intervalMS = $config->interval * 1000;
+
+?>
+<div id="<?= $guid ?>" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-config='{"pause":false}'>
+<div class="carousel-inner">
+<?php foreach ($tabContents as $i => $content) : ?>
+  <div class="carousel-item <?= $i == 0 ? 'active' : '' ?>" data-bs-interval="<?= $intervalMS ?>">
+    <?= $content ?>
+  </div>
+<?php endforeach; ?>
+</div>
+</div>
+
