@@ -17,6 +17,9 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\Registry\Registry;
 
 use ClawCorpLib\Helpers\Bootstrap;
+use Joomla\CMS\Helper\ModuleHelper;
+use Joomla\CMS\Table\Table;
+use RuntimeException;
 
 defined('_JEXEC') or die;
 
@@ -48,7 +51,7 @@ class ClawTabferretHelper
       switch ($tabField->tab_type) {
         case 'article':
           $articleId = $tabField->tab_article;
-          $table = Bootstrap::loadContentById($articleId);
+          $table = $this->loadContentById($articleId);
 
           $publishUp = $table->publish_up;
           $publishDown = $table->publish_down;
@@ -66,7 +69,7 @@ class ClawTabferretHelper
         case 'module':
           // No need for date filtering since loadModuleById() handles it
           $moduleId = $tabField->tab_module;
-          $module = Bootstrap::loadModuleById($moduleId);
+          $module = $this->loadModuleById($moduleId);
           $tabs[] = $tabField->tab_title;
           $tabContents[] = $module;
           break;
@@ -86,5 +89,49 @@ class ClawTabferretHelper
       $tabContents,
       $carouselConfig
     ];
+  }
+
+  /**
+   * Given an article ID, load the article and return the Table object
+   * @param int $id 
+   * @return Table 
+   */
+  private function loadContentById(int $id): ?Table
+  {
+    /** @var \Joomla\CMS\Application */
+    $app = Factory::getApplication();
+    $component = $app->bootComponent('com_content');
+    $mvcFactory = $component->getMVCFactory();
+    $table = $mvcFactory->createTable('Article', 'Content', []);
+
+    if (is_null($table)) throw new RuntimeException('Could not load Article table');
+    $table->load($id);
+    return $table;
+  }
+
+  /** 
+   * Loads and renders the module (copy of PlgContentLoadmodule::loadid)
+   *
+   * @param   string  $id  The id of the module
+   *
+   * @return  mixed
+   *
+   * @since   3.9.0
+   */
+  private function loadModuleById($id): string
+  {
+    /** @var \Joomla\CMS\Application */
+    $app = Factory::getApplication();
+    $document = $app->getDocument();
+    $renderer = $document->loadRenderer('module');
+    $modules  = ModuleHelper::getModuleById($id);
+    $params   = ['style' => 'none'];
+    ob_start();
+
+    if ($modules->id > 0) {
+      echo $renderer->render($modules, $params);
+    }
+
+    return ob_get_clean();
   }
 }
