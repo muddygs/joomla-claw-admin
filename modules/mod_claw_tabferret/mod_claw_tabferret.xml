@@ -9,7 +9,7 @@
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>4.3.0</version>
+  <version>4.3.1</version>
   <description>Displays articles and modules using Bootstrap methods</description>
 	<namespace path="src">ClawCorp\Module\ClawTabferret</namespace>
 
@@ -89,7 +89,7 @@
             <field name="tab_enabled"
               type="radio"
               default="1"
-              label="Default Tab"
+              label="Enabled"
               description=""
               class="btn-group btn-group-yesno">
               <option value="1">JYES</option>
