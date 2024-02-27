@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="module" client="site"
-  method="upgrade">
+<extension type="module" client="site" method="upgrade">
 
   <name>CLAW Registration Quick Buttons</name>
-  <creationDate>August 2023</creationDate>
+  <creationDate>2024-02-27</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
-  <copyright>(c) 2023 CLAW Corp.</copyright>
+  <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>0.2.0</version>
+  <version>4.3.0</version>
   <description>Displays registration quick buttons</description>
+	<namespace path="src">ClawCorp\Module\RegButtons</namespace>
 
   <files>
-    <filename module="mod_claw_regbuttons">mod_claw_regbuttons.php</filename>
+    <folder module="mod_claw_regbuttons">services</folder>
     <folder>tmpl</folder>
   </files>
 

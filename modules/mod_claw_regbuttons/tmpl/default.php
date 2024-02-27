@@ -3,15 +3,6 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Bootstrap;
 
-$registration = $params->get('registration', '');
-$schedule = $params->get('schedule', '');
-$skills = $params->get('skills', '');
-$vendormart = $params->get('vendormart', '');
-$silentauction = $params->get('silentauction', '');
-$mobileapp = $params->get('mobileapp', '');
-$hotels = $params->get('hotels', '');
-$infotext = $params->get('infotext', '');
-
 $content = [];
 if ($registration) {
   $content['ticket-alt'] = ['<a href="' . $registration . '">Registration</a>'];
