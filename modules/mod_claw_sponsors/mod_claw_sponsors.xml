@@ -14,7 +14,7 @@
   <namespace path="src">ClawCorp\Module\Sponsors</namespace>
 
 	<files>
-		<filename module="mod_claw_sponsors">mod_claw_sponsors.php</filename>
+		<folder module="mod_claw_sponsors">services</folder>
 		<folder>tmpl</folder>
 		<folder>src</folder>
 	</files>
