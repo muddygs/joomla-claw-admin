@@ -11,8 +11,6 @@
 namespace ClawCorp\Module\RegButtons\Site\Dispatcher;
 
 use Joomla\CMS\Dispatcher\AbstractModuleDispatcher;
-use Joomla\CMS\Helper\HelperFactoryAwareInterface;
-use Joomla\CMS\Helper\HelperFactoryAwareTrait;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('JPATH_PLATFORM') or die;
@@ -21,10 +19,8 @@ use Joomla\CMS\Helper\HelperFactoryAwareTrait;
 /**
  * Dispatcher class for mod_claw_regbuttons
  */
-class Dispatcher extends AbstractModuleDispatcher implements HelperFactoryAwareInterface
+class Dispatcher extends AbstractModuleDispatcher 
 {
-    use HelperFactoryAwareTrait;
-
     /**
      * Returns the layout data.
      *
@@ -36,16 +32,14 @@ class Dispatcher extends AbstractModuleDispatcher implements HelperFactoryAwareI
     {
         $data = parent::getLayoutData();
 
-        // $registration = $params->get('registration', '');
-        // $schedule = $params->get('schedule', '');
-        // $skills = $params->get('skills', '');
-        // $vendormart = $params->get('vendormart', '');
-        // $silentauction = $params->get('silentauction', '');
-        // $mobileapp = $params->get('mobileapp', '');
-        // $hotels = $params->get('hotels', '');
-        // $infotext = $params->get('infotext', '');
-
-
+        $data['registration'] = $data['params']->get('registration', '');
+        $data['schedule'] =  $data['params']->get('schedule', '');
+        $data['skills'] = $data['params']->get('skills', '');
+        $data['vendormart'] = $data['params']->get('vendormart', '');
+        $data['silentauction'] = $data['params']->get('silentauction', '');
+        $data['mobileapp'] = $data['params']->get('mobileapp', '');
+        $data['hotels'] = $data['params']->get('hotels', '');
+        $data['infotext'] = $data['params']->get('infotext', '');
 
         return $data;
     }
