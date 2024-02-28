@@ -101,7 +101,7 @@ class EventInfo
 
   private function loadRawEventInfo(string $alias): object
   {
-    if ( empty($alias) ) throw new \Exception('Event alias cannot be empty');
+    if ( empty($alias) ) throw new \Exception(__FILE__ . ': Event alias cannot be empty');
     
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
@@ -154,7 +154,9 @@ class EventInfo
     $query = $db->getQuery(true);
     $query->select(['alias', 'description'])
       ->from('#__claw_eventinfos')
-      ->where('active='.EbPublishedState::published->value);
+      ->where('active='.EbPublishedState::published->value)
+      ->order('end_date DESC');
+      
     $db->setQuery($query);
     $rows = $db->loadObjectList();
 
