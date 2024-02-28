@@ -16,6 +16,8 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\EventInfo;
 
 /** @package ClawCorp\Component\Claw\View\Skillsubmission */
 class HtmlView extends BaseHtmlView
@@ -83,9 +85,7 @@ class HtmlView extends BaseHtmlView
     // Read-only is handled in the template by omitting the form and submit button
     
     // Event Naming
-    /** @var \ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel */
-    $model = $this->getModel();
-    $this->eventInfo = $model->GetEventInfo(true);
+    $this->eventInfo = new EventInfo(Aliases::current(true));
 
     parent::display($tpl);
   }

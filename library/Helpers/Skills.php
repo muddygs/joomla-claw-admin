@@ -22,7 +22,6 @@ class Skills
 {
   private array $presenterCache = [];
   private array $classCache = [];
-  private EventInfo $eventInfo;
 
   // constructor
   public function __construct(
@@ -30,14 +29,11 @@ class Skills
     public readonly string $eventAlias = ''
   )
   {
-    $this->eventInfo = new EventInfo($eventAlias);
   }
 
   public function GetPresentersList(bool $publishedOnly = false): array
   {
     if (count($this->presenterCache)) return $this->presenterCache;
-
-    //if ( $this->eventAlias == '' ) $this->eventAlias = Aliases::current();
 
     $query = $this->db->getQuery(true);
 
@@ -373,8 +369,8 @@ class Skills
     $columnNames[] = 'end_time';
 
     // Load category strings
-    $config = new Config($this->eventInfo->alias);
-    $categories = $config->getColumn(ConfigFieldNames::SKILL_CATEGORY);
+    $config = new Config($this->eventAlias);
+    $categories = $config->getConfigValuesText(ConfigFieldNames::SKILL_CATEGORY);
 
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="'. $filename . '"');
@@ -458,7 +454,7 @@ class Skills
               $redirect = new Redirects($this->db, $oldurl, $newurl, 'survey_'.$c->id);
               $redirectId = $redirect->insert();
               if ( $redirectId ) $survey = 'Survey: ' . $oldurl . '<br/>';
-              $description = $survey . 'Category: ' . $categories[$c->category]->text . '<br/>' . $c->$col;
+              $description = $survey . 'Category: ' . $categories[$c->category] . '<br/>' . $c->$col;
             } else {
               $description = $c->col;
             }

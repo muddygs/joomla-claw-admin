@@ -1,6 +1,6 @@
 <?php
 /**
- * @package     ClawCorp
+ * @package     ClawCorp.Component.SkillssubmissionModel
  * @subpackage  com_claw
  *
  * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
@@ -15,19 +15,8 @@ use Joomla\CMS\Factory;
 
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Skills;
-use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\EventInfo;
-use Exception;
-use InvalidArgumentException;
-use Joomla\CMS\Form\Form;
-use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use Joomla\CMS\MVC\Model\FormModel;
-use Joomla\Database\Exception\DatabaseNotFoundException;
-use Joomla\Database\Exception\UnsupportedAdapterException;
-use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
-use RuntimeException;
-
 
 /**
  * Methods to handle presenter bios and class listing for display.
@@ -36,32 +25,35 @@ use RuntimeException;
  */
 class SkillssubmissionsModel extends BaseDatabaseModel
 {
+  private int $testUid = 0;
+
   /**
-   * @param string $event (Optional) Event alias
-   * @return array|null 
-   * @throws DatabaseNotFoundException 
-   * @throws Exception 
-   * @throws UnsupportedAdapterException 
-   * @throws QueryTypeAlreadyDefinedException 
-   * @throws RuntimeException 
-   * @throws InvalidArgumentException 
+   * Retrieve the presenter bio for a given event.
+   * @param EventInfo $eventInfo
+   * @return object|null Bio object or null if no bio is found.
    */
-  public function GetPresenterBios(string $event = '')
+  public function GetPresenterBio(EventInfo $eventInfo): ?object
   {
     $db = $this->getDatabase();
     $app = Factory::getApplication();
-    $pid = $app->getIdentity()->id;
-    $skills = new Skills($db, $event);
-    return $skills->GetPresenterBios($pid);
+    $pid = !$this->testUid ? $app->getIdentity()->id : $this->testUid;
+    $skills = new Skills($db, $eventInfo->alias);
+    $bios = $skills->GetPresenterBios($pid);
+    return is_null($bios) || !count($bios) ? null : $bios[0];
   }
 
-  public function GetPresenterClasses(string $event = '')
+  /**
+   * Retrieve the list of classes the presenter is teaching for a given event.
+   * @param EventInfo $eventInfo
+   * @return array|null Array of class objects or null if no classes are found.
+   */
+  public function GetPresenterClasses(EventInfo $eventInfo): ?array
   {
     $db = $this->getDatabase();
     $app = Factory::getApplication();
-    $uid = $app->getIdentity()->id;
-    $skills = new Skills($db, $event);
-    return $skills->GetPresenterClasses($uid);
+    $pid = !$this->testUid ? $app->getIdentity()->id : $this->testUid;
+    $skills = new Skills($db, $eventInfo->alias);
+    return $skills->GetPresenterClasses($pid);
   }
 
   public function GetEventInfo() : \ClawCorpLib\Lib\EventInfo

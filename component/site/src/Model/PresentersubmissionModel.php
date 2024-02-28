@@ -178,9 +178,4 @@ class PresentersubmissionModel extends AdminModel
 
     throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
   }
-
-  public function GetEventInfo(): \ClawCorpLib\Lib\EventInfo
-  {
-    return new EventInfo(Aliases::current(true));
-  }
 }

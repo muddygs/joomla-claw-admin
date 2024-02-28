@@ -12,24 +12,32 @@ namespace ClawCorp\Component\Claw\Site\View\Skillssubmissions;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\EventTypes;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
+use Joomla\DI\Exception\KeyNotFoundException;
+use Joomla\Database\Exception\UnsupportedAdapterException;
+use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
+use RuntimeException;
+use InvalidArgumentException;
+use Joomla\Database\Exception\DatabaseNotFoundException;
+use Exception;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
 {
   public bool $canEdit = false;
   public bool $canAddOnly = false;
-  public ?EventInfo $eventInfo = null;
+  public ?EventInfo $currentEventInfo = null;
 
   public function __construct($config = array())
   {
     parent::__construct($config);
 
-    $this->eventInfo = new EventInfo(Aliases::current(true));
+    $this->currentEventInfo = new EventInfo(Aliases::current(true));
   }
 
   /**
@@ -59,23 +67,9 @@ class HtmlView extends BaseHtmlView
       $app->redirect($url);  
     }
 
-    /** @var \ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel */
-    $model = $this->getModel();
-
-    $this->bio = (object)[];
-
-    // Try to get the most current bio for this user
-    $bio = $model->GetPresenterBios(Aliases::current(true));
-    if (count($bio) == 0) {
-      $bio = $model->GetPresenterBios();
-      if (count($bio) != 0) {
-        $this->bio = $bio[0];
-      }
-    } else {
-      $this->bio = $bio[0];
-    }
-
-    $this->classes = $model->GetPresenterClasses();
+    $bioCandidate = $this->findNewestBio();
+    $this->bio = $bioCandidate ?? (object)[];
+    $this->classes = $this->findUnarchivedClasses();
     
     // Check for errors.
     $errors = $this->get('Errors');
@@ -87,5 +81,53 @@ class HtmlView extends BaseHtmlView
     $this->canAddOnlyBio = $this->params->get('se_submissions_bioonly') != 0;
 
     parent::display($tpl);
+  }
+
+  private function findNewestBio(): ?object
+  {
+    /** @var \ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel */
+    $model = $this->getModel();
+
+    $aliases = EventInfo::getEventInfos();
+    /** @var \ClawCorpLib\Lib\EventInfo */
+    foreach ( $aliases AS $alias => $eventInfo ) {
+      // Skip newer events
+      if ( $eventInfo->end_date > $this->currentEventInfo->end_date ) continue;
+      if ( $eventInfo->eventType != EventTypes::main ) continue;
+
+      $bio = $model->GetPresenterBio($eventInfo);
+      if ( !is_null($bio)) {
+        return $bio;
+        break;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * @return array Array of class objects 
+   */
+  private function findUnarchivedClasses(): array
+  {
+    $classes = [];
+
+    /** @var \ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel */
+    $model = $this->getModel();
+
+    $aliases = EventInfo::getEventInfos();
+    /** @var \ClawCorpLib\Lib\EventInfo */
+    foreach ( $aliases AS $alias => $eventInfo ) {
+      // Skip newer events
+      if ( $eventInfo->end_date > $this->currentEventInfo->end_date ) continue;
+      if ( $eventInfo->eventType != EventTypes::main ) continue;
+
+      $eventClasses = $model->GetPresenterClasses($eventInfo);
+      if ( !is_null($classes)) {
+        $classes = array_merge($classes, $eventClasses);
+      }
+    }
+
+    return $classes;
   }
 }
