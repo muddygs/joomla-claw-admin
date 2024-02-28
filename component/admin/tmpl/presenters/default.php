@@ -81,7 +81,7 @@ $user = $app->getIdentity();
               </td>
 
               <td>
-                <a href="<?php echo Route::_('index.php?option=com_claw&task=presenter.edit&id=' . $item->id); ?>" title="Edit S&amp; Presenter">
+                <a href="<?php echo Route::_('index.php?option=com_claw&task=presenter.edit&id=' . $item->id); ?>" title="Edit Presenter (UID=<?= $item->uid?>)">
                   <?php echo $item->name ?>
                 </a>
               </td>
