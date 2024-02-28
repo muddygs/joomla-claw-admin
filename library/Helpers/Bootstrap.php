@@ -2,11 +2,7 @@
 
 namespace ClawCorpLib\Helpers;
 
-use Joomla\CMS\Factory;
-use Joomla\CMS\Helper\ModuleHelper;
-use Joomla\CMS\Table\Table;
 use Joomla\CMS\User\UserHelper;
-use RuntimeException;
 
 class Bootstrap
 {
@@ -24,7 +20,8 @@ class Bootstrap
 
   public static function writePillTabList(array $tabTitles, string $activeTab = ''): string
   {
-    $guid = UserHelper::genRandomPassword(8);
+    $guid = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),1,8);
+
     if ($activeTab == '') $activeTab = $tabTitles[0];
 ?>
     <ul class="nav nav-pills nav-fill mb-3" id="pills-tab-<?php echo $guid ?>" role="tablist">
