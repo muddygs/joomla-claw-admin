@@ -1,3 +1,13 @@
+# 2024.4.6 (2024-FEB-28)
+  1. Split badge printing into attendee, volunteer, and all others
+  1. Fixed issue with bio/class submission where EventInfo/EventAlias was not getting set correctly
+  1. Fixed problem with skills class listing
+  1. Made use of "show rooms" and "show surveys" in class listing
+  1. Fixed cart preprocessing not performing shift counts
+  1. Updated mod_claw_regbuttons, mod_claw_sponsors to use new dependency injection (DI)
+  1. Created mod_claw_tabferret to display articles and modules quick in Bootstrap 5 layouts of tab, tab vertical, and accordian
+     * TODO: This is worth releasing as a separate module
+
 # 2024.4.5 (2024-FEB-20)
   1. Improved event deployment, especially for sponsorships that do not have specific end/start dates
   1. Fixed problem with retrieving event IDs that require a main event in order to register
