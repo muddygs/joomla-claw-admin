@@ -3,12 +3,12 @@
   method="upgrade">
 
   <name>CLAW Vendors Display</name>
-  <creationDate>July 2023</creationDate>
+  <creationDate>2024-03-03</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
-  <copyright>(c) 2023 CLAW Corp.</copyright>
+  <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>0.1.0</version>
+  <version>4.3.0</version>
   <description>Displays vendor logos</description>
 
   <namespace path="src">ClawCorp\Module\Vendors</namespace>
@@ -24,10 +24,11 @@
       <fieldset name="module" label="Options">
         <field
           name="event"
-          type="text"
-          label="Event Alias"
-          default=""
+          type="ClawEventsList"
+          label="Select Event"
+          default="0"
           required="true"
+          addfieldprefix="ClawCorp\Component\Claw\Administrator\Field"
         />
       </fieldset>
     </fields>
