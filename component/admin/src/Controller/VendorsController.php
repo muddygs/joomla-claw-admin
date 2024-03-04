@@ -49,7 +49,7 @@ class VendorsController extends AdminController
 	 * @param   string  $prefix  The class prefix. Optional.
 	 * @param   array   $config  The array of possible config values. Optional.
 	 *
-	 * @return  \Joomla\CMS\MVC\Model\BaseDatabaseModel
+	 * @return  \ClawCorp\Component\Claw\Administrator\Model\VendorsModel
 	 *
 	 * @since   1.6
 	 */
@@ -57,5 +57,26 @@ class VendorsController extends AdminController
 	{
 		return parent::getModel($name, $prefix, $config);
 	}
+
+	public function reorder()
+  {
+    // Check for request forgeries.
+    $this->checkToken();
+
+		$filter = $this->app->getInput()->get('filter', '', 'string');
+    $event = array_key_exists('event', $filter) ? $filter['event'] : '';
+
+		if ( '' == $event || 'all' == $event )
+		{
+      $this->app->enqueueMessage('Event selection not valid for deployment.', 'error');
+      return false;
+		}
+
+		$model = $this->getModel();
+		$model->reorder($event);
+
+		$this->app->enqueueMessage('Vendors for '. $event .'have been reordered.', 'info');
+		return true;
+  }
 
 }

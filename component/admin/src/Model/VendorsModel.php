@@ -214,4 +214,36 @@ class VendorsModel extends ListModel
 	
 		return true;
   }
+
+  public function reorder(string $eventAlias)
+  {
+    $app = Factory::getApplication();
+
+    $query = $this->_db->getQuery(true);
+    $query->select('id')
+      ->from('#__claw_vendors')
+      ->where('event = ' . $this->_db->quote($eventAlias))
+      ->order('spaces DESC, name ASC');
+    $this->_db->setQuery($query);
+    $vendors = $this->_db->loadColumn();
+
+    // Get the next value in the ordering column
+    $query->clear();
+    $query->select('MAX(ordering) + 1')
+      ->from('#__claw_vendors')
+      ->where('event = ' . $this->_db->quote($eventAlias));
+    $this->_db->setQuery($query);
+    $next = (int) $this->_db->loadResult();
+
+    // Update the ordering values
+    foreach ($vendors as $vendor)
+    {
+      $query->clear();
+      $query->update('#__claw_vendors')
+        ->set('ordering = ' . ($next++))
+        ->where('id = ' . (int) $vendor);
+      $this->_db->setQuery($query);
+      $this->_db->execute();
+    }
+  }
 }

@@ -42,6 +42,8 @@
 			<option value="a.name DESC">Name Descending</option>
 			<option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
 			<option value="a.id DESC">JGRID_HEADING_ID_DESC</option>
+			<option value="a.ordering ASC">Ordering Ascending</option>
+			<option value="a.ordering DESC">Ordering Descending</option>
 		</field>
 
 		<field

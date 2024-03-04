@@ -107,6 +107,10 @@ class HtmlView extends BaseHtmlView
 			->text('Delete Selected')
 			->message('Confirm delete vendor selection?')
 			->listCheck(true);
+      $toolbar->delete('vendors.reorder')
+			->text('Force Reorder')
+			->message('Confirm reordering. All custom ordering will be lost.')
+			->listCheck(false);
     }
   }
 }
