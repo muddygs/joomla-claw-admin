@@ -60,4 +60,5 @@ foreach ($tabs as $i => $title) {
 ?>
 </div>
 </div>
-
+<?php
+\Joomla\CMS\HTML\HTMLHelper::_('bootstrap.tab', '.selector', []);

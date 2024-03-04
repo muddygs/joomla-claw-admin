@@ -36,4 +36,5 @@ $intervalMS = $config->interval * 1000;
 <?php endforeach; ?>
 
 </div>
-
+<?php
+\Joomla\CMS\HTML\HTMLHelper::_('bootstrap.collapse', '.selector', []);

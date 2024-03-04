@@ -32,4 +32,5 @@ $intervalMS = $config->interval * 1000;
 <?php endforeach; ?>
 </div>
 </div>
-
+<?php
+\Joomla\CMS\HTML\HTMLHelper::_('bootstrap.carousel', '.selector', []);
