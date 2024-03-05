@@ -27,7 +27,7 @@ $wa->useStyle('com_claw.admin');
     <div class="row">
       <legend class="col-form-label col-3">Search by Name or Badge #:</legend>
       <div class="col-3">
-        <input name="search" id="search" value="" placeholder="" maxlength="15" size="15" class="" type="text" />
+        <input name="search" id="search" value="" placeholder="" maxlength="15" size="15" class="" type="text" onchange="searchChange();"/>
       </div>
       <div class="col-6"></div>
     </div>
@@ -126,7 +126,7 @@ $wa->useStyle('com_claw.admin');
   <div class="form-group" id="form-print-buttons">
     <div class="row">
       <div class="col">
-        <input name="submit" id="submit" type="button" value="Confirm and Issue Badge" class="btn btn-danger mb-2" style="display:none;" />
+        <input name="submit" id="submit" type="button" value="Confirm and Issue Badge" class="btn btn-danger mb-2" style="display:none;" onclick="doCheckin()"/>
       </div>
     </div>
   </div>

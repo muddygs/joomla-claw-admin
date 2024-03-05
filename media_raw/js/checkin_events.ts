@@ -20,17 +20,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const badgeCount = document.getElementById('badgeCount') as HTMLElement;
   if ( badgeCount !== null ) {
     getBatchCount();
+    page = 'badge-print';
   }
-
-  (document.getElementById("search") as HTMLInputElement)?.addEventListener("change",searchChange);
-  (document.getElementById("submit") as HTMLInputElement)?.addEventListener('click',doCheckin);
-  (document.getElementById("submitPrint") as HTMLInputElement)?.addEventListener('click',function(){doPrint()});
-  (document.getElementById("submitPrintIssue") as HTMLInputElement)?.addEventListener('click',function(){doPrint(true)});
-
-  if (document.getElementById('submitPrint') != null) page = 'badge-print';
 });
-
-
 
 class checkinSearch {
   name: string;
@@ -125,7 +117,7 @@ class SearchService {
       page: page
     };
 
-    const res = await fetch(checkinAjaxUrl('checkinSearch'), checkinOptions(data));
+    const res = await fetch(checkinAjaxUrl('checkin.search'), checkinOptions(data));
     const res_1 = await res.json();
     return res_1.map((s: any) => formatSearch(s));
   }
@@ -139,7 +131,7 @@ class RecordService {
       page: page
     };
 
-    const recordResult = await fetch(checkinAjaxUrl('checkinValue'), checkinOptions(data));
+    const recordResult = await fetch(checkinAjaxUrl('checkin.value'), checkinOptions(data));
     const recordResult_1 = await recordResult.json();
     return formatRecord(recordResult_1);
   }
@@ -227,7 +219,7 @@ function doCheckin() {
     page: page
   };
 
-  fetch(checkinAjaxUrl('checkinIssue'), checkinOptions(data))
+  fetch(checkinAjaxUrl('checkin.issue'), checkinOptions(data))
     .then(result => result.json())
     .then(html => {
       show('status');
@@ -250,7 +242,7 @@ function doPrint(mode:boolean = false) {
 
   const action = mode ? 'printissue' : 'print'
 
-  const printUrl = checkinAjaxUrl('checkinPrint');
+  const printUrl = checkinAjaxUrl('checkin.print');
   const ts = Date.now();
   window.open(`${printUrl}&action=${action}&registration_code=${registration_code}&token=${badgeToken}&page=${page}&ts=${ts}`, '_blank');
 }
@@ -266,11 +258,13 @@ function doBatchPrint(type:number = 0) {
     batch_quantity = parseInt((document.getElementById('batchcount1') as HTMLInputElement).value);  
     break;
   case 2:
-    batch_quantity = parseInt((document.getElementById('batchcount0') as HTMLInputElement).value);  
+    batch_quantity = parseInt((document.getElementById('batchcount2') as HTMLInputElement).value);  
     break;
+  default:
+    return;
   }
 
-  const printUrl = checkinAjaxUrl('checkinPrint');
+  const printUrl = checkinAjaxUrl('checkin.print');
   const ts = Date.now();
   window.open(`${printUrl}&action=printbatch&quantity=${batch_quantity}&token=${badgeToken}&page=${page}&type=${type}&ts=${ts}`, '_blank');
 }
@@ -290,7 +284,7 @@ function getBatchCount() {
     token: badgeToken
   };
 
-  fetch(checkinAjaxUrl('checkinGetCount'), checkinOptions(data))
+  fetch(checkinAjaxUrl('checkin.count'), checkinOptions(data))
     .then(result => result.json())
     .then(json => {
       document.getElementById('attendeeCount').innerHTML = json.attendee;
