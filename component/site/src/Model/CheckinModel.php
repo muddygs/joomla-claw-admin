@@ -120,7 +120,7 @@ class CheckinModel extends BaseDatabaseModel
   {
     Jwtwrapper::redirectOnInvalidToken(page: $page, token: $token);
 
-    $searchResults = Checkin::search($search, $page);
+    $searchResults = $this->search($search, $page);
 		header('Content-Type: application/json');
 		return $searchResults;
   }
@@ -187,8 +187,12 @@ class CheckinModel extends BaseDatabaseModel
     $checkinRecord = new Checkin($registration_code);
 
     if ( !$checkinRecord->isValid ) {
-      $errors = explode("\n", $checkinRecord->r->error);
-      array_shift($errors);
+      $errors = ['Record error or invalid badge #/code.'];
+      // TODO: r may not be initialized
+      if ( !is_null($checkinRecord->r) ) {
+        $errors = explode("\n", $checkinRecord->r->error);
+        array_shift($errors);
+      }
 
       return [
         'state' => 'error',
@@ -332,4 +336,64 @@ class CheckinModel extends BaseDatabaseModel
     $id = $registration->insert();
     return $id ? 'ok' : 'error';
   }
+
+  /**
+   * Using the search parameter, find the registrants that have the invoice # or last name
+   * @param string $search substring to search
+   * @param string $page If not 'badge-print', then only return those that have not been issued 
+   * @return array 
+   */
+  private function search(string $search, string $page): array
+  {
+    $results = [];
+    $byName = false;
+
+    $eventConfig = new EventConfig(Aliases::current(true));
+    $inMainEventIds = implode(',',$eventConfig->getMainEventIds());
+    $prefix = $eventConfig->eventInfo->prefix;
+
+    $issued = ClawEvents::getFieldId('Z_BADGE_ISSUED');
+    $search = strtoupper($search);
+    
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = $this->getDatabase();
+  
+    if ( substr($search,0,3) == $prefix ) {
+      $search = substr($search,1);
+    }
+
+    $search = $db->q('%' . $search . '%');
+
+    $query = $db->getQuery(true);
+    $query->select(['r.user_id','r.registration_code','r.first_name','r.last_name','r.city','r.invoice_number'], [null, null, null, null, null, 'badgeId'])
+      ->from($db->qn('#__eb_registrants', 'r'))
+      ->join('LEFT OUTER', $db->qn('#__eb_field_values', 'v'). ' ON '. 
+        $db->qn('v.registrant_id') .' = '. $db->qn('r.id'). ' AND ' . $db->qn('v.field_id'). '=' . $db->q($issued))
+      ->where('r.published = 1')
+      ->where('(r.invoice_number LIKE '.$search. ' OR r.last_name LIKE '.$search.')')
+      ->where('r.event_id IN ('.$inMainEventIds.')')
+      ->order('r.first_name')
+      ->setLimit(20);
+
+    if ( 'badge-print' != $page ) {
+      $query->where('(v.field_value IS NULL OR v.field_value != 1)');
+    }
+
+    $db->setQuery($query);
+    $rows = $db->loadObjectList();
+
+    foreach ( $rows AS $r ) {
+      $badge = $prefix . '-' . str_pad($r->user_id, 5, '0', STR_PAD_LEFT);
+
+      $name = mb_convert_case($r->first_name . ' ' . $r->last_name . ' (' . $r->city . ')', MB_CASE_TITLE);
+      $description = $byName ? $name.' - '.$badge : $badge.' '.$name;
+      $results[] = [
+        'id' => $r->registration_code,
+        'name' => $description
+      ];
+    }
+
+    return $results;
+  }
+
 }
