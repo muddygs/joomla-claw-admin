@@ -34,6 +34,7 @@ class EventConfigsModel extends ListModel
     'title',
     'start',
     'end',
+    'fee'
   ];	
 
   /**

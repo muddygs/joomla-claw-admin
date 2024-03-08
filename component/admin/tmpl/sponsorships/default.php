@@ -56,8 +56,7 @@ $view = "sponsorships";
             <th scope="col">
               <?php echo HTMLHelper::_('searchtools.sort', 'Title', 'a.title', $listDirn, $listOrder); ?>
             </th>
-            <th scope="col">Start</th>
-            <th scope="col">End</th>
+            <th scope="col">Fee</th>
             <th scope="col">ID</th>
           </tr>
         </thead>
@@ -104,15 +103,14 @@ $view = "sponsorships";
 
               <td>
                 <?php
-                  $start = new DateTime($item->start);
-                  echo $start->format('D g:i A');
-                ?>
-              </td>
-
-              <td>
-              <?php
-                  $end = new DateTime($item->end);
-                  echo $end->format('D g:i A');
+                  if ( $item->fee == 0 )
+                  {
+                    echo "Free";
+                  }
+                  else
+                  {
+                    echo "$" . number_format($item->fee, 2);
+                  }
                 ?>
               </td>
 
