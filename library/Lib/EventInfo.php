@@ -34,8 +34,10 @@ class EventInfo
   public array $eb_cat_equipment;
   public array $eb_cat_sponsorship;
   public array $eb_cat_sponsorships;
-  public array $eb_cat_meals;
-  public array $eb_cat_combomeals;
+  public int $eb_cat_dinners;
+  public int $eb_cat_brunches;
+  public int $eb_cat_buffets;
+  public int $eb_cat_combomeals;
   public array $eb_cat_invoicables;
 
 
@@ -71,8 +73,10 @@ class EventInfo
     $this->eb_cat_equipment = json_decode($info->eb_cat_equipment ?? '[]');
     $this->eb_cat_sponsorship = json_decode($info->eb_cat_sponsorship ?? '[]');
     $this->eb_cat_sponsorships = json_decode($info->eb_cat_sponsorships ?? '[]');
-    $this->eb_cat_meals = json_decode($info->eb_cat_meals ?? '[]');
-    $this->eb_cat_combomeals = json_decode($info->eb_cat_combomeals ?? '[]');
+    $this->eb_cat_dinners = $info->eb_cat_dinners ?? 0;
+    $this->eb_cat_brunches = $info->eb_cat_brunches ?? 0;
+    $this->eb_cat_buffets = $info->eb_cat_buffets ?? 0;
+    $this->eb_cat_combomeals = $info->eb_cat_combomeals ?? 0;
     $this->eb_cat_invoicables = json_decode($info->eb_cat_invoicables ?? '[]');
   
 

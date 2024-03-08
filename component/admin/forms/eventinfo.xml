@@ -180,12 +180,35 @@
   />
 
   <field
-    name="eb_cat_meals"
+    name="eb_cat_dinners"
     type="EbCategoryList"
-    label="Meal Categories:"
-    required="true"
-    multiple="true"
-    description="Exclude combo meal category."
+    label="Dinner Category:"
+    required="false"
+    multiple="false"
+  />
+
+  <field
+    name="eb_cat_brunches"
+    type="EbCategoryList"
+    label="Brunch Category:"
+    required="false"
+    multiple="false"
+  />
+
+  <field
+    name="eb_cat_buffets"
+    type="EbCategoryList"
+    label="Buffet Category:"
+    required="false"
+    multiple="false"
+  />
+
+  <field
+    name="eb_cat_dinners"
+    type="EbCategoryList"
+    label="Dinner Category:"
+    required="false"
+    multiple="false"
   />
 
   <field

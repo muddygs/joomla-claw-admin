@@ -50,23 +50,18 @@ class CheckinRecord
     public int $uid, 
   )
   {
-    // TODO: Still valid? : Initialize key ordering based on the implemented AbstractEvent ordering
     // Keeping separate since we need to separate these out for badge printing
-
-    $dinnerCatId = ClawEvents::getCategoryId('dinner');
-    $brunchCatId = ClawEvents::getCategoryId('buffet-breakfast');
-    $buffetCatId = ClawEvents::getCategoryId('buffet');
 
     /** @var \ClawCorpLib\Lib\PackageInfo  */
     foreach ( $eventConfig->packageInfos AS $packageInfo) {
       switch ($packageInfo->category) {
-        case $dinnerCatId:
+        case $eventConfig->eventInfo->eb_cat_dinners:
           $this->dinners[$packageInfo->eventId] = '';
           break;
-        case $brunchCatId:
+        case $eventConfig->eventInfo->eb_cat_brunches:
           $this->brunches[$packageInfo->eventId] = '';
           break;
-        case $buffetCatId:
+        case $eventConfig->eventInfo->eb_cat_buffets:
           $this->buffets[$packageInfo->eventId] = '';
           break;
       }

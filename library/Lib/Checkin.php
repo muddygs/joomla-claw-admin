@@ -13,7 +13,7 @@ use ClawCorpLib\Lib\CheckinRecord;
 
 class Checkin
 {
-  public CheckinRecord $r;
+  public ?CheckinRecord $r;
   private $uid;
   public bool $isValid;
 
@@ -23,6 +23,7 @@ class Checkin
   {
     $this->uid = Registrant::getUserIdFromInvoice($registration_code);
     $this->isValid = false;
+    $this->r = null;
 
     if ( $this->uid != 0 ) {
       $this->isValid = $this->loadRecord();
@@ -40,8 +41,9 @@ class Checkin
     $errors = [];
     $info = [];
     
+    // TODO: move this to Config class database
     $fieldValues = [
-      'BADGE', 'Z_BADGE_SPECIAL', 'Z_BADGE_ISSUED', 'Z_BADGE_PRINTED', 'Dinner',
+      'BADGE', 'Z_BADGE_SPECIAL', 'Z_BADGE_ISSUED', 'Z_BADGE_PRINTED', 'Dinner', 'DinnerCle',
       'CONDUCT_AGREEMENT', 'PHOTO_PERMISSION', 'TSHIRT', 'TSHIRT_VOL', 'Z_TICKET_SCANNED',
       'STAFF_TYPE_STAFF','STAFF_TYPE_TALENT','STAFF_TYPE_EVENT',
       'PRONOUNS'
@@ -55,13 +57,13 @@ class Checkin
     $mainEventRegistrantRecord = null;
     $records = $registrant->records();
     
-    if ( sizeof($records) ) {
+    if ( count($records) ) {
       $registrant->mergeFieldValues($fieldValues);
       /** @var \ClawCorpLib\Lib\RegistrantRecord */
       $mainEventRegistrantRecord = $registrant->getMainEvent();
     }
     
-    $eventConfig = new EventConfig($alias);
+    $eventConfig = new EventConfig($alias, []);
 
     // Cache meal labels
     $badgeValues = [];
@@ -127,8 +129,9 @@ class Checkin
     // Combo meals events
     $comboMeals = [];
     foreach ( [EventPackageTypes::combo_meal_1, EventPackageTypes::combo_meal_2, EventPackageTypes::combo_meal_3, EventPackageTypes::combo_meal_4] AS $comboMeal ) {
-      if ( is_null($eventConfig->getPackageInfo($comboMeal)) ) continue;
-      $comboMeals[] = $eventConfig->getPackageInfo($comboMeal);
+      $combo = $eventConfig->getPackageInfo($comboMeal);
+      if ( is_null($combo) ) continue;
+      $comboMeals[] = $combo;
     }
 
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
@@ -150,7 +153,7 @@ class Checkin
             $this->r->mealIssueMapping[$mealEventId] = $comboMeal->eventId;
 
             if ( array_key_exists($mealEventId, $this->r->dinners) ) {
-              $this->r->dinners[$mealEventId] = $r->fieldValue->Dinner;
+              $this->r->dinners[$mealEventId] = $r->fieldValue->Dinner.$r->fieldValue->DinnerCle;
               continue;
             }
             
@@ -206,17 +209,17 @@ class Checkin
     }
 
     // ISSUED & PRINTED
-    $this->r->issued = (int)$mainEventRegistrantRecord->fieldValue->Z_BADGE_ISSUED != 0 ? true : false;
-    $this->r->printed = (int)$mainEventRegistrantRecord->fieldValue->Z_BADGE_PRINTED != 0 ? true : false;
+    $this->r->issued = (bool)$mainEventRegistrantRecord->fieldValue->Z_BADGE_ISSUED;
+    $this->r->printed = (bool)$mainEventRegistrantRecord->fieldValue->Z_BADGE_PRINTED;
 
     // Code of conduct
-    $this->r->cocSigned = $mainEventRegistrantRecord->fieldValue->CONDUCT_AGREEMENT == '' ? false : true;
-    if ($this->r->cocSigned == false ) {
+    $this->r->cocSigned = trim($mainEventRegistrantRecord->fieldValue->CONDUCT_AGREEMENT) != '';
+    if ( $this->r->cocSigned == false ) {
       $errors[] = 'Code of Conduct not signed.';
     }
 
     // Photo agreement
-    $this->r->photoAllowed = strcasecmp($mainEventRegistrantRecord->fieldValue->PHOTO_PERMISSION, 'yes') == 0 ? true : false;
+    $this->r->photoAllowed = strcasecmp($mainEventRegistrantRecord->fieldValue->PHOTO_PERMISSION, 'yes') == 0;
 
     // T-Shirt Size
     switch ( $mainEventRegistrantRecord->registrant->eventPackageType ) {
@@ -309,8 +312,8 @@ class Checkin
     $eventConfig = new EventConfig(Aliases::current(true));
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
-    $e = $eventConfig->getPackageInfoByProperty('eventId',$eventId, false);
-    if (null == $e) {
+    $packageInfo = $eventConfig->getPackageInfoByProperty('eventId',$eventId, false);
+    if (null == $packageInfo) {
       return $this->htmlMsg('Unknown event id '.$eventId.' in '.Aliases::current(true), 'btn-dark');
     }
 
@@ -318,16 +321,16 @@ class Checkin
     if ( array_key_exists($eventId, $this->r->mealIssueMapping) ) $ticketEventId = $this->r->mealIssueMapping[$eventId];
 
     if ( array_search($eventId, $this->r->issuedMealTickets) !== false ) {
-      if ( $e->eventPackageType == EventPackageTypes::dinner) {
-        return $this->htmlMsg($e->title . ' ticket already issued: '. $this->r->dinners[$e->eventId], 'btn-dark');
+      if ( $packageInfo->eventPackageType == EventPackageTypes::dinner) {
+        return $this->htmlMsg($packageInfo->title . ' ticket already issued: '. $this->r->dinners[$packageInfo->eventId], 'btn-dark');
       } else {
-        return $this->htmlMsg($e->title . ' ticket already issued', 'btn-dark');
+        return $this->htmlMsg($packageInfo->title . ' ticket already issued', 'btn-dark');
       }
     }
 
-    switch ($e->eventPackageType) {
+    switch ($packageInfo->eventPackageType) {
       case EventPackageTypes::dinner:
-        $meal = strtolower($this->r->dinners[$e->eventId]);
+        $meal = strtolower($this->r->dinners[$packageInfo->eventId]);
 
         if ( $meal == '') {
           return $this->htmlMsg('Dinner not assigned to this badge','btn-dark');
@@ -378,25 +381,26 @@ class Checkin
 
       case EventPackageTypes::brunch_fri:
       case EventPackageTypes::brunch_sat:
-      case EventPackageTypes::brunch_sun:
-        if ($this->r->brunches[$e->eventId] == '') {
-          return $this->htmlMsg($e->title.' not assigned to this badge', 'btn-dark');
+      case EventPackageTypes::brunch_sun: 
+        if ($this->r->brunches[$packageInfo->eventId] == '') {
+          return $this->htmlMsg($packageInfo->title.' not assigned to this badge', 'btn-dark');
         }
 
         $this->issueMealTicket($eventId,$ticketEventId);
-        return $this->htmlMsg($e->title.' ticket issued for: '.$this->r->badgeId, 'btn-info');
+        return $this->htmlMsg($packageInfo->title.' ticket issued for: '.$this->r->badgeId, 'btn-info');
         break;
 
       case EventPackageTypes::buffet_wed:
       case EventPackageTypes::buffet_thu:
       case EventPackageTypes::buffet_fri:
+      case EventPackageTypes::buffet_bluf:
       case EventPackageTypes::buffet_sun:
-        if ($this->r->buffets[$e->eventId] == '') {
-          return $this->htmlMsg($e->title.' not assigned to this badge', 'btn-dark');
+        if ($this->r->buffets[$packageInfo->eventId] == '') {
+          return $this->htmlMsg($packageInfo->title.' not assigned to this badge', 'btn-dark');
         }
 
         $this->issueMealTicket($eventId, $ticketEventId);
-        return $this->htmlMsg($e->title.' ticket issued for: '.$this->r->badgeId, 'btn-info');
+        return $this->htmlMsg($packageInfo->title.' ticket issued for: '.$this->r->badgeId, 'btn-info');
         break;
 
       default:
@@ -437,63 +441,10 @@ HTML;
     $registrant->updateFieldValues($rowId, $fieldValues, true);
   }
 
-  static function search(string $search, string $page): array
-  {
-    $results = [];
-    $byName = false;
-
-    $eventConfig = new EventConfig(Aliases::current(true));
-    $inMainEventIds = implode(',',$eventConfig->getMainEventIds());
-    $prefix = $eventConfig->eventInfo->prefix;
-
-    $issued = ClawEvents::getFieldId('Z_BADGE_ISSUED');
-    $search = strtoupper($search);
-    
-    $db = Factory::getContainer()->get('DatabaseDriver');
-  
-    if ( substr($search,0,3) == $prefix ) {
-      $search = substr($search,1);
-    }
-
-    $search = $db->q('%' . $search . '%');
-
-    $query = $db->getQuery(true);
-    $query->select(['r.user_id','r.registration_code','r.first_name','r.last_name','r.city','r.invoice_number'], [null, null, null, null, null, 'badgeId'])
-      ->from($db->qn('#__eb_registrants', 'r'))
-      ->join('LEFT OUTER', $db->qn('#__eb_field_values', 'v'). ' ON '. 
-        $db->qn('v.registrant_id') .' = '. $db->qn('r.id'). ' AND ' . $db->qn('v.field_id'). '=' . $db->q($issued))
-      ->where('r.published = 1')
-      ->where('(r.invoice_number LIKE '.$search. ' OR r.last_name LIKE '.$search.')')
-      ->where('r.event_id IN ('.$inMainEventIds.')')
-      ->order('r.first_name')
-      ->setLimit(20);
-
-    if ( 'badge-print' != $page ) {
-      $query->where('(v.field_value IS NULL OR v.field_value != 1)');
-    }
-
-    $db->setQuery($query);
-    $rows = $db->loadObjectList();
-
-    foreach ( $rows AS $r )
-    {
-      $badge = $prefix . '-' . str_pad($r->user_id, 5, '0', STR_PAD_LEFT);
-
-      $name = mb_convert_case($r->first_name . ' ' . $r->last_name . ' (' . $r->city . ')', MB_CASE_TITLE);
-      $description = $byName ? $name.' - '.$badge : $badge.' '.$name;
-      $results[] = [
-        'id' => $r->registration_code,
-        'name' => $description
-      ];
-    }
-
-    return $results;
-  }
-
   private function explodeTicketScanned(string $field): array
   {
     $field = trim($field);
-    return 0 == $field ? [] : explode(',',$field);
+    return ( 0 == $field || '' == $field ) ? [] : explode(',',$field);
   }
 
   static function getUnprintedBadgeCount(int $eventId): int 

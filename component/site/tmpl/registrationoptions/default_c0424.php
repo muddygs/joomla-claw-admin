@@ -367,9 +367,14 @@ HTML;
   {
     $result = '';
 
-    $categories = $eventInfo->eb_cat_meals;
+    $categories = [
+      $eventInfo->eb_cat_dinners,
+      $eventInfo->eb_cat_brunches,
+      $eventInfo->eb_cat_buffets,
+    ];
+
     if ( ! $eventInfo->onsiteActive ) {
-      $categories = array_merge($categories, $eventInfo->eb_cat_combomeals);
+      $categories[] = $eventInfo->eb_cat_combomeals;
     }
 
     $categoryInfo = ClawEvents::getRawCategories($categories);

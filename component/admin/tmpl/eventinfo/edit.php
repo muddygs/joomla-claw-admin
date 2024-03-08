@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -94,7 +94,9 @@ $view = 'eventinfo';
       <?= $this->form->renderField('eb_cat_equipment'); ?>
       <?= $this->form->renderField('eb_cat_sponsorship'); ?>
       <?= $this->form->renderField('eb_cat_sponsorships'); ?>
-      <?= $this->form->renderField('eb_cat_meals'); ?>
+      <?= $this->form->renderField('eb_cat_dinners'); ?>
+      <?= $this->form->renderField('eb_cat_buffets'); ?>
+      <?= $this->form->renderField('eb_cat_brunches'); ?>
       <?= $this->form->renderField('eb_cat_combomeals'); ?>
       <?= $this->form->renderField('eb_cat_invoicables'); ?>
       

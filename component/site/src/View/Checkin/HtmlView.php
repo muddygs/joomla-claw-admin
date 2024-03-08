@@ -59,17 +59,16 @@ class HtmlView extends BaseHtmlView
     // Prepare data for meals checkin
     if ( 'meals-checkin' == $tpl ) {
       // Categories of interest
-      $mealCategories = [
-        'dinner' => 'International Leather Family Dinner', 
-        'buffet' => 'Buffets', 
-        'buffet-breakfast' => 'Brunches'
+      $mealHeadings = [
+        $eventConfig->eventInfo->eb_cat_dinners => 'International Leather Family Dinner', 
+        $eventConfig->eventInfo->eb_cat_buffets => 'Buffets', 
+        $eventConfig->eventInfo->eb_cat_brunches => 'Brunches'
       ];
 
       $this->meals = [];
 
       # TODO: could process to eliminate past events
-      foreach ( $mealCategories AS $catAlias => $desc ) {
-        $catId = ClawEvents::getCategoryId($catAlias);
+      foreach ( $mealHeadings AS $catId => $desc ) {
         $this->meals[-$catId] = $desc;
         /** @var \ClawCorpLib\Lib\PackageInfo */
         foreach ( $eventConfig->packageInfos AS $e ) {
