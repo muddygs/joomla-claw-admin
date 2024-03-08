@@ -229,7 +229,11 @@ class ReportsModel extends BaseDatabaseModel
     }
 
     // Data ordering
-    $mealCategoryIds = $this->eventConfig->eventInfo->eb_cat_meals;
+    $mealCategoryIds = [
+      $this->eventConfig->eventInfo->eb_cat_dinners,
+      $this->eventConfig->eventInfo->eb_cat_buffets,
+      $this->eventConfig->eventInfo->eb_cat_brunches
+    ];
 
     foreach ( $mealCategoryIds AS $catId ) {
       /** @var \ClawCorpLib\Lib\PackageInfo */
