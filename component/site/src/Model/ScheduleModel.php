@@ -12,11 +12,12 @@ namespace ClawCorp\Component\Claw\Site\Model;
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\MVC\Model\BaseModel;
+use ClawCorpLib\Lib\Aliases;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
 /**
  * Minimal code for a component to configure state, but do nothing else
  */
-class ScheduleModel extends BaseModel
+class ScheduleModel extends BaseDatabaseModel
 {
 }

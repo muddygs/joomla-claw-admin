@@ -41,18 +41,43 @@ class HtmlView extends BaseHtmlView
     }
     $this->params = $menu->getParams();
 
+    // Default value set by componentlayoutField
+    $layout = $this->params->get('layout', '_:default');
+
+    // Split on the : if there is one
+    if ( str_contains($layout, ':') ) {
+      $layout = explode(':', $layout)[1];
+    }
+
+    $this->setLayout($layout);
+
     $db = Factory::getContainer()->get('DatabaseDriver');
-    $eventAlias =  $this->params->get('ScheduleEvent') ?? Aliases::current();
+    $eventAlias =  $this->params->get('ScheduleEvent') ?? Aliases::current(true);
 
     $config = new Config($eventAlias);
     $this->adsdir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'ads');
 
     $this->locations = \ClawCorpLib\Helpers\Locations::GetLocationsList();
     $this->sponsors = new Sponsors();
-    $schedule = new Schedule($eventAlias, $db);
+    $schedule = new Schedule($eventAlias, $db, $layout);
     
     $this->eventInfo = new EventInfo($eventAlias);
 
+    switch ( $layout ) {
+      case 'upcoming':
+        $this->upcomingSchedule($schedule);
+      break;
+      
+      default:
+        $this->defaultSchedule($schedule);
+    }
+
+    
+    parent::display($tpl);
+  }
+
+  private function defaultSchedule(Schedule $schedule)
+  {
     $dates = Helpers::getDateArray($this->eventInfo->start_date, true);
 
     $this->events = [];
@@ -93,7 +118,10 @@ class HtmlView extends BaseHtmlView
 
     # all caps $this->start_tab
     $this->start_tab = strtoupper($this->start_tab);
-    
-    parent::display($tpl);
+  }
+
+  private function upcomingSchedule(Schedule $schedule)
+  {
+    $this->events = $schedule->getUpcomingEvents();
   }
 }
