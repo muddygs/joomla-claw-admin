@@ -1,6 +1,7 @@
 <?php
 namespace ClawCorpLib\Helpers;
 
+use DateTime;
 use Joomla\Database\DatabaseDriver;
 
 class Schedule {
@@ -8,7 +9,9 @@ class Schedule {
 
   public function __construct(
     public string $event,
-    private DatabaseDriver &$db
+    private DatabaseDriver &$db,
+    public readonly string $view = 'default',
+    public readonly ?DateTime $date = null
   )
   {
     $this->loadSchedule();
@@ -23,11 +26,24 @@ class Schedule {
       ->from('#__claw_schedule')
       ->where('published = 1')
       ->where('event = :event')->bind(':event', $this->event)
-      ->order('day ASC')
-      ->order('featured DESC')
-      ->order('start_time_int ASC')
+      ->order('day ASC');
+
+    if ( 'default' == $this->view ) {
+      $q->order('featured DESC');
+    }
+
+    $q->order('start_time_int ASC')
       ->order('end_time_int ASC')
       ->order('event_title ASC');
+
+    switch($this->view) {
+      case 'upcoming':
+        $now = $this->date == null ? 'NOW()' : $this->date->format('Y-m-d H:i:s');
+        $q->where('TIMESTAMP(day,start_time) >= '.$this->db->quote($now));
+        break;
+      default:
+    }
+
     $this->db->setQuery($q);
     $this->cache = $this->db->loadObjectList('id');
   }
@@ -37,6 +53,19 @@ class Schedule {
     $result = [];
     foreach ( $this->cache AS $c ) {
       if ( $c->day == $date ) $result[] = $c;
+    }
+
+    return $result;
+  }
+
+  public function getUpcomingEvents(int $limit = 10)
+  {
+    $result = [];
+    reset($this->cache);
+
+    for ( $i = 0; $i < $limit && current($this->cache); $i++ ) {
+      $result[] = current($this->cache);
+      next($this->cache);
     }
 
     return $result;
