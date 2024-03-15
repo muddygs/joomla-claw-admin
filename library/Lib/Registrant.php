@@ -8,6 +8,7 @@ use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EbRecordIndexType;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
+use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Component\ComponentHelper;
 use UnexpectedValueException;
@@ -477,6 +478,13 @@ class Registrant
   public static function generateNextInvoiceNumber(string $prefix, int $uid): string
   {
     $uid = str_pad($uid, 5, '0', STR_PAD_LEFT);
+
+    if ( 0 == $uid ) {
+      $referrer = Helpers::sessionGet('referrer');
+      if ( $referrer ) {
+        $uid = substr($referrer, 0, 5);
+      }
+    }
 
     /** @var \Joomla\Database\DatabaseDriver */
 		$db     = Factory::getContainer()->get('DatabaseDriver');
