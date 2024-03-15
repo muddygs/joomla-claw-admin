@@ -78,11 +78,11 @@ class Deploy
     string $title,
     string $description,
     string $article_id,
-    Date $cancel_before_date,
-    Date $cut_off_date,
+    ?Date $cancel_before_date,
+    ?Date $cut_off_date,
     Date $event_date,
     Date $event_end_date,
-    Date $publish_down,
+    ?Date $publish_down,
     string $individual_price,
     Date $registration_start_date,
     string $registration_access,
@@ -98,12 +98,14 @@ class Deploy
       description: $description
     );
 
+    $nullDate = $this->db->getNullDate();
+
     $insert->set('article_id', $article_id, false);
-    $insert->set('cancel_before_date', $cancel_before_date->toSql());
-    $insert->set('cut_off_date', $cut_off_date->toSql());
+    $insert->set('cancel_before_date', $cancel_before_date ? $cancel_before_date->toSql() : $nullDate);
+    $insert->set('cut_off_date', $cut_off_date ? $cut_off_date->toSql() : $nullDate);
     $insert->set('event_date', $event_date->toSql());
     $insert->set('event_end_date', $event_end_date->toSql());
-    $insert->set('publish_down', $publish_down->toSql());
+    $insert->set('publish_down', $publish_down ? $publish_down->toSql() : $nullDate);
 
     $insert->set('individual_price', $individual_price);
     $insert->set('price_text', $price_text);
@@ -211,7 +213,7 @@ class Deploy
     $endDate = $info->modify('next Monday midnight');;
 
     // start and ending usability of these events
-    $registration_start_date = Factory::getDate()->toSql();
+    $registration_start_date = Factory::getDate();
     $publish_down = $info->modify('+8 days');
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
@@ -255,7 +257,7 @@ class Deploy
           // If the event is less than 8 hours, then the cutoff is 3 hours before the event
           if ($interval->h <= 8) {
             $cutoff = Factory::getDate($packageInfo->start);
-            $cutoff = $cutoff->modify('-3 hours')->toSql();
+            $cutoff = $cutoff->modify('-3 hours');
           }
 
           if ( $packageInfo->bundleDiscount > 0 ) {
@@ -272,7 +274,7 @@ class Deploy
         case PackageInfoTypes::passes:
           $start = $packageInfo->start;
           $end = $packageInfo->end;
-          $cutoff = '0000-00-00 00:00:00';
+          $cutoff = null;
           // Remove any non-ascii char from title
           $name = preg_replace('/[^\S]+/', '-', $packageInfo->title);
           $packageInfo->alias = strtolower($info->prefix . '-' . $name);
@@ -283,7 +285,7 @@ class Deploy
         case PackageInfoTypes::equipment:
           $start = $packageInfo->start;
           $end = $packageInfo->end;
-          $cutoff = $startDate->toSql();
+          $cutoff = $startDate;
         break;
         
         case PackageInfoTypes::coupononly:
@@ -365,9 +367,11 @@ class Deploy
     $count = 0;
 
     // Ignore server-specific timezone information
+    // TODO: fix all these in this file, below works
     date_default_timezone_set('etc/UTC');
 
     $eventConfig = new EventConfig($this->eventAlias, [PackageInfoTypes::sponsorship]);
+    date_default_timezone_set($eventConfig->eventInfo->timezone);
     $info = $eventConfig->eventInfo;
     $packageInfos = $eventConfig->packageInfos;
 
@@ -438,6 +442,7 @@ class Deploy
         break;
 
         default:
+          var_dump($packageInfo);
           die('Invalid sponsorship category');
         break;
       }
@@ -519,9 +524,9 @@ class Deploy
           continue;
         }
 
-        $log[] = $this->addDiscountBundle($addon->bundleDiscount, $packageInfo, $addon);
+        list($success, $log[]) = $this->addDiscountBundle($addon->bundleDiscount, $packageInfo, $addon);
 
-        $count++;
+        if ( $success ) $count++;
       }
     }
 
@@ -534,10 +539,9 @@ class Deploy
    * Helper function for creating discount bundles among events by $ amount
    * @param array Array of PackageInfo objects
    * @param int Dollar amount
-   * @return True if added, False on error or duplicate (by title)
+   * @return array [bool success, log message]
    */
-  // private function addDiscountBundle(array $packageInfos, int $dollarAmount): string
-  private function addDiscountBundle(int $dollarAmount, \ClawCorpLib\Lib\PackageInfo ...$packageInfos): string
+  private function addDiscountBundle(int $dollarAmount, \ClawCorpLib\Lib\PackageInfo ...$packageInfos): array
   {
     if ( count($packageInfos) < 2 ) return "Skipping discount bundle: Not enough events";
 
@@ -545,7 +549,7 @@ class Deploy
     $titles = [];
 
     foreach ( $packageInfos AS $packageInfo ) {
-      if ( $packageInfo->eventId == 0 ) return "Skipping discount bundle: Invalid event ID";
+      if ( $packageInfo->eventId == 0 ) return [ false,"Skipping discount bundle: Invalid event ID" ];
       $eventIds[] = $packageInfo->eventId;
       $titles[] = $packageInfo->title;
     }
@@ -562,7 +566,7 @@ class Deploy
     $db->setQuery($query);
     $result = $db->loadResult();
 
-    if ( $result != null ) return "Skipping duplicate discount: $result";
+    if ( $result != null ) return [ false, "Skipping duplicate discount: $result" ];
 
     $title = implode('-',$titles);
 
@@ -584,7 +588,7 @@ class Deploy
 
     $result = $db->insertObject('#__eb_discounts', $data, 'id');
 
-    if ( $result === false ) return "Error adding discount: $title";
+    if ( $result === false ) return [ false, "Error adding discount: $title" ];
 
     foreach ( $eventIds AS $eventId ) {
         $discount = (object)[
@@ -594,9 +598,9 @@ class Deploy
         ];
 
         $result = $db->insertObject('#__eb_discount_events', $discount, 'id');
-        if ( $result === false ) return "Error adding discount events: $title";
+        if ( $result === false ) return [ false, "Error adding discount events: $title" ];
     }
 
-    return "Added discount: $title";
+    return [ true, "Added discount: $title" ];
   }
 }
