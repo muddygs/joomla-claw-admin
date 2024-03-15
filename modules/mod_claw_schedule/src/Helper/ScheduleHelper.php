@@ -30,8 +30,9 @@ class ScheduleHelper implements DatabaseAwareInterface
   public function loadSchedule(): array
   {
     $db = $this->getDatabase();
-    $debugDateTime = new \DateTime('2024-04-13 09:03:00');
-    $schedule = new Schedule(Aliases::current(true), $db, 'upcoming', $debugDateTime);
+    //$debugDateTime = new \DateTime('2024-04-13 09:03:00');
+    //$schedule = new Schedule(Aliases::current(true), $db, 'upcoming', $debugDateTime);
+    $schedule = new Schedule(Aliases::current(true), $db, 'upcoming');
     return $schedule->getUpcomingEvents();
   }
 
