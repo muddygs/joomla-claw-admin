@@ -89,6 +89,7 @@ class Deploy
     string $price_text = '',
     string $user_email_body = '',
     string $payment_methods = '2',
+    string $enable_cancel_registration = '1',
   ): int {
     $insert = new ebMgmt(
       eventAlias: $this->eventAlias, 
@@ -114,6 +115,7 @@ class Deploy
     $insert->set('registration_access', $registration_access);
     $insert->set('user_email_body', $user_email_body);
     $insert->set('user_email_body_offline', $user_email_body);
+    $insert->set('enable_cancel_registration', $enable_cancel_registration);
 
     $eventId = $insert->insert();
 
@@ -234,6 +236,7 @@ class Deploy
       $reg_start_date = $registration_start_date;
 
       $price_text = '';
+      $enable_cancel_registration = '1';
 
       switch ( $packageInfo->packageInfoType ) {
         case PackageInfoTypes::combomeal:
@@ -275,11 +278,13 @@ class Deploy
           $start = $packageInfo->start;
           $end = $packageInfo->end;
           $cutoff = null;
+          $cancel_before_date = null;
           // Remove any non-ascii char from title
           $name = preg_replace('/[^\S]+/', '-', $packageInfo->title);
           $packageInfo->alias = strtolower($info->prefix . '-' . $name);
           $accessGroup = $this->gid_public;
           $reg_start_date = $startDate;
+          $enable_cancel_registration = '0';
         break;
 
         case PackageInfoTypes::equipment:
@@ -311,7 +316,8 @@ class Deploy
         individual_price: $packageInfo->fee,
         price_text: $price_text,
         registration_start_date: $reg_start_date,
-        registration_access: $accessGroup
+        registration_access: $accessGroup,
+        enable_cancel_registration: $enable_cancel_registration
       );
 
       if ($eventId == 0) {
