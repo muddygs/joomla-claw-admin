@@ -315,7 +315,7 @@ class Helpers
 
     $body = 'PATH: ' . $path . "\n";
     $body .= "DATA FOLLOWS:\n";
-    $body .= print_r($data, true);
+    //$body .= print_r($data, true);
     $mailer->setBody($body);
 
     $mailer->Send();
