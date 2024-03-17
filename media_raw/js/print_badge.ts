@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const badgesLandscape = document.querySelectorAll(".badgenamelandscape");
+  const badgesLandscape = document.querySelectorAll(".landscape .badgename");
   badgesLandscape.forEach((badge) => {
     const height = badge.getBoundingClientRect().height;
     let scaleFactor = 1;
@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
     badge.setAttribute("style", t);
   });
 
-  const badgesPortrait = document.querySelectorAll(".badgenameportrait");
+  const badgesPortrait = document.querySelectorAll(".portrait .badgename");
   badgesPortrait.forEach((badge) => {
     const width = badge.getBoundingClientRect().width;
     let scale = "";
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
       left = left + (170 - width) / 2;
     }
 
-    const t = `transform: translate(${left}px,20mm) ${scale};`;
+    const t = `transform: translate(${left}px,25mm) ${scale};`;
 
     badge.setAttribute("style", t);
   });

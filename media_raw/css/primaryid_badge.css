@@ -6,7 +6,7 @@ body {
 	margin: 0mm;
 	line-height: 1.0 !important;
 	background-color: #fff !important;
-	font-family: arial !important;
+	font-family: Arial, Helvetica, sans-serif !important;
 }
 
 *,
@@ -19,6 +19,15 @@ body {
 	width: 56mm;
 	height: 85.6mm;
 	z-index: 2;
+	position: absolute;
+	left: -3px;
+	top: 3px;
+}
+
+.nophoto {
+	width: 56mm;
+	height: 85.6mm;
+	z-index: 3;
 	position: absolute;
 	left: -3px;
 	top: 3px;
@@ -40,54 +49,39 @@ body {
 	/* outline: 1px dotted; */
 }
 
-.badgenamelandscape {
+.badgename {
 	color: black;
 	font-weight: bold;
-	font-size: 25pt;
-	white-space: nowrap;
 	z-index: 1000;
 	position: absolute;
-	/* set in javascript */
-	/* text-align:center; */
-	/* width:100%; */
-	/* outline: 1px dotted; */
-	/* transform set in print_badge.js */
-	transform: rotate(-90deg) translate(-53.4mm, 9mm);
+	white-space: nowrap;
+}
+
+.landscape .badgename {
+	font-size: 18pt;
+	transform-origin: top left;
+}
+
+.portrait .badgename {
+	font-size: 18pt;
 	transform-origin: top left;
 	white-space: nowrap;
 }
 
-.badgenameportrait {
-	color: black;
-	font-weight: bold;
-	font-size: 22pt;
-	z-index: 1000;
-	position: absolute;
-	/* text-align: center; */
-	/* width: 100%; */
-	/* transform set in print_badge.js */
-	/* transform: translate(-3.4mm, 20mm); */
-	transform-origin: top left;
-	white-space: nowrap;
-}
-
-.pronounsportrait {
+.pronouns {
 	color: black;
 	font-size: 12pt;
 	z-index: 1000;
 	position: absolute;
 	text-align: center;
 	width: 100%;
-	transform: translate(-3.4mm, 28mm);
-	transform-origin: top left;
 }
-.pronounslandscape {
-	color: black;
-	font-size: 12pt;
-	z-index: 1000;
-	position: absolute;
-	text-align: center;
-	width: 100%;
+
+.portrait .pronouns {
+	transform: translate(-4.6mm, 32mm);
+	transform-origin: center center;
+}
+.landscape .pronouns {
 	transform: rotate(-90deg) translate(-71mm,23mm);
 	transform-origin: top left;
 }
@@ -96,50 +90,47 @@ body {
 	color: red;
 	z-index: 999;
 	position: absolute;
-	transform: translate(1mm, 60mm);
+	transform: translate(1mm, 58mm);
 	transform-origin: top left;
 }
 
-.regidportrait {
+.regid {
 	color: black;
 	font-weight: bold;
-	font-size: 22pt;
 	z-index: 1000;
 	position: absolute;
 	text-align: center;
 	width: 100%;
-	transform: translate(-3.4mm, 60mm);
-	transform-origin: top left;
-}
-
-.regidlandscape {
-	color: black;
-	font-weight: bold;
 	font-size: 16pt;
-	z-index: 1000;
-	position: absolute;
-	text-align: center;
-	width: 100%;
-	transform: rotate(-90deg) translate(-71mm, 19mm);
-	transform-origin: top left;
+}
+.portrait .regid {
+	transform: translate(-3.4mm, 36mm);
 }
 
-.barcodelandscape {
-	z-index: 1000;
+.landscape .regid {
+	transform: rotate(-90deg) translate(-71mm, 19mm);
+}
+
+.barcode {
+	z-index: 900;
 	position: absolute;
+	width: 100%;
+}
+
+.landscape .barcode {
 	transform: translate(0mm, 70mm);
 }
 
-.barcodeportrait {
-	z-index: 1000;
-	position: absolute;
-	transform: translate(10mm, 33mm);
+.portrait .barcode {
+	transform: translate(-15.7mm, 45.4mm);
 }
 
-/* .barcodelandscape img, .barcodeportrait img
-{
-	width:50mm; 
-} */
+.barcode .qrcode {
+	z-index: 900;
+	position: absolute;
+	width: 80px;
+	height: 80px;
+}
 
 .page-break {
 	clear: left;
@@ -191,11 +182,11 @@ body {
 	outline: 1px solid black;
 }
 
-.flex-container .nophoto {
+/* .flex-container .nophoto {
 	background-color: yellow !important;
-}
+} */
 
-.flex-container .regid {
+.flex-container .header {
 	width: 86mm;
 	height: 5mm;
 	font-size: 12pt;

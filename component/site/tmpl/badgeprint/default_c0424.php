@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -42,7 +42,6 @@ ClawCorpLib\Helpers\Bootstrap::rawHeader(['/media/com_claw/js/print_badge.js'], 
 
     $image = 'attendee.svg';
     $orientation = BadgeOrientation::portrait->name;
-    $dayPassOrientation = BadgeOrientation::landscape->name;
 
     switch ($r->eventPackageType) {
       case EventPackageTypes::volunteer1:
@@ -68,18 +67,6 @@ ClawCorpLib\Helpers\Bootstrap::rawHeader(['/media/com_claw/js/print_badge.js'], 
       case EventPackageTypes::vendor_crew_extra:
         $image = 'vendorcrewextra.svg';
         break;
-      // case EventPackageTypes::day_pass_fri:
-      //   $image = 'fri.svg';
-      //   $orientation = $dayPassOrientation;
-      //   break;
-      // case EventPackageTypes::day_pass_sat:
-      //   $image = 'sat.svg';
-      //   $orientation = $dayPassOrientation;
-      //   break;
-      // case EventPackageTypes::day_pass_sun:
-      //   $image = 'sun.svg';
-      //   $orientation = $dayPassOrientation;
-      //   break;
       case EventPackageTypes::vip:
         $image = 'vip.svg';
         break;
@@ -95,7 +82,7 @@ ClawCorpLib\Helpers\Bootstrap::rawHeader(['/media/com_claw/js/print_badge.js'], 
     badgeFront($r, $orientation, $this->imagePath . $image);
 
     if ($this->primacy != true) {
-      badgeBack($r);
+      badgeBack($r, $this->imagePath);
     }
 
     if ( $this->checkinRecord ) $c->doCheckin();
@@ -109,7 +96,7 @@ ClawCorpLib\Helpers\Bootstrap::rawHeader(['/media/com_claw/js/print_badge.js'], 
 
       $r = $c->r;
 
-      badgeBack($r);
+      badgeBack($r, $this->imagePath);
     }
   }
 
@@ -124,7 +111,6 @@ function badgeFront(CheckinRecord $r, string $orientation, string $frontImage): 
   $options = new QROptions([
     'version'          => 1, // Max 20 characters w/ECC_M
     'outputType'       => QRCode::OUTPUT_MARKUP_SVG,
-    'imageTransparent' => false,
     'eccLevel'         => QRCode::ECC_M,
     'outputBase64'     => true,
     'quietzoneSize'    => 2,
@@ -134,46 +120,53 @@ function badgeFront(CheckinRecord $r, string $orientation, string $frontImage): 
 
   if ($r->photoAllowed == false) {
     // 'x' in front of basename indicates the "no photo" badge image
-    $frontImage = dirname($frontImage) . '/x' . pathinfo($frontImage, PATHINFO_BASENAME);
+    //$frontImage = dirname($frontImage) . '/x' . pathinfo($frontImage, PATHINFO_BASENAME);
   }
-
+  $nophotoImage = dirname($frontImage) . '/nophoto.svg';
+  
   // Convenience variables
   $regCode = $r->registration_code;
   $badgename = $r->badge;
   $pronouns = $r->pronouns;
   $regid = $r->badgeId;
-  $leatherHeart = $r->leatherHeartSupport ? '' : 'd-none';
 
 ?>
-  <div class="label" style="position:relative;" id="<?= $regCode ?>">
+  <div class="label <?= $orientation ?>" style="position:relative;" id="<?= $regCode ?>">
     <img class="graphic" src="<?= $frontImage ?>" />
-    <div class="badgename<?= $orientation ?>">
+    <div class="badgename">
       <?= $badgename ?>
     </div>
-    <div class="pronouns<?= $orientation ?>">
+    <div class="pronouns">
       <?= $pronouns ?>
     </div>
-    <div class="regid<?= $orientation ?>">
+    <div class="regid">
       <?= $regid ?>
     </div>
-    <div class="barcode<?= $orientation ?>">
-      <img src="<?= $qr; ?>" alt="QR Code" width="100px" height="100px"/>
+    <div class="barcode">
+      <img class="qrcode" src="<?= $qr; ?>" alt="QR Code" />
     </div>
-    <div class="heart <?= $leatherHeart ?>" style="color:red">
+    <?php if ( $r->leatherHeartSupport ): ?>
+    <div class="heart" style="color:red">
       <i class="fa fa-2x fa-heart"></i>
     </div>
+    <?php endif; ?>
+    <?php if ($r->photoAllowed == false): ?>
+    <div class="nophoto">
+      <img src="<?= $nophotoImage ?>" alt="nophoto" />
+    </div>
+    <?php endif; ?>
+
   </div>
   <div class="page-break"></div>
 <?php
 }
 
-function badgeBack(CheckinRecord $r): void
+function badgeBack(CheckinRecord $r, string $imagePath): void
 {
   $s = nl2br($r->shifts);
   // Convenience variables
   $regCode = $r->registration_code;
 
-  $noPhotoClass = $r->photoAllowed == true ? '' : 'nophoto';
   $noPhoto = $r->photoAllowed == true ? '' : 'No';
 
   $coc = $r->cocSigned ? 'Yes' : 'No';
@@ -185,7 +178,7 @@ function badgeBack(CheckinRecord $r): void
 ?>
   <div class="label" id="<?php echo $regCode ?>b">
     <ul class="flex-container">
-      <li class="regid">
+      <li class="header">
         <table style="width:100%">
           <tr>
             <td style="width:50%"><span style="margin-left:0.5mm;"><?php echo $r->badgeId ?></span></td>
@@ -193,17 +186,17 @@ function badgeBack(CheckinRecord $r): void
           </tr>
         </table>
       </li>
-      <li class="infoline <?php echo $noPhotoClass ?>">Dinner</li>
-      <li class="infoline <?php echo $noPhotoClass ?>">Brunch</li>
-      <li class="infoline <?php echo $noPhotoClass ?>">Buffets</li>
-      <li class="infoline <?php echo $noPhotoClass ?>">Photo</li>
-      <li class="infoline <?php echo $noPhotoClass ?>">COC Signed</li>
-      <li class="value <?php echo $noPhotoClass ?>"><?php echo $dinner ?></li>
-      <li class="value <?php echo $noPhotoClass ?>"><?php echo $brunch ?></li>
-      <li class="value <?php echo $noPhotoClass ?>"><?php echo $buffet ?></li>
-      <li class="value <?php echo $noPhotoClass ?>"><?php echo $noPhoto ?></li>
-      <li class="value <?php echo $noPhotoClass ?>"><?php echo $coc ?><br /><?php echo $r->id ?></li>
-      <li class="shifts <?php echo $noPhotoClass ?>"><?php echo $s ?></li>
+      <li class="infoline">Dinner</li>
+      <li class="infoline">Brunch</li>
+      <li class="infoline">Buffets</li>
+      <li class="infoline">Photo</li>
+      <li class="infoline">COC Signed</li>
+      <li class="value"><?php echo $dinner ?></li>
+      <li class="value"><?php echo $brunch ?></li>
+      <li class="value"><?php echo $buffet ?></li>
+      <li class="value"><?php echo $noPhoto ?></li>
+      <li class="value"><?php echo $coc ?><br /><?php echo $r->id ?></li>
+      <li class="shifts"><?php echo $s ?></li>
     </ul>
   </div>
   <div class="page-break"></div>
