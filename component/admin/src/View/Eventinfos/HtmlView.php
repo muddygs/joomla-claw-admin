@@ -80,10 +80,6 @@ class HtmlView extends BaseHtmlView
     $this->filterForm    = $this->get('FilterForm');
     $this->activeFilters = $this->get('ActiveFilters');
 
-    foreach ( $this->items AS $item )
-    {
-    }
-
     // Check for errors.
     if (count($errors = $this->get('Errors'))) {
       throw new GenericDataException(implode("\n", $errors), 500);
