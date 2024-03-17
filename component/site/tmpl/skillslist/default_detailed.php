@@ -40,7 +40,7 @@ foreach ( $tabInfo['ids'] AS $classId ) {
     ?>
       <h2 class="text-center"><?= $startTime ?></h2>
       <h3 class="text-center">(Length: <?= $classLength ?> minutes)</h3>
-      <div class="container">
+      <div class="container skills">
       <div class="row row-striped">
         <div class="col-8 col-lg-5 pt-0 pb-0 pt-lg-2 pb-lg-2 mt-2 mt-lg-1 mb-2 mb-lg-1 font-weight-bold tight">Title</div>
         <div class="col-4 col-lg-3 pt-0 pb-0 pt-lg-2 pb-lg-2 mt-2 mt-lg-1 mb-2 mb-lg-1 font-weight-bold tight">Room</div>

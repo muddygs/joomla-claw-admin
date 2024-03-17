@@ -20,7 +20,7 @@ foreach ( $this->list->tabs->overview['category'] AS $simple_item )
   ?>
     <h2><?= $simple_item['name'] ?></h2>
 
-    <div class="table-responsive">
+    <div class="table-responsive skills">
       <table class="table table-striped table-dark">
         <thead>
         <tr class="d-flex">
