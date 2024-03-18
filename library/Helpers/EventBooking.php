@@ -44,7 +44,7 @@ class EventBooking
   {
     // Ignore mailchimp subscription if not on clawinfo.org (i.e., dev site)
     $uri_path = Uri::getInstance()->getHost();
-    if (strpos($uri_path, 'clawinfo') === false) {
+    if ( !str_contains($uri_path, 'clawinfo') ) {
       return;
     }
 
@@ -115,22 +115,6 @@ class EventBooking
       Helpers::sendErrorNotification($path, $data);
     }
   }
-
-  /**
-   * Converts a location alias to the location id
-   * @param string $locationAlias Location alias
-   * @return int Location ID
-   */
-  public static function getLocationId(string $locationAlias): int
-  {
-    /** @var \Joomla\Database\DatabaseDriver */
-    $db = Factory::getContainer()->get('DatabaseDriver');
-    $query = 'SELECT `id` FROM #__eb_locations WHERE alias = ' . $db->q($locationAlias);
-    $db->setQuery($query);
-    $result = $db->loadResult();
-    return (int)$result;
-  }
-
 
   public static function getLocationName(int $locationId): string
   {
