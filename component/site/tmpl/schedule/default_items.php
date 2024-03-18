@@ -107,9 +107,8 @@ HTML;
   $sponsors = json_decode($item->sponsors);
   ob_start();
   if ( $sponsors !== null ) {
-    foreach ( $sponsors AS $sponsor ) {
-      foreach ( SponsorshipType::valuesOrdered() as $sponsorType )
-      {
+    foreach ( SponsorshipType::valuesOrdered() as $sponsorType ) {
+      foreach ( $sponsors AS $sponsor ) {
         $s = $this->sponsors->GetSponsorById($sponsor);
         if ( $s->type != $sponsorType) continue;
         
