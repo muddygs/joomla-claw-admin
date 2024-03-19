@@ -21,6 +21,7 @@ if ($currentHour >= 5 && $currentHour < 12) {
 ?>
 <h1 class="text-center"><?= $greeting ?> - Upcoming Events</h1>
 
+<div class="container">
 <table class="table table-dark table-striped">
   <thead>
     <tr>
@@ -88,3 +89,4 @@ if ($currentHour >= 5 && $currentHour < 12) {
     <?php endforeach; ?>
   </tbody>
 </table>
+</div>
