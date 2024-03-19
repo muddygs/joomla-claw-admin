@@ -8,7 +8,7 @@
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>24.4.8</version>
+  <version>24.4.9-beta</version>
   <description>CLAW Data Administration</description>
 
   <namespace path="src/">ClawCorp\Component\Claw</namespace>
