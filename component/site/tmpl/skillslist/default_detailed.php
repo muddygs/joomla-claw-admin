@@ -8,55 +8,58 @@ use Joomla\CMS\HTML\HTMLHelper;
 
 $tabInfo = $this->list->tabs->{$this->tabId};
 
-if ( !count($tabInfo['ids']) ) {
+if (!count($tabInfo['ids'])) {
   echo '<p>No classes this period.</p>';
   return;
 }
 
-$prevTime = '';
-$prevLength = 0;
+$prevTimeSlot = '';
 
-foreach ( $tabInfo['ids'] AS $classId ) {
+foreach ($tabInfo['ids'] as $classId) {
   $class = $this->list->items[$classId];
-  
-  $timeSlot = explode(':', $class->time_slot, 2);
-  $startTime = Helpers::formatTime(substr($timeSlot[0], 0, 2).':'.substr($timeSlot[0], 2, 2));
-  $classLength = (int)$timeSlot[1]; // in minutes
+
+  if (array_key_exists($class->time_slot, $this->time_slots)) {
+    $timeSlot = $this->time_slots[$class->time_slot];
+  } else {
+    continue;
+  }
 
   $room = Locations::GetLocationById($class->location)->value;
 
   // Merge presenters
   $presenter_urls = [];
   $owner = true;
-  foreach ( $this->list->items[$classId]->presenter_info AS $presenter ) {
+
+  foreach ($this->list->items[$classId]->presenter_info as $presenter) {
     $link = HTMLHelper::link(
-      Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter['uid']) .'&tab='.$this->tabId,
+      Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter['uid']) . '&tab=' . $this->tabId,
       $presenter['name'],
-      $owner ? ['class' => 'fs-5'] : ['class' => 'fw-light']);
+      $owner ? ['class' => 'fs-5'] : ['class' => 'fw-light']
+    );
+
     $presenter_urls[] = $link;
     $owner = false;
   }
-  $presenter_links = implode('<br/>',$presenter_urls);
+
+  $presenter_links = implode('<br/>', $presenter_urls);
 
   // Class title to detail link
   $title = HTMLHelper::link(
-    Route::_('index.php?option=com_claw&view=skillsclass&id=' . $class->id) .'&tab='.$this->tabId,
-    $class->track ? 
-      '<span class="badge rounded-pill text-bg-success">'.strtoupper($class->track).'</span>&nbsp;'.$class->title :
+    Route::_('index.php?option=com_claw&view=skillsclass&id=' . $class->id) . '&tab=' . $this->tabId,
+    $class->track ?
+      '<span class="badge rounded-pill text-bg-success">' . strtoupper($class->track) . '</span>&nbsp;' . $class->title :
       $class->title,
     ['class' => 'fs-5']
   );
 
-  if ( $prevTime != $startTime || $prevLength != $classLength) {
-    if ( $prevTime != '' && $classLength != 0 ) echo "</div><hr>";
-    
-    $prevTime = $startTime;
-    $prevLength = $classLength;
+  if ($prevTimeSlot != $timeSlot) {
+    if ($prevTimeSlot != '') echo "</div><hr>";
 
-    ?>
-      <h2 class="text-center"><?= $startTime ?></h2>
-      <h3 class="text-center">(Length: <?= $classLength ?> minutes)</h3>
-      <div class="container skills">
+    $prevTimeSlot = $timeSlot;
+
+?>
+    <h2 class="text-center"><?= $timeSlot ?></h2>
+    <div class="container skills">
       <div class="row row-striped">
         <div class="col-8 col-lg-5 pt-0 pb-0 pt-lg-2 pb-lg-2 mt-2 mt-lg-1 mb-2 mb-lg-1 font-weight-bold tight">Title</div>
         <div class="col-4 col-lg-3 pt-0 pb-0 pt-lg-2 pb-lg-2 mt-2 mt-lg-1 mb-2 mb-lg-1 font-weight-bold tight">Room</div>
@@ -65,22 +68,22 @@ foreach ( $tabInfo['ids'] AS $classId ) {
       </div>
     <?php
   }
-    
-    $survey = '<i class="fa fa-comments fa-2x text-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Surveys are not open"></i>';
 
-    if ( $this->list->survey != '' ) {
-      $link = $this->list->survey . '&form[classTitleParam]=' . $class->id;
-      $survey = '<a href="'.$link.'" style="color:#ffae00"><i class="fa fa-comments fa-2x"></i></a>';
-    }
+  $survey = '<i class="fa fa-comments fa-2x text-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Surveys are not open"></i>';
 
-  ?>
+  if ($this->list->survey != '') {
+    $link = $this->list->survey . '&form[classTitleParam]=' . $class->id;
+    $survey = '<a href="' . $link . '" style="color:#ffae00"><i class="fa fa-comments fa-2x"></i></a>';
+  }
+
+    ?>
     <div class="row row-striped">
-      <div class="col-8 col-lg-5 pt-1 pb-1 mt-2 mt-lg-1 mb-2 mb-lg-1" ><?= $title ?>&nbsp;<i class="fa fa-chevron-right"></i></div>
-      <div class="col-4 col-lg-3 pt-1 pb-1 mt-2 mt-lg-1 mb-2 mb-lg-1" ><?php if ($this->include_room) echo $room; ?></div>
-      <div class="col-8 col-lg-3 pt-1 pb-1 mt-2 mt-lg-1 mb-2 mb-lg-1" ><?= $presenter_links ?></div>
-      <div class="col-4 col-lg-1 pt-1 pb-1 mt-2 mt-lg-1 mb-2 mb-lg-1" ><?= $survey ?></div>
+      <div class="col-8 col-lg-5 pt-1 pb-1 mt-2 mt-lg-1 mb-2 mb-lg-1"><?= $title ?>&nbsp;<i class="fa fa-chevron-right"></i></div>
+      <div class="col-4 col-lg-3 pt-1 pb-1 mt-2 mt-lg-1 mb-2 mb-lg-1"><?php if ($this->include_room) echo $room; ?></div>
+      <div class="col-8 col-lg-3 pt-1 pb-1 mt-2 mt-lg-1 mb-2 mb-lg-1"><?= $presenter_links ?></div>
+      <div class="col-4 col-lg-1 pt-1 pb-1 mt-2 mt-lg-1 mb-2 mb-lg-1"><?= $survey ?></div>
     </div>
   <?php
 }
-?>
-  </div>
+  ?>
+    </div>
