@@ -12,13 +12,15 @@ namespace ClawCorp\Component\Claw\Site\View\Skillslist;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\Router\Route;
 
-/** @package ClawCorp\Component\Claw\Site\Controller */
+/** @package ClawCorp\Component\Claw\Site\View\Skillslist\HtmlView */
 class HtmlView extends BaseHtmlView
 {
   /**
@@ -70,6 +72,9 @@ class HtmlView extends BaseHtmlView
     if ( !property_exists($this->list->tabs, $this->urlTab) ) {
       $this->urlTab = 'overview';
     }
+
+    $config = new Config($this->eventAlias);
+    $this->time_slots = $config->getConfigValuesText(ConfigFieldNames::SKILL_TIME_SLOT);
 
     parent::display($tpl);
   }
