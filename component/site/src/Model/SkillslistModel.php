@@ -55,8 +55,6 @@ class SkillslistModel extends BaseDatabaseModel
     $this->presenters = $this->skills->GetPresentersList(true);
     $this->classes = $this->skills->GetClassList();
 
-    $config = new Config($eventAlias);
-
     $simpleList = $listType === 'simple';
 
     $this->initClassCategories();
@@ -96,7 +94,6 @@ class SkillslistModel extends BaseDatabaseModel
     ];
 
     // Add co-presenters
-    // TODO: Sort by name
     $copresenters = json_decode($class->presenters);
 
     if ($copresenters !== null) {
@@ -135,7 +132,7 @@ class SkillslistModel extends BaseDatabaseModel
         $time = $class->time_slot;
 
         // Example value: 0900:060 (start time : length)
-        $startTime = explode(':', $time)[0];
+        list($startTime,$length) = explode(':', $time, 2);
 
         switch ($day) {
           case 5:
@@ -153,7 +150,7 @@ class SkillslistModel extends BaseDatabaseModel
       }
       
       // TODO: SQL has been updated so data is already ordered - this can be simplified
-      $ordering = implode('-', [$day, $time, $titleKey, $class->id]);
+      $ordering = implode('-', [$day, $time, $length, $titleKey, $class->id]);
       $this->tab_items->$tab['ids'][$ordering] = $class->id;
 
       // Overview view gets all items indexed by category
