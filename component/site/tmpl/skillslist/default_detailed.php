@@ -4,6 +4,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Router\Route;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Locations;
+use Joomla\CMS\HTML\HTMLHelper;
 
 $tabInfo = $this->list->tabs->{$this->tabId};
 
@@ -13,11 +14,12 @@ if ( !count($tabInfo['ids']) ) {
 }
 
 $prevTime = '';
+$prevLength = 0;
 
 foreach ( $tabInfo['ids'] AS $classId ) {
   $class = $this->list->items[$classId];
   
-  $timeSlot = explode(':', $class->time_slot);
+  $timeSlot = explode(':', $class->time_slot, 2);
   $startTime = Helpers::formatTime(substr($timeSlot[0], 0, 2).':'.substr($timeSlot[0], 2, 2));
   $classLength = (int)$timeSlot[1]; // in minutes
 
@@ -25,18 +27,32 @@ foreach ( $tabInfo['ids'] AS $classId ) {
 
   // Merge presenters
   $presenter_urls = [];
+  $owner = true;
   foreach ( $this->list->items[$classId]->presenter_info AS $presenter ) {
-    $presenter_urls[] = '<a href="' . Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter['uid']) .'&tab='.$this->tabId. '">' . $presenter['name'] . '</a>';
+    $link = HTMLHelper::link(
+      Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter['uid']) .'&tab='.$this->tabId,
+      $presenter['name'],
+      $owner ? ['class' => 'fs-5'] : ['class' => 'fw-light']);
+    $presenter_urls[] = $link;
+    $owner = false;
   }
   $presenter_links = implode('<br/>',$presenter_urls);
 
   // Class title to detail link
-  $title = '<a href="' . Route::_('index.php?option=com_claw&view=skillsclass&id=' . $class->id) . '&tab=' . $this->tabId. '">' . $class->title . '</a>';
+  $title = HTMLHelper::link(
+    Route::_('index.php?option=com_claw&view=skillsclass&id=' . $class->id) .'&tab='.$this->tabId,
+    $class->track ? 
+      '<span class="badge rounded-pill text-bg-success">'.strtoupper($class->track).'</span>&nbsp;'.$class->title :
+      $class->title,
+    ['class' => 'fs-5']
+  );
 
-  if ( $prevTime != $startTime ) {
-    if ( $prevTime != '' ) echo "</div><hr>";
-
+  if ( $prevTime != $startTime || $prevLength != $classLength) {
+    if ( $prevTime != '' && $classLength != 0 ) echo "</div><hr>";
+    
     $prevTime = $startTime;
+    $prevLength = $classLength;
+
     ?>
       <h2 class="text-center"><?= $startTime ?></h2>
       <h3 class="text-center">(Length: <?= $classLength ?> minutes)</h3>

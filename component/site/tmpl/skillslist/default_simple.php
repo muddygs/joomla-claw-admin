@@ -9,12 +9,13 @@
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Helpers\Helpers;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Router\Route;
 
 if ( $this->list_type == 'simple' ) $this->tabId='';
 
-foreach ( $this->list->tabs->overview['category'] AS $simple_item )
-{
+foreach ( $this->list->tabs->overview['category'] AS $simple_item ) {
   if ( !count($simple_item['ids']) ) continue;
 
   ?>
@@ -36,18 +37,26 @@ foreach ( $this->list->tabs->overview['category'] AS $simple_item )
     $url = '';
     $presenter_urls = [];
 
-    $title = '<a href="' . Route::_('index.php?option=com_claw&view=skillsclass&id=' . $classId) . '&tab=' . $this->tabId. '">' . $this->list->items[$classId]->title . '</a>';
+    $title = HTMLHelper::link(
+      Route::_('index.php?option=com_claw&view=skillsclass&id=' . $classId) .'&tab='.$this->tabId,
+      $this->list->items[$classId]->title
+    );
 
     $day = $this->list->items[$classId]->day_text;
+    $timeSlot = explode(':', $this->list->items[$classId]->time_slot, 2);
+    $startTime = Helpers::formatTime(substr($timeSlot[0], 0, 2).':'.substr($timeSlot[0], 2, 2));
 
     foreach ( $this->list->items[$classId]->presenter_info AS $presenter ) {
-      $presenter_urls[] = '<a href="' . Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter['uid']) . '">' . $presenter['name'] . '</a>';
+      $presenter_urls[] = HTMLHelper::link(
+        Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter['uid']),
+        $presenter['name']
+      );
     }
 
     ?>
       <tr class="d-flex">
       <td class="col-6"><?= $title ?></div>
-      <td class="col-3"><?= $day ?></div>
+      <td class="col-3"><?= $day ?> <?= $startTime ?></div>
       <td class="col-3"><?php echo implode('<br/>',$presenter_urls) ?></div>
       </tr>
     <?php
@@ -60,3 +69,4 @@ foreach ( $this->list->tabs->overview['category'] AS $simple_item )
     </div>
   <?php
 }
+
