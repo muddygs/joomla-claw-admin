@@ -34,30 +34,47 @@ foreach ( $this->list->tabs->overview['category'] AS $simple_item ) {
   <?php
 
   foreach ( $simple_item['ids'] AS $classId ) {
+    $class = $this->list->items[$classId];
+
     $url = '';
-    $presenter_urls = [];
 
     $title = HTMLHelper::link(
       Route::_('index.php?option=com_claw&view=skillsclass&id=' . $classId) .'&tab='.$this->tabId,
-      $this->list->items[$classId]->title
+      $class->track ?
+        '<span class="badge rounded-pill text-bg-success">' . strtoupper($class->track) . '</span>&nbsp;' . $class->title :
+        $class->title,
+      ['class' => 'fs-5']
     );
 
-    $day = $this->list->items[$classId]->day_text;
-    $timeSlot = explode(':', $this->list->items[$classId]->time_slot, 2);
-    $startTime = Helpers::formatTime(substr($timeSlot[0], 0, 2).':'.substr($timeSlot[0], 2, 2));
-
-    foreach ( $this->list->items[$classId]->presenter_info AS $presenter ) {
-      $presenter_urls[] = HTMLHelper::link(
-        Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter['uid']),
-        $presenter['name']
-      );
+    $day = $class->day_text;
+    if (array_key_exists($class->time_slot, $this->time_slots)) {
+      $timeSlot = $this->time_slots[$class->time_slot];
+    } else {
+      continue;
     }
+  
+    // Merge presenters
+    $presenter_urls = [];
+    $owner = true;
+
+    foreach ($class->presenter_info as $presenter) {
+      $link = HTMLHelper::link(
+        Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter['uid']) . '&tab=' . $this->tabId,
+        $presenter['name'],
+        $owner ? ['class' => 'fs-5'] : ['class' => 'fw-light']
+      );
+
+      $presenter_urls[] = $link;
+      $owner = false;
+    }
+
+    $presenter_links = implode('<br/>', $presenter_urls);
 
     ?>
       <tr class="d-flex">
       <td class="col-6"><?= $title ?></div>
-      <td class="col-3"><?= $day ?> <?= $startTime ?></div>
-      <td class="col-3"><?php echo implode('<br/>',$presenter_urls) ?></div>
+      <td class="col-3"><?= $day ?> <?= $timeSlot ?></div>
+      <td class="col-3"><?= $presenter_links ?></div>
       </tr>
     <?php
 

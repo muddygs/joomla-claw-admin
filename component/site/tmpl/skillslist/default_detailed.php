@@ -30,7 +30,7 @@ foreach ($tabInfo['ids'] as $classId) {
   $presenter_urls = [];
   $owner = true;
 
-  foreach ($this->list->items[$classId]->presenter_info as $presenter) {
+  foreach ($class->presenter_info as $presenter) {
     $link = HTMLHelper::link(
       Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter['uid']) . '&tab=' . $this->tabId,
       $presenter['name'],
