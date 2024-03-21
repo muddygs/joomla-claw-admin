@@ -1,3 +1,20 @@
+# 24.4.9 (2024-MAR-21)
+
+  1. Updated formatting and styling of classes listing
+  1. Updated formatting and styling of badge printing
+  1. Fixed ordering of sponsors in schedule based on sponsorship level
+  1. Circumvented error dump bug affecting error reporting
+  1. Fixed CVS export of classes excluding class descriptions
+  1. mod_claw_schedule: removed sponsor logos due to kiosk space constraints (names only)
+
+# 24.4.8 (2024-MAR-15)
+
+  1. Added mod_claw_schedule
+  1. Added alternative layout support to schedule site component
+  1. Fixed deployment bugs, especially with date handling when insert into db
+  1. Enchanced "referrer" tracking in registration process
+  1. mod_claw_vendors: fixed install xml
+
 # 24.4.7 (2024-MAR-07)
 
   1. Split meal events configuration set in EventInfo into distinct values of Event Booking categories
