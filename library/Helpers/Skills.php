@@ -396,20 +396,24 @@ class Skills
             if ( $time == 'Midnight' ) $time = '12:00 AM';
             if ( $time == 'Noon' ) $time = '12:00 PM';
             $row[] = $time;
-            break;
+          break;
+
           case 'end_time':
             // take start time and add length
             [ $time, $length ] = explode(':', $c->time_slot);
             $time = new \DateTime($c->day . ' ' . $time);
             $time->modify('+ '.$length .' minutes');
             $row[] = $time->format('g:i A');
-            break;
+          break;
+
           case 'owner':
             if ( !$publishedOnly) {
               $row[] = $this->presenterCache[$c->$col]->name;
             } else {
               $row[] = $c->$col;
             }
+          break;
+
           case 'people':
             if (empty($c->presenters)) {
               $presenterIds = [];
@@ -429,11 +433,13 @@ class Skills
             $row[] = implode(',', array_map(function($id) {
               return 'presenter_' . $id;
             }, $presenterIds));
-            break;
+          break;
+
           case 'location':
             $location = Locations::GetLocationById($c->$col)->value;
             $row[] = $location;
-            break;
+          break;
+
           case 'multitrack':
             // track is day converted to day of week
             $time = $c->day . ' ' . explode(':', $c->time_slot)[0];
@@ -444,7 +450,8 @@ class Skills
             } else {
               $row[] = date('l', strtotime($time));
             }
-            break;
+          break;
+
           case 'description':
             $survey = '';
 
@@ -456,13 +463,13 @@ class Skills
               if ( $redirectId ) $survey = 'Survey: ' . $oldurl . '<br/>';
               $description = $survey . 'Category: ' . $categories[$c->category] . '<br/>' . $c->$col;
             } else {
-              $description = $c->col;
+              $description = $c->$col;
             }
 
             // Convert category to text
             $description = Helpers::cleanHtmlForCsv($description);
             $row[] = $description;
-            break;
+          break;
             
           case 'published':
             $row[] = match($c->$col) {
@@ -473,11 +480,11 @@ class Skills
               3 => 'New',
               default => 'Unknown',
             };
-            break;
+          break;
   
           default:
             $row[] = $c->$col;
-            break;
+          break;
         }
       }
 
