@@ -1,6 +1,7 @@
 <?php
 
 use ClawCorpLib\Enums\SponsorshipType;
+use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Locations;
 use ClawCorpLib\Helpers\Sponsors;
 
@@ -36,7 +37,7 @@ if ($currentHour >= 5 && $currentHour < 12) {
       $order = 0;
     ?>
       <tr>
-        <td><?= $event->start_time; ?></td>
+        <td><?= Helpers::formatTime($event->start_time) ?>&nbsp;&#8209;&nbsp;<?= Helpers::formatTime($event->end_time) ?></td>
         <td><?= $event->event_title; ?></td>
         <td><?= Locations::GetLocationById($event->location)->value ?></td>
         <td>
@@ -90,3 +91,4 @@ if ($currentHour >= 5 && $currentHour < 12) {
   </tbody>
 </table>
 </div>
+
