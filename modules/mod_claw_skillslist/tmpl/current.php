@@ -63,7 +63,7 @@ foreach ($classes as $class):
 
 ?>
     <tr>
-      <td><?= $startTime . ' - ' . $endTime; ?></td>
+      <td><?= $startTime ?>&nbsp;&#8209;&nbsp;<?= $endTime ?></td>
       <td><?= $class->title; ?></td>
       <td><?= $locations[$class->location]->value ?? ''; ?></td>
     </tr>
