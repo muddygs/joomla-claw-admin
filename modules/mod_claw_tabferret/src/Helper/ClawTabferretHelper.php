@@ -16,10 +16,8 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\Registry\Registry;
 
-use ClawCorpLib\Helpers\Bootstrap;
 use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\Table\Table;
-use RuntimeException;
 
 defined('_JEXEC') or die;
 
@@ -28,6 +26,8 @@ defined('_JEXEC') or die;
  */
 class ClawTabferretHelper
 {
+  // TODO: private int $uid (or similar to meet module permissions)
+  
   /**
    * Retrieve the tab name and tab content, regardless of the actual display mechanism. Tabs/accordions
    * will use the tab name, but carousels will use only the tab content.
@@ -116,6 +116,8 @@ class ClawTabferretHelper
     $now = Factory::getDate('now', $timeZoneObject);
 
     if ( ($publishUp && $publishUp > $now) || ($publishDown && $publishDown < $now) ) return null;
+
+    // TODO: Check permissions
 
     return $table;
   }
