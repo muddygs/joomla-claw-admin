@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module"
+  client="site"
+  method="upgrade">
+
+  <name>CLAW Skills List Display</name>
+  <creationDate>2024-03-23</creationDate>
+  <author>CLAW Corp.</author>
+  <authorUrl>https://www.clawinfo.org/</authorUrl>
+  <copyright>(c) 2024 CLAW Corp.</copyright>
+  <license>GPLv2</license>
+  <version>4.3.0</version>
+  <description>Displays skills list</description>
+
+  <namespace path="src">ClawCorp\Module\Skillslist</namespace>
+
+  <files>
+    <folder module="mod_claw_skillslist">services</folder>
+    <folder>tmpl</folder>
+    <folder>src</folder>
+  </files>
+
+  <config>
+    <fields name="params">
+      <fieldset name="module"
+        label="Options">
+        <field name="layout"
+          type="modulelayout"
+          label="JFIELD_ALT_LAYOUT_LABEL"
+          class="form-select"
+          validate="moduleLayout" />
+      </fieldset>
+    </fields>
+  </config>
+</extension>
