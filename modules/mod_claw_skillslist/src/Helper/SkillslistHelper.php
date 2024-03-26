@@ -15,6 +15,7 @@ use Joomla\Database\DatabaseAwareTrait;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Helpers\Locations;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Date\Date;
 
 // phpcs:disable PSR1.Files.SideEffects
@@ -31,8 +32,18 @@ class SkillslistHelper implements DatabaseAwareInterface
 
   public function GetClassListToday(): array
   {
-    $startDate = new Date('now', 'America/New_York');
-    $startDate = new Date('2024-04-13 09:33:00', 'America/New_York');
+    $eventInfo = new EventInfo(Aliases::current(true));
+    $startDate = new Date('now', $eventInfo->timezone);
+
+    $eventStartDate = new Date($eventInfo->start_date, $eventInfo->timezone);
+    
+    // Check event start date. If it's in the future, use that as basis instead
+    if ( $startDate < $eventStartDate ) {
+      $startDate = $eventStartDate;
+      $startDate->modify('Friday');
+    }
+
+    //$startDate = new Date('2024-04-13 09:33:00', 'America/New_York');
     $d = $startDate->format('Y-m-d');
 
     /** @var \Joomla\Database\DatabaseDriver */
