@@ -48,6 +48,7 @@ cd modules/mod_claw_vendors && /usr/bin/zip --quiet -r ../../package/packages/mo
 cd modules/mod_claw_regbuttons && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_regbuttons.zip . && cd -
 cd modules/mod_claw_tabferret && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_tabferret.zip . && cd -
 cd modules/mod_claw_schedule && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_schedule.zip . && cd -
+cd modules/mod_claw_skillslist && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_skillslist.zip . && cd -
 
 VPACKAGE=`xmllint --xpath '/extension/version/text()' package/pkg_claw.xml`
 VCOMPONENT=`xmllint --xpath '/extension/version/text()' component/claw.xml`
