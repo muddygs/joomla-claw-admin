@@ -487,7 +487,7 @@ class Jwtwrapper
     [$confirmToken, $revokeToken] = $jwt->initEmailTokens($secret, $nonce, $subject);
 
     if ('' != $secret) {
-      Jwtwrapper::emailLink($email, $confirmToken, $revokeToken, 'Registration link for ' . $subject);
+      Jwtwrapper::emailLink($email, $confirmToken, $revokeToken, 'Registration link for ' . $subject . '('. $email . ')');
     }
 
     return true;
