@@ -365,6 +365,7 @@ class Skills
     $columnNames = array_keys($this->db->getTableColumns('#__claw_skills'));
     $columnNames[] = 'multitrack';
     $columnNames[] = 'people';
+    $columnNames[] = 'people_public_name';
     $columnNames[] = 'start_time';
     $columnNames[] = 'end_time';
 
@@ -432,6 +433,26 @@ class Skills
             // Prepend "presenter_" to each id and join with commas
             $row[] = implode(',', array_map(function($id) {
               return 'presenter_' . $id;
+            }, $presenterIds));
+          break;
+
+          case 'people_public_name':
+            if (empty($c->presenters)) {
+              $presenterIds = [];
+            } else {
+              // TODO: Fix decode
+              $presenterIds = json_decode($c->presenters);
+              if ( is_null($presenterIds)) $presenterIds = []; 
+            }
+            array_unshift($presenterIds, $c->owner);
+
+            // Remove any unpublished presenter ids
+            $presenterIds = array_filter($presenterIds, function($id) {
+              return isset($this->presenterCache[$id]);
+            });
+
+            $row[] = implode(',', array_map(function($id) {
+              return $this->presenterCache[$id]->name;
             }, $presenterIds));
           break;
 
