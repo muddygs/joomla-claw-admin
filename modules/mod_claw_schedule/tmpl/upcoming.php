@@ -7,20 +7,8 @@ use ClawCorpLib\Helpers\Sponsors;
 
 $allSponsors = new Sponsors();
 
-// Set heading based on time of day
-$currentHour = date('G');
-
-// Define the greeting based on the time of day
-if ($currentHour >= 5 && $currentHour < 12) {
-  $greeting = "Good Morning";
-} elseif ($currentHour >= 12 && $currentHour < 18) {
-  $greeting = "Good Afternoon";
-} else {
-  $greeting = "Good Evening";
-}
-
 ?>
-<h1 class="text-center"><?= $greeting ?> - Upcoming Events</h1>
+<h1 class="text-center">Upcoming Events</h1>
 
 <div class="container">
 <table class="table table-dark table-striped">

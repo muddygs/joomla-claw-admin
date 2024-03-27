@@ -43,7 +43,7 @@ class SkillslistHelper implements DatabaseAwareInterface
       $startDate->modify('Friday');
     }
 
-    //$startDate = new Date('2024-04-13 09:33:00', 'America/New_York');
+    // $startDate = new Date('2024-04-13 09:33:00', 'America/New_York');
     $d = $startDate->format('Y-m-d');
 
     /** @var \Joomla\Database\DatabaseDriver */

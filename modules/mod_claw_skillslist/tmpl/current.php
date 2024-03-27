@@ -4,20 +4,8 @@ use Joomla\CMS\Date\Date;
 
 if ( !sizeof($classes) )  return;
 
-// Set heading based on time of day
-$currentHour = date('G');
-
 // Working with raw times, no time zone shifts
 $tz = new DateTimeZone('UTC');
-
-// Define the greeting based on the time of day
-if ($currentHour >= 5 && $currentHour < 12) {
-  $greeting = "Good Morning";
-} elseif ($currentHour >= 12 && $currentHour < 18) {
-  $greeting = "Good Afternoon";
-} else {
-  $greeting = "Good Evening";
-}
 
 $startBlock = null;
 $startTime = null;
@@ -34,7 +22,7 @@ foreach ($classes as $class):
     // Start deferred output
     ?>
     <div class="container">
-<h1 class="text-center"><?= $greeting ?> - Current Skills &amp; Education Sessions</h1>
+<h1 class="text-center"><span class="badge rounded-pill text-bg-success">Current</span> Skills &amp; Education Sessions</h1>
 <table class="table table-dark table-striped">
   <thead>
     <tr>
