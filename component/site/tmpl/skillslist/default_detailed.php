@@ -2,7 +2,6 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Router\Route;
-use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Locations;
 use Joomla\CMS\HTML\HTMLHelper;
 

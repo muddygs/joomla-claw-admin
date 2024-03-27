@@ -9,7 +9,6 @@
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Router\Route;
 
