@@ -148,28 +148,11 @@ class ScheduleModel extends AdminModel
     return $data;
   }
 
-  /**
-   * Method to get a table object, load it if necessary.
-   *
-   * @param   string  $name     The table name. Optional.
-   * @param   string  $prefix   The class prefix. Optional.
-   * @param   array   $options  Configuration array for model. Optional.
-   *
-   * @return  Table  A Table object
-   *
-   * @since   3.0
-   * @throws  \Exception
-   */
-  public function getTable($name = '', $prefix = '', $options = array())
+  public function getTable($name = 'Schedules', $prefix = '', $options = array())
   {
-    $name = 'Schedules';
-    $prefix = 'Table';
-
-    if ($table = $this->_createTable($name, $prefix, $options))
-    {
-      return $table;
-    }
+    if ($table = $this->_createTable($name, $prefix, $options)) return $table;
 
     throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
   }
+
 }
