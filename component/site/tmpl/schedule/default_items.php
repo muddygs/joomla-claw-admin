@@ -53,12 +53,18 @@ foreach ($this->items AS $item) {
 
   //event (optional poster)
 
-  $poster = $item->poster;
-  $thumb = '';
-  if ( !empty($poster)) {
-    $thumb = $this->adsdir. '/thumb/' . $poster;
+  $thumb = $poster = '';
+
+  if ( !empty($item->poster) ) {
+    $json = json_decode($item->poster);
+    $poster = explode('#', $json->imagefile)[0];
+    $dirname = dirname($poster);
+    $basename = basename($poster);
+    $thumbname = $dirname . DIRECTORY_SEPARATOR . 'thumb_' . $basename;
     $thumb = <<<HTML
-<button id="show-img-$id" type="button" class="btn btn-default p-0 align-top" data-bs-toggle="modal" data-bs-target="#modal-$id"><img src="$thumb"/></button>
+<button id="show-img-$id" type="button" class="btn btn-default p-0 align-top" data-bs-toggle="modal" data-bs-target="#modal-$id">
+  <img src="$thumbname"/>
+</button>
 <div id="modal-$id" class="modal fade" aria-labelledby="modal-{$id}Label" aria-hidden="true" tabindex="-1" role="dialog">
 <div class="modal-dialog" data-dismiss="modal">
 <div class="modal-content"> 
@@ -66,7 +72,7 @@ foreach ($this->items AS $item) {
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
   </div>
   <div class="modal-body">
-    <img src="{$this->adsdir}$poster" class="img-responsive" style="width: 100%;">
+    <img src="$poster" class="img-responsive" style="width: 100%;">
   </div> 
 </div>
 </div>
@@ -96,13 +102,6 @@ HTML;
   } else {
   	$eventHtml = "<b>$event</b><br>{$event_description}";
   }
-
-  // $sponsor = '';
-
-  // $query = 'SELECT s.logo,s.link,s.name,s.sponsor_type FROM #__fabrik_schedule_repeat_sponsors r ' .
-  // 	'LEFT OUTER JOIN #__fabrik_schedule_sponsor s ON s.id = r.sponsors WHERE r.parent_id = ' . $id;
-  // $db->setQuery($query);
-  // $sponsors = $db->loadObjectList();
 
   $sponsors = json_decode($item->sponsors);
   ob_start();
@@ -148,8 +147,8 @@ HTML;
         ?>
         <div class="col-12 col-lg-8 pt-lg-2 pb-lg-2 mt-2 mb-2">
           <div class="row">
-          <div class="col-8"><?=$eventHtml?></div>
-          <div class="col-4 align-middle text-end"><?=$thumb?></div>
+          <div class="col-12 col-lg-8"><?=$eventHtml?></div>
+          <div class="col-12 col-lg-4 align-middle text-lg-end"><?=$thumb?></div>
           </div>
         </div>
         <?php 
