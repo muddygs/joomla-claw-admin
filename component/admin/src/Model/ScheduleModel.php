@@ -30,26 +30,26 @@ use ClawCorpLib\Lib\EventInfo;
  */
 class ScheduleModel extends AdminModel
 {
-  	/**
-	 * The prefix to use with controller messages.
-	 *
-	 * @var    string
-	 * @since  1.6
-	 */
-	protected $text_prefix = 'COM_CLAW_SCHEDULE';
+    /**
+   * The prefix to use with controller messages.
+   *
+   * @var    string
+   * @since  1.6
+   */
+  protected $text_prefix = 'COM_CLAW_SCHEDULE';
 
-	public function save($data)
-	{
-		// Handle array merges
-		// https://github.com/muddygs/joomla-claw-admin/wiki/Joomla-Form-Load-Save-of-Checkboxes-and-Multi-Select-Lists
+  public function save($data)
+  {
+    // Handle array merges
+    // https://github.com/muddygs/joomla-claw-admin/wiki/Joomla-Form-Load-Save-of-Checkboxes-and-Multi-Select-Lists
 
-		$data['sponsors'] = json_encode($data['sponsors']);
-		$data['fee_event'] = implode(',',$data['fee_event']);
-		$data['mtime'] = Helpers::mtime();
+    $data['sponsors'] = json_encode($data['sponsors']);
+    $data['fee_event'] = implode(',',$data['fee_event']);
+    $data['mtime'] = Helpers::mtime();
 
-		$eventInfo = new EventInfo($data['event']);
+    $eventInfo = new EventInfo($data['event']);
 
-		if (array_key_exists('day', $data) && in_array($data['day'], Helpers::getDays())) {
+    if (array_key_exists('day', $data) && in_array($data['day'], Helpers::getDays())) {
       $day = $eventInfo->modify( $data['day'] ?? '');
       if ($day !== false) {
         $data['day'] = $day->toSql();
@@ -58,101 +58,118 @@ class ScheduleModel extends AdminModel
       $data['day'] = $this->getDatabase()->getNullDate();
     }
 
-		return parent::save($data);
-	}
+    // Process accessiblemedia field
+    if ( !is_null($data['poster']) && !empty($data['poster']['imagefile']) ) {
+      $orig = JPATH_ROOT . DIRECTORY_SEPARATOR . explode("#", $data['poster']['imagefile'])[0];
 
-	/**
-	 * Method to get the record form.
-	 *
-	 * @param   array    $data      Data for the form.
-	 * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
-	 *
-	 * @return  Form|boolean  A Form object on success, false on failure
-	 *
-	 * @since   1.6
-	 */
-	public function getForm($data = array(), $loadData = true)
-	{
-		// Get the form and add dynamic values
+      $basename = basename($orig);
+      // guarantee ending is .jpg
+      $basename = preg_replace('/\.[a-zA-Z0-9]{3,4}$/', '.jpg', $basename);
+      $basepath = dirname($orig);
 
-		$form = $this->loadForm('com_claw.schedule', 'schedule', array('control' => 'jform', 'load_data' => $loadData));
-		if (empty($form))
-		{
-			return false;
-		}
+      $thumbname = implode(DIRECTORY_SEPARATOR, [$basepath, 'thumb_'.$basename]);
 
-		$event = $form->getField('event')->value;
-		if (empty($event)) $event = Aliases::current();
-		$eventConfig = new EventConfig($event, [PackageInfoTypes::addon]);
+      if ( !Helpers::ProcessImageUpload(
+        source: $orig,
+        thumbnail: $thumbname,
+        thumbsize: 200,
+      )) {
+        $app = Factory::getApplication();
+        $app->enqueueMessage('Unable to save poster thumbnail file.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+        return false;
+      }
+    }
 
-		/** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
-		$parentField = $form->getField('location');
-		$locationAlias = EventBooking::getLocationAlias($eventConfig->eventInfo->ebLocationId);
-		$parentField->populateOptions($locationAlias);
+    return parent::save($data);
+  }
 
-		$sponsors = Sponsors::GetPublishedSponsors($this->getDatabase());
+  /**
+   * Method to get the record form.
+   *
+   * @param   array    $data      Data for the form.
+   * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
+   *
+   * @return  Form|boolean  A Form object on success, false on failure
+   *
+   * @since   1.6
+   */
+  public function getForm($data = array(), $loadData = true)
+  {
+    // Get the form and add dynamic values
 
-		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
-		$parentField = $form->getField('sponsors');
-		foreach ( $sponsors AS $s )
-		{
-			$parentField->addOption($s->name, ['value' => $s->id]);
-		}
+    $form = $this->loadForm('com_claw.schedule', 'schedule', array('control' => 'jform', 'load_data' => $loadData));
+    if (empty($form)) return false;
 
-		/** @var $parentField \Joomla\CMS\Form\Field\ListField */
-		$parentField = $form->getField('event_id');
-		foreach ( $eventConfig->packageInfos AS $packageInfo )
-		{
-			$parentField->addOption($packageInfo->title, ['value' => $packageInfo->eventId]);
-		}
+    $event = $form->getField('event')->value;
+    if (empty($event)) $event = Aliases::current();
+    $eventConfig = new EventConfig($event, [PackageInfoTypes::addon]);
 
-		return $form;
-	}
+    /** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
+    $parentField = $form->getField('location');
+    $locationAlias = EventBooking::getLocationAlias($eventConfig->eventInfo->ebLocationId);
+    $parentField->populateOptions($locationAlias);
 
-	/**
-	 * Method to get the data that should be injected in the form.
-	 *
-	 * @return  mixed  The data for the form.
-	 *
-	 * @since   1.6
-	 */
-	protected function loadFormData()
-	{
-		// Check the session for previously entered form data.
+    $sponsors = Sponsors::GetPublishedSponsors($this->getDatabase());
 
-		/** @var \Joomla\CMS\Application\AdministratorApplication $app */
-		$app = Factory::getApplication();
-		$data = $app->getUserState('com_claw.edit.schedule.data', array());
+    /** @var \Joomla\CMS\Form\Field\ListField */
+    $parentField = $form->getField('sponsors');
+    foreach ( $sponsors AS $s ) {
+      $parentField->addOption($s->name, ['value' => $s->id]);
+    }
 
-		if (empty($data)) {
-			$data = $this->getItem();
-		}
+    /** @var \Joomla\CMS\Form\Field\ListField */
+    $parentField = $form->getField('event_id');
+    foreach ( $eventConfig->packageInfos AS $packageInfo ) {
+      $parentField->addOption($packageInfo->title, ['value' => $packageInfo->eventId]);
+    }
 
-		return $data;
-	}
+    return $form;
+  }
 
-	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return  Table  A Table object
-	 *
-	 * @since   3.0
-	 * @throws  \Exception
-	 */
-	public function getTable($name = '', $prefix = '', $options = array())
-	{
-		$name = 'Schedules';
-		$prefix = 'Table';
+  /**
+   * Method to get the data that should be injected in the form.
+   *
+   * @return  mixed  The data for the form.
+   *
+   * @since   1.6
+   */
+  protected function loadFormData()
+  {
+    // Check the session for previously entered form data.
 
-		if ($table = $this->_createTable($name, $prefix, $options))
-		{
-			return $table;
-		}
+    /** @var \Joomla\CMS\Application\AdministratorApplication $app */
+    $app = Factory::getApplication();
+    $data = $app->getUserState('com_claw.edit.schedule.data', array());
 
-		throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
-	}
+    if (empty($data)) {
+      $data = $this->getItem();
+    }
+
+    return $data;
+  }
+
+  /**
+   * Method to get a table object, load it if necessary.
+   *
+   * @param   string  $name     The table name. Optional.
+   * @param   string  $prefix   The class prefix. Optional.
+   * @param   array   $options  Configuration array for model. Optional.
+   *
+   * @return  Table  A Table object
+   *
+   * @since   3.0
+   * @throws  \Exception
+   */
+  public function getTable($name = '', $prefix = '', $options = array())
+  {
+    $name = 'Schedules';
+    $prefix = 'Table';
+
+    if ($table = $this->_createTable($name, $prefix, $options))
+    {
+      return $table;
+    }
+
+    throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
+  }
 }
