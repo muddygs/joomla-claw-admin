@@ -75,8 +75,7 @@ class PresenterModel extends AdminModel
     $new = false;
 
     // New record handling
-    if ( $data['id'] == 0 )
-    {
+    if ( $data['id'] == 0 ) {
       $data['submission_date'] = date("Y-m-d");
 
       // Check UID record is unique
@@ -118,7 +117,7 @@ class PresenterModel extends AdminModel
     if ( 0 == $error ) {
       // Copy original out of tmp
       $result = copy($tmp_name, $orig);
-      if ( !Helpers::ProcessImageUpload(
+      if ( $result && !Helpers::ProcessImageUpload(
         source: $tmp_name,
         thumbnail: $thumb,
         copyto: $orig,
