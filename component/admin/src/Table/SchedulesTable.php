@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -21,17 +22,17 @@ use Joomla\Database\DatabaseDriver;
  */
 class SchedulesTable extends Table
 {
-	protected $_jsonEncode = ['poster'];
+  protected $_jsonEncode = ['poster'];
 
-	/**
-	 * Constructor
-	 *
-	 * @param   DatabaseDriver  $db  Database connector object
-	 *
-	 * @since   1.6
-	 */
-	public function __construct(DatabaseDriver $db)
-	{
-		parent::__construct('#__claw_schedule', 'id', $db);
-	}
+  /**
+   * Constructor
+   *
+   * @param   DatabaseDriver  $db  Database connector object
+   *
+   * @since   1.6
+   */
+  public function __construct(DatabaseDriver $db)
+  {
+    parent::__construct('#__claw_schedule', 'id', $db);
+  }
 }
