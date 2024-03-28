@@ -389,6 +389,9 @@ class Helpers
               break;
           }
         }
+        // guarantee'ish ending is .jpg
+        $dest = preg_replace('/\.[a-zA-Z0-9]{3,4}$/', '.jpg', $dest);
+
         $image->toFile($dest, IMAGETYPE_JPEG, ['quality' => $quality]);
       } catch (LogicException $ex) {
         return false;
@@ -396,6 +399,8 @@ class Helpers
 
       return true;
     }
+
+    return false;
   }
 
   /**
