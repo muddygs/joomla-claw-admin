@@ -18,13 +18,6 @@ use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
-use Joomla\DI\Exception\KeyNotFoundException;
-use Joomla\Database\Exception\UnsupportedAdapterException;
-use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
-use RuntimeException;
-use InvalidArgumentException;
-use Joomla\Database\Exception\DatabaseNotFoundException;
-use Exception;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
@@ -51,7 +44,7 @@ class HtmlView extends BaseHtmlView
   {
     $this->state = $this->get('State');
 
-    /** @var Joomla\CMS\Application\SiteApplication */
+    /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
     $this->params = $params = $app->getParams();
     $group = $params->get('se_group', '');
