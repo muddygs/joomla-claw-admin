@@ -122,7 +122,7 @@ body {
 }
 
 .portrait .barcode {
-	transform: translate(-15.7mm, 45.4mm);
+	transform: translate(-15.7mm, 45.7mm);
 }
 
 .barcode .qrcode {
