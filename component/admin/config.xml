@@ -206,5 +206,44 @@
     />
   </fieldset>
 
+  <fieldset
+    name="onsite"
+    label="Onsite"
+    description="Settings for Onsite">
+
+    <field 
+      name="onsite_printer_attendee"
+      type="list"
+      default="sequential"
+      label="Attendee Printer"
+      description=""
+    >
+      <option value="sequential">Front/Back</option>
+      <option value="fb">Fronts/Backs Forward</option>
+      <option value="fbr">Fronts/Backs Reverse</option>
+    </field>
+    <field 
+      name="onsite_printer_volunteer"
+      type="list"
+      default="sequential"
+      label="Volunteer Printer"
+      description=""
+    >
+      <option value="sequential">Front/Back</option>
+      <option value="fb">Fronts/Backs Forward</option>
+      <option value="fbr">Fronts/Backs Reverse</option>
+    </field>
+    <field 
+      name="onsite_printer_others"
+      type="list"
+      default="sequential"
+      label="Others Printer"
+      description=""
+    >
+      <option value="sequential">Front/Back</option>
+      <option value="fb">Fronts/Backs Forward</option>
+      <option value="fbr">Fronts/Backs Reverse</option>
+    </field>
+  </fieldset>
 
 </config>
