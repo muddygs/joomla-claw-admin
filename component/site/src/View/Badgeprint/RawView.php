@@ -18,6 +18,7 @@ use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Checkin;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\Jwtwrapper;
+use Joomla\CMS\Factory;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class RawView extends BaseHtmlView
@@ -29,7 +30,7 @@ class RawView extends BaseHtmlView
   public int $quantity;
 
   public bool $checkinRecord = false;
-  public bool $primacy = true;
+  public array $printOrderings = [];
   public string $imagePath = '';
 
   protected array $registrationCodes = [];
@@ -62,6 +63,15 @@ class RawView extends BaseHtmlView
 
     $event = Aliases::current(true);
     $this->imagePath = '/images/badges/' . $event . '/';
+
+    // Load printing modes set in global configuration
+    /** @var \Joomla\CMS\Application\SiteApplication */
+    $app = Factory::getApplication();
+    $params = $app->getParams();
+    // $this->type array key
+    $this->printOrderings[0] = $params->get('onsite_printer_others', 'sequential');
+    $this->printOrderings[1] = $params->get('onsite_printer_attendee', 'sequential');
+    $this->printOrderings[2] = $params->get('onsite_printer_volunteer', 'sequential');
  
     parent::display($event);
   }
