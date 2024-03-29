@@ -25,6 +25,7 @@ use chillerlan\QRCode\QRCode;
 //require_once(JPATH_LIBRARIES . '/claw/External/barcode/vendor/autoload.php');
 
 ClawCorpLib\Helpers\Bootstrap::rawHeader(['/media/com_claw/js/print_badge.js'], ['/media/com_claw/css/primaryid_badge.css']);
+$ordering = $this->printOrderings[$this->type];
 
 ?>
   <div class="noprint d-grid gap-2">
@@ -79,24 +80,34 @@ ClawCorpLib\Helpers\Bootstrap::rawHeader(['/media/com_claw/js/print_badge.js'], 
         break;
     }
 
-    badgeFront($r, $orientation, $this->imagePath . $image);
-
-    if ($this->primacy != true) {
+    if ( $ordering == 'sequential' ) {
+      badgeFront($r, $orientation, $this->imagePath . $image);
       badgeBack($r, $this->imagePath);
+    } else {
+      badgeFront($r, $orientation, $this->imagePath . $image);
     }
 
     if ( $this->checkinRecord ) $c->doCheckin();
     $c->doMarkPrinted();
   endforeach;
 
-  if ($this->primacy) {
+  // Print backs in forward order
+  if ( $ordering == 'fb' ) {
+    reset($this->registrationCodes);
+    for (key($this->registrationCodes); key($this->registrationCodes) !== null; next($this->registrationCodes)) {
+      $code = current($this->registrationCodes);
+      $c = new Checkin($code);
+      badgeBack($c->r, $this->imagePath);
+    }
+  }
+  
+  // Print backs in reverse order
+  if ( $ordering == 'fbr') {
+    reset($this->registrationCodes);
     for (end($this->registrationCodes); key($this->registrationCodes) !== null; prev($this->registrationCodes)) {
       $code = current($this->registrationCodes);
       $c = new Checkin($code);
-
-      $r = $c->r;
-
-      badgeBack($r, $this->imagePath);
+      badgeBack($c->r, $this->imagePath);
     }
   }
 
@@ -118,10 +129,6 @@ function badgeFront(CheckinRecord $r, string $orientation, string $frontImage): 
   
   $qr = (new QRCode($options))->render($r->registration_code);
 
-  if ($r->photoAllowed == false) {
-    // 'x' in front of basename indicates the "no photo" badge image
-    //$frontImage = dirname($frontImage) . '/x' . pathinfo($frontImage, PATHINFO_BASENAME);
-  }
   $nophotoImage = dirname($frontImage) . '/nophoto.svg';
   
   // Convenience variables
@@ -150,7 +157,7 @@ function badgeFront(CheckinRecord $r, string $orientation, string $frontImage): 
       <i class="fa fa-2x fa-heart"></i>
     </div>
     <?php endif; ?>
-    <?php if ($r->photoAllowed == false): ?>
+    <?php if ( false == $r->photoAllowed ): ?>
     <div class="nophoto">
       <img src="<?= $nophotoImage ?>" alt="nophoto" />
     </div>
@@ -176,13 +183,13 @@ function badgeBack(CheckinRecord $r, string $imagePath): void
   $dinner = $r->getMealString($r->dinners);
 
 ?>
-  <div class="label" id="<?php echo $regCode ?>b">
+  <div class="label" id="<?= $regCode ?>b">
     <ul class="flex-container">
       <li class="header">
         <table style="width:100%">
           <tr>
-            <td style="width:50%"><span style="margin-left:0.5mm;"><?php echo $r->badgeId ?></span></td>
-            <td style="width:50%; text-align:right;"><span style="margin-right:0.5mm;">Shirt: <?php echo $r->shirtSize ?></span></td>
+            <td style="width:50%"><span style="margin-left:0.5mm;"><?= $r->badgeId ?></span></td>
+            <td style="width:50%; text-align:right;"><span style="margin-right:0.5mm;">Shirt: <?= $r->shirtSize ?></span></td>
           </tr>
         </table>
       </li>
@@ -191,12 +198,12 @@ function badgeBack(CheckinRecord $r, string $imagePath): void
       <li class="infoline">Buffets</li>
       <li class="infoline">Photo</li>
       <li class="infoline">COC Signed</li>
-      <li class="value"><?php echo $dinner ?></li>
-      <li class="value"><?php echo $brunch ?></li>
-      <li class="value"><?php echo $buffet ?></li>
-      <li class="value"><?php echo $noPhoto ?></li>
-      <li class="value"><?php echo $coc ?><br /><?php echo $r->id ?></li>
-      <li class="shifts"><?php echo $s ?></li>
+      <li class="value"><?= $dinner ?></li>
+      <li class="value"><?= $brunch ?></li>
+      <li class="value"><?= $buffet ?></li>
+      <li class="value"><?= $noPhoto ?></li>
+      <li class="value"><?= $coc ?><br /><?= $r->id ?></li>
+      <li class="shifts"><?= $s ?></li>
     </ul>
   </div>
   <div class="page-break"></div>
