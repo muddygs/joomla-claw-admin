@@ -1,3 +1,13 @@
+# 24.4.11 (2024-MAR-31)
+
+  1. Added printer configuration for the 3 separate badge types to support different printer scenarios
+  1. Fixed bug showing bio submission button when submissions closed
+
+# 24.4.10 (2024-MAR-27)
+
+  1. Added mod_claw_skillslist module
+  1. Fix: ScheduleModel now handles selection of event poster image
+
 # 24.4.9 (2024-MAR-21)
 
   1. Updated formatting and styling of classes listing
