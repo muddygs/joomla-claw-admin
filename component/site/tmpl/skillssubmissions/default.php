@@ -61,7 +61,7 @@ function BioHtml(object &$__this)
     <?php
     else:
     ?>
-      <h3 class="text-primary text-center border border-danger p-3">Submissions are open for <?php echo $__this->eventInfo->description ?>.
+      <h3 class="text-primary text-center border border-danger p-3">Submissions are open for <?php echo $__this->currentEventInfo->description ?>.
         You may add and edit your biography.</h3>
     <?php
     endif;
@@ -171,7 +171,7 @@ function BioHtml(object &$__this)
     endif;
   else :
     ?>
-    <h3 class="text-primary text-center border border-danger p-3">Submissions are open for <?php echo $__this->eventInfo->description ?>.
+    <h3 class="text-primary text-center border border-danger p-3">Submissions are open for <?php echo $__this->currentEventInfo->description ?>.
       You may add/edit your biography.</h3>
     <?php
     if ($isCurrent) {
@@ -202,9 +202,9 @@ function ClassesHtml(object $__this)
     <h3 class="text-warning text-center border border-danger p-3">Class submissions are currently closed.</h3>
     <?php else :
     if ($bioIsCurrent) : ?>
-      <h3 class="text-warning text-center border border-info p-3">Class submissions are open for <?= $__this->eventInfo->description ?>. You may add and edit your class submissions.</h3>
+      <h3 class="text-warning text-center border border-info p-3">Class submissions are open for <?= $__this->currentEventInfo->description ?>. You may add and edit your class submissions.</h3>
     <?php else : ?>
-      <h3 class="text-warning text-center border border-info p-3">Please submit your bio for <?= $__this->eventInfo->description ?> before adding/editing class descriptions.</h3>
+      <h3 class="text-warning text-center border border-info p-3">Please submit your bio for <?= $__this->currentEventInfo->description ?> before adding/editing class descriptions.</h3>
     <?php endif; ?>
   <?php endif; ?>
 
