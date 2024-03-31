@@ -46,31 +46,36 @@ Bootstrap::writePillTabs($tabs, $content, $activeTab);
 
 function BioHtml(object &$__this)
 {
+  $addBioButton = true;
   // Handle easy case where recent bio is not on file
   if ( !property_exists($__this, 'bio') || !property_exists($__this->bio, 'id') ) {
-    ?>
-      <h2>No recent biography on file</h2>
-    <?php
     if ( !$__this->canEditBio && $__this->canAddOnlyBio ):
     ?>
-      <h3 class="text-warning">Submissions are closed, but you may submit a biography (typically used for late entry).
+      <h3 class="text-warning text-center border border-danger p-3">Submissions are closed, but you may submit a biography (typically used for late entry).
         After submission, you will no longer be able to edit it.</h3>
     <?php
     elseif ( !$__this->canEditBio && !$__this->canAddOnlyBio ):
+      $addBioButton = false;
       ?>
-      <h3 class="text-warning">Submissions are closed. You may not submit a biography.</h3>
+      <h3 class="text-warning text-center border border-danger p-3">Biography submissions are currently closed.</h3>
     <?php
     else:
     ?>
-      <h3 class="text-warning">Submissions are open for <?php echo $__this->eventInfo->description ?>.
+      <h3 class="text-primary text-center border border-danger p-3">Submissions are open for <?php echo $__this->eventInfo->description ?>.
         You may add and edit your biography.</h3>
     <?php
     endif;
 
-    $buttonRoute = Route::_('index.php?option=com_claw&view=presentersubmission&id=0');
-    $msg = 'Add Biography';
+    if ($addBioButton) {
+      $buttonRoute = Route::_('index.php?option=com_claw&view=presentersubmission&id=0');
+      $msg = 'Add Biography';
+      ?>
+        <a name="add-biography" id="add-biography" class="btn btn-danger" href="<?= $buttonRoute ?>" role="button"><?= $msg ?></a>
+      <?php
+    }
+
     ?>
-      <a name="add-biography" id="add-biography" class="btn btn-danger" href="<?= $buttonRoute ?>" role="button"><?= $msg ?></a>
+    <h2>No recent biography on file</h2>
     <?php
 
     return;
@@ -153,20 +158,20 @@ function BioHtml(object &$__this)
   if ($__this->params->get('se_submissions_open') == 0) :
     if ( ($__this->bio->id ?? 0 != 0) && $isCurrent ) :
     ?>
-      <h3 class="text-info">Submissions are currently closed. Biographies are in view-only mode.</h3>
+      <h3 class="text-warning text-center border border-danger p-3">Submissions are currently closed. Biographies are in view-only mode.</h3>
     <?php
     else :
       $buttonRoute = Route::_('index.php?option=com_claw&task=copybio&id=' . $__this->bio->id);
       $msg = 'Resubmit for ' . EventConfig::getTitleMapping()[Aliases::current(true)];
     ?>
-      <h3 class="text-warning">Submissions are closed, but you may submit a biography.
+      <h3 class="text-warning text-center border border-danger p-3">Submissions are closed, but you may submit a biography.
         After submission, please contact the skills coordinator with your updated information.</h3>
       <a name="add-biography" id="add-biography" class="btn btn-danger" href="<?= $buttonRoute ?>" role="button"><?= $msg ?></a>
     <?php
     endif;
   else :
     ?>
-    <h3 class="text-warning">Submissions are open for <?php echo $__this->eventInfo->description ?>.
+    <h3 class="text-primary text-center border border-danger p-3">Submissions are open for <?php echo $__this->eventInfo->description ?>.
       You may add/edit your biography.</h3>
     <?php
     if ($isCurrent) {
