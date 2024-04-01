@@ -179,7 +179,7 @@ class Checkin
 
       // Standard Meals
       if ( array_key_exists($r->event->eventId, $this->r->dinners) ) {
-        $this->r->dinners[$r->event->eventId] = $r->fieldValue->Dinner;
+        $this->r->dinners[$r->event->eventId] = $r->fieldValue->Dinner.$r->fieldValue->DinnerCle;
         continue;
       }
       
