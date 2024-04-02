@@ -27,7 +27,7 @@ use Joomla\Database\DatabaseDriver;
 
 \ClawCorpLib\Helpers\Bootstrap::rawHeader([], ['/media/com_claw/css/print_letter.css']);
 
-$eventAlias = Aliases::current();
+$eventAlias = Aliases::current(true);
 $clawEvents = new EventConfig($eventAlias);
 $packageInfos = $clawEvents->packageInfos;
 $eventInfo = $clawEvents->eventInfo;
@@ -37,14 +37,21 @@ $shirtSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'None'];
 
 $db = Factory::getContainer()->get('DatabaseDriver');
 
+// start script timer
+$start = microtime(true);
+
+
+
+// echo "<pre>Stage 1: Mem usage is: ", memory_get_usage(), "\n</pre>";
+
+
 ?>
 <h1 class="text-center"><?= $eventInfo->description ?> Pre-Flight Registration Check</h1>
 <?php
 $mainEventIds = [];
 
 /** @var \ClawCorpLib\Lib\PackageInfo */
-foreach ( $packageInfos AS $packageInfo )
-{
+foreach ( $packageInfos AS $packageInfo ) {
   if ($packageInfo->packageInfoType != PackageInfoTypes::main ) continue;
 
   $mainEventIds[] = $packageInfo->eventId;
@@ -88,8 +95,9 @@ foreach ( $packageInfos AS $packageInfo )
     <tbody>
   <?php
 
-  foreach ( $registrantIds AS $row )
-  {
+  foreach ( $registrantIds AS $row ) {
+    // echo "<pre>Registrant Ids Loop: Mem usage is: ", memory_get_usage(), "\n</pre>";
+
     $registrant = new Registrant($eventAlias, $row->user_id);
 
     $output = (object)[
@@ -213,6 +221,8 @@ foreach ( $packageInfos AS $packageInfo )
   <?php
 }
 
+// echo "<pre>Post Loop: Mem usage is: ", memory_get_usage(), "\n</pre>";
+
 // Now check for duplicate user ids across main events
 $query = $db->getQuery(true);
 $query->select(['user_id'])
@@ -304,6 +314,11 @@ if ( count($duplicateCouponKeys) > 0 ) {
 } else {
   echo "<h2 class=\"text-success\">No duplicate coupon keys found</h2>\n";
 }
+
+// script run time
+$end = microtime(true);
+$elapsed = $end - $start;
+echo "<h2>Script run time: {$elapsed} seconds</h2>\n";
 
 \ClawCorpLib\Helpers\Bootstrap::rawFooter();
 
