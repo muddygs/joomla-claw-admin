@@ -24,6 +24,8 @@ class EventConfig
   // Cache of config values
   private static array $_titles = [];
   private static string $_current = '';
+  private static array $_EventInfoCache = [];
+  private static array $_PackageInfosCache = [];
 
   public const DEFAULT_FILTERS = [
     PackageInfoTypes::main,
@@ -46,7 +48,13 @@ class EventConfig
     if ( !EventInfo::isValidEventAlias($this->alias) ) throw(new Exception("Invalid event alias: $this->alias"));
 
     // TODO: Error handling
-    $this->eventInfo = new EventInfo($alias);
+    if ( !array_key_exists($alias, self::$_EventInfoCache) ) {
+      self::$_EventInfoCache[$alias] = new EventInfo($alias);
+    }
+
+    // $this->eventInfo = new EventInfo($alias);
+    $this->eventInfo = self::$_EventInfoCache[$alias];
+
     $this->packageInfos = new PackageInfos();
 
     // For refunds, we need access to all active EventConfigs and their PackageInfos
@@ -59,7 +67,12 @@ class EventConfig
       $eventInfos = EventInfo::getEventInfos();
       $this->loadPackageInfos(array_keys($eventInfos));
     } else {
-      $this->loadPackageInfos([$this->eventInfo->alias]);
+      if ( !array_key_exists($this->eventInfo->alias, self::$_PackageInfosCache) ) {
+        $this->loadPackageInfos([$this->eventInfo->alias]);
+        self::$_PackageInfosCache[$this->eventInfo->alias] = $this->packageInfos;
+      } 
+
+      $this->packageInfos = self::$_PackageInfosCache[$this->eventInfo->alias];
     }
 
   }

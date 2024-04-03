@@ -14,16 +14,35 @@ use ClawCorpLib\Lib\CheckinRecord;
 class Checkin
 {
   public ?CheckinRecord $r;
-  private $uid;
-  public bool $isValid;
+  private $uid = 0;
+  public bool $isValid = false;
+  public static string $alias = '';
+
+  private static array $comboMealsCache = [];
+  private static ?EventConfig $eventConfig = null;
 
   public function __construct(
     public string $registration_code, 
     public bool $errorReporting = true)
   {
+    if ( self::$alias == '' ) self::$alias = Aliases::current(true);
+    
     $this->uid = Registrant::getUserIdFromInvoice($registration_code);
     $this->isValid = false;
     $this->r = null;
+
+    if ( self::$eventConfig == null ) {
+      self::$eventConfig = new EventConfig(self::$alias, []);
+    }
+
+    // Combo meals events
+    if ( sizeof(self::$comboMealsCache) == 0 ) {
+      foreach ( [EventPackageTypes::combo_meal_1, EventPackageTypes::combo_meal_2, EventPackageTypes::combo_meal_3, EventPackageTypes::combo_meal_4] AS $comboMeal ) {
+        $combo = self::$eventConfig->getPackageInfo($comboMeal);
+        if ( is_null($combo) ) continue;
+        self::$comboMealsCache[] = $combo;
+      }
+    }
 
     if ( $this->uid != 0 ) {
       $this->isValid = $this->loadRecord();
@@ -49,8 +68,7 @@ class Checkin
       'PRONOUNS'
     ];
     
-    $alias = Aliases::current(true);
-    $registrant = new Registrant($alias, $this->uid);
+    $registrant = new Registrant(self::$alias, $this->uid);
     $registrant->loadCurrentEvents();
     
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
@@ -63,25 +81,23 @@ class Checkin
       $mainEventRegistrantRecord = $registrant->getMainEvent();
     }
     
-    $eventConfig = new EventConfig($alias, []);
-
     // Cache meal labels
     $badgeValues = [];
     /** @var \ClawCorpLib\Lib\PackageInfo */
-    foreach ( $eventConfig->packageInfos AS $e ) {
+    foreach ( self::$eventConfig->packageInfos AS $e ) {
       if ( $e->badgeValue != '' ) {
         $badgeValues[$e->eventId] = $e->badgeValue;
       }
     }
     
-    $this->r = new CheckinRecord($eventConfig, $this->uid);
+    $this->r = new CheckinRecord(self::$eventConfig, $this->uid);
     // Error for no main event
     if ($mainEventRegistrantRecord == null) {
       $this->r->error = 'User does not have a registration package.';
       return false;
     }
 
-    $event = $eventConfig->getMainEventByPackageType($mainEventRegistrantRecord->registrant->eventPackageType);
+    $event = self::$eventConfig->getMainEventByPackageType($mainEventRegistrantRecord->registrant->eventPackageType);
 
     $this->r->package_eventId = $mainEventRegistrantRecord->event->eventId;
     $this->r->id = $mainEventRegistrantRecord->registrant->id;
@@ -126,14 +142,6 @@ class Checkin
     $this->r->shifts = '';
     $shiftCount = 0;
 
-    // Combo meals events
-    $comboMeals = [];
-    foreach ( [EventPackageTypes::combo_meal_1, EventPackageTypes::combo_meal_2, EventPackageTypes::combo_meal_3, EventPackageTypes::combo_meal_4] AS $comboMeal ) {
-      $combo = $eventConfig->getPackageInfo($comboMeal);
-      if ( is_null($combo) ) continue;
-      $comboMeals[] = $combo;
-    }
-
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
     foreach ($records as $r) {
       $scannedEvents = $this->explodeTicketScanned($r->fieldValue->Z_TICKET_SCANNED);
@@ -145,7 +153,7 @@ class Checkin
       $comboCount = 0;
 
       /** @var \ClawCorpLib\Lib\PackageInfo */
-      foreach ( $comboMeals AS $comboMeal ) {
+      foreach ( self::$comboMealsCache AS $comboMeal ) {
         if ( $r->event->eventId == $comboMeal->eventId ) {
           $comboCount++;
           
@@ -249,13 +257,13 @@ class Checkin
     $this->r->dayPassDay = '';
 
     switch($this->r->package_eventId) {
-      case $eventConfig->getPackageInfo(EventPackageTypes::day_pass_fri)->eventId:
+      case self::$eventConfig->getPackageInfo(EventPackageTypes::day_pass_fri)->eventId:
         $this->r->dayPassDay = 'Fri';
         break;
-      case $eventConfig->getPackageInfo(EventPackageTypes::day_pass_sat)->eventId:
+      case self::$eventConfig->getPackageInfo(EventPackageTypes::day_pass_sat)->eventId:
         $this->r->dayPassDay = 'Sat';
         break;
-      case $eventConfig->getPackageInfo(EventPackageTypes::day_pass_sun)->eventId:
+      case self::$eventConfig->getPackageInfo(EventPackageTypes::day_pass_sun)->eventId:
         $this->r->dayPassDay = 'Sun';
         break;
     }
@@ -283,7 +291,7 @@ class Checkin
   }
 
   public function doCheckin() {
-    $registrant = new Registrant(Aliases::current(true), $this->r->uid);
+    $registrant = new Registrant(self::$alias, $this->r->uid);
     $mainEvent = $registrant->getMainEvent();
 
     $registrant->updateFieldValues($mainEvent->registrant->id, ['Z_BADGE_ISSUED' => 1]);
@@ -291,7 +299,7 @@ class Checkin
 
   public function doMarkPrinted()
   {
-    $registrant = new Registrant(Aliases::current(true), $this->r->uid);
+    $registrant = new Registrant(self::$alias, $this->r->uid);
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
     $mainEvent = $registrant->getMainEvent();
 
@@ -309,12 +317,12 @@ class Checkin
     }
 
     // Does this badge have this meal?
-    $eventConfig = new EventConfig(Aliases::current(true));
+    $eventConfig = new EventConfig(self::$alias);
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     $packageInfo = $eventConfig->getPackageInfoByProperty('eventId',$eventId, false);
     if (null == $packageInfo) {
-      return $this->htmlMsg('Unknown event id '.$eventId.' in '.Aliases::current(true), 'btn-dark');
+      return $this->htmlMsg('Unknown event id '.$eventId.' in '.self::$alias, 'btn-dark');
     }
 
     $ticketEventId = $eventId;
@@ -430,7 +438,7 @@ HTML;
 
   private function issueMealTicket(int $mealEventId, int $ticketEventId)
   {
-    $registrant = new Registrant(Aliases::current(true), $this->r->uid, [$ticketEventId]);
+    $registrant = new Registrant(self::$alias, $this->r->uid, [$ticketEventId]);
     $registrant->loadCurrentEvents();
     $registrant->mergeFieldValues(['Z_TICKET_SCANNED']);
 
