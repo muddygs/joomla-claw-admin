@@ -478,7 +478,7 @@ class Skills
 
             if ( $surveyLink != '' && $publishedOnly ) {
               $newurl = $surveyLink . '?form[classTitleParam]=' . $c->id;
-              $oldurl = $siteUrl . 'skills_survey_'.$c->id; 
+              $oldurl = '/skills_survey_'.$c->id; 
               $redirect = new Redirects($this->db, $oldurl, $newurl, 'survey_'.$c->id);
               $redirectId = $redirect->insert();
               if ( $redirectId ) $survey = 'Survey: ' . $oldurl . '<br/>';
