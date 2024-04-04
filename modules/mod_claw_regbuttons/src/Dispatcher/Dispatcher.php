@@ -39,6 +39,7 @@ class Dispatcher extends AbstractModuleDispatcher
         $data['silentauction'] = $data['params']->get('silentauction', '');
         $data['mobileapp'] = $data['params']->get('mobileapp', '');
         $data['hotels'] = $data['params']->get('hotels', '');
+        $data['local'] = $data['params']->get('local', '');
         $data['infotext'] = $data['params']->get('infotext', '');
 
         return $data;

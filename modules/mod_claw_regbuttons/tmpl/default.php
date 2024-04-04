@@ -25,6 +25,9 @@ if ($mobileapp) {
 if ($hotels) {
   $content['hotel'] = ['<a href="' . $hotels . '">Hotel Reservations</a>'];
 }
+if ( $local ) {
+  $content['map-marker'] = ['<a href="' . $local . '">Local Guide</a>'];
+}
 
 $tags = [
   ['<h4 class="fw-bold mb-0">', '</h4>'],
