@@ -2,12 +2,12 @@
 <extension type="module" client="site" method="upgrade">
 
   <name>CLAW Registration Quick Buttons</name>
-  <creationDate>2024-04-04</creationDate>
+  <creationDate>2024-04-07</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>4.3.1</version>
+  <version>4.3.2</version>
   <description>Displays registration quick buttons</description>
 	<namespace path="src">ClawCorp\Module\RegButtons</namespace>
 

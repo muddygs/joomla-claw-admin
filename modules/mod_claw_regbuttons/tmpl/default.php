@@ -26,7 +26,7 @@ if ($hotels) {
   $content['hotel'] = ['<a href="' . $hotels . '">Hotel Reservations</a>'];
 }
 if ( $local ) {
-  $content['map-marker'] = ['<a href="' . $local . '">Local Guide</a>'];
+  $content['map-marker'] = ['<a href="' . $local . '">Supporting Restaurants</a>'];
 }
 
 $tags = [
