@@ -39,7 +39,7 @@ class Schedule {
     switch($this->view) {
       case 'upcoming':
         $now = $this->date == null ? 'NOW()' : $this->date->format('Y-m-d H:i:s');
-        $q->where('TIMESTAMP(day,start_time) >= '.$this->db->quote($now));
+        $q->where('TIMESTAMP(day,start_time) >= '.$now);
         break;
       default:
     }
