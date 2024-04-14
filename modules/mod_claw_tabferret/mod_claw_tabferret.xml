@@ -4,12 +4,12 @@
   method="upgrade">
 
   <name>CLAW Tab Ferret</name>
-  <creationDate>2024-02-25</creationDate>
+  <creationDate>2024-04-09</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>4.3.1</version>
+  <version>4.3.2</version>
   <description>Displays articles and modules using Bootstrap methods</description>
 	<namespace path="src">ClawCorp\Module\ClawTabferret</namespace>
 
@@ -48,7 +48,7 @@
           label="Content"
           multiple="true"
           min="1"
-          max="6">
+          max="20">
           <form>
             <field name="tab_title"
               type="text"
