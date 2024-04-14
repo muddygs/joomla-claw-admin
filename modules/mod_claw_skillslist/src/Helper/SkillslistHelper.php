@@ -48,7 +48,7 @@ class SkillslistHelper implements DatabaseAwareInterface
 
     /** @var \Joomla\Database\DatabaseDriver */
     $db = $this->getDatabase();
-    $eventAlias = Aliases::current(true);
+    $eventAlias = $eventInfo->alias;
 
     $query = $db->getQuery(true);
     $query->select(['id', 'title', 'location'])
