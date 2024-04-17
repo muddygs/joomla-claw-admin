@@ -32,7 +32,7 @@ class EventInfosModel extends ListModel
     'start_date',
     'end_date',
     'ebLocationId',
-  ];	
+  ];
 
   /**
    * Constructor.
