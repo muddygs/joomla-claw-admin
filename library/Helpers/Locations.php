@@ -8,9 +8,16 @@ class Locations {
 
   public static int $blankLocation = -1;
 
-  public static function GetLocationsList(string $parentAlias = '', bool $rootOnly = false): array {
-    if ( $parentAlias == '' ) $parentAlias = '_all_';
-    if ( array_key_exists($parentAlias, Locations::$cache) ) return Locations::$cache[$parentAlias];
+  public function __construct(
+    public readonly string $eventAlias
+  )
+  {
+  }
+
+
+  public function GetLocationsList(): array
+  {
+    if ( array_key_exists($this->eventAlias, Locations::$cache) ) return Locations::$cache[$this->eventAlias];
 
     $db = Factory::getContainer()->get('DatabaseDriver');
 
@@ -19,105 +26,19 @@ class Locations {
     $query->select($db->qn(['id','value']))
     ->from($db->qn('#__claw_locations'))
     ->where($db->qn('published') . '=1')
-    ->where($db->qn('catid'). '=0')
+    ->where($db->qn('event') . '=' . $db->q($this->eventAlias))
     ->order($db->qn('value'));
 
-    if ( $parentAlias != '' && $parentAlias != '_all_') {
-      $query->where($db->qn('alias') . '=' . $db->q($parentAlias));
-    }
-
     $db->setQuery($query);
-    $parents = $db->loadObjectList('id') ?? [];
+    Locations::$cache[$this->eventAlias] = $db->loadObjectList('id') ?? [];
 
-    if ( $rootOnly ) {
-      $root = [];
-      foreach ( $parents AS $p) {
-        $root[] = (object)['id' => $p->id, 'value' => $p->value];
-      }
-
-      return $root;
-    }
-
-    foreach ( $parents AS $p) {
-      // push on the parent
-      Locations::$cache[$p->id] = $p;
-
-      // get the children
-      $query = $db->getQuery(true);
-      $query->select($db->qn(['id','value']))
-      ->from($db->qn('#__claw_locations'))
-      ->where($db->qn('published') . '=1')
-      ->where($db->qn('catid'). '=' . $p->id)
-      ->order($db->qn('value'));
-
-      $db->setQuery($query);
-      $children = $db->loadObjectList('id') ?? [];
-
-      if ( !array_key_exists($parentAlias, Locations::$cache) ) Locations::$cache[$parentAlias] = [];
-      Locations::$cache[$parentAlias] = array_replace(Locations::$cache[$parentAlias], $children);
-    }
-
-    return Locations::$cache[$parentAlias];
+    return Locations::$cache[$this->eventAlias];
   }
 
-  // TODO: Need parents, and this is a quickie to get that info for now
-  public static function GetRootLocationIds()
-  {
-    $db = Factory::getContainer()->get('DatabaseDriver');
-
-    $query = $db->getQuery(true);
-
-    $query->select($db->qn(['id']))
-    ->from($db->qn('#__claw_locations'))
-    ->where($db->qn('published') . '=1')
-    ->where($db->qn('catid'). '=0');
-
-    $db->setQuery($query);
-    return $db->loadColumn() ?? [];
-  }
-
-  /* OLDER ID ORDER */
-  // static public function getLocations(DatabaseDriver $db, string $baseAlias = ''): array
-  // {
-  //   $query = $db->getQuery(true);
-  //   $query->select(['l.id', 'l.value', 'l.catid'])
-  //     ->from($db->qn('#__claw_locations', 'l'));
-
-  //   if ($baseAlias != '') {
-  //     $query->join('LEFT OUTER', $db->qn('#__claw_locations', 't') . ' ON ' . $db->qn('t.alias') . ' = ' . $db->q($baseAlias))
-  //       ->where($db->qn('t.published') . '= 1')
-  //       ->where($db->qn('l.catid') . '=' . $db->qn('t.id'));
-  //   }
-
-  //   $query->where($db->qn('l.published') . '= 1');
-  //   $query->order('l.catid ASC, l.ordering ASC');
-
-  //   $db->setQuery($query);
-  //   return $db->loadObjectList();
-  // }
-
-  public static function GetLocationById(int $id): ?object
+  public function GetLocationById(int $id): ?object
   {
     if ( $id == Locations::$blankLocation ) return (object)['value' => ''];
-    if ( !count(Locations::$cache) ) Locations::GetLocationsList();
-    return Locations::$cache['_all_'][$id] ?? (object)['value' => ''];
-  }
-
-  /**
-   * Validates if an location alias is defined in eventbooking
-   * @param string $alias
-   * @return bool True if alias is found
-   */
-  public static function ValidateLocationAlias(string $alias): bool
-  {
-    $db = Factory::getContainer()->get('DatabaseDriver');
-    $query = $db->getQuery(true)
-      ->select('COUNT(*)')
-      ->from('#__claw_locations')
-      ->where('published = 1')
-      ->where('alias = :alias')
-      ->bind(':alias', $alias);
-    $db->setQuery($query);
-    return $db->loadResult() > 0;
+    if ( !count(Locations::$cache) ) $this->GetLocationsList();
+    return array_key_exists($id, Locations::$cache[$this->eventAlias]) ? Locations::$cache[$this->eventAlias][$id] : null;
   }
 }
