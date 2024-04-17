@@ -2,8 +2,8 @@
 
 namespace ClawCorp\Component\Claw\Administrator\Field;
 
-use Joomla\CMS\Form\Field\ListField;
 use ClawCorpLib\Helpers\Helpers;
+use Joomla\CMS\Form\Field\ListField;
 use ClawCorpLib\Helpers\Locations;
 
 defined('_JEXEC') or die;
@@ -11,10 +11,6 @@ defined('_JEXEC') or die;
 class LocationListField extends ListField
 {
   protected $type = "LocationList";
-
-  private $listItems = [];
-
-  public $filter = '';
 
   /**
    * Method to get the field input markup for a generic list.
@@ -46,59 +42,29 @@ class LocationListField extends ListField
    */
   protected function getOptions()
   {
-    $rootLocations = Locations::GetRootLocationIds();
+    $options = parent::getOptions();
 
-    $currentValue = $this->__get('value');
+    $eventAlias = Helpers::sessionGet('eventAlias');
+    $locations = new Locations($eventAlias);
 
-    // Assume "Select message" is first item (based on form config)
-    $selectCase = false;
+    $value = $this->__get('value');
 
-    foreach ($this->element->xpath('option') as $option) {
-      $value = (string) $option['value'];
-      $text  = trim((string) $option) ?: $value;
+    foreach ($locations->GetLocationsList() as $location) {
+      $tmp = (object)[
+        'value'    => $location->id,
+        'text'     => $location->value,
+        'disable'  => false,
+        'class'    => '',
+        'selected' => $value == $value,
+        'checked'  => $value == $value,
+        'onclick'  => '',
+        'onchange' => ''
+      ];
 
-      // TODO: Fix "Select Location" case
-      if (in_array($value, $rootLocations) || !$selectCase ) {
-        $this->listItems[] = (object)[
-          'value'    => $value,
-          'text'     => $text,
-          'disable'  => false,
-          'class'    => '',
-          'selected' => $value == $currentValue,
-          'checked'  => $value == $currentValue,
-          'onclick'  => '',
-          'onchange' => ''
-        ];
-
-        $selectCase = true;
-      } else {
-        $level=1;
-        $this->listItems[] = (object)[
-          'value'    => $value,
-          'text'     => str_repeat('&emsp;', $level - 1) . '|&mdash; ' . $text,
-          'disable'  => false,
-          'class'    => '',
-          'selected' => $value == $currentValue,
-          'checked'  => $value == $currentValue,
-          'onclick'  => '',
-          'onchange' => ''
-        ];
-      }  
+      $options[] = $tmp;
     }
 
-    return $this->listItems;
-  }
-
-  public function populateOptions(string $parentAlias = '', bool $rootOnly = false)
-  {
-    $locations = Locations::GetLocationsList($parentAlias, $rootOnly);
-
-    if ( $parentAlias != '' ) {
-      $this->addOption(htmlentities('TBD'), ['value' => Locations::$blankLocation]);
-    }
-
-    foreach ( $locations AS $l) {
-      $this->addOption(htmlentities($l->value), ['value' => $l->id]);
-    }
+    reset($options);
+    return $options;
   }
 }
