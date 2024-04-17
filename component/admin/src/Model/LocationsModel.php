@@ -11,6 +11,7 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Model\ListModel;
@@ -22,220 +23,144 @@ use Joomla\CMS\MVC\Model\ListModel;
  */
 class LocationsModel extends ListModel
 {
-	/**
-	 * Constructor.
-	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
-	 *
-	 * @see     \JController
-	 * @since   1.6
-	 */
-	public function __construct($config = array())
-	{
-		if (empty($config['filter_fields'])) {
-			$config['filter_fields'] = array(
-				'id', 'a.id',
-				'published', 'a.published',
-				// 'parent', 'a.parent',
-				'ordering', 'a.ordering',
-				'catid', 'a.catid',
-				'value', 'a.value',
-				'alias', 'a.alias',
-			);
-		}
+  private array $list_fields = [
+    'id',
+    'event',
+    'published',
+    'value',
+  ];
 
-		parent::__construct($config);
-	}
+  /**
+   * Constructor.
+   *
+   * @param   array  $config  An optional associative array of configuration settings.
+   *
+   * @see     \JController
+   * @since   1.6
+   */
+  public function __construct($config = array())
+  {
+    if (empty($config['filter_fields'])) {
+      $config['filter_fields'] = [];
+      
+      foreach( $this->list_fields AS $f )
+      {
+        $config['filter_fields'][] = $f;
+        $config['filter_fields'][] = 'a.'.$f;
+      }
+    }
 
-	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * This method should only be called once per instantiation and is designed
-	 * to be called on the first call to the getState() method unless the model
-	 * configuration flag to ignore the request is set.
-	 *
-	 * Note. Calling getState in this method will result in recursion.
-	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
-	 *
-	 * @return  void
-	 *
-	 * @since   3.0.1
-	 */
-	protected function populateState($ordering = 'value', $direction = 'ASC')
-	{
-		$app = Factory::getApplication();
+    parent::__construct($config);
 
-		// List state information
-		$value = $app->input->get('limit', $app->get('list_limit', 0), 'uint');
-		$this->setState('list.limit', $value);
-
-		$value = $app->input->get('limitstart', 0, 'uint');
-		$this->setState('list.start', $value);
-
-		$search = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
-		$this->setState('filter.search', $search);
-
-		// List state information.
-		parent::populateState($ordering, $direction);
-	}
-
-	/**
-	 * Method to get a store id based on model configuration state.
-	 *
-	 * This is necessary because the model is used by the component and
-	 * different modules that might need different sets of data or different
-	 * ordering requirements.
-	 *
-	 * @param   string  $id  A prefix for the store id.
-	 *
-	 * @return  string  A store id.
-	 *
-	 * @since   1.6
-	 */
-	protected function getStoreId($id = '')
-	{
-		// Compile the store id.
-		$id .= ':' . serialize($this->getState('filter.name'));
-		$id .= ':' . $this->getState('filter.search');
-		$id .= ':' . $this->getState('filter.state');
-
-		return parent::getStoreId($id);
-	}
-
-	public function saveorder($pks = array(), $order = null)
-	{
-		try {
-			$query = $this->_db->getQuery(true);
-
-			// Validate arguments
-			if (is_array($pks) && is_array($order) && count($pks) == count($order)) {
-					for ($i = 0, $count = count($pks); $i < $count; $i++) {
-							// Do an update to change the lft values in the table for each id
-							$query->clear()
-									->update('#__claw_locations')
-									->where('id = ' . (int) $pks[$i])
-									->set('ordering = ' . (int) $order[$i]);
-
-							$this->_db->setQuery($query)->execute();
-					}
-
-					// Clean the cache
-					$this->cleanCache();
-					return true;
-			} else {
-					return false;
-			}
-		} catch (\Exception $e) {
-			throw $e;
-		}
-	
-		return true;
-	}
+    $this->db = $this->getDatabase();
+  }
 
 
-	public function getItems()
-	{
-		$db = $this->getDatabase();
-		$query = $this->getListQuery();
+  /**
+   * Method to auto-populate the model state.
+   *
+   * This method should only be called once per instantiation and is designed
+   * to be called on the first call to the getState() method unless the model
+   * configuration flag to ignore the request is set.
+   *
+   * Note. Calling getState in this method will result in recursion.
+   *
+   * @param   string  $ordering   An optional ordering field.
+   * @param   string  $direction  An optional direction (asc|desc).
+   *
+   * @return  void
+   *
+   * @since   3.0.1
+   */
+  protected function populateState($ordering = 'value', $direction = 'ASC')
+  {
+    $app = Factory::getApplication();
 
-		// TODO: Next major edit: Have locations tied to events; 0-level locations
-		// TODO: will need to have event field
+    // List state information
+    $value = $app->input->get('limit', $app->get('list_limit', 0), 'uint');
+    $this->setState('list.limit', $value);
 
-		// $limit = (int) $this->getState('list.limit') - (int) $this->getState('list.links');
+    $value = $app->input->get('limitstart', 0, 'uint');
+    $this->setState('list.start', $value);
 
-		// // Create the pagination object and add the object to the internal cache -- implementing ListModel getPagination
-		// $store = $this->getStoreId('getPagination');
-		// $this->cache[$store] = new Pagination($this->getTotal(), $this->getStart(), $limit);
+    $search = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
+    $this->setState('filter.search', $search);
 
-		// $query->setLimit($limit, $this->getStart());
+    // List state information.
+    parent::populateState($ordering, $direction);
+  }
 
-		$db->setQuery($query);
-		$rows = $db->loadObjectList();
+  /**
+   * Method to get a store id based on model configuration state.
+   *
+   * This is necessary because the model is used by the component and
+   * different modules that might need different sets of data or different
+   * ordering requirements.
+   *
+   * @param   string  $id  A prefix for the store id.
+   *
+   * @return  string  A store id.
+   *
+   * @since   1.6
+   */
+  protected function getStoreId($id = '')
+  {
+    // Compile the store id.
+    $id .= ':' . serialize($this->getState('filter.name'));
+    $id .= ':' . $this->getState('filter.search');
+    $id .= ':' . $this->getState('filter.state');
 
-		$parent = 0; // Root level is start on all locations
-		$children = [];
-		// first pass - collect children
-		if (count($rows))
-		{
-			foreach ($rows as $v)
-			{
-				$pt   = $v->catid;
+    return parent::getStoreId($id);
+  }
 
-				// Copy important values for treerecurse
-				$v->parent_id = $pt;
-				$v->title = $v->value;
 
-				$list = @$children[$pt] ? $children[$pt] : [];
-				array_push($list, $v);
-				$children[$pt] = $list;
-			}
-		}
+  /**
+   * Get the master query for retrieving a list of Locations.
+   *
+   * @return  \Joomla\Database\DatabaseQuery
+   *
+   * @since   1.6
+   */
+  protected function getListQuery()
+  {
+    $db = $this->db;
+    $query = $this->db->getQuery(true);
 
-		$list             = HTMLHelper::_('menu.treerecurse', $parent, '', [], $children, 9999, 0, 0);
+    // Select the required fields from the table.
+    $query->select(
+      $this->getState(
+        'list.select', array_map( function($a) use($db) { return $db->quoteName('a.'.$a); }, $this->list_fields)
+      )
+    )
+      ->from($this->db->quoteName('#__claw_locations', 'a'));
 
-		// Get a storage key.
-		$store = $this->getStoreId();
+    $search = $this->getState('filter.search');
+    $eventAlias = $this->getState('filter.event', Aliases::current(true));
+      
+    // Filter by search in title.
+    if (!empty($search)) {
+      $search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
+      $query->where('(a.value LIKE ' . $search . ')');
+    }
 
-		// The cache is for other things, like paging, that need data counts, but the view wants the list directly
-		$this->cache[$store] = $list;
-		return $list;
-	}
+    $query->where('a.event = ' . $db->quote($eventAlias));
 
-	/**
-	 * Get the master query for retrieving a list of Locations.
-	 *
-	 * @return  \Joomla\Database\DatabaseQuery
-	 *
-	 * @since   1.6
-	 */
-	protected function getListQuery()
-	{
-		// Create a new query object.
-		$db    = $this->getDatabase();
-		$query = $db->getQuery(true);
+    // Add the list ordering clause.
+    $orderCol  = $this->getState('list.ordering', 'a.value');
+    $orderDirn = $this->getState('list.direction', 'ASC');
 
-		// Select the required fields from the table.
-		$query->select(
-			$this->getState(
-				'list.select',
-				[
-					$db->quoteName('a.id'),
-					$db->quoteName('a.published'),
-					$db->quoteName('a.ordering'),
-					$db->quoteName('a.catid'),
-					$db->quoteName('a.value'),
-					$db->quoteName('a.alias'),
-				]
-			)
-		)
-			->from($db->quoteName('#__claw_locations', 'a'));
+    $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
+    return $query;
+  }
 
-		// Filter by search in title.
-		$search = $this->getState('filter.search');
-
-		if (!empty($search)) {
-			$search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
-			$query->where('(a.value LIKE ' . $search . ')');
-		}
-
-		// Add the list ordering clause.
-		$orderCol  = $this->getState('list.ordering', 'a.value');
-		$orderDirn = $this->getState('list.direction', 'ASC');
-
-		$query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
-		return $query;
-	}
-
-	public function delete(array $cid): bool
-	{
-		// TODO: prevent deletion of locations that are tied to active events
-		$db = $this->getDatabase();
-		$query = $db->getQuery(true);
-		$query->delete($db->quoteName('#__claw_locations'))->where($db->quoteName('id') . ' IN (' . implode(',', $cid) . ')');
-		$db->setQuery($query);
-		$db->execute();
-		return true;
-	}
+  public function delete(array $cid): bool
+  {
+    // TODO: prevent deletion of locations that are tied to active events
+    $db = $this->getDatabase();
+    $query = $db->getQuery(true);
+    $query->delete($db->quoteName('#__claw_locations'))->where($db->quoteName('id') . ' IN (' . implode(',', $cid) . ')');
+    $db->setQuery($query);
+    $db->execute();
+    return true;
+  }
 }

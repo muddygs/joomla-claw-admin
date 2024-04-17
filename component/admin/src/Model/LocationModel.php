@@ -15,6 +15,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 use ClawCorp\Component\Claw\Administrator\Helper\LocationHelper;
+use ClawCorpLib\Lib\Aliases;
 
 /**
  * Methods to handle a list of records.
@@ -33,33 +34,9 @@ class LocationModel extends AdminModel
 
   public function save($data)
   {
-    $input = Factory::getApplication()->getInput();
-    /** @var $app AdministratorApplication */
-    $app = Factory::getApplication();
-    $oldcatid = $app->getUserState('com_claw.location.old', 0);
-
-    if ( 0 == $data['id'] || -1 == $input->data['ordering'] || $oldcatid != $data['catid'] )
-    {
-      $data['ordering'] = LocationHelper::nextOrdering($this->getDatabase(), (int)$data['catid']);
+    if ( $data['event'] == 0 ) {
+      $data['event'] = Aliases::current(true);
     }
-
-    // Basic replacement to avoid database uniqueness error (aliasindex)
-    if ( $data['alias'] == '' )
-    {
-      $patterns = [
-        '/\s/',
-        '/[^a-z0-9_]/'
-      ];
-
-      $replacements = [
-        '_',
-        ''
-      ];
-
-      $data['alias'] = preg_replace($patterns, $replacements, strtolower($data['value']));
-    }
-    // TODO: further validation for uniqueness
-    // TODO: if root location, verify alias is defined in eventbooking via Locations::ValidateLocationAlias
 
     return parent::save($data);
   }
@@ -79,15 +56,7 @@ class LocationModel extends AdminModel
     // Get the form.
     $form = $this->loadForm('com_claw.location', 'location', array('control' => 'jform', 'load_data' => $loadData));
 
-    if (empty($form))
-    {
-      return false;
-    }
-
-    /** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
-		$parentField = $form->getField('catid');
-		$parentField->populateOptions(rootOnly: true);
-
+    if (empty($form)) return false;
 
     return $form;
   }
@@ -109,8 +78,6 @@ class LocationModel extends AdminModel
     if (empty($data)) {
       $data = $this->getItem();
     }
-
-    $app->setUserState("com_claw.location.old", $data->catid ?? 0);
 
     return $data;
   }

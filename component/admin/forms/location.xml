@@ -7,21 +7,25 @@
     default="0"
     readonly="true" />
 
-  <field name="catid"
-    type="LocationList"
-    label="Parent Location"
-    description="Select parent location if this is a sub-location"
+  <field
+    name="event"
+    type="ClawEventsList"
+    label="Event Selection"
+    required="true"
     multiple="false"
-    layout="joomla.form.field.list-fancy-select"
-    default="0">
-    <option value="0">None</option>
-  </field>
+    default=""
+    validate="options"
+  />
 
-  <field name="ordering"
-    type="ordering"
-    label="Ordering"
-    content_type="com_claw.location"
-    title="Ordering" />
+  <field name="published"
+    type="list"
+    label="JSTATUS"
+    class="form-select-color-state"
+    default="1"
+    >
+    <option value="1">JPUBLISHED</option>
+    <option value="0">JUNPUBLISHED</option>
+  </field>
 
   <field name="value"
     type="text"
@@ -30,17 +34,5 @@
     maxLength="255"
   />
 
-  <field name="alias"
-    type="sql"
-    label="EB Location"
-    required="false"
-    key_field="alias"
-    value_field="name"
-    query="SELECT name,alias FROM #__eb_locations WHERE published=1 ORDER BY name"
-    default=""
-    showon="catid:0"
-  >
-    <option value="">None</option>
-  </field>
 
 </form>
