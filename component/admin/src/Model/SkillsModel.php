@@ -142,9 +142,10 @@ class SkillsModel extends ListModel
   {
     $items = parent::getItems();
 
-    $event = $this->getState('filter.event', Aliases::current());
+    $event = $this->getState('filter.event', Aliases::current(true));
+    $l = new Locations($event);
+    $locations = $l->GetLocationsList();
 
-    $locations = Locations::GetLocationsList();
     $skills = new Skills($this->getDatabase(), $event);
     $presenters = $skills->GetPresentersList();
 
