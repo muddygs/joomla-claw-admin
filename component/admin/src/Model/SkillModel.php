@@ -125,10 +125,10 @@ class SkillModel extends AdminModel
 
 		$info = new EventInfo($eventAlias);
 
-		/** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
-		$parentField = $form->getField('location');
-    $locationAlias = EventBooking::getLocationAlias($info->ebLocationId);
-    $parentField->populateOptions($locationAlias);
+		// /** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
+		// $parentField = $form->getField('location');
+    // $locationAlias = EventBooking::getLocationAlias($info->ebLocationId);
+    // $parentField->populateOptions($locationAlias);
 
     return $form;
   }
