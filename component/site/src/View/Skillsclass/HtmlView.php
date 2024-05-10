@@ -66,7 +66,6 @@ class HtmlView extends BaseHtmlView
     // Class detail should always come from class list
     $this->backLink = Route::_('index.php?option=com_claw&view=skillslist&tab=' . $this->urlTab);
 
-
     parent::display($tpl);
   }
 }
