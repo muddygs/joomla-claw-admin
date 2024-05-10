@@ -27,7 +27,7 @@ $allSponsors = new Sponsors();
       <tr>
         <td><?= Helpers::formatTime($event->start_time) ?>&nbsp;&#8209;&nbsp;<?= Helpers::formatTime($event->end_time) ?></td>
         <td><?= $event->event_title; ?></td>
-        <td><?= Locations::GetLocationById($event->location)->value ?></td>
+        <td><?= $locations[$event->location]->value ?></td>
         <td>
           <?php
           $sponsors = json_decode($event->sponsors);

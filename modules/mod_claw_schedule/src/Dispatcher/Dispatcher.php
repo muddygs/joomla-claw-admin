@@ -14,6 +14,9 @@ use Joomla\CMS\Dispatcher\AbstractModuleDispatcher;
 use Joomla\CMS\Helper\HelperFactoryAwareInterface;
 use Joomla\CMS\Helper\HelperFactoryAwareTrait;
 
+use ClawCorpLib\Helpers\Locations;
+use ClawCorpLib\Lib\Aliases;
+
 // phpcs:disable PSR1.Files.SideEffects
 \defined('JPATH_PLATFORM') or die;
 // phpcs:enable PSR1.Files.SideEffects
@@ -37,6 +40,8 @@ class Dispatcher extends AbstractModuleDispatcher implements HelperFactoryAwareI
         $data = parent::getLayoutData();
 
         $data['events'] = $this->getHelperFactory()->getHelper('ScheduleHelper')->loadSchedule($data['params'], $data['app']);
+        $locations = new Locations(Aliases::current(true));
+        $data['locations'] = $locations->GetLocationsList();
 
         return $data;
     }
