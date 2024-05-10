@@ -194,8 +194,9 @@ class Skills
     }
     array_unshift($presenterIds, $class->owner);
 
-    $location = Locations::GetLocationById($class->location);
-    $class->location = $location->value != '' ? $location->value : 'TBD';
+    $locations = new Locations($this->eventAlias);
+    $location = $locations->GetLocationById($class->location);
+    $class->location = is_null($location) ? 'TBD' : $location->value;
 
     // day
     if ( $class->day == '0000-00-00' ) {
@@ -339,6 +340,7 @@ class Skills
 
     $this->GetClassList(publishedOnly: $publishedOnly);
     $this->GetPresentersList(publishedOnly: $publishedOnly);
+    $locations = new Locations($this->eventAlias);
 
     // Load the global config for com_claw. We need to the RS Form ID
     /** @var Joomla\CMS\Application\AdministratorApplication */
@@ -457,7 +459,7 @@ class Skills
           break;
 
           case 'location':
-            $location = Locations::GetLocationById($c->$col)->value;
+            $location = $locations->GetLocationById($c->$col)->value;
             $row[] = $location;
           break;
 

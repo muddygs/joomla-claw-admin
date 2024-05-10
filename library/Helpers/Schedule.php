@@ -73,6 +73,8 @@ class Schedule {
 
   public function toCSV(string $filename)
   {
+    $locations = new Locations($this->event);
+
     // Load database columns
     $columnNames = array_keys($this->db->getTableColumns('#__claw_schedule'));
     $columnNames[] = 'track';
@@ -115,7 +117,7 @@ class Schedule {
             }
             break;
           case 'location':
-            $location = Locations::GetLocationById($c->$col)->value;
+            $location = $locations->GetLocationById($c->$col)->value;
             $row[] = $location;
             break;
           case 'track':
