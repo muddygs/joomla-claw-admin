@@ -2,7 +2,6 @@
 
 use ClawCorpLib\Enums\SponsorshipType;
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Helpers\Locations;
 
 \defined('_JEXEC') or die;
 
@@ -37,7 +36,7 @@ foreach ($this->items AS $item) {
 
   $fee_event = explode(',',$item->fee_event);
   $event_id = $item->event_id;
-  $location = Locations::GetLocationById($item->location);
+  $location = array_key_exists($item->location, $this->locations) ? $this->locations[$item->location]->value : '';
   if ( $locationView == 'd-none' ) {
     $location->value = '';
   }
@@ -58,10 +57,14 @@ foreach ($this->items AS $item) {
   if ( !empty($item->poster) ) {
     $json = json_decode($item->poster);
     $poster = explode('#', $json->imagefile)[0];
+    
     $dirname = dirname($poster);
     $basename = basename($poster);
     $thumbname = $dirname . DIRECTORY_SEPARATOR . 'thumb_' . $basename;
-    $thumb = <<<HTML
+
+    // Valid file?
+    if ( file_exists($thumbname) ) {
+      $thumb = <<<HTML
 <button id="show-img-$id" type="button" class="btn btn-default p-0 align-top" data-bs-toggle="modal" data-bs-target="#modal-$id">
   <img src="$thumbname"/>
 </button>
@@ -78,6 +81,7 @@ foreach ($this->items AS $item) {
 </div>
 </div>
 HTML;
+    }
   }
 
 
@@ -134,7 +138,6 @@ HTML;
 
   $sponsor_logos = ob_get_clean();
 
-  //<div class="col-12 col-lg-2 pt-lg-2 pb-lg-2 mt-2 mt-lg-1 mb-2 mb-lg-1">$location</div>
   ?>
   <div class="row row-striped g-0 <?=$featuredClass?>">
     <div class="col-9 col-lg-10 g-0 row">
@@ -158,7 +161,7 @@ HTML;
         <?php
       endif;
       ?>
-      <div class="col-12 col-lg-2 pt-lg-2 pb-lg-2 mt-2 mt-lg-1 mb-2 mb-lg-1 <?= $locationView ?>"><?=$location->value?></div>
+      <div class="col-12 col-lg-2 pt-lg-2 pb-lg-2 mt-2 mt-lg-1 mb-2 mb-lg-1 <?= $locationView ?>"><?= $location ?></div>
     </div>
     <div class="col-3 col-lg-2 order-last pt-lg-2 pb-lg-2 mt-2 mb-2 g-0"><?=$sponsor_logos?></div>
   </div>
