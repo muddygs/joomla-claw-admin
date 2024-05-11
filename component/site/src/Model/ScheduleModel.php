@@ -12,7 +12,6 @@ namespace ClawCorp\Component\Claw\Site\Model;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
 /**
