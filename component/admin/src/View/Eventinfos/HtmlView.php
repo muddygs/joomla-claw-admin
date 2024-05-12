@@ -107,14 +107,17 @@ class HtmlView extends BaseHtmlView
 
 
     // TODO: Need both?
-    if ( $user->authorise('core.admin', 'com_claw') )
-    {
+    if ($user->authorise('core.admin', 'com_claw')) {
       $toolbar->addNew('eventinfo.add');
 
-      $toolbar->delete('eventinfo.delete')
-        ->text('Delete')
-        ->message('Confirm delete selected?')
-        ->listCheck(true);
+      $toolbar->delete('eventinfos.delete')
+      ->text('Delete')
+      ->message('Confirm delete selected?')
+      ->listCheck(true);
+
+      $toolbar->save2copy('eventinfos.save2copy')
+      ->text('Duplicate')
+      ->listCheck(true);
     }
 
     return $toolbar;
