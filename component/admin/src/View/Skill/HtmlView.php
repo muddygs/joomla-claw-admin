@@ -14,8 +14,6 @@ defined('_JEXEC') or die;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Helper\ContentHelper;
-use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 
 class HtmlView extends BaseHtmlView
