@@ -11,6 +11,9 @@ namespace ClawCorp\Component\Claw\Administrator\View\Shifts;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
@@ -80,6 +83,25 @@ class HtmlView extends BaseHtmlView
     $this->pagination    = $model->getPagination();
     $this->filterForm    = $model->getFilterForm();
     $this->activeFilters = $model->getActiveFilters();
+
+    $eventAlias = $this->activeFilters['event'] ?? Aliases::current(true);
+    $eventInfo = new EventInfo($eventAlias);
+
+    /** @var \Joomla\CMS\Form\Field\ListField */
+    $parentField = $this->filterForm->getField('shift_area','filter');
+
+    // TODO: replace shift_area column with category_id column (also Grids.php, ShiftsModel.php, shift view)
+    $shiftCategoryIds = [...$eventInfo->eb_cat_shifts, ...$eventInfo->eb_cat_supershifts];
+    $shiftRawCategories = ClawEvents::getRawCategories($shiftCategoryIds);
+
+    foreach ( $shiftRawCategories AS $alias => $row ) {
+      // remove 'shifts-' prefix
+      $k = substr($alias, 7);
+      $parentField->addOption(htmlentities($row->name), ['value' => $k]);
+    }
+
+    // $state = $model->getState('filter.shift_area');
+    // $this->filterForm->setFieldAttribute('shift_area', 'query', $state, 'filter');
 
     // Flag indicates to not add limitstart=0 to URL
     $this->pagination->hideEmptyLimitstart = true;

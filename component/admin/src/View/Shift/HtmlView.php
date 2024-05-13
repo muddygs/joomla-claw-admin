@@ -12,6 +12,9 @@ namespace ClawCorp\Component\Claw\Administrator\View\Shift;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
@@ -33,6 +36,22 @@ class HtmlView extends BaseHtmlView
     // Check for errors.
     if (count($errors = $this->get('Errors'))) {
       throw new GenericDataException(implode("\n", $errors), 500);
+    }
+
+    $eventAlias = $this->form->getField('event')->value ?? Aliases::current(true);
+    $eventInfo = new EventInfo($eventAlias);
+
+    /** @var \Joomla\CMS\Form\Field\ListField */
+    $parentField = $this->form->getField('shift_area');
+
+    // TODO: replace shift_area column with category_id column (also Grids.php, ShiftsModel.php)
+    $shiftCategoryIds = [...$eventInfo->eb_cat_shifts, ...$eventInfo->eb_cat_supershifts];
+    $shiftRawCategories = ClawEvents::getRawCategories($shiftCategoryIds);
+
+    foreach ( $shiftRawCategories AS $alias => $row ) {
+      // remove 'shifts-' prefix
+      $k = substr($alias, 7);
+      $parentField->addOption(htmlentities($row->name), ['value' => $k]);
     }
 
     $this->addToolbar();

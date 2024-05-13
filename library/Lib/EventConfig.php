@@ -172,7 +172,7 @@ class EventConfig
   }
 
   /**
-   * For the current Event, finds all non-main event id that should require
+   * For the current Event, finds all non-main event ids that should require
    * a main package for registration (addons, meals, shifts, etc.)
    * @return array Event IDs
    * @throws Exception 
@@ -209,17 +209,7 @@ class EventConfig
       }
     }
 
-    // Add in shifts
-    $config = new Config($this->alias);
-    $shiftAliases = array_keys($config->getConfigValuesText(ConfigFieldNames::SHIFT_SHIFT_AREA));
-
-    // Remove TDB from our array
-    $shiftAliases = array_diff($shiftAliases, ['tbd']);
-
-    // Prepend "shift-" to all values in $shiftAliases
-    $shiftAliases = array_map( function($a) { return 'shifts-'.$a; }, $shiftAliases);
-    $shiftCategoryIds = ClawEvents::getCategoryIds($shiftAliases);
-
+    $shiftCategoryIds = [...$this->eventInfo->eb_cat_shifts, ...$this->eventInfo->eb_cat_supershifts];
     $shiftEvents = $this->getEventsByCategoryId($shiftCategoryIds, 'id');
 
     $eventIds = array_column($shiftEvents, 'id');

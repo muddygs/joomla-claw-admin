@@ -45,13 +45,16 @@ class Grids
 
     $location = $eventInfo->ebLocationId;
 
-    $config = new Config($eventInfo->alias);
-    $categoryIds = $config->getConfigValuesText(ConfigFieldNames::SHIFT_SHIFT_AREA);
+    $shiftCategoryIds = [...$eventInfo->eb_cat_shifts, ...$eventInfo->eb_cat_supershifts];
 
-    foreach ( array_keys($categoryIds) AS $k ) {
-      if ( $k == 'tbd') continue;
-      $categoryId = ClawEvents::getCategoryId('shifts-'.$k);
-      $categoryIds[$k] = $categoryId;
+    // TODO: replace shift_area column with category_id column (also Shifts view, ShiftsModel.php)
+    foreach ( $shiftCategoryIds AS $id ) {
+      $alias = ClawEvents::getCategoryAlias($id);
+      if ( $alias === false ) continue;
+
+      // remove 'shifts-' prefix
+      $k = substr($alias, 7);
+      $categoryIds[$k] = $id;
     }
 
     ?>
@@ -87,6 +90,15 @@ class Grids
       if ( $grid->needed > 0 ) $possibleEvents++;
       
       if ( $grid->event_id != 0 || $grid->needed < 1 || $grid->shift_area == 'tbd' ) {
+        continue;
+      }
+
+      if ( !array_key_exists($grid->shift_area, $categoryIds) ) {
+        ?>
+        <tr>
+          <td colspan="5">Invalid category for <?= $grid->title ?> on <?= $grid->day ?></td>
+        </tr>
+        <?php
         continue;
       }
 

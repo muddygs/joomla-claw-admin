@@ -34,14 +34,13 @@
 
   <field
     name="shift_area"
-    type="sql"
+    type="list"
     label="Shift Area"
-    required="false"
-    value_field="text"
-    query="SELECT value,text FROM #__claw_field_values WHERE `fieldname`='shift_shift_area' ORDER BY value"
+    required="true"
     default="">
-      <option value="tbd">TBD</option>
+      <option value="">Select Shift Area</option>
   </field>
+
   <field
     name="requirements"
     type="text"
