@@ -151,9 +151,11 @@
       "name": "com_claw.admin",
       "type": "style",
       "uri": "com_claw/claw_admin.css"
+    },
+    {
+      "name": "htmx",
+      "type": "script",
+      "uri": "com_claw/htmx.min.js"
     }
-
-
-
   ]
 }
