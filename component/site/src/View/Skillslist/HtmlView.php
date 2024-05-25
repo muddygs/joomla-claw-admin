@@ -15,6 +15,7 @@ defined('_JEXEC') or die;
 use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Helpers\Locations;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
@@ -62,6 +63,8 @@ class HtmlView extends BaseHtmlView
     $this->eventAlias = $this->params->get('event_alias', Aliases::current());
 
     $this->list = $model->GetConsolidatedList($this->eventAlias, $this->list_type);
+
+    $this->locations = new Locations($this->eventAlias);
     
     $this->listType = $this->params->get('list_type') ?? 'simple';
     $this->urlTab = $app->input->get('tab', 'overview', 'string');
