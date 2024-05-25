@@ -13,7 +13,7 @@ class PackageInfos implements \IteratorAggregate, \ArrayAccess
     $this->packageInfos = $packageInfo;
   }
 
-  public function get(int $index): PackageInfo
+  public function get(int $index): ?PackageInfo
   {
     return $this->packageInfos[$index] ?? null;
   }
@@ -28,7 +28,7 @@ class PackageInfos implements \IteratorAggregate, \ArrayAccess
     return isset($this->packageInfos[$offset]);
   }
 
-  public function offsetGet($offset): PackageInfo
+  public function offsetGet($offset): ?PackageInfo
   {
     return $this->packageInfos[$offset] ?? null;
   }
