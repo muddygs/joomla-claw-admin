@@ -13,15 +13,13 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\FormModel;
 use Joomla\Input\Json;
-use ClawCorpLib\Lib\Ebmgmt;
 use ClawCorpLib\Lib\EventInfo;
-use DateTimeImmutable;
+use DateTime;
 use Joomla\CMS\Date\Date;
-use ReflectionClass;
 
 /**
  * Methods to handle a list of records.
@@ -65,29 +63,17 @@ class EventcopyModel extends FormModel
     $from = $json->get('jform[from_event]', '', 'string');
     $to = $json->get('jform[to_event]', '', 'string');
 
-    // Validate events are valid
-    if (!EventInfo::isValidEventAlias($from)) {
+    try {
+      $srcEventConfig = new EventConfig($from);
+    } catch (\Exception) {
       return 'Invalid from event: ' . $from;
     }
-    if (!EventInfo::isValidEventAlias($to)) {
-      return 'Invalid to event: ' . $to;
+
+    try {
+      $dstEventConfig = new EventConfig($to);
+    } catch (\Exception) {
+      return 'Invalid from event: ' . $to;
     }
-
-    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$from");
-    /** @var \ClawCorpLib\Event\AbstractEvent */
-    $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
-
-    // Normal constructor does not call with quiet mode set to true
-    /** @var \ClawCorpLib\Lib\EventInfo */
-    $fromEventInfo = $instance->PopulateInfo();
-
-    $reflection = new ReflectionClass("\\ClawCorpLib\\Events\\$to");
-    /** @var \ClawCorpLib\Event\AbstractEvent */
-    $instance = $reflection->newInstanceWithoutConstructor(); //Skip construction
-
-    // Normal constructor does not call with quiet mode set to true
-    /** @var \ClawCorpLib\Lib\EventInfo */
-    $toEventInfo = $instance->PopulateInfo();
 
     // Do some database magic!
 
@@ -97,14 +83,15 @@ class EventcopyModel extends FormModel
       '#__claw_schedule',
       '#__claw_vendors',
       '#__claw_shifts',
+      '#__claw_locations',
     ];
 
     $results = [];
 
-    foreach ($tables as $t) {
+    foreach ($tables as $table) {
       // Delete existing
       $query = $db->getQuery(true);
-      $query->delete($db->quoteName($t))
+      $query->delete($db->quoteName($table))
         ->where($db->quoteName('event') . ' = ' . $db->quote($to));
       $db->setQuery($query);
       $db->execute();
@@ -112,7 +99,7 @@ class EventcopyModel extends FormModel
       // Copy from older event
       $query = $db->getQuery(true);
       $query->select('*')
-        ->from($db->quoteName($t))
+        ->from($db->quoteName($table))
         ->where($db->quoteName('event') . ' = ' . $db->quote($from));
       $db->setQuery($query);
       $rows = $db->loadObjectList();
@@ -121,9 +108,12 @@ class EventcopyModel extends FormModel
         $x->event = $to;
         $x->id = null;
 
-        switch ($t) {
+        switch ($table) {
           case '#__claw_schedule':
-            $x->day = $this->deltaTime($fromEventInfo->start_date, $x->day, $toEventInfo->start_date);
+            $dstDate = $this->translateDate($srcEventConfig->eventInfo->start_date, $x->day, $dstEventConfig->eventInfo->start_date);
+
+            // TODO: Handle false here!
+            $x->day = $dstDate->toSql();
             $x->poster = '';
             $x->poster_size = '';
             $x->event_id = 0;
@@ -136,30 +126,30 @@ class EventcopyModel extends FormModel
 
         $x->mtime = Helpers::mtime();
 
-        $db->insertObject($t, $x);
+        $db->insertObject($table, $x);
       }
 
-      $results[$t] = "$t: " . count($rows) . ' rows copied';
+      $results[$table] = "$table: " . count($rows) . ' rows copied';
     }
 
     return implode("<br/>", $results);
   }
 
-  private function deltaTime($base, $time, $newbase): string
+  private function translateDate(Date $srcBase, Date $srcOffset, Date $dstBase): Date|bool
   {
-    $base = Factory::getDate($base);
-    $time = Factory::getDate($time);
-    $newbase = Factory::getDate($newbase);
+    $srcBase = Factory::getDate($srcBase);
+    $srcOffset = Factory::getDate($srcOffset);
+    $dstBase = Factory::getDate($dstBase);
 
-    $diff = $base->diff($time);
+    $diff = $srcBase->diff($srcOffset);
 
     if ($diff === false) {
       throw new \Exception("Invalid date diff");
     }
 
-    $newtime = $newbase->modify($diff->format('%R%d days'));
+    $newtime = $dstBase->modify($diff->format('%R%d days'));
 
-    return $newtime->toSql();
+    return $newtime;
   }
 
   private function resetGrid(string $grid): string
@@ -175,10 +165,5 @@ class EventcopyModel extends FormModel
     }
 
     return json_encode($grid);
-  }
-
-  private function modify(Date $start_date, string $m): Date
-  {
-    return $start_date->modify($m);
   }
 }
