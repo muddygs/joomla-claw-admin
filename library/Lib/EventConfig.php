@@ -219,28 +219,6 @@ class EventConfig
     return $result;
   }
 
-  public function getEventByCouponCode(string $couponCode): ?PackageInfo
-  {
-    $result = null;
-    $couponCode = strtolower($couponCode);
-    
-    /** @var \ClawCorpLib\Lib\PackageInfo */
-    foreach ($this->packageInfos as $e) {
-      if (strtolower($e->couponKey) == $couponCode) {
-        $result = $e;
-
-        // Merge event id for couponOnly package infos
-        if ( $result->couponOnly) {
-          $otherEvent = $this->getPackageInfoByProperty('eventPackageType', $result->eventPackageType);
-          $result->eventId = $otherEvent->eventId;
-        }
-        break;
-      }
-    }
-
-    return $result;
-  }
-
   /**
    * @param string $key ClawEvent property to search under
    * @param string $value Value to find
@@ -257,7 +235,7 @@ class EventConfig
       if (!property_exists($e, $property)) die(__FILE__ . ': Unknown key requested: ' . $property);
 
       if ( $mainOnly && !($e->packageInfoType == PackageInfoTypes::main || $e->packageInfoType == PackageInfoTypes::daypass) ) continue;
-      if ( $e->couponOnly ) continue;
+      // if ( $e->couponOnly ) continue;
 
       if ($e->$property == $value) {
         $result = $e;
