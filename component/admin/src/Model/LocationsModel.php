@@ -13,7 +13,6 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\Factory;
-use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Model\ListModel;
 
 /**
