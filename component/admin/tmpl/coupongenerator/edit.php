@@ -1,9 +1,10 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -11,19 +12,22 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Session\Session;
 
 /** @var Joomla\CMS\Application\AdministratorApplication */
 $app = Factory::getApplication();
 /** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
 $wa = $app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.coupongenerator');
+$wa->useScript('htmx');
 
-$allowOverride = array_key_exists('Special', $this->avl ?? []) ? true: false;
+$token = Session::getFormToken();
 
 ?>
+
 <h1>Coupon Generator</h1>
 
-<form action="/php/coupons/coupons.php" method="post" name="Coupon Generator" id="claw-coupon-generator" class="row g-3">
+<form action="/php/coupons/coupons.php" method="post" name="Coupon Generator" id="claw-coupon-generator" class="row g-3" hx-headers='{"X-CSRF-Token": "<?= $token ?>"}'>
   <div class="col-12">
     <p>Enter quantity and select coupon registration type and any add ons.</p>
   </div>
@@ -39,7 +43,7 @@ $allowOverride = array_key_exists('Special', $this->avl ?? []) ? true: false;
 
   <div class="row">
     <div class="col-12 col-lg-4">
-      <?php echo $this->form->renderField('packagetype'); ?>
+      <?php echo $this->form->renderField('packageid'); ?>
     </div>
 
     <div class="col-12 col-lg-4">
@@ -47,40 +51,51 @@ $allowOverride = array_key_exists('Special', $this->avl ?? []) ? true: false;
     </div>
 
     <div class="col-12 col-lg-4">
-      <?php echo $this->form->renderField('value'); ?>
+      <label id="jform_value-lbl" for="jform_value">Total Value</label>
+      <div id="total_value"
+        hx-post="/administrator/index.php?option=com_claw&task=coupongenerator.couponValue&format=raw"
+        hx-trigger="change from:#jform_event delay:1s, change from:#jform_packageid delay:1s, change from:#jform_addons"
+      >
+        $0.00
+      </div>
     </div>
   </div>
+
+  <?= $this->form->renderField('owner-fields') ?>
+
+  <div class="text-end">
+    <input name="checkEmail" id="checkEmail" type="button" value="Validate Email(s)" class="btn btn-info w-50"
+      hx-post="/administrator/index.php?option=com_claw&task=coupongenerator.emailStatus&format=raw"
+      hx-target="#emailstatus"
+    />
+    <?php if ($this->emailOverride) : ?>
+    <div class="ms-2 form-check float-end">
+      <input class="form-check-input" type="checkbox" value="1" id="emailOverride" name="emailOverride">
+      <label class="form-check-label" for="emailOverride">Ignore email errors</label>
+    </div>
+  <?php endif; ?>
+  </div>
+  <div id="emailstatus" class="text-info text-end"></div>
+
+  <hr />
 
   <div class="row">
-    <div class="col-6">
-      <?php echo $this->form->renderField('name'); ?>
-    </div>
-
-    <div class="col-6">
-      <?php echo $this->form->renderField('email'); ?>
-      <div id="emailstatus" class="text-info text-end"></div>
-      <div class="text-end">
-       <input name="checkEmail" id="checkEmail" type="button" value="Check Email(s)" class="btn btn-info w-50" onclick="getEmailStatus()"/>
-      </div>
-      <?php if ($allowOverride): ?>
-      <div class="form-check float-end">
-        <input class="form-check-input" type="checkbox" value="1" id="emailOverride" name="emailOverride">
-        <label class="form-check-label" for="emailOverride">Ignore email(s)</label>
-      </div>
-      <?php endif; ?>
-    </div>
+  <div class="col-6">
+    <input name="generate" id="generate" type="button" value="Generate" class="btn btn-danger mb-2" hx-post="/administrator/index.php?option=com_claw&task=coupongenerator.createCoupons&format=raw" hx-target="#results" />
+  </div>
+  <div class="col-6 text-end">
+    <button name="copy" id="copy" class="btn btn-info mb-2" onclick="copyCoupons()"
+      data-bs-toggle="tooltip" data-bs-placement="top" title="Copy to Clipboard"
+    >
+      <span class="fa fa-copy"></span>
+    </button>
   </div>
 
-  <div class="col-12">
-  <input name="submit" id="submit" type="button" value="Generate" class="btn btn-danger mb-2" onclick="createCoupons()"/>
-  </div>
+  <?php echo HTMLHelper::_('form.token'); ?>
 </form>
 
-
-<button name="copy" id="copy" class="btn btn-info mb-2" onclick="copyCoupons()">Copy Coupons Codes to Clipboard</button>
 
 <div id="results">
   <p>Ready!</p>
 </div>
 
-<?php echo HTMLHelper::_('form.token'); ?>
