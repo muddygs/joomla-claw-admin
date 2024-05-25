@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -13,7 +13,6 @@ namespace ClawCorp\Component\Claw\Administrator\Controller;
 defined('_JEXEC') or die;
 
 use Joomla\CMS\MVC\Controller\BaseController;
-use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Json;
 
 /**
@@ -39,58 +38,6 @@ class DisplayController extends BaseController
     
     return parent::createModel($name, $prefix, $config);
   }
-
-#region Coupon Tasks
-  public function couponLoadEvent()
-  {
-    // Check for request forgeries.
-    $this->checkToken();
-
-    $json = new Json();
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\CoupongeneratorModel */
-    $model = $this->getModel('Coupongenerator');
-    [$events, $addons] = $model->populateCodeTypes($json);
-    header('Content-Type: application/json');
-    echo json_encode([$events, $addons]);
-  }
-
-  public function couponValue()
-  {
-    // Check for request forgeries.
-    $this->checkToken();
-
-    $json = new Json();
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\CoupongeneratorModel */
-    $model = $this->getModel('Coupongenerator');
-    $value = $model->couponValue($json);
-    header('Content-Type: text/plain');
-    echo $value;
-  }
-
-  public function createCoupons()
-  {
-    // Check for request forgeries.
-    $this->checkToken();
-
-    $json = new Json();
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\CoupongeneratorModel */
-    $model = $this->getModel('Coupongenerator');
-    $model->createCoupons($json);
-  }
-
-  public function emailStatus()
-  {
-    // Check for request forgeries.
-    $this->checkToken();
-
-    $json = new Json();
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\CoupongeneratorModel */
-    $model = $this->getModel('Coupongenerator');
-    $status = $model->emailStatus($json);
-    header('Content-Type: text/plain');
-    echo $status->msg;
-  }
-#endregion Coupon Tasks
 
 #region Refunds
   public function refundProcessRefund()

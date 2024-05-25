@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -19,15 +19,8 @@ use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Coupons;
 use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Factory;
-use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\MVC\Model\FormModel;
-use Joomla\Input\Json;
 
-/**
- * Methods to handle a list of records.
- *
- * @since  1.6
- */
 class CoupongeneratorModel extends FormModel
 {
   /**
@@ -45,8 +38,6 @@ class CoupongeneratorModel extends FormModel
    * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
    *
    * @return  Form|boolean  A Form object on success, false on failure
-   *
-   * @since   1.6
    */
   public function getForm($data = [], $loadData = false)
   {
@@ -62,31 +53,62 @@ class CoupongeneratorModel extends FormModel
 
 
   /**
-   * AJAX Handler
-   * Returns the HTML for the package selection dropdown and the addon checkboxes.
-   * The JSON encoded results is an array where the first element is the package selection dropdown
-   * and the second element is the addon checkboxes.
+   * Returns array of authorized packages
    * 
-   * @param Json $json 
-   * @return array 
+   * @param array $input of jform data
+   * @return array [packageInfoId => [title => string]] 
    */
-  public function populateCodeTypes(Json $json): array
+  public function packageOptions(array $input): array
   {
-    // $groups = array_keys(Helpers::getUserGroupsByName());
-    $eventAlias = $json->get('jform[event]', Aliases::current(), 'string');
+    // TODO: Validate?
+    $eventAlias = $input['event'] ?? Aliases::current();
 
     $identity = Factory::getApplication()->getIdentity();
 
     if (!$identity || !$identity->id) {
-      return ['', ''];
-    } else {
-      $groups = $identity->getAuthorisedGroups();
+      return [];
     }
 
+    $groups = $identity->getAuthorisedGroups();
     $e = new EventConfig($eventAlias, []);
 
-    $events = [0 => 'Select Package'];
-    $addons = '';
+    $options = [];
+
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ($e->packageInfos as $event) {
+      if (count(array_intersect($groups, $event->couponAccessGroups)) > 0) {
+        if ($event->couponValue < 1) continue;
+
+        if ($event->packageInfoType == PackageInfoTypes::main || $event->packageInfoType == PackageInfoTypes::coupononly) {
+          $options[$event->id] = $event->title . ' (' . $event->couponKey . ') - $' . $event->couponValue;
+        }
+      }
+    }
+
+    return $options;
+  }
+
+  /**
+   * HTMX Handler
+   * Returns array of objects for the addon checkboxes. [id] => {code, description}
+   * 
+   * @param array $input 
+   * @return array
+   */
+  public function addonCheckboxes(array $input): array
+  {
+    $eventAlias = $input['event'] ?? Aliases::current();
+
+    $identity = Factory::getApplication()->getIdentity();
+
+    if (!$identity || !$identity->id) {
+      return '';
+    } 
+    
+    $groups = $identity->getAuthorisedGroups();
+    $e = new EventConfig($eventAlias, []);
+
+    $addons = [];
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($e->packageInfos as $event) {
@@ -95,174 +117,145 @@ class CoupongeneratorModel extends FormModel
       if ( count(array_intersect($groups, $event->couponAccessGroups)) > 0 ) {
         if ( $event->couponValue < 1 ) continue;
 
-        if ( $event->packageInfoType == PackageInfoTypes::main || $event->packageInfoType == PackageInfoTypes::coupononly ) {
-          $events[$c] = $event->title . ' (' . $c . ') - $' . $event->couponValue;
-        } else if ( $event->packageInfoType == PackageInfoTypes::addon ) {
+        if ( $event->packageInfoType == PackageInfoTypes::addon ) {
           $description = $event->title . ' (' . $c . ') - $' . $event->couponValue;
 
-          $addons .= <<< HTML
-<div class="form-check">
-  <input class="form-check-input" type="checkbox" value="$c" id="addon-$c" name="addon-$c" onclick="updateTotalValue()">
-  <label class="form-check-label" for="addon-$c">$description</label>
-</div>
-HTML;
+          $addons[$event->id] = (object)[
+            'description' => $description,
+            'code' => $c,
+          ];
         }
       }
     }
 
-    $packageSelectionHtml = HTMLHelper::_('select.genericlist', $events, 'package');
-
-    return [$packageSelectionHtml, $addons];
+    return $addons;
   }
 
   /**
-   * AJAX Handler
+   * HTMX Handler
    * Returns the coupon value for the selected package and addons.
-   * @param Json $json Form data
+   * @param array $input Form data
    * @return float Coupon value
    */
-  public function couponValue(Json $json): float
+  public function couponValueFloat(array $input): float
   {
-    $eventAlias = $json->get('jform[event]', Aliases::current(), 'string');
-    $events = new EventConfig($eventAlias, []);
+    $eventAlias = $input['event'] ?? Aliases::current();
+    $eventConfig = new EventConfig($eventAlias, []);
+    $package = (int)$input['packageid'] ?? 0;
 
-    $package = $json->get('jform[packagetype]', '', 'string');
-
-    if ($package == '') return 0;
+    if (!$package) return 0;
   
     // Event
-    $value = $events->getEventByCouponCode($package);
+    $value = $eventConfig->packageInfos[$package] ?? null;
     $result = is_null($value) ? 0 : $value->couponValue;
 
     // Addons
     if ($result) {
-      foreach (array_keys($json->getArray()) as $key) {
-        if (strpos($key, 'addon-') === 0 && strlen($key) === 7) {
-          $a = substr($key, 6, 1);
-          $value = $events->getEventByCouponCode($a);
-          $result += $value == null ? 0 : $value->couponValue;
+      foreach ($input as $key => $packageId) {
+        if (str_starts_with($key, 'addon-') && strlen($key) === 7) {
+          $packageId = (int)$packageId;
+          if ( $packageId > 0 ) {
+            $value = $eventConfig->packageInfos->get($packageId);
+            $result += $value == null ? 0 : $value->couponValue;
+          }
         }
       }
     }
   
-    return $result;
+    return round($result,2);
   }
 
+
   /**
-   * AJAX Handler
-   * Emits HTML (in a table) to display with all the coupons generated.
-   * @param Json $json Form data
-   * @param bool $allowOverride Form input to ignore duplicate email addresses
-   * @return void 
+   * HTMX Handler
+   * Object with error (bool), message (string), and array of name/code/email objects (on no error)
+   * @param array $input Form data
+   * @return object Coupon generation results 
    */
-  public function createCoupons(Json $json)
+  public function createCoupons(array $input): object
   {
+    $eventAlias = $input['event'] ?? '';
+
+    $result = (object)[
+      'error' => false,
+      'msg' => '',
+      'coupons' => []
+    ];
+
+    try {
+      $eventConfig = new EventConfig($eventAlias, []);
+    } catch (\Exception) {
+      $result->error = true;
+      $result->msg = 'Invalid event selection.';
+      return $result;
+    }
+
+    $packageId = (int)$input['packageid'];
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    $packageInfo = $eventConfig->getPackageInfoByProperty('id', $packageId, false);
+
+    if ( is_null($packageInfo) ) {
+      $result->error = true;
+      $result->msg = 'Invalid package selection.';
+      return $result;
+    }
+
+    $value = $this->couponValueFloat($input);
+
+    if ( 0 == $value ) {
+      $result->error = true;
+      $result->msg = 'Coupon value cannot be zero.';
+      return $result;
+    }
+
     // Check if we are overriding the email address (emailOverride only exists if the checkbox is checked)
     $allowOverride = false;
-    if ( $json->exists('emailOverride') ) {
+    if ( $this->emailOverride() && ($input['emailOverride'] ?? 0) == 1 ) {
       $allowOverride = true;
     }
 
-    $emailStatus = $this->emailStatus($json);
+    $emailStatus = $this->emailStatus($input);
+    $quantity = (int)$input['quantity'];
+    
+    $emailError = $allowOverride ? '' : match (true) {
+      $quantity != 1 && sizeof($emailStatus->emails) > 1 => 'When specifying multiple emails, only quantity = 1 allowed.',
+      $emailStatus->error => $emailStatus->msg,
+      default => ''
+    };
 
-    $emails = array_filter(explode("\n", str_replace("\r", "", $json->getString('jform[email]',''))));
-    $names = array_filter(explode("\n", str_replace("\r", "", $json->getString('jform[name]',''))));
-  
-    $emails = array_map('trim', $emails);
-    $names = array_map('trim', $names);
-  
-    $q = $json->getUint('quantity',1);
-
-  ?>
-  <h1>Discount Code Results</h1>
-  <?php
-  
-    if ( !$allowOverride && !count($emails) ):
-  ?>
-  <p class="text-error">Email address must be provided.</p>
-  <?php
-      return;
-    endif;
-  
-    if ( !$allowOverride && $emailStatus->error )
-    {
-  ?>
-  <p class="text-error">Email address in use. Contact an administrator for assistant.</p>
-  <?php
-      return;
+    if ( $emailError ) {
+      $result->error = true;
+      $result->msg = $emailError;
+      return $result;
     }
   
-    if ( $allowOverride && !$json->exists('emailOverride') && $emailStatus->error )
-    {
-  ?>
-  <p class="text-error">Email address in use. Select "Ignore email" if you want to override.</p>
-  <?php
-      return;
-    }
-  
-  
-  
-    if ( $q != 1 && sizeof($emails) > 1)
-    {
-  ?>
-      <p class="text-error">When specifying multiple emails, only quantity = 1 allowed.</p>
-  <?php
-      return;
-    }
-  
-    if ( sizeof($emails) != sizeof($names) )
-    {
-  ?>
-      <p class="text-error">Name and email lists must match 1 to 1.</p>
-  <?php
-      return;
-    }
-  
-  
-    $e = new EventConfig($json->getString('jform[event]',Aliases::current()), []);
-  
-    $value = $this->couponValue($json);
-  
-    if (0 == $value) return;
-  
-  ?>
-  <div class="table-responsive">
-  <table class="table table-dark table-striped table-bordered">
-    <thead>
-    <tr>
-      <th style="padding:3px;">Name</th>
-      <th style="padding:3px;">Discount Code</th>
-      <th style="padding:3px;">Email</th>
-    </tr>
-    </thead>
-    <tbody>
-  <?php
-  
-    $prefix = '';
     $eventIds = [];
-
-    $packageType = $json->get('jform[packagetype]','');
   
-    if ( $packageType != '' ) {
-      $prefix .= $packageType;
-      $eventIds[] = $e->getEventByCouponCode($packageType)->eventId;
+    $prefix = $packageInfo->couponKey;
+
+    // If a coupon only package, we need to get the linked event id
+    if ( $packageInfo->packageInfoType == PackageInfoTypes::coupononly ) {
+      $otherEvent = $eventConfig->getPackageInfoByProperty('eventPackageType', $packageInfo->eventPackageType);
+      $eventIds[] = $otherEvent->eventId;
+    } else {
+      $eventIds[] = $packageInfo->eventId;
     }
   
-    foreach (array_keys($json->getArray()) as $key) {
-      if (substr($key, 0, 6) == 'addon-' && strlen($key) == 7) {
-        $a = substr($key, 6, 1);
-  
-        $eventIds[] = $e->getEventByCouponCode($a)->eventId;
-        $prefix .= $a;
-      }
+    foreach ($input as $key => $packageId) {
+      if ( !str_starts_with($key, 'addon-') || strlen($key) != 7) continue;
+
+      $packageInfoAddon = $eventConfig->getPackageInfoByProperty('id', (int)$packageId, false);
+
+      if ( is_null($packageInfoAddon) ) continue;
+
+      $eventIds[] = $packageInfoAddon->eventId;
+      $prefix .= $packageInfoAddon->couponKey;
     }
   
     $admin = Factory::getApplication()->getIdentity()->username;
   
-  
-    foreach ( $emails AS $i => $email )
-    {
-      $note = $e->eventInfo->prefix . '_' . $admin . '_' . $names[$i];
+    foreach ( $emailStatus->emails AS $i => $email ) {
+      $note = $eventConfig->eventInfo->prefix . '_' . $admin . '_' . $emailStatus->names[$i];
   
       $coupon = new Coupons($value, $prefix, $note, $email);
       $coupon->setCouponType(EbCouponTypes::voucher);
@@ -271,52 +264,95 @@ HTML;
   
       $note = $coupon->getNote();
   
-      for ($x = 1; $x <= $q; $x++) {
-        if ($q > 1) {
+      for ($x = 1; $x <= $quantity; $x++) {
+        if ($quantity > 1) {
           $coupon->setNote($note . '-' . $x);
         }
   
         $nextCode = $coupon->insertCoupon();
-  ?>
-      <tr>
-        <td style="padding:3px;"><?php echo $names[$i] ?></td>
-        <td style="padding:3px;" data-coupon="<?php echo $nextCode ?>"><?php echo $nextCode ?></td>
-        <td style="padding:3px;"><?php echo $email ?></td>
-      </tr>
-  <?php
+
+        $result->coupons[] = (object)[
+          'name' => $emailStatus->names[$i],
+          'code' => $nextCode,
+          'email' => $email,
+        ];
       }
     }
-  ?>
-    </tbody>
-    </table>
-  </div>
-  <?php
+  
+    return $result;
   }
 
   /**
-   * AJAX Handler
-   * Returns a error/message object after accessing email input requirements
+   * Check if the user has permission to override email address validation
+   * @return bool 
+   */
+  public function emailOverride(): bool
+  {
+    $app = Factory::getApplication();
+		$user  = $app->getIdentity();
+		return $user->authorise('core.admin', 'com_claw');
+  }
+
+  /**
+   * Returns an error/message object after assessing email input requirements
    * 
-   * @param Json $json 
+   * @param array $input 
    * @return object 
    */
-  public function emailStatus(Json $json): object
+  public function emailStatus(array &$input): object
   {
     $result = (object)[
       'error' => false,
-      'msg' => ''
+      'msg' => '',
+      'names' => [],
+      'emails' => [],
     ];
 
-    if ( !$json->exists('jform[email]') || trim($json->getString('jform[email]','')) == '')
-    {
+    if ( !array_key_exists('owner-fields', $input) ) {
       $result->error = true;
-      $result->msg = 'Email address must be provided.';
+      $result->msg = 'Malformed HTML.';
       
       return $result;
     }
+
+    $eventSelection = $input['event'] ?? '';
   
-    $emails = array_filter(explode("\n", str_replace("\r", "", $json->getString('jform[email]',''))));
-    $emails = array_map('trim', $emails);
+    if ( !in_array($eventSelection, EventConfig::getActiveEventAliases()) ) {
+      $result->msg = 'Please select an event.';
+      return $result;
+    }
+  
+    $emails = [];
+    $names = [];
+
+    if ( array_key_exists('htmxChangedField', $input)) {
+      // Convert "jform[owner-fields][owner-fields0][owner_email]" to "owner-fields0"
+      $key = explode('][', $input['htmxChangedField'])[1];
+      $email = trim($input['owner-fields'][$key]['owner_email']);
+
+      if ( !filter_var($email, FILTER_VALIDATE_EMAIL) ) {
+        $result->error = true;
+        return $result;
+      }
+
+      $names[] = trim($input['owner-fields'][$key]['owner_name']);
+      $emails[] = $email;
+    } else {
+      foreach ( array_keys($input['owner-fields']) AS $key ) {
+        $email = trim($input['owner-fields'][$key]['owner_email']);
+
+        if ( !filter_var($email, FILTER_VALIDATE_EMAIL) ) {
+          $result->error = true;
+          $result->msg = 'Invalid email address: '.$email;
+          return $result;
+        }
+
+        $names[] = trim($input['owner-fields'][$key]['owner_name']);
+        $emails[] = $email;
+      }
+    }
+
+    // Markup in the coupon note field
     $regex = ':' . implode('|:', $emails );
   
     $db = $this->getDatabase();
@@ -335,23 +371,19 @@ HTML;
        - Coupon for current registration used or unused
     */
   
-    if ( $coupons == null || sizeof($coupons) == 0 )
-    {
-      $result->error = false;
-      $result->msg = 'No coupon(s) found by email(s).';
-      return $result;
-    }
-  
-    $eventSelection = $json->getString('jform[event]','');
-  
-    if ( !in_array($eventSelection, EventConfig::getActiveEventAliases()) )
-    {
-      $result->msg = 'Please select an event.';
+    if ( $coupons == null || empty($coupons) ) {
+      $result->msg = '<p class="text-info">No coupon(s) found by email(s).</p>';
       return $result;
     }
   
     $events = new EventConfig($eventSelection);
     $mainEventIds = $events->getMainEventIds();
+
+    if ( empty($mainEventIds) ) {
+      $result->error = true;
+      $result->msg = '<p class="text-danger">No main packages found. Cannot validate emails.</p>';
+      return $result;
+    }
 
     $query = $db->getQuery(true);
     $query->select('*')
@@ -361,7 +393,7 @@ HTML;
     $eventAssignments = $db->loadObjectList();
   
     if ( $eventAssignments == null || sizeof($eventAssignments) == 0 ) {
-      $result->msg = 'Coupon found but not assigned to a specific main event';
+      $result->msg = '<p class="text-warning">Coupon found but not assigned to a specific main event.</p>';
       return $result;
     }
   
@@ -384,6 +416,12 @@ HTML;
         }
       }
     }
+
+    if ( !$result->error ) {
+      $result->msg = '<p class="text-info">Email(s) validated.</p>';
+    }
+    $result->emails = $emails;
+    $result->names = $names;
   
     return $result;
   }

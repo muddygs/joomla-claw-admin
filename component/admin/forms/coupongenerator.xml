@@ -5,7 +5,6 @@
     type="ClawEventsList"
     label="Event"
     required="true"
-    onchange="loadEvent()"
   />
 
   <field
@@ -19,30 +18,63 @@
   />
 
   <field
-    name="packagetype"
-    type="list"
+    name="packageid"
+    type="HtmxList"
     label="Package Type"
     multiple="false"
     default="0"
+    hx_post="/administrator/index.php?option=com_claw&amp;task=coupongenerator.packageOptions&amp;format=raw"
+    hx_trigger="change from:#jform_event, load"
   >
     <option value="0">Select Package Type</option>
   </field>
 
   <field 
     name="addons"
-    type="checkboxes"
+    type="HtmxCheckBoxes"
     label="Select Addons"
+    hx_post="/administrator/index.php?option=com_claw&amp;task=coupongenerator.addonCheckboxes&amp;format=raw"
+    hx_trigger="change from:#jform_packageid"
   />
 
   <field
     name="value"
-    type="text"
+    type="HtmxText"
     label="Total Value ($)"
     readonly="true"
     default="0"
+    hx_post="/administrator/index.php?option=com_claw&amp;task=coupongenerator.couponValue&amp;format=raw"
+    hx_trigger="change from:#jform_event, change from:#jform_packageid, change from:#jform_addons"
   />
 
-  <field
+  <field name="owner-fields"
+    type="subform"
+    label="Name/Email Owner(s)"
+    multiple="true"
+    min="1"
+    max="20"
+    layout="joomla.form.field.subform.repeatable-table"
+  >
+    <form>
+      <field name="owner_name"
+        type="text"
+        label="Name"
+        required="true"
+      />
+      <field name="owner_email"
+        type="HtmxText"
+        label="Email"
+        required="true"
+        hint="noreply@clawinfo.org"
+        addonAfter="&lt;span class=&quot;fa fa-question&quot;&gt;&lt;/span&gt;"
+        hx_post="/administrator/index.php?option=com_claw&amp;task=coupongenerator.getEmailOwnerStatus&amp;format=raw"
+        hx_trigger="change"
+        hx_target="next"
+      />
+    </form>
+  </field>
+
+  <!-- <field
     name="name"
     type="textarea"
     label="Name(s)"
@@ -61,7 +93,7 @@
     rows="5"
     hint="noreply@clawinfo.org"
     onchange="getEmailStatus()"
-  />
+  /> -->
 
   <field
     name="emailOverride"
