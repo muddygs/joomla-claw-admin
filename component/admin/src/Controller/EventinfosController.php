@@ -110,4 +110,36 @@ class EventinfosController extends AdminController
     
     return $result;
   }
+
+  public function publish()
+  {
+    // Check for request forgeries.
+    $this->checkToken();
+
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\EventInfosModel $model */
+    $model   = $this->getModel();
+    $table   = $model->getTable();
+    $cid    = $this->input->post->get('cid', [], 'array');
+    $task  = $this->getTask();
+    
+
+    if ( count($cid) != 1 ) {
+      $this->setMessage('1 (and only 1) row must be selected.', 'error');
+      $this->setRedirect(Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list, false));
+      return false;
+    }
+
+    $result = $table->load($cid[0]);
+    if ( $result ) {
+      $table->active = $task == 'unpublish' ? 0 : 1;
+      $table->store();
+    }
+
+    // Redirect back to the list screen.
+    $this->setRedirect(
+      Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list, false)
+    );
+    
+    return $result;
+  }
 }
