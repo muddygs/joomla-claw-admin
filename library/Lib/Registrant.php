@@ -38,9 +38,9 @@ class Registrant
   }
 
   /**
-   * Returns the registration record (or null) of the main CLAW event. Extends
+   * Returns the registration record (or null) of the main event. Extends
    * registrant properties for additional details specific to the main event
-   * @return object Registrant record
+   * @return RegistrantRecord|null Registrant record
    */
   public function getMainEvent(): ?RegistrantRecord
   {
@@ -49,16 +49,19 @@ class Registrant
     }
     if ( !count($this->_records) ) $this->loadCurrentEvents();
 
+    $mainEventIds = $this->eventConfig->getMainEventIds();
+
     /** @var \ClawCorpLib\Lib\RegistrantRecord $r */
-    foreach ( $this->_records as $r )
-    {
+    foreach ( $this->_records as $r ) {
       if ( EbPublishedState::published->value == $r->registrant->published ) {
-        if ( in_array($r->event->eventId, $this->eventConfig->getMainEventIds())) {
+        if ( in_array($r->event->eventId, $mainEventIds)) {
           $r->registrant->badgeId = $this->badgeId;
           /** @var \ClawCorpLib\Lib\PackageInfo */
           $e = $this->eventConfig->getPackageInfoByProperty('eventId', $r->event->eventId);
-          $r->registrant->eventPackageType = $e->eventPackageType;
-          return $r;
+          if ( !is_null($e) ) {
+            $r->registrant->eventPackageType = $e->eventPackageType;
+            return $r;
+          }
         }
       }
     }
