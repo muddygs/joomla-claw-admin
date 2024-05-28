@@ -2,11 +2,9 @@
 
 namespace ClawCorpLib\Lib;
 
-use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
-use ClawCorpLib\Helpers\Config;
 use Exception;
 use InvalidArgumentException;
 use Joomla\CMS\Factory;
@@ -220,10 +218,10 @@ class EventConfig
   }
 
   /**
-   * @param string $key ClawEvent property to search under
+   * @param string $key PackageInfo property to search under
    * @param string $value Value to find
    * @param bool $mainOnly Main events only (by default) IFF clawEvent
-   * @return null|object Event object (ClawEvent)
+   * @return null|PackageInfo Event object
    */
   public function getPackageInfoByProperty(string $property, mixed $value, bool $mainOnly = true): ?PackageInfo
   {
@@ -231,14 +229,14 @@ class EventConfig
     $found = 0;
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
-    foreach ($this->packageInfos as $e) {
-      if (!property_exists($e, $property)) die(__FILE__ . ': Unknown key requested: ' . $property);
+    foreach ($this->packageInfos as $packageInfo) {
+      if (!property_exists($packageInfo, $property)) die(__FILE__ . ': Unknown key requested: ' . $property);
 
-      if ( $mainOnly && !($e->packageInfoType == PackageInfoTypes::main || $e->packageInfoType == PackageInfoTypes::daypass) ) continue;
-      // if ( $e->couponOnly ) continue;
+      if ( $mainOnly && !($packageInfo->packageInfoType == PackageInfoTypes::main || $packageInfo->packageInfoType == PackageInfoTypes::daypass) ) continue;
+      if ( $mainOnly && $packageInfo->couponOnly ) continue;
 
-      if ($e->$property == $value) {
-        $result = $e;
+      if ($packageInfo->$property == $value) {
+        $result = $packageInfo;
         $found++;
       }
     }
