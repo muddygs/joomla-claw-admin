@@ -153,7 +153,28 @@ class Skills
     $query = $this->db->getQuery(true);
     $eventAlias = $this->eventAlias;
 
-    $query->select('*')
+    $fields = [
+      'id',
+      'uid',
+      'published',
+      'name',
+      'legal_name',
+      'event',
+      'social_media',
+      'email',
+      'phone',
+      'phone_info',
+      'arrival',
+      'copresenter',
+      'copresenting',
+      'comments',
+      'bio',
+      'submission_date',
+      'archive_state',
+      'mtime'
+    ];
+
+    $query->select($this->db->qn($fields))
       ->from($this->db->qn('#__claw_presenters'))
       ->where($this->db->qn('uid') . ' = :uid')->bind(':uid', $uid)
       ->where($this->db->qn('event') . ' = :event')->bind(':event', $eventAlias);

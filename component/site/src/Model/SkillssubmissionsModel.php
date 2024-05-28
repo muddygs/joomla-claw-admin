@@ -17,6 +17,7 @@ use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\Database\DatabaseInterface;
 
 /**
  * Methods to handle presenter bios and class listing for display.
@@ -59,5 +60,10 @@ class SkillssubmissionsModel extends BaseDatabaseModel
   public function GetEventInfo() : \ClawCorpLib\Lib\EventInfo
   {
     return new EventInfo(Aliases::current(true));
+  }
+
+  public function getDatabase(): DatabaseInterface
+  {
+    return parent::getDatabase();
   }
 }

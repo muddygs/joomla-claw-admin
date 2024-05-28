@@ -3,7 +3,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -11,11 +11,13 @@ namespace ClawCorp\Component\Claw\Administrator\View\Presenter;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Helpers\DbBlobCacheWriter;
 use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Service\Provider\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\User\User;
 
@@ -104,6 +106,37 @@ class HtmlView extends BaseHtmlView
       throw new GenericDataException(implode("\n", $errors), 500);
     }
 
+    $config = new Config($this->item->event ?? Aliases::current(true));
+    $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
+
+    // Make sure images are in the cache directory for display
+    $cache = new DbBlobCacheWriter(
+      db: $this->getModel('Presenter')->getDatabase(), 
+      cacheDir: JPATH_ROOT . $path, 
+      prefix: 'web_',
+    );
+
+    $filenames = $cache->save(
+      tableName: '#__claw_presenters', 
+      rowIds: [$this->item->id],
+      columnName: 'image_preview',
+    );
+
+    $this->item->image_preview = $filenames[$this->item->id] ?? '';
+
+    $cache = new DbBlobCacheWriter(
+      db: $this->getModel('Presenter')->getDatabase(),
+      cacheDir: JPATH_ROOT . $path, 
+      prefix: 'orig_',
+    );
+
+    $filenames = $cache->save(
+      tableName: '#__claw_presenters', 
+      rowIds: [$this->item->id],
+      columnName: 'image',
+    );
+
+    $this->item->image = $filenames[$this->item->id] ?? '';
     
     // If user is already defined, it cannot be changed
     $field = $this->form->getField('uid');

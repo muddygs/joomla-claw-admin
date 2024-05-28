@@ -47,7 +47,7 @@ class PresentersubmissionModel extends AdminModel
 
   /**
    * Given the ID of a record, attempt to copy it to the current
-   * event while setting the old record to achived.
+   * event while setting the old record to archived.
    * @param int $id 
    * @return int|false 
    * @throws DatabaseNotFoundException 
@@ -69,17 +69,18 @@ class PresentersubmissionModel extends AdminModel
     $record = $db->loadObject();
 
     // Is this user the owner of the record?
-    if ( $record == null || $record->uid != $uid ) {
+    if ( is_null($record) || $record->uid != $uid ) {
       $app->enqueueMessage('Permission denied.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       $skillRoute = Route::_('index.php?option=com_claw&view=skillssubmissions');
       $app->redirect($skillRoute);
     }
 
     $success = false;
+    $currentAlias = Aliases::current(true);
 
-    if ( $record->event != Aliases::current() ) {
+    if ( $record->event != $currentAlias ) {
       $record->id = 0;
-      $record->event = Aliases::current();
+      $record->event = $currentAlias;
       $record->published = 3;
       $record->submission_date = date("Y-m-d");
       $record->archive_state = '';
@@ -112,9 +113,7 @@ class PresentersubmissionModel extends AdminModel
 
     $skillRoute = Route::_('index.php?option=com_claw&view=skillssubmissions');
     $app->redirect($skillRoute);
-
   }
-
 
   protected function loadFormData()
   {

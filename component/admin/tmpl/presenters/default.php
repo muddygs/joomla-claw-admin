@@ -49,7 +49,7 @@ $user = $app->getIdentity();
               <?php echo HTMLHelper::_('searchtools.sort', 'Name', 'a.name', $listDirn, $listOrder); ?>
             </th>
             <th scope="col">Event</th>
-            <th scope="col">Photo</th>
+            <th scope="col">Image</th>
             <th scope="col">Classes</th>
             <th scope="col">
               <?php echo HTMLHelper::_('searchtools.sort', 'Modification', 'a.mtime', $listDirn, $listOrder); ?>  
@@ -92,16 +92,12 @@ $user = $app->getIdentity();
 
               <td>
                 <?php
-                  if ( $item->photo !== '') {
-                    if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $item->photo]))) {
+                  if ( $item->image_preview ?? '' !== '') {
                       ?>
-                      <img src="<?php echo $item->photo ?>" style="max-width:100px; height:auto;" />
+                      <img src="/<?= $item->image_preview ?>" style="max-height:80px; width:auto;" />
                       <?php
                     } else {
                       echo 'No image';
-                    }
-                  } else {
-                    echo 'No image';
                   }
                 ?>
               </td>

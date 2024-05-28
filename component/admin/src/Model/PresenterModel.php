@@ -21,6 +21,7 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Mailer;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
+use Joomla\Database\DatabaseInterface;
 
 /**
  * Methods to handle a list of records.
@@ -109,18 +110,22 @@ class PresenterModel extends AdminModel
     $error = $files['photo_upload']['error'];
 
     $config = new Config($data['event']);
-    $presentersDir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters');
+    $cacheDir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters');
   
-    $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'orig', $data['uid'].'.jpg']);
-    $thumb = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'web', $data['uid'].'.jpg']);
-    
+    // $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'orig', $data['uid'].'.jpg']);
+    // $thumb = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'web', $data['uid'].'.jpg']);
+
     if ( 0 == $error ) {
       // Copy original out of tmp
-      $result = copy($tmp_name, $orig);
-      if ( $result && !Helpers::ProcessImageUpload(
+      // $result = copy($tmp_name, $orig);
+
+      $path = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, 'tmp']);
+      $orig = basename($tmp_name).'.jpg';
+
+      if ( !Helpers::ProcessImageUpload(
         source: $tmp_name,
-        thumbnail: $thumb,
-        copyto: $orig,
+        thumbnail: $path.'/thumb_'.$orig,
+        copyto: $path.'/orig_'.$orig,
         deleteSource: true,
         origsize: 1024,
       )) {
@@ -128,7 +133,11 @@ class PresenterModel extends AdminModel
         return false;
       }
 
-      $data['photo'] = implode(DIRECTORY_SEPARATOR, [$presentersDir, 'web', $data['uid'].'.jpg']);
+      // read blobs
+
+      $data['photo'] = ''; //deprecated column
+      $data['image'] = file_get_contents($path.'/orig_'.$orig);
+      $data['image_preview'] = file_get_contents($path.'/thumb_'.$orig);
     }
 
     // Email if coming from the front end site
@@ -188,6 +197,11 @@ class PresenterModel extends AdminModel
     }
 
     return $data;
+  }
+
+  public function getDatabase(): DatabaseInterface
+  {
+    return parent::getDatabase();
   }
 
   /**

@@ -27,4 +27,9 @@ class SkillsPresenterModel extends BaseDatabaseModel
 
     return $presenter;
   }
+
+  public function getDatabase(): \Joomla\Database\DatabaseInterface
+  {
+    return parent::getDatabase();
+  }
 }

@@ -12,6 +12,9 @@ namespace ClawCorp\Component\Claw\Site\View\Skillspresenter;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Helpers\DbBlobCacheWriter;
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
@@ -54,15 +57,40 @@ class HtmlView extends BaseHtmlView
     $this->pid = $params['id'] ?? 0;
     $this->cid = $params['cid'] ?? 0;
     $this->urlTab = $params['tab'] ?? 'overview';
+    $eventAlias = $this->params->get('event_alias', Aliases::current(true));
 
     /** @var \ClawCorp\Component\Claw\Site\Model\SkillsPresenterModel */
     $model = $this->getModel();
-    $this->presenter = $model->GetPresenter($this->pid, $this->params->get('event_alias', Aliases::current()));
+    $this->presenter = $model->GetPresenter($this->pid, $eventAlias);
 
     if ( is_null($this->presenter)) {
       $app->enqueueMessage('Presenter not found.', 'error');
       $app->redirect(Route::_('index.php?option=com_claw&view=skillslist'));
     }
+
+    // append image_preview to the presenter object
+    $config = new Config($eventAlias);
+    $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
+
+    $itemIds = [$this->presenter->id];
+    $itemMinAges = [new \DateTime($this->presenter->mtime, new \DateTimeZone('UTC'))];
+
+    // Insert property for cached presenter preview image
+    $cache = new DbBlobCacheWriter(
+      db: $model->getDatabase(),
+      cacheDir: JPATH_ROOT . $path, 
+      prefix: 'web_',
+      extension: 'jpg'
+    );
+
+    $filenames = $cache->save(
+      tableName: '#__claw_presenters', 
+      rowIds: $itemIds, 
+      columnName: 'image_preview',
+      minAges: $itemMinAges
+    );
+
+    $this->presenter->image_preview = $filenames[$this->presenter->id] ?? '';
 
     if ( $this->cid ) {
       // Route back to class

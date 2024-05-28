@@ -11,10 +11,8 @@ defined('_JEXEC') or die;
 
 // Validate photo file exists
 $photo = '';
-if ($this->presenter->photo ) {
-  if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $this->presenter->photo]))) {
-    $photo = '<img src="' . $this->presenter->photo. '" class="img-fluid rounded mx-auto"/>';
-  }
+if ($this->presenter->image_preview ) {
+  $photo = '<img src="/' . $this->presenter->image_preview. '" class="img-fluid rounded mx-auto"/>';
 }
 
 ?>

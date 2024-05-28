@@ -11,7 +11,11 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Helpers\DbBlobCacheWriter;
 use ClawCorpLib\Lib\Aliases;
+use DateTimeZone;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\ListModel;
 
@@ -34,7 +38,7 @@ class PresentersModel extends ListModel
     'email',
     'phone',
     'arrival',
-    'photo',
+    'image_preview',
     'mtime',
     'submission_date'
   ];	
@@ -151,7 +155,7 @@ class PresentersModel extends ListModel
       $query->where('(a.name LIKE ' . $search . ')');
     }
 
-    $event = $this->getState('filter.event', Aliases::current());
+    $event = $this->getState('filter.event', Aliases::current(true));
 
     if ( $event != 'all' ) {
       $query->where('a.event = :event')->bind(':event', $event);
@@ -169,12 +173,39 @@ class PresentersModel extends ListModel
   {
     $items = parent::getItems();
 
-    foreach ( $items AS $item )
-    {
+    $config = new Config($this->getState('filter.event', Aliases::current(true)));
+    $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
+
+    $itemIds = array_column($items, 'id');
+    $itemMinAges = array_map(function($item) { return new \DateTime($item->mtime, new DateTimeZone('UTC')); }, $items);
+
+    // Insert property for cached presenter preview image
+    $cache = new DbBlobCacheWriter(
+      db: $this->db, 
+      cacheDir: JPATH_ROOT . $path, 
+      prefix: 'web_',
+      extension: 'jpg'
+    );
+
+    $filenames = $cache->save(
+      tableName: '#__claw_presenters', 
+      rowIds: $itemIds, 
+      columnName: 'image_preview',
+      minAges: $itemMinAges
+    );
+    
+    foreach ( $items AS $item ) {
       if ( 3 == $item->published) {
         $item->name .= ' <span class="badge rounded-pill bg-warning">New</span>';
       }
+
+      if ( array_key_exists($item->id, $filenames) ) {
+        $item->image_preview = $filenames[$item->id];
+      } else {
+        $item->image_preview = null;
+      }
     }
+
     return $items;
   }
 }

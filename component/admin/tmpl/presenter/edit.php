@@ -82,20 +82,15 @@ $view = 'presenter';
         <?php echo $this->form->renderField('photo_upload'); ?>
       </div>
       <div class="col-6">
-        <?php echo $this->form->renderField('photo'); ?>
         <?php
-          if ( $this->item->photo !== '') {
-            if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $this->item->photo]))) {
+          if ( $this->item->image_preview ?? '' !== ''): 
               $ts = time();
-              $orig = implode(DIRECTORY_SEPARATOR, ['', 'images', 'skills', 'presenters', 'orig', basename($this->item->photo)]);
               ?>
-              <img src="<?=$this->item->photo?>?ts=<?=$ts?>" class="img-thumbnail"/>
-              <span><a href="<?=$orig?>" target="_blank">[ view original ]</a></span>
+              <img src="/<?= $this->item->image_preview ?>?ts=<?=$ts?>" class="img-thumbnail"/>
+              <span><a href="/<?= $this->item->image ?>" target="_blank">[ view original ]</a></span>
               <?php
-            }
-          }
+          endif;
         ?>
-        
       </div>
     </div>
 
