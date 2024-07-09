@@ -14,7 +14,7 @@ class EventInfo
   private static $_EventList = [];
 
   const startdayofweek = 1; // Monday
-  
+
   public string $shiftPrefix = '';
   public string $description;
   public int $ebLocationId;
@@ -49,8 +49,7 @@ class EventInfo
    */
   public function __construct(
     public readonly string $alias
-  )
-  {
+  ) {
     $config = new Config($this->alias);
     $timezone = $config->getConfigText(ConfigFieldNames::CONFIG_TIMEZONE, 'server');
     $info = $this->loadRawEventInfo($alias);
@@ -67,25 +66,25 @@ class EventInfo
     $this->onsiteActive = $info->onsiteActive;
     $this->termsArticleId = $info->termsArticleId;
 
-    $this->eb_cat_shifts = json_decode($info->eb_cat_shifts ?? '[]');
-    $this->eb_cat_supershifts = json_decode($info->eb_cat_supershifts ?? '[]');
-    $this->eb_cat_speeddating = json_decode($info->eb_cat_speeddating ?? '[]');
-    $this->eb_cat_equipment = json_decode($info->eb_cat_equipment ?? '[]');
-    $this->eb_cat_sponsorship = json_decode($info->eb_cat_sponsorship ?? '[]');
-    $this->eb_cat_sponsorships = json_decode($info->eb_cat_sponsorships ?? '[]');
+    $this->eb_cat_shifts = json_decode($info->eb_cat_shifts ?? '[]') ?? [];
+    $this->eb_cat_supershifts = json_decode($info->eb_cat_supershifts ?? '[]') ?? [];
+    $this->eb_cat_speeddating = json_decode($info->eb_cat_speeddating ?? '[]') ?? [];
+    $this->eb_cat_equipment = json_decode($info->eb_cat_equipment ?? '[]') ?? [];
+    $this->eb_cat_sponsorship = json_decode($info->eb_cat_sponsorship ?? '[]') ?? [];
+    $this->eb_cat_sponsorships = json_decode($info->eb_cat_sponsorships ?? '[]') ?? [];
     $this->eb_cat_dinners = $info->eb_cat_dinners ?? 0;
     $this->eb_cat_brunches = $info->eb_cat_brunches ?? 0;
     $this->eb_cat_buffets = $info->eb_cat_buffets ?? 0;
     $this->eb_cat_combomeals = $info->eb_cat_combomeals ?? 0;
-    $this->eb_cat_invoicables = json_decode($info->eb_cat_invoicables ?? '[]');
-  
+    $this->eb_cat_invoicables = json_decode($info->eb_cat_invoicables ?? '[]') ?? [];
+
 
     // Data validation
 
     // start_date must be a Monday, only if eventType is main
     // this allows refund and virtualclaw to exist in their odd separate way
 
-    if ( EventTypes::main == $this->eventType ) {
+    if (EventTypes::main == $this->eventType) {
       $this->shiftPrefix = strtolower($this->prefix) . '-shift-';
 
       if ($this->start_date->dayofweek != EventInfo::startdayofweek) {
@@ -105,8 +104,8 @@ class EventInfo
 
   private function loadRawEventInfo(string $alias): object
   {
-    if ( empty($alias) ) throw new \Exception(__FILE__ . ': Event alias cannot be empty');
-    
+    if (empty($alias)) throw new \Exception(__FILE__ . ': Event alias cannot be empty');
+
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
     $alias = strtolower($alias);
@@ -125,7 +124,7 @@ class EventInfo
    * @param string $modifier
    * @return Date|bool Modified date 
    */
-  public function modify(string $modifier ): Date|bool
+  public function modify(string $modifier): Date|bool
   {
     // Clone because modify changes the original Date object
     $date = clone $this->start_date;
@@ -136,7 +135,7 @@ class EventInfo
       throw $e;
     }
 
-    if ( $result === false  ) return false;
+    if ($result === false) return false;
 
     // If we're not supposed to validate, then return the start date
     return $date;
@@ -148,7 +147,7 @@ class EventInfo
    */
   public static function getEventInfos(): array
   {
-    if ( count(self::$_EventList) > 0 ) return self::$_EventList;
+    if (count(self::$_EventList) > 0) return self::$_EventList;
 
     $EventList = [];
 
@@ -158,9 +157,9 @@ class EventInfo
     $query = $db->getQuery(true);
     $query->select(['alias', 'description'])
       ->from('#__claw_eventinfos')
-      ->where('active='.EbPublishedState::published->value)
+      ->where('active=' . EbPublishedState::published->value)
       ->order('end_date DESC');
-      
+
     $db->setQuery($query);
     $rows = $db->loadObjectList();
 
@@ -181,25 +180,23 @@ class EventInfo
   public static function isValidEventAlias(string $alias): bool
   {
     // If cached, no db lookup, return what we know
-    if ( count(self::$_EventList) != 0 ) {
+    if (count(self::$_EventList) != 0) {
       return array_key_exists(strtolower($alias), self::$_EventList);
     }
 
     $alias = strtolower($alias);
-    
+
     // If not cached, do db lookup
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
     $query = $db->getQuery(true);
     $query->select(['alias', 'description'])
       ->from('#__claw_eventinfos')
-      ->where('active='.EbPublishedState::published->value)
+      ->where('active=' . EbPublishedState::published->value)
       ->where('alias = :alias')
       ->bind(':alias', $alias);
 
     $db->setQuery($query);
     return $db->loadResult() != null;
   }
-
-
 }
