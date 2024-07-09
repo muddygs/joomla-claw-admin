@@ -53,10 +53,10 @@ class ReportsModel extends BaseDatabaseModel
       if ($packageInfo->packageInfoType != PackageInfoTypes::speeddating) continue;
       if ($packageInfo->published != EbPublishedState::published) continue;
 
-      foreach ( $packageInfo->meta AS $meta) {
+      foreach ($packageInfo->meta as $meta) {
         $object = (object)[];
         $object->event_id = $meta->eventId;
-        $object->title = $packageInfo->title. ' ('.$meta->role.') - '. $packageInfo->start->format('D g:i A');
+        $object->title = $packageInfo->title . ' (' . $meta->role . ') - ' . $packageInfo->start->format('D g:i A');
 
         $registrants = Registrants::byEventId($meta->eventId, [EbPublishedState::published, EbPublishedState::waitlist]);
         $object->registrants = $registrants;
@@ -88,7 +88,7 @@ class ReportsModel extends BaseDatabaseModel
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->eventConfig->packageInfos as $event) {
-      if ($event->packageInfoType != PackageInfoTypes::main ) continue;
+      if ($event->packageInfoType != PackageInfoTypes::main) continue;
 
       $records = Registrants::byEventId($event->eventId);
       $fields = ['TSHIRT', 'TSHIRT_VOL'];
@@ -101,7 +101,7 @@ class ReportsModel extends BaseDatabaseModel
 
         /** @var \ClawCorpLib\Lib\RegistrantRecord */
         foreach ($r->records() as $record) {
-          switch ( $record->registrant->eventPackageType ) {
+          switch ($record->registrant->eventPackageType) {
             case EventPackageTypes::claw_staff:
             case EventPackageTypes::event_staff:
             case EventPackageTypes::event_talent:
@@ -123,9 +123,9 @@ class ReportsModel extends BaseDatabaseModel
             default:
               $size = '';
               break;
-            }
-            
-            if ( empty($size) ) {
+          }
+
+          if (empty($size)) {
             $items['missing'][] = $record->registrant->invoice_number;
             $size = 'Missing';
           }
@@ -160,9 +160,9 @@ class ReportsModel extends BaseDatabaseModel
 
     $coordinators = [];
 
-    foreach ( array_keys($shifts) AS $sid ) {
+    foreach (array_keys($shifts) as $sid) {
       $info = Volunteers::getShiftInfo($sid);
-      if ( null == $info ) continue;
+      if (null == $info) continue;
 
       $primaryCoordinator = $info->coordinators[0];
       $user = $userFactory->loadUserById($primaryCoordinator);
@@ -183,7 +183,7 @@ class ReportsModel extends BaseDatabaseModel
   }
 
 
-  private function findListCustomField(int $categoryId): ?object 
+  private function findListCustomField(int $categoryId): ?object
   {
     $db = $this->getDatabase();
 
@@ -215,12 +215,12 @@ class ReportsModel extends BaseDatabaseModel
     $dinnerEventId = 0;
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
-    foreach ( $this->eventConfig->packageInfos AS $packageInfo ) {
-      if ( $packageInfo->eventPackageType == EventPackageTypes::dinner ) {
+    foreach ($this->eventConfig->packageInfos as $packageInfo) {
+      if ($packageInfo->eventPackageType == EventPackageTypes::dinner) {
         $catId = $packageInfo->category;
         $dinnerCustomField = $this->findListCustomField($catId);
 
-        if ( $dinnerCustomField ) {
+        if ($dinnerCustomField) {
           $dinnerField = new Ebfield($dinnerCustomField->name);
           $dinnerEventId = $packageInfo->eventId;
           break;
@@ -235,14 +235,14 @@ class ReportsModel extends BaseDatabaseModel
       $this->eventConfig->eventInfo->eb_cat_brunches
     ];
 
-    foreach ( $mealCategoryIds AS $catId ) {
+    foreach ($mealCategoryIds as $catId) {
       /** @var \ClawCorpLib\Lib\PackageInfo */
-      foreach ( $this->eventConfig->packageInfos AS $packageInfo ) {
-        if ( $packageInfo->category != $catId ) continue;
+      foreach ($this->eventConfig->packageInfos as $packageInfo) {
+        if ($packageInfo->category != $catId) continue;
 
         $subcount = [];
 
-        if ( $dinnerField && $packageInfo->eventId == $dinnerEventId ) {
+        if ($dinnerField && $packageInfo->eventId == $dinnerEventId) {
           $subcount = $dinnerField->valueCounts($packageInfo->eventId);
         }
 
@@ -253,31 +253,34 @@ class ReportsModel extends BaseDatabaseModel
           'count' => Registrants::getRegistrantCount($packageInfo->eventId),
           'subcount' => $subcount,
         ];
-
       }
     }
 
     // Combo meals events
-    foreach ( [EventPackageTypes::combo_meal_1,
-        EventPackageTypes::combo_meal_2, 
-        EventPackageTypes::combo_meal_3, 
-        EventPackageTypes::combo_meal_4] AS $comboMeal ) {
-          /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach (
+      [
+        EventPackageTypes::combo_meal_1,
+        EventPackageTypes::combo_meal_2,
+        EventPackageTypes::combo_meal_3,
+        EventPackageTypes::combo_meal_4
+      ] as $comboMeal
+    ) {
+      /** @var \ClawCorpLib\Lib\PackageInfo */
       $packageInfo = $this->eventConfig->getPackageInfoByProperty('eventPackageType', $comboMeal, false);
-      if ( is_null($packageInfo) ) continue;
+      if (is_null($packageInfo)) continue;
 
-      if ( $dinnerField )
+      if ($dinnerField)
         $subcount = $dinnerField->valueCounts($packageInfo->eventId);
 
-      foreach ( $packageInfo->meta AS $eventId ) {
+      foreach ($packageInfo->meta as $eventId) {
         $items[$eventId]->count += Registrants::getRegistrantCount($packageInfo->eventId);
 
-        if ( $eventId == $dinnerEventId && $dinnerEventId > 0 ) {
-          foreach ( $subcount AS $count ) {
+        if ($eventId == $dinnerEventId && $dinnerEventId > 0) {
+          foreach ($subcount as $count) {
             $comboValue = $count->field_value;
             $comboCount = $count->value_count;
 
-            if ( array_key_exists($comboValue, $items[$eventId]->subcount) ) {
+            if (array_key_exists($comboValue, $items[$eventId]->subcount)) {
               $items[$eventId]->subcount[$comboValue]->value_count += $comboCount;
             } else {
               $items[$eventId]->subcount[$comboValue] = (object)[
@@ -295,32 +298,31 @@ class ReportsModel extends BaseDatabaseModel
     return $items;
   }
 
-  public function getArtShowSubmissions()
+  public function getArtShowSubmissions(): array
   {
     $items = [];
     $items['eventInfo'] = $this->eventConfig->eventInfo;
     $items['submissions'] = [];
 
-    $formAlias = $this->eventConfig->eventInfo->alias.'-artshow';
+    $formAlias = $this->eventConfig->eventInfo->alias . '-artshow';
 
     try {
       $form = new Rsform($this->getDatabase(), $formAlias);
-    }
-    catch (\Exception $e) {
+    } catch (\Exception) {
       return $items;
     }
 
     $submissionsIds = $form->getSubmissionIds();
 
-    if ( is_null($submissionsIds) ) return $items;
+    if (is_null($submissionsIds)) return $items;
 
-    foreach ( $submissionsIds AS $submissionId ) {
+    foreach ($submissionsIds as $submissionId) {
       $submissionData = $form->getSubmissionData($submissionId);
 
       $data = (object)[];
       $data->submissionId = $submissionId;
 
-      foreach ( $submissionData AS $field ) {
+      foreach ($submissionData as $field) {
         $data->{$field->FieldName} = $field->FieldValue;
       }
 
