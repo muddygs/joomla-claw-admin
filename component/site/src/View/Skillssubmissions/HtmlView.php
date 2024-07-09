@@ -15,7 +15,7 @@ defined('_JEXEC') or die;
 use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Helpers\Config;
-use ClawCorpLib\Helpers\DbBlobCacheWriter;
+use ClawCorpLib\Helpers\DbBlob;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
@@ -82,17 +82,17 @@ class HtmlView extends BaseHtmlView
       $itemMinAges = [new \DateTime($this->bio->mtime, new \DateTimeZone('UTC'))];
 
       // Insert property for cached presenter preview image
-      $cache = new DbBlobCacheWriter(
+      $cache = new DbBlob(
         db: $this->model->getDatabase(),
         cacheDir: JPATH_ROOT . $path,
         prefix: 'web_',
         extension: 'jpg'
       );
 
-      $filenames = $cache->save(
+      $filenames = $cache->toFile(
         tableName: '#__claw_presenters',
         rowIds: $itemIds,
-        columnName: 'image_preview',
+        key: 'image_preview',
         minAges: $itemMinAges
       );
 
