@@ -103,8 +103,8 @@ class CoupongeneratorModel extends FormModel
 
     if (!$identity || !$identity->id) {
       return '';
-    } 
-    
+    }
+
     $groups = $identity->getAuthorisedGroups();
     $e = new EventConfig($eventAlias, []);
 
@@ -114,10 +114,10 @@ class CoupongeneratorModel extends FormModel
     foreach ($e->packageInfos as $event) {
       $c = $event->couponKey;
 
-      if ( count(array_intersect($groups, $event->couponAccessGroups)) > 0 ) {
-        if ( $event->couponValue < 1 ) continue;
+      if (count(array_intersect($groups, $event->couponAccessGroups)) > 0) {
+        if ($event->couponValue < 1) continue;
 
-        if ( $event->packageInfoType == PackageInfoTypes::addon ) {
+        if ($event->packageInfoType == PackageInfoTypes::addon) {
           $description = $event->title . ' (' . $c . ') - $' . $event->couponValue;
 
           $addons[$event->id] = (object)[
@@ -144,7 +144,7 @@ class CoupongeneratorModel extends FormModel
     $package = (int)$input['packageid'] ?? 0;
 
     if (!$package) return 0;
-  
+
     // Event
     $value = $eventConfig->packageInfos[$package] ?? null;
     $result = is_null($value) ? 0 : $value->couponValue;
@@ -154,15 +154,15 @@ class CoupongeneratorModel extends FormModel
       foreach ($input as $key => $packageId) {
         if (str_starts_with($key, 'addon-') && strlen($key) === 7) {
           $packageId = (int)$packageId;
-          if ( $packageId > 0 ) {
+          if ($packageId > 0) {
             $value = $eventConfig->packageInfos->get($packageId);
             $result += $value == null ? 0 : $value->couponValue;
           }
         }
       }
     }
-  
-    return round($result,2);
+
+    return round($result, 2);
   }
 
 
@@ -194,7 +194,7 @@ class CoupongeneratorModel extends FormModel
     /** @var \ClawCorpLib\Lib\PackageInfo */
     $packageInfo = $eventConfig->getPackageInfoByProperty('id', $packageId, false);
 
-    if ( is_null($packageInfo) ) {
+    if (is_null($packageInfo)) {
       $result->error = true;
       $result->msg = 'Invalid package selection.';
       return $result;
@@ -202,7 +202,7 @@ class CoupongeneratorModel extends FormModel
 
     $value = $this->couponValueFloat($input);
 
-    if ( 0 == $value ) {
+    if (0 == $value) {
       $result->error = true;
       $result->msg = 'Coupon value cannot be zero.';
       return $result;
@@ -210,65 +210,65 @@ class CoupongeneratorModel extends FormModel
 
     // Check if we are overriding the email address (emailOverride only exists if the checkbox is checked)
     $allowOverride = false;
-    if ( $this->emailOverride() && ($input['emailOverride'] ?? 0) == 1 ) {
+    if ($this->emailOverride() && ($input['emailOverride'] ?? 0) == 1) {
       $allowOverride = true;
     }
 
     $emailStatus = $this->emailStatus($input);
     $quantity = (int)$input['quantity'];
-    
+
     $emailError = $allowOverride ? '' : match (true) {
       $quantity != 1 && sizeof($emailStatus->emails) > 1 => 'When specifying multiple emails, only quantity = 1 allowed.',
       $emailStatus->error => $emailStatus->msg,
       default => ''
     };
 
-    if ( $emailError ) {
+    if ($emailError) {
       $result->error = true;
       $result->msg = $emailError;
       return $result;
     }
-  
+
     $eventIds = [];
-  
+
     $prefix = $packageInfo->couponKey;
 
     // If a coupon only package, we need to get the linked event id
-    if ( $packageInfo->packageInfoType == PackageInfoTypes::coupononly ) {
+    if ($packageInfo->packageInfoType == PackageInfoTypes::coupononly) {
       $otherEvent = $eventConfig->getPackageInfoByProperty('eventPackageType', $packageInfo->eventPackageType);
       $eventIds[] = $otherEvent->eventId;
     } else {
       $eventIds[] = $packageInfo->eventId;
     }
-  
+
     foreach ($input as $key => $packageId) {
-      if ( !str_starts_with($key, 'addon-') || strlen($key) != 7) continue;
+      if (!str_starts_with($key, 'addon-') || strlen($key) != 7) continue;
 
       $packageInfoAddon = $eventConfig->getPackageInfoByProperty('id', (int)$packageId, false);
 
-      if ( is_null($packageInfoAddon) ) continue;
+      if (is_null($packageInfoAddon)) continue;
 
       $eventIds[] = $packageInfoAddon->eventId;
       $prefix .= $packageInfoAddon->couponKey;
     }
-  
+
     $admin = Factory::getApplication()->getIdentity()->username;
-  
-    foreach ( $emailStatus->emails AS $i => $email ) {
+
+    foreach ($emailStatus->emails as $i => $email) {
       $note = $eventConfig->eventInfo->prefix . '_' . $admin . '_' . $emailStatus->names[$i];
-  
+
       $coupon = new Coupons($value, $prefix, $note, $email);
       $coupon->setCouponType(EbCouponTypes::voucher);
       $coupon->setCouponAssignment(EbCouponAssignments::selected_events);
       $coupon->setCouponEventIds($eventIds);
-  
+
       $note = $coupon->getNote();
-  
+
       for ($x = 1; $x <= $quantity; $x++) {
         if ($quantity > 1) {
           $coupon->setNote($note . '-' . $x);
         }
-  
+
         $nextCode = $coupon->insertCoupon();
 
         $result->coupons[] = (object)[
@@ -278,7 +278,7 @@ class CoupongeneratorModel extends FormModel
         ];
       }
     }
-  
+
     return $result;
   }
 
@@ -289,8 +289,8 @@ class CoupongeneratorModel extends FormModel
   public function emailOverride(): bool
   {
     $app = Factory::getApplication();
-		$user  = $app->getIdentity();
-		return $user->authorise('core.admin', 'com_claw');
+    $user  = $app->getIdentity();
+    return $user->authorise('core.admin', 'com_claw');
   }
 
   /**
@@ -308,29 +308,29 @@ class CoupongeneratorModel extends FormModel
       'emails' => [],
     ];
 
-    if ( !array_key_exists('owner-fields', $input) ) {
+    if (!array_key_exists('owner-fields', $input)) {
       $result->error = true;
       $result->msg = 'Malformed HTML.';
-      
+
       return $result;
     }
 
     $eventSelection = $input['event'] ?? '';
-  
-    if ( !in_array($eventSelection, EventConfig::getActiveEventAliases()) ) {
+
+    if (!in_array($eventSelection, EventConfig::getActiveEventAliases())) {
       $result->msg = 'Please select an event.';
       return $result;
     }
-  
+
     $emails = [];
     $names = [];
 
-    if ( array_key_exists('htmxChangedField', $input)) {
+    if (array_key_exists('htmxChangedField', $input)) {
       // Convert "jform[owner-fields][owner-fields0][owner_email]" to "owner-fields0"
       $key = explode('][', $input['htmxChangedField'])[1];
       $email = trim($input['owner-fields'][$key]['owner_email']);
 
-      if ( !filter_var($email, FILTER_VALIDATE_EMAIL) ) {
+      if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $result->error = true;
         return $result;
       }
@@ -338,12 +338,12 @@ class CoupongeneratorModel extends FormModel
       $names[] = trim($input['owner-fields'][$key]['owner_name']);
       $emails[] = $email;
     } else {
-      foreach ( array_keys($input['owner-fields']) AS $key ) {
+      foreach (array_keys($input['owner-fields']) as $key) {
         $email = trim($input['owner-fields'][$key]['owner_email']);
 
-        if ( !filter_var($email, FILTER_VALIDATE_EMAIL) ) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
           $result->error = true;
-          $result->msg = 'Invalid email address: '.$email;
+          $result->msg = 'Invalid email address: ' . $email;
           return $result;
         }
 
@@ -353,33 +353,33 @@ class CoupongeneratorModel extends FormModel
     }
 
     // Markup in the coupon note field
-    $regex = ':' . implode('|:', $emails );
-  
+    $regex = ':' . implode('|:', $emails);
+
     $db = $this->getDatabase();
     $query = $db->getQuery(true);
     $query->select('id,code,used,note')
       ->from('#__eb_coupons')
       ->where('published=1')
-      ->where('note REGEXP '.$db->quote($regex))
+      ->where('note REGEXP ' . $db->quote($regex))
       ->setLimit(10);
     $db->setQuery($query);
     $coupons = $db->loadObjectList('id');
-  
+
     /* Cases:
        - No coupon found
        - Coupon found, unused and not assigned to an event
        - Coupon for current registration used or unused
     */
-  
-    if ( $coupons == null || empty($coupons) ) {
+
+    if ($coupons == null || empty($coupons)) {
       $result->msg = '<p class="text-info">No coupon(s) found by email(s).</p>';
       return $result;
     }
-  
+
     $events = new EventConfig($eventSelection);
     $mainEventIds = $events->getMainEventIds();
 
-    if ( empty($mainEventIds) ) {
+    if (empty($mainEventIds)) {
       $result->error = true;
       $result->msg = '<p class="text-danger">No main packages found. Cannot validate emails.</p>';
       return $result;
@@ -388,41 +388,41 @@ class CoupongeneratorModel extends FormModel
     $query = $db->getQuery(true);
     $query->select('*')
       ->from('#__eb_coupon_events')
-      ->where('event_id IN ('.implode(',', $mainEventIds).')');
+      ->where('event_id IN (' . implode(',', $mainEventIds) . ')');
     $db->setQuery($query);
     $eventAssignments = $db->loadObjectList();
-  
-    if ( $eventAssignments == null || sizeof($eventAssignments) == 0 ) {
+
+    if ($eventAssignments == null || sizeof($eventAssignments) == 0) {
       $result->msg = '<p class="text-warning">Coupon found but not assigned to a specific main event.</p>';
       return $result;
     }
-  
-    foreach ( $coupons AS $c ) {
-      $email = explode(':',$c->note)[1];
-  
-      foreach ( $eventAssignments AS $e ) {
+
+    foreach ($coupons as $c) {
+      $email = explode(':', $c->note)[1];
+
+      foreach ($eventAssignments as $e) {
         // Main event?
-        if ( !in_array($e->event_id, $mainEventIds) ) continue;
-  
+        if (!in_array($e->event_id, $mainEventIds)) continue;
+
         // Is main event. Used already?
-        if ( $e->coupon_id == $c->id ) {
+        if ($e->coupon_id == $c->id) {
           $result->error = true;
-  
-          if ( $c->used > 0 ) {
-            $result->msg .= $c->code.' for '.$email.' has been used<br>';
+
+          if ($c->used > 0) {
+            $result->msg .= $c->code . ' for ' . $email . ' has been used<br>';
           } else {
-            $result->msg .= 'Unused coupon '.$c->code.' exists for '.$email.'<br>';
+            $result->msg .= 'Unused coupon ' . $c->code . ' exists for ' . $email . '<br>';
           }
         }
       }
     }
 
-    if ( !$result->error ) {
+    if (!$result->error) {
       $result->msg = '<p class="text-info">Email(s) validated.</p>';
     }
     $result->emails = $emails;
     $result->names = $names;
-  
+
     return $result;
   }
 }
