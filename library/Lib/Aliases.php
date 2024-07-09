@@ -11,16 +11,18 @@ use Joomla\CMS\Factory;
 /** 
  * @package ClawCorpLib\Lib\Aliases
  * @description: Provides dynamic event configuration information
-*/
-class Aliases {
-  static function current(bool $nocache = false) {
+ */
+class Aliases
+{
+  static function current(bool $nocache = false): string
+  {
     // Is the session setting for alias set?
     // Only check when not in admin
-    if ( !$nocache ) {
+    if (!$nocache) {
       $app = Factory::getApplication();
-      if ( $app->isClient('site') ) {
+      if ($app->isClient('site')) {
         $siteAlias = Helpers::sessionGet('eventAlias');
-        if ( $siteAlias != '' ) {
+        if (!is_null($siteAlias) && $siteAlias != '') {
           return $siteAlias;
         }
       }
@@ -29,3 +31,4 @@ class Aliases {
     return EventConfig::getCurrentEventAlias();
   }
 }
+
