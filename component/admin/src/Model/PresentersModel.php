@@ -13,7 +13,7 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Helpers\Config;
-use ClawCorpLib\Helpers\DbBlobCacheWriter;
+use ClawCorpLib\Helpers\DbBlob;
 use ClawCorpLib\Lib\Aliases;
 use DateTimeZone;
 use Joomla\CMS\Factory;
@@ -180,17 +180,17 @@ class PresentersModel extends ListModel
     $itemMinAges = array_map(function($item) { return new \DateTime($item->mtime, new DateTimeZone('UTC')); }, $items);
 
     // Insert property for cached presenter preview image
-    $cache = new DbBlobCacheWriter(
+    $cache = new DbBlob(
       db: $this->db, 
       cacheDir: JPATH_ROOT . $path, 
       prefix: 'web_',
       extension: 'jpg'
     );
 
-    $filenames = $cache->save(
+    $filenames = $cache->toFile(
       tableName: '#__claw_presenters', 
       rowIds: $itemIds, 
-      columnName: 'image_preview',
+      key: 'image_preview',
       minAges: $itemMinAges
     );
     
