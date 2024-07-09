@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -30,7 +31,7 @@ use Joomla\Database\DatabaseInterface;
  */
 class PresenterModel extends AdminModel
 {
-    /**
+  /**
    * The prefix to use with controller messages.
    *
    * @var    string
@@ -56,7 +57,7 @@ class PresenterModel extends AdminModel
   public function validate($form, $data, $group = null)
   {
     // Handle readonly account data 
-    if ( $data['uid_readonly_uid'] != 0 ) $data['uid'] = $data['uid_readonly_uid'];
+    if ($data['uid_readonly_uid'] != 0) $data['uid'] = $data['uid_readonly_uid'];
 
     return parent::validate($form, $data, $group);
   }
@@ -69,14 +70,14 @@ class PresenterModel extends AdminModel
 
     // Get the task
     $task = $app->input->get('task');
-    if ( $task == 'save2copy' ) {
+    if ($task == 'save2copy') {
       $data['event'] = Aliases::current(true);
     }
 
     $new = false;
 
     // New record handling
-    if ( $data['id'] == 0 ) {
+    if ($data['id'] == 0) {
       $data['submission_date'] = date("Y-m-d");
 
       // Check UID record is unique
@@ -91,7 +92,7 @@ class PresenterModel extends AdminModel
       $db->setQuery($query);
       $result = $db->loadResult();
 
-      if ( $result ) {
+      if ($result) {
         $app->enqueueMessage('Record for this presenter already exists for this event.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
         return false;
       }
@@ -100,8 +101,8 @@ class PresenterModel extends AdminModel
     }
 
     // Handle checkboxes storage
-    if ( array_key_exists('arrival', $data)) $data['arrival'] = implode(',',$data['arrival']);
-    if ( array_key_exists('phone_info', $data)) $data['phone_info'] = implode(',',$data['phone_info']);
+    if (array_key_exists('arrival', $data)) $data['arrival'] = implode(',', $data['arrival']);
+    if (array_key_exists('phone_info', $data)) $data['phone_info'] = implode(',', $data['phone_info']);
 
     $input = $app->input;
     $files = $input->files->get('jform');
@@ -110,22 +111,18 @@ class PresenterModel extends AdminModel
     $error = $files['photo_upload']['error'];
 
     $config = new Config($data['event']);
-    $cacheDir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters');
-  
-    // $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'orig', $data['uid'].'.jpg']);
-    // $thumb = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $presentersDir, 'web', $data['uid'].'.jpg']);
 
-    if ( 0 == $error ) {
+    if (0 == $error) {
       // Copy original out of tmp
       // $result = copy($tmp_name, $orig);
 
       $path = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, 'tmp']);
-      $orig = basename($tmp_name).'.jpg';
+      $orig = basename($tmp_name) . '.jpg';
 
-      if ( !Helpers::ProcessImageUpload(
+      if (!Helpers::ProcessImageUpload(
         source: $tmp_name,
-        thumbnail: $path.'/thumb_'.$orig,
-        copyto: $path.'/orig_'.$orig,
+        thumbnail: $path . '/thumb_' . $orig,
+        copyto: $path . '/orig_' . $orig,
         deleteSource: true,
         origsize: 1024,
       )) {
@@ -136,12 +133,12 @@ class PresenterModel extends AdminModel
       // read blobs
 
       $data['photo'] = ''; //deprecated column
-      $data['image'] = file_get_contents($path.'/orig_'.$orig);
-      $data['image_preview'] = file_get_contents($path.'/thumb_'.$orig);
+      $data['image'] = file_get_contents($path . '/orig_' . $orig);
+      $data['image_preview'] = file_get_contents($path . '/thumb_' . $orig);
     }
 
     // Email if coming from the front end site
-    if ( $app->isClient('site') && array_key_exists('email', $data)) {
+    if ($app->isClient('site') && array_key_exists('email', $data)) {
       $data['orig'] = $orig;
       $this->email(new: $new, data: $data);
     }
@@ -164,8 +161,7 @@ class PresenterModel extends AdminModel
     // Get the form.
     $form = $this->loadForm('com_claw.presenter', 'presenter', array('control' => 'jform', 'load_data' => $loadData));
 
-    if (empty($form))
-    {
+    if (empty($form)) {
       return false;
     }
 
@@ -186,12 +182,11 @@ class PresenterModel extends AdminModel
     $app = Factory::getApplication();
     $data = $app->getUserState('com_claw.edit.presenter.data', []);
 
-    if (empty($data))
-    {
+    if (empty($data)) {
       $data = $this->getItem();
     } else {
       // Handle readonly account data 
-      if ( !array_key_exists('uid', $data) && $data['uid_readonly_uid'] ?? 0 != 0) {
+      if (!array_key_exists('uid', $data) && $data['uid_readonly_uid'] ?? 0 != 0) {
         $data['uid'] = $data['uid_readonly_uid'];
       }
     }
@@ -221,8 +216,7 @@ class PresenterModel extends AdminModel
     $name = 'Presenters';
     $prefix = 'Table';
 
-    if ($table = $this->_createTable($name, $prefix, $options))
-    {
+    if ($table = $this->_createTable($name, $prefix, $options)) {
       return $table;
     }
 
@@ -232,7 +226,7 @@ class PresenterModel extends AdminModel
   private function email(bool $new, array $data)
   {
     // Get notification configuration
-    /** @var $app AdministratorApplication */
+    /** @var \Joomla\CMS\Application */
     $app = Factory::getApplication();
     $params = $app->getParams();
     $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
@@ -244,7 +238,7 @@ class PresenterModel extends AdminModel
 
 
     $subject = $new ? '[New] ' : '[Updated] ';
-    $subject .= $info->description. ' Presenter Application - ';
+    $subject .= $info->description . ' Presenter Application - ';
     $subject .= $data['name'];
 
     $m = new Mailer(
@@ -254,7 +248,7 @@ class PresenterModel extends AdminModel
       fromname: 'CLAW Skills and Education',
       frommail: $notificationEmail,
       subject: $subject,
-      attachments: [implode(DIRECTORY_SEPARATOR, [$presentersDir, 'orig', $data['uid'].'.jpg'])]
+      attachments: [implode(DIRECTORY_SEPARATOR, [$presentersDir, 'orig', $data['uid'] . '.jpg'])]
     );
 
     $header = <<< HTML
@@ -266,10 +260,11 @@ HTML;
 
     $m->appendToMessage($header);
     $m->appendToMessage('<p>Application Details:</p>');
-    $m->appendToMessage($m->arrayToTable($data, ['photo','uid','email','id','mtime', 'orig']));
-    
-    $m->appendToMessage('<p>Questions? Please email <a href="mailto:'.$notificationEmail.'">Education Coordinator</a></p>');
+    $m->appendToMessage($m->arrayToTable($data, ['photo', 'uid', 'email', 'id', 'mtime', 'orig']));
+
+    $m->appendToMessage('<p>Questions? Please email <a href="mailto:' . $notificationEmail . '">Education Coordinator</a></p>');
 
     $m->send();
   }
 }
+
