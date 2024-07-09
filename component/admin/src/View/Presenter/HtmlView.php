@@ -13,7 +13,7 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Helpers\Config;
-use ClawCorpLib\Helpers\DbBlobCacheWriter;
+use ClawCorpLib\Helpers\DbBlob;
 use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
@@ -110,30 +110,30 @@ class HtmlView extends BaseHtmlView
     $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
 
     // Make sure images are in the cache directory for display
-    $cache = new DbBlobCacheWriter(
+    $cache = new DbBlob(
       db: $this->getModel('Presenter')->getDatabase(), 
       cacheDir: JPATH_ROOT . $path, 
       prefix: 'web_',
     );
 
-    $filenames = $cache->save(
+    $filenames = $cache->toFile(
       tableName: '#__claw_presenters', 
       rowIds: [$this->item->id],
-      columnName: 'image_preview',
+      key: 'image_preview',
     );
 
     $this->item->image_preview = $filenames[$this->item->id] ?? '';
 
-    $cache = new DbBlobCacheWriter(
+    $cache = new DbBlob(
       db: $this->getModel('Presenter')->getDatabase(),
       cacheDir: JPATH_ROOT . $path, 
       prefix: 'orig_',
     );
 
-    $filenames = $cache->save(
+    $filenames = $cache->toFile(
       tableName: '#__claw_presenters', 
       rowIds: [$this->item->id],
-      columnName: 'image',
+      key: 'image',
     );
 
     $this->item->image = $filenames[$this->item->id] ?? '';
