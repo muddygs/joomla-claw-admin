@@ -373,6 +373,8 @@ class CoupongeneratorModel extends FormModel
 
     if ($coupons == null || empty($coupons)) {
       $result->msg = '<p class="text-info">No coupon(s) found by email(s).</p>';
+      $result->emails = $emails;
+      $result->names = $names;
       return $result;
     }
 
