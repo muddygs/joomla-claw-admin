@@ -8,6 +8,14 @@
     filter="string"
   />
   <field
+    name="limit"
+    type="text"
+    label="Role Limit:"
+    default="15"
+    required="true"
+    filter="integer"
+  />
+  <field
     name="eventId"
     type="text"
     label="Event ID:"

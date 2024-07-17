@@ -25,7 +25,7 @@ class Deploy
   private int $gid_registered = 0;
   private DatabaseDriver $db;
 
-  public function __construct (
+  public function __construct(
     public string $eventAlias,
     public int $type
   ) {
@@ -37,7 +37,7 @@ class Deploy
     $this->gid_public = Helpers::getAccessId('Public');
     $this->gid_registered = Helpers::getAccessId('Registered');
 
-    if ( 0 == $this->gid_public || 0 == $this->gid_registered ) {
+    if (0 == $this->gid_public || 0 == $this->gid_registered) {
       die('Invalid group id');
     }
 
@@ -52,29 +52,29 @@ class Deploy
         $log = $this->Packages();
         $log .= $this->DiscountBundles();
         return $log;
-      break;
+        break;
 
       case self::SPEEDDATING:
         return $this->SpeedDating();
-      break;
+        break;
 
       case self::EQUIPMENTRENTAL:
         return $this->Packages();
-      break;
+        break;
 
       case self::SPONSORSHIPS:
         return $this->Sponsorships();
-      break;
+        break;
 
       default:
         die('Invalid deploy type');
-      break;
+        break;
     }
   }
 
   private function Insert(
-    string $mainCategoryId, 
-    string $itemAlias, 
+    string $mainCategoryId,
+    string $itemAlias,
     string $title,
     string $description,
     string $article_id,
@@ -90,11 +90,12 @@ class Deploy
     string $user_email_body = '',
     string $payment_methods = '2',
     string $enable_cancel_registration = '1',
+    int $event_capacity = 0,
   ): int {
     $insert = new ebMgmt(
-      eventAlias: $this->eventAlias, 
-      mainCategoryId: $mainCategoryId, 
-      itemAlias: $itemAlias, 
+      eventAlias: $this->eventAlias,
+      mainCategoryId: $mainCategoryId,
+      itemAlias: $itemAlias,
       title: $title,
       description: $description
     );
@@ -116,13 +117,14 @@ class Deploy
     $insert->set('user_email_body', $user_email_body);
     $insert->set('user_email_body_offline', $user_email_body);
     $insert->set('enable_cancel_registration', $enable_cancel_registration);
+    $insert->set('event_capacity', $event_capacity);
 
     $eventId = $insert->insert();
 
     return $eventId;
   }
 
-  public function SpeedDating(): string 
+  public function SpeedDating(): string
   {
     $log = [];
     $count = 0;
@@ -136,11 +138,12 @@ class Deploy
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
-      foreach ( $packageInfo->meta AS $metaKey => $metaRow ) {
+      foreach ($packageInfo->meta as $metaKey => $metaRow) {
         $role = $metaRow->role;
+        $event_capacity = $metaRow->limit;
         $eventId = $metaRow->eventId;
 
-        if ( $eventId > 0 ) {
+        if ($eventId > 0) {
           $log[] =  "Already deployed: $packageInfo->title $role @ $eventId";
           continue;
         }
@@ -157,8 +160,8 @@ class Deploy
         $alias = strtolower(preg_replace('/[^\S]+/', '_', implode('-', [$info->prefix, 'sd', $packageInfo->title, $role])));
 
         $eventId = $this->Insert(
-          mainCategoryId: $packageInfo->category, 
-          itemAlias: $alias, 
+          mainCategoryId: $packageInfo->category,
+          itemAlias: $alias,
           title: $title,
           description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
           article_id: $info->termsArticleId,
@@ -169,15 +172,16 @@ class Deploy
           publish_down: $end,
           individual_price: 0,
           registration_start_date: $registration_start_date,
-          registration_access: $this->gid_registered
+          registration_access: $this->gid_registered,
+          event_capacity: $event_capacity,
         );
-  
+
         if ($eventId == 0) {
           $log[] =  "Skipping existing: $title";
-  
+
           // So the alias exists, let's pull the event id from the database
           $eventId = ClawEvents::getEventId($alias, true);
-          if ( $eventId != 0) {
+          if ($eventId != 0) {
             $packageInfo->meta->$metaKey->eventId = $eventId;
             $packageInfo->save();
             $log[] = "Updated: $title at event id $eventId";
@@ -188,13 +192,12 @@ class Deploy
           $packageInfo->meta->$metaKey->eventId = $eventId;
           $packageInfo->save();
         }
-  
       }
     }
 
     $log[] = "Deployed $count speed dating packages.";
 
-    return '<p>'.implode('</p><p>', $log).'</p>';
+    return '<p>' . implode('</p><p>', $log) . '</p>';
   }
 
   public function Packages(): string
@@ -220,7 +223,7 @@ class Deploy
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
-      if ( $packageInfo->eventId > 0 ) {
+      if ($packageInfo->eventId > 0) {
         $log[] =  "Already deployed: $packageInfo->title @ $packageInfo->eventId";
         continue;
       }
@@ -238,41 +241,41 @@ class Deploy
       $price_text = '';
       $enable_cancel_registration = '1';
 
-      switch ( $packageInfo->packageInfoType ) {
+      switch ($packageInfo->packageInfoType) {
         case PackageInfoTypes::combomeal:
         case PackageInfoTypes::main:
           $packageInfo->start = $startDate;
           $packageInfo->end = $endDate;
 
-          if ( $packageInfo->bundleDiscount > 0 ) {
+          if ($packageInfo->bundleDiscount > 0) {
             $price_text = '$' . $packageInfo->fee . ' (attendee) / $' . $packageInfo->fee - $packageInfo->bundleDiscount . ' (volunteer)';
           }
-        break;
-        
+          break;
+
         case PackageInfoTypes::addon:
           $start = $packageInfo->start;
           $end = $packageInfo->end;
-  
+
           $origin = new DateTimeImmutable($start->toSql());
           $target = new DateTimeImmutable($end->toSql());
           $interval = $origin->diff($target);
-  
+
           // If the event is less than 8 hours, then the cutoff is 3 hours before the event
           if ($interval->h <= 8) {
             $cutoff = Factory::getDate($packageInfo->start);
             $cutoff = $cutoff->modify('-3 hours');
           }
 
-          if ( $packageInfo->bundleDiscount > 0 ) {
+          if ($packageInfo->bundleDiscount > 0) {
             $price_text = '$' . $packageInfo->fee . ' (attendee) / $' . $packageInfo->fee - $packageInfo->bundleDiscount . ' (volunteer)';
           }
-        break;
+          break;
 
         case PackageInfoTypes::daypass:
           $start = $packageInfo->start;
           $end = $packageInfo->end;
           $reg_start_date = $startDate;
-        break;
+          break;
 
         case PackageInfoTypes::passes:
           $start = $packageInfo->start;
@@ -285,26 +288,26 @@ class Deploy
           $accessGroup = $this->gid_public;
           $reg_start_date = $startDate;
           $enable_cancel_registration = '0';
-        break;
+          break;
 
         case PackageInfoTypes::equipment:
           $start = $packageInfo->start;
           $end = $packageInfo->end;
           $cutoff = $startDate;
-        break;
-        
+          break;
+
         case PackageInfoTypes::coupononly:
           continue 2;
-        break;
+          break;
 
         default:
           continue 2;
-        break;
+          break;
       }
 
       $eventId = $this->Insert(
-        mainCategoryId: $packageInfo->category, 
-        itemAlias: $packageInfo->alias, 
+        mainCategoryId: $packageInfo->category,
+        itemAlias: $packageInfo->alias,
         title: $info->prefix . ' ' . $packageInfo->title,
         description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
         article_id: $info->termsArticleId,
@@ -325,12 +328,11 @@ class Deploy
 
         // So the alias exists, let's pull the event id from the database
         $eventId = ClawEvents::getEventId($packageInfo->alias, true);
-        if ( $eventId != 0) {
+        if ($eventId != 0) {
           $packageInfo->eventId = $eventId;
           $packageInfo->save();
           $log[] = "Updated: $packageInfo->title at event id $eventId";
         }
-
       } else {
         $count++;
         $log[] =  "Added: $packageInfo->title at event id $eventId";
@@ -340,10 +342,10 @@ class Deploy
 
       // Create friendly redirects
       $suffix = $packageInfo->eventPackageType->toLink();
-      if ( $suffix != '' ) {
+      if ($suffix != '') {
         $fromLink = strtolower($info->prefix . '-reg-' . $suffix);
         $toLink = EventBooking::buildRegistrationLink($this->eventAlias, $packageInfo->eventPackageType);
-        $redirect = new Redirects($this->db, '/'.$fromLink, $toLink, $fromLink);
+        $redirect = new Redirects($this->db, '/' . $fromLink, $toLink, $fromLink);
         $redirect->insert();
       }
     }
@@ -353,18 +355,18 @@ class Deploy
     $suffix = EventPackageTypes::addons->toLink();
     $fromLink = strtolower($info->prefix . '-reg-' . $suffix);
     $toLink = EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::addons);
-    $redirect = new Redirects($this->db, '/'.$fromLink, $toLink, $fromLink);
+    $redirect = new Redirects($this->db, '/' . $fromLink, $toLink, $fromLink);
     $redirect->insert();
     // vip2
     $suffix = EventPackageTypes::vip2->toLink();
     $fromLink = strtolower($info->prefix . '-reg-' . $suffix);
     $toLink = EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip2);
-    $redirect = new Redirects($this->db, '/'.$fromLink, $toLink, $fromLink);
+    $redirect = new Redirects($this->db, '/' . $fromLink, $toLink, $fromLink);
     $redirect->insert();
 
     $log[] = "Deployed $count packages.";
 
-    return '<p>'.implode('</p><p>', $log).'</p>';
+    return '<p>' . implode('</p><p>', $log) . '</p>';
   }
 
   public function Sponsorships(): string
@@ -403,59 +405,59 @@ class Deploy
     // start and ending usability of these events
     $registration_start_date = Factory::getDate();
     $publish_down = $info->modify('+8 days');
- 
+
     $accessGroup = $this->gid_public;
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
-      if ( $packageInfo->eventId > 0 ) {
+      if ($packageInfo->eventId > 0) {
         $log[] =  "Already deployed: $packageInfo->title @ $packageInfo->eventId";
         continue;
       }
 
       $packageInfo->alias = strtolower($info->prefix . '_spo_' . preg_replace("/[^A-Za-z0-9]+/", '_', $packageInfo->title));
 
-      $end = clone($endDate);
-      $cutoff = clone($startDate);
+      $end = clone ($endDate);
+      $cutoff = clone ($startDate);
 
-      switch ( $packageInfo->category ) {
-        // We need advertising submitted no later than 3 weeks before the event
+      switch ($packageInfo->category) {
+          // We need advertising submitted no later than 3 weeks before the event
         case $sponsorshipCategories['sponsorships-advertising']:
           $cutoff->modify('-3 weeks');
           break;
-        
+
         case $sponsorshipCategories['sponsorships-logo']:
           $cutoff->modify('-1 week');
           break;
 
-        // Buffer until next event
+          // Buffer until next event
         case $sponsorshipCategories['sponsorships-master-sustaining']:
           $cutoff->modify('+6 months');
           $end = $cutoff;
           $publish_down = $cutoff;
-        break;
+          break;
 
-        // Blue, black, gold are all the same
+          // Blue, black, gold are all the same
         case $sponsorshipCategories['sponsorships-black']:
         case $sponsorshipCategories['sponsorships-blue']:
         case $sponsorshipCategories['sponsorships-gold']:
           $cutoff->modify('-1 week');
-        break;
+          break;
 
-        // Leather heart donations are available until the end of the event
+          // Leather heart donations are available until the end of the event
         case $sponsorshipCategories['donations-leather-heart']:
-          $cutoff = clone($endDate);
-        break;
+          $cutoff = clone ($endDate);
+          break;
 
         default:
           var_dump($packageInfo);
           die('Invalid sponsorship category');
-        break;
+          break;
       }
 
       $eventId = $this->Insert(
-        mainCategoryId: $packageInfo->category, 
-        itemAlias: $packageInfo->alias, 
+        mainCategoryId: $packageInfo->category,
+        itemAlias: $packageInfo->alias,
         title: $info->prefix . ' ' . $packageInfo->title,
         description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
         article_id: $info->termsArticleId,
@@ -476,12 +478,11 @@ class Deploy
 
         // So the alias exists, let's pull the event id from the database
         $eventId = ClawEvents::getEventId($packageInfo->alias, true);
-        if ( $eventId != 0) {
+        if ($eventId != 0) {
           $packageInfo->eventId = $eventId;
           $packageInfo->save();
           $log[] = "Updated: $packageInfo->title at event id $eventId";
         }
-
       } else {
         $count++;
         $log[] =  "Added: $packageInfo->title at event id $eventId";
@@ -492,7 +493,7 @@ class Deploy
 
     $log[] = "Deployed $count packages.";
 
-    return '<p>'.implode('</p><p>', $log).'</p>';
+    return '<p>' . implode('</p><p>', $log) . '</p>';
   }
 
   public function DiscountBundles(): string
@@ -508,37 +509,37 @@ class Deploy
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($mainPackages as $packageInfo) {
-      if ( $packageInfo->eventId == 0 ) {
+      if ($packageInfo->eventId == 0) {
         $log[] =  "Skipping Discount Bundle (Event ID 0): $packageInfo->title";
         continue;
       }
 
-      if ( !$packageInfo->isVolunteer ) {
+      if (!$packageInfo->isVolunteer) {
         $log[] =  "Skipping Discount Bundle (Not Volunteer): $packageInfo->title";
         continue;
       }
 
       /** @var \ClawCorpLib\Lib\PackageInfo */
-      foreach ( $addonsPackages AS $addon ) {
-        if ( $addon->eventId == 0 ) {
+      foreach ($addonsPackages as $addon) {
+        if ($addon->eventId == 0) {
           $log[] =  "Skipping Discount Bundle (Event ID 0): $addon->title";
           continue;
         }
 
-        if ( $addon->bundleDiscount == 0 ) {
+        if ($addon->bundleDiscount == 0) {
           $log[] =  "Skipping Discount Bundle (No Discount): $addon->title";
           continue;
         }
 
         list($success, $log[]) = $this->addDiscountBundle($addon->bundleDiscount, $packageInfo, $addon);
 
-        if ( $success ) $count++;
+        if ($success) $count++;
       }
     }
 
     $log[] = "Updated $count discount bundles.";
 
-    return '<p>'.implode('</p><p>', $log).'</p>';
+    return '<p>' . implode('</p><p>', $log) . '</p>';
   }
 
   /**
@@ -549,13 +550,13 @@ class Deploy
    */
   private function addDiscountBundle(int $dollarAmount, \ClawCorpLib\Lib\PackageInfo ...$packageInfos): array
   {
-    if ( count($packageInfos) < 2 ) return "Skipping discount bundle: Not enough events";
+    if (count($packageInfos) < 2) return "Skipping discount bundle: Not enough events";
 
     $eventIds = [];
     $titles = [];
 
-    foreach ( $packageInfos AS $packageInfo ) {
-      if ( $packageInfo->eventId == 0 ) return [ false,"Skipping discount bundle: Invalid event ID" ];
+    foreach ($packageInfos as $packageInfo) {
+      if ($packageInfo->eventId == 0) return [false, "Skipping discount bundle: Invalid event ID"];
       $eventIds[] = $packageInfo->eventId;
       $titles[] = $packageInfo->title;
     }
@@ -566,22 +567,22 @@ class Deploy
     $query = $db->getQuery(true);
     $query->select('discount_id')
       ->from('#__eb_discount_events')
-      ->where('event_id IN ('.implode(',',$eventIds).')')
+      ->where('event_id IN (' . implode(',', $eventIds) . ')')
       ->group('discount_id')
-      ->having('COUNT(DISTINCT event_id) = '.count($eventIds));
+      ->having('COUNT(DISTINCT event_id) = ' . count($eventIds));
     $db->setQuery($query);
     $result = $db->loadResult();
 
-    if ( $result != null ) return [ false, "Skipping duplicate discount: $result" ];
+    if ($result != null) return [false, "Skipping duplicate discount: $result"];
 
-    $title = implode('-',$titles);
+    $title = implode('-', $titles);
 
     $query = $db->getQuery(true);
 
     $data = (object)[
       'id' => 0,
       'title' => $title,
-      'event_ids' => implode(',',$eventIds),
+      'event_ids' => implode(',', $eventIds),
       'discount_amount' => $dollarAmount,
       'from_date' => $query->nullDate(false),
       'to_date' => $query->nullDate(false),
@@ -594,19 +595,20 @@ class Deploy
 
     $result = $db->insertObject('#__eb_discounts', $data, 'id');
 
-    if ( $result === false ) return [ false, "Error adding discount: $title" ];
+    if ($result === false) return [false, "Error adding discount: $title"];
 
-    foreach ( $eventIds AS $eventId ) {
-        $discount = (object)[
-            'id' => 0,
-            'discount_id' => $data->id,
-            'event_id' => $eventId
-        ];
+    foreach ($eventIds as $eventId) {
+      $discount = (object)[
+        'id' => 0,
+        'discount_id' => $data->id,
+        'event_id' => $eventId
+      ];
 
-        $result = $db->insertObject('#__eb_discount_events', $discount, 'id');
-        if ( $result === false ) return [ false, "Error adding discount events: $title" ];
+      $result = $db->insertObject('#__eb_discount_events', $discount, 'id');
+      if ($result === false) return [false, "Error adding discount events: $title"];
     }
 
-    return [ true, "Added discount: $title" ];
+    return [true, "Added discount: $title"];
   }
 }
+
