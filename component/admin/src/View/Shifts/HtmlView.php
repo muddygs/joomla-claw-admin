@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -88,13 +89,13 @@ class HtmlView extends BaseHtmlView
     $eventInfo = new EventInfo($eventAlias);
 
     /** @var \Joomla\CMS\Form\Field\ListField */
-    $parentField = $this->filterForm->getField('shift_area','filter');
+    $parentField = $this->filterForm->getField('shift_area', 'filter');
 
     // TODO: replace shift_area column with category_id column (also Grids.php, ShiftsModel.php, shift view)
     $shiftCategoryIds = [...$eventInfo->eb_cat_shifts, ...$eventInfo->eb_cat_supershifts];
     $shiftRawCategories = ClawEvents::getRawCategories($shiftCategoryIds);
 
-    foreach ( $shiftRawCategories AS $alias => $row ) {
+    foreach ($shiftRawCategories as $alias => $row) {
       // remove 'shifts-' prefix
       $k = substr($alias, 7);
       $parentField->addOption(htmlentities($row->name), ['value' => $k]);
@@ -131,13 +132,13 @@ class HtmlView extends BaseHtmlView
       $toolbar->addNew('shift.add');
 
       $toolbar->delete('shift.delete')
-      ->text('Delete')
-      ->listCheck(true);
-      
-      $toolbar->basicButton('process','Create Events','shifts.process')
-      ->icon('fas fa-calendar')
-      ->buttonClass('btn')
-      ->listCheck(false);
+        ->text('Delete')
+        ->listCheck(true);
+
+      $toolbar->basicButton('process', 'Deploy Events', 'shifts.process')
+        ->icon('fas fa-calendar')
+        ->buttonClass('btn')
+        ->listCheck(false);
 
       // TODO: This is not implemented, but I might want to in the future
       // $toolbar->confirmButton('reset','Reset Events','shifts.reset')
