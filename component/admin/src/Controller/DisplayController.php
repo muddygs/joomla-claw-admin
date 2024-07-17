@@ -35,11 +35,11 @@ class DisplayController extends BaseController
       $this->input->get('layout', 'edit'),
       $this->input->get('view', 'claw')
     ]);
-    
+
     return parent::createModel($name, $prefix, $config);
   }
 
-#region Refunds
+  #region Refunds
   public function refundProcessRefund()
   {
     $this->checkToken();
@@ -74,19 +74,6 @@ class DisplayController extends BaseController
     header('Content-Type: text/plain');
     $model->refundPopulate($json);
   }
-#endregion Refunds
+  #endregion Refunds
 
-#region Copy/Create Events
-  public function doCopyEvent()
-  {
-    $this->checkToken();
-
-    $json = new Json();
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\EventcopyModel */
-    $model = $this->getModel('Eventcopy');
-    $text = $model->doCopyEvent($json);
-    header('Content-Type: text/plain');
-    echo $text;
-  }
-#endregion Copy Event
 }
