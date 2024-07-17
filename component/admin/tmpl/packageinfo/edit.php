@@ -22,11 +22,11 @@ $view = 'packageinfo';
 
 <form action="<?= Route::_('index.php?option=com_claw&view=' . $view . '&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="adminForm" id="<?= $view ?>-form" class="form-validate">
 
-<h1>Event Information</h1>
-<div>
-  <div class="row">
-    <div class="col-lg-6">
-      <?= $this->form->renderField('title'); ?>
+  <h1>Event Information</h1>
+  <div>
+    <div class="row">
+      <div class="col-lg-6">
+        <?= $this->form->renderField('title'); ?>
       </div>
       <div class="col-lg-6">
         <?= $this->form->renderField('eventId'); ?>
@@ -43,7 +43,7 @@ $view = 'packageinfo';
       </div>
     </div>
   </div>
-  
+
   <div>
     <?php echo HTMLHelper::_('uitab.startTabSet', 'myTab', array('active' => 'general')); ?>
 
@@ -57,7 +57,7 @@ $view = 'packageinfo';
         <?= $this->form->renderField('end'); ?>
       </div>
     </div>
-    
+
     <div class="row">
       <div class="col-lg-6">
         <?= $this->form->renderField('packageInfoType'); ?>
@@ -82,8 +82,8 @@ $view = 'packageinfo';
     </div>
 
     <?php echo HTMLHelper::_('uitab.endTab'); ?>
-    <?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'discounts', 'Discounts'); ?>
-    
+    <?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'discounts', 'Coupons'); ?>
+
     <?= $this->form->renderField('requiresCoupon'); ?>
     <?= $this->form->renderField('couponKey'); ?>
     <?= $this->form->renderField('couponValue'); ?>
@@ -99,8 +99,8 @@ $view = 'packageinfo';
     <?php echo HTMLHelper::_('uitab.endTab'); ?>
     <?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'misc', 'Misc'); ?>
 
-      <?= $this->form->renderField('meta'); ?>
-      <?= $this->form->renderField('authNetProfile'); ?>
+    <?= $this->form->renderField('meta'); ?>
+    <?= $this->form->renderField('authNetProfile'); ?>
 
     <?php echo HTMLHelper::_('uitab.endTab'); ?>
 
