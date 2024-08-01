@@ -27,7 +27,7 @@ $token = Session::getFormToken();
 
 <h1>Coupon Generator</h1>
 
-<form action="/php/coupons/coupons.php" method="post" name="Coupon Generator" id="claw-coupon-generator" class="row g-3" hx-headers='{"X-CSRF-Token": "<?= $token ?>"}'>
+<form action="#" method="post" name="Coupon Generator" id="claw-coupon-generator" class="row g-3" hx-headers='{"X-CSRF-Token": "<?= $token ?>"}'>
   <div class="col-12">
     <p>Enter quantity and select coupon registration type and any add ons.</p>
   </div>
