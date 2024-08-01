@@ -16,9 +16,6 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\FormModel;
-use Joomla\Input\Json;
-use ClawCorpLib\Lib\EventInfo;
-use DateTime;
 use Joomla\CMS\Date\Date;
 
 /**
@@ -58,11 +55,8 @@ class EventcopyModel extends FormModel
     return $form;
   }
 
-  public function doCopyEvent(Json $json): string
+  public function doCopyEvent(string $from, string $to): string
   {
-    $from = $json->get('jform[from_event]', '', 'string');
-    $to = $json->get('jform[to_event]', '', 'string');
-
     try {
       $srcEventConfig = new EventConfig($from);
     } catch (\Exception) {
@@ -75,6 +69,10 @@ class EventcopyModel extends FormModel
       return 'Invalid from event: ' . $to;
     }
 
+    if ( $srcEventConfig->eventInfo->alias === $dstEventConfig->eventInfo->alias ) {
+      return 'Cannot copy to the same event';
+    }
+
     // Do some database magic!
 
     $db = $this->getDatabase();
@@ -84,17 +82,18 @@ class EventcopyModel extends FormModel
       '#__claw_vendors',
       '#__claw_shifts',
       '#__claw_locations',
+      '#__claw_field_values',
     ];
 
     $results = [];
 
     foreach ($tables as $table) {
       // Delete existing
-      $query = $db->getQuery(true);
-      $query->delete($db->quoteName($table))
-        ->where($db->quoteName('event') . ' = ' . $db->quote($to));
-      $db->setQuery($query);
-      $db->execute();
+      // $query = $db->getQuery(true);
+      // $query->delete($db->quoteName($table))
+      //   ->where($db->quoteName('event') . ' = ' . $db->quote($to));
+      // $db->setQuery($query);
+      // $db->execute();
       
       // Copy from older event
       $query = $db->getQuery(true);
@@ -104,29 +103,30 @@ class EventcopyModel extends FormModel
       $db->setQuery($query);
       $rows = $db->loadObjectList();
 
-      foreach ($rows as $x) {
-        $x->event = $to;
-        $x->id = null;
+      foreach ($rows as $row) {
+        $row->event = $to;
+        $row->id = null;
 
         switch ($table) {
           case '#__claw_schedule':
-            $dstDate = $this->translateDate($srcEventConfig->eventInfo->start_date, $x->day, $dstEventConfig->eventInfo->start_date);
+            $targetDay = new Date($row->day);
+            $dstDate = $this->translateDate($srcEventConfig->eventInfo->start_date, $targetDay, $dstEventConfig->eventInfo->start_date);
 
             // TODO: Handle false here!
-            $x->day = $dstDate->toSql();
-            $x->poster = '';
-            $x->poster_size = '';
-            $x->event_id = 0;
+            $row->day = $dstDate->toSql();
+            $row->poster = '';
+            $row->poster_size = '';
+            $row->event_id = 0;
             break;
 
           case '#__claw_shifts':
-            $x->grid = $this->resetGrid($x->grid);
+            $row->grid = $this->resetGrid($row->grid);
             break;
         }
 
-        $x->mtime = Helpers::mtime();
+        $row->mtime = Helpers::mtime();
 
-        $db->insertObject($table, $x);
+        $db->insertObject($table, $row);
       }
 
       $results[$table] = "$table: " . count($rows) . ' rows copied';

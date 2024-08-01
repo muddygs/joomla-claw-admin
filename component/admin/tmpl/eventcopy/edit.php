@@ -11,18 +11,20 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Router\Route;
+use Joomla\CMS\Session\Session;
 
 /** @var Joomla\CMS\Application\AdministratorApplication */
 $app = Factory::getApplication();
 /** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
 $wa = $app->getDocument()->getWebAssetManager();
-$wa->useScript('com_claw.copyevent');
+$wa->useScript('htmx');
+
+$token = Session::getFormToken();
 
 ?>
 <h1 class="mb-4">Event Copy</h1>
 
-<form action="<?= Route::_('index.php?option=com_claw&view=eventcopy'); ?>" id="adminForm" name="adminForm" method="post">
+<form action="#" method="post" id="claw-eventcopy-form" name="Event Copy" hx-headers='{"X-CSRF-Token": "<?= $token ?>"}'>
   <div class="row align-items-center">
     <div class="col-12 col-lg-4">
       <?php echo $this->form->renderField('from_event'); ?>
@@ -31,11 +33,13 @@ $wa->useScript('com_claw.copyevent');
       <?php echo $this->form->renderField('to_event'); ?>
     </div>
     <div class="col-12 col-lg-4">
-      <input name="submit" id="submit" type="button" value="Copy Event" class="btn btn-info mb-2" onclick="copyEvent()"/>
+      <input name="copy" id="copy" type="button" value="Copy Event" class="btn btn-info mb-2" 
+        hx-post="/administrator/index.php?option=com_claw&task=eventcopy.doCopyEvent&format=raw"
+        hx-target="#results"
+      />
     </div>
   </div>
   
-  <input type="hidden" name="task" value="">
   <?php echo HTMLHelper::_('form.token'); ?>
 </form>
 
