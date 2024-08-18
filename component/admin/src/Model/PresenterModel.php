@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -22,6 +22,9 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Mailer;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Table\Table;
+use Joomla\CMS\User\UserFactoryInterface;
 use Joomla\Database\DatabaseInterface;
 
 /**
@@ -37,20 +40,10 @@ class PresenterModel extends AdminModel
    * @var    string
    * @since  1.6
    */
-  protected $text_prefix = 'COM_CLAW_PRESENTER';
+  protected $text_prefix = 'COM_CLAW';
 
   public function delete(&$pks)
   {
-    // TODO: Delete presenter image files
-    // $db = $this->getDatabase();
-    // $query = $db->getQuery(true);
-    // $query->select($db->quoteName('uid'))
-    //   ->from($db->quoteName('#__claw_presenters'))
-    //   ->where('id IN (:uid)')
-    //   ->bind(':uid', implode(',', ));
-    // $db->setQuery($query);
-    // $result = $db->loadResult();
-
     parent::delete($pks);
   }
 
@@ -67,11 +60,12 @@ class PresenterModel extends AdminModel
     $app = Factory::getApplication();
 
     $data['mtime'] = Helpers::mtime();
+    $currentEventAlias = Aliases::current(true);
 
     // Get the task
     $task = $app->input->get('task');
     if ($task == 'save2copy') {
-      $data['event'] = Aliases::current(true);
+      $data['event'] = $currentEventAlias;
     }
 
     $new = false;
@@ -110,8 +104,6 @@ class PresenterModel extends AdminModel
     // $mime = $files['photo_upload']['type'];
     $error = $files['photo_upload']['error'];
 
-    $config = new Config($data['event']);
-
     if (0 == $error) {
       // Copy original out of tmp
       // $result = copy($tmp_name, $orig);
@@ -143,7 +135,63 @@ class PresenterModel extends AdminModel
       $this->email(new: $new, data: $data);
     }
 
+
+
+    if ($data['event'] == $currentEventAlias && $app->isClient('administrator') && $data['uid'] != 0) {
+      $params = ComponentHelper::getParams('com_claw');
+      $publishedGroup = $params->get('se_approval_group', 0);
+
+      if (!$publishedGroup) {
+        $app->enqueueMessage('No approval group set in configuration.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+        return false;
+      }
+
+      switch ($data['published']) {
+        case (1):
+          $this->ensureGroupMembership($data['uid'], $publishedGroup);
+          break;
+        default:
+          $this->removeGroupMembership($data['uid'], $publishedGroup);
+          break;
+      }
+    }
+
     return parent::save($data);
+  }
+
+  public function migrateToCurrentEvent(Table $table, bool $copy = true)
+  {
+    if ($copy) {
+      $table->id = 0;
+    }
+
+    $table->event = Aliases::current(true);
+    $table->published = 0;
+    $table->mtime = Helpers::mtime();
+  }
+
+  private function ensureGroupMembership($uid, $group)
+  {
+    $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
+    $user = $userFactory->loadUserById($uid);
+    $groups = $user->getAuthorisedGroups();
+
+    if (!in_array($group, $groups)) {
+      $user->groups = array_merge($groups, [$group]);
+      $user->save(updateOnly: true);
+    }
+  }
+
+  private function removeGroupMembership($uid, $group)
+  {
+    $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
+    $user = $userFactory->loadUserById($uid);
+    $groups = $user->getAuthorisedGroups();
+
+    if (in_array($group, $groups)) {
+      $user->groups = array_diff($groups, [$group]);
+      $user->save();
+    }
   }
 
   /**
@@ -267,4 +315,3 @@ HTML;
     $m->send();
   }
 }
-
