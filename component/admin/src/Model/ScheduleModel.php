@@ -104,10 +104,8 @@ class ScheduleModel extends AdminModel
     if (empty($event)) $event = Aliases::current();
     $eventConfig = new EventConfig($event, [PackageInfoTypes::addon]);
 
-    /** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
-    $parentField = $form->getField('location');
-    $locationAlias = EventBooking::getLocationAlias($eventConfig->eventInfo->ebLocationId);
-    $parentField->populateOptions($locationAlias);
+    // Seed location list
+    Helpers::sessionSet('eventAlias', $event);
 
     $sponsors = Sponsors::GetPublishedSponsors($this->getDatabase());
 
