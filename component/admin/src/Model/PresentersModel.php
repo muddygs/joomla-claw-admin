@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -41,7 +42,7 @@ class PresentersModel extends ListModel
     'image_preview',
     'mtime',
     'submission_date'
-  ];	
+  ];
 
   /**
    * Constructor.
@@ -55,11 +56,10 @@ class PresentersModel extends ListModel
   {
     if (empty($config['filter_fields'])) {
       $config['filter_fields'] = [];
-      
-      foreach( $this->list_fields AS $f )
-      {
+
+      foreach ($this->list_fields as $f) {
         $config['filter_fields'][] = $f;
-        $config['filter_fields'][] = 'a.'.$f;
+        $config['filter_fields'][] = 'a.' . $f;
       }
     }
 
@@ -141,7 +141,10 @@ class PresentersModel extends ListModel
     // Select the required fields from the table.
     $query->select(
       $this->getState(
-        'list.select', array_map( function($a) use($db) { return $db->quoteName('a.'.$a); }, $this->list_fields)
+        'list.select',
+        array_map(function ($a) use ($db) {
+          return $db->quoteName('a.' . $a);
+        }, $this->list_fields)
       )
     )
       ->from($db->quoteName('#__claw_presenters', 'a'));
@@ -149,15 +152,14 @@ class PresentersModel extends ListModel
     // Filter by search in title.
     $search = $this->getState('filter.search');
 
-    if (!empty($search))
-    {
+    if (!empty($search)) {
       $search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
       $query->where('(a.name LIKE ' . $search . ')');
     }
 
     $event = $this->getState('filter.event', Aliases::current(true));
 
-    if ( $event != 'all' ) {
+    if ($event != 'all') {
       $query->where('a.event = :event')->bind(':event', $event);
     }
 
@@ -177,29 +179,31 @@ class PresentersModel extends ListModel
     $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
 
     $itemIds = array_column($items, 'id');
-    $itemMinAges = array_map(function($item) { return new \DateTime($item->mtime, new DateTimeZone('UTC')); }, $items);
+    $itemMinAges = array_map(function ($item) {
+      return new \DateTime($item->mtime, new DateTimeZone('UTC'));
+    }, $items);
 
     // Insert property for cached presenter preview image
     $cache = new DbBlob(
-      db: $this->db, 
-      cacheDir: JPATH_ROOT . $path, 
+      db: $this->db,
+      cacheDir: JPATH_ROOT . $path,
       prefix: 'web_',
       extension: 'jpg'
     );
 
     $filenames = $cache->toFile(
-      tableName: '#__claw_presenters', 
-      rowIds: $itemIds, 
+      tableName: '#__claw_presenters',
+      rowIds: $itemIds,
       key: 'image_preview',
       minAges: $itemMinAges
     );
-    
-    foreach ( $items AS $item ) {
-      if ( 3 == $item->published) {
+
+    foreach ($items as $item) {
+      if (3 == $item->published) {
         $item->name .= ' <span class="badge rounded-pill bg-warning">New</span>';
       }
 
-      if ( array_key_exists($item->id, $filenames) ) {
+      if (array_key_exists($item->id, $filenames)) {
         $item->image_preview = $filenames[$item->id];
       } else {
         $item->image_preview = null;
@@ -209,3 +213,4 @@ class PresentersModel extends ListModel
     return $items;
   }
 }
+
