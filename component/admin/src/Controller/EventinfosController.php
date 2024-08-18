@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -13,8 +13,13 @@ namespace ClawCorp\Component\Claw\Administrator\Controller;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Traits\Controller;
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Form\FormFactoryInterface;
 use Joomla\CMS\MVC\Controller\AdminController;
+use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\Router\Route;
+use Joomla\Input\Input;
 
 /**
  * Eventinfos list controller class.
@@ -23,28 +28,18 @@ use Joomla\CMS\Router\Route;
  */
 class EventinfosController extends AdminController
 {
-  /**
-   * The prefix to use with controller messages.
-   *
-   * @var    string
-   * @since  1.6
-   */
-  protected $text_prefix = 'COM_CLAW_EVENTINFOS';
+  use Controller;
 
-  /**
-   * Proxy for getModel.
-   *
-   * @param   string  $name    The model name. Optional.
-   * @param   string  $prefix  The class prefix. Optional.
-   * @param   array   $config  The array of possible config values. Optional.
-   *
-   * @return  \Joomla\CMS\MVC\Model\AdminModel  The model.
-   *
-   * @since   1.6
-   */
-  public function getModel($name = 'Eventinfo', $prefix = 'Administrator', $config = array('ignore_request' => true))
-  {
-    return parent::getModel($name, $prefix, $config);
+  public function __construct(
+    $config = [],
+    MVCFactoryInterface $factory = null,
+    ?CMSApplication $app = null,
+    ?Input $input = null,
+    FormFactoryInterface $formFactory = null
+  ) {
+    parent::__construct($config, $factory, $app, $input, $formFactory);
+
+    $this->controllerSetup();
   }
 
   public function save2copy()
@@ -52,35 +47,31 @@ class EventinfosController extends AdminController
     // Check for request forgeries.
     $this->checkToken();
 
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\EventInfosModel $model */
-    $model   = $this->getModel();
-    $table   = $model->getTable();
-    $cid    = $this->input->post->get('cid', [], 'array');
-
-    if ( count($cid) != 1 ) {
+    if (count($this->cid) != 1) {
       $this->setMessage('1 (and only 1) row must be selected.', 'error');
       $this->setRedirect(Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list, false));
       return false;
     }
 
-    $result = $table->load($cid[0]);
+    $result = $this->table->load($this->cid[0]);
 
-    if ( !$result ) {
+    if (!$result) {
       $this->setMessage('Error loading old row.', 'error');
       $this->setRedirect(Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list, false));
       return false;
     }
 
-    $table->alias = $table->alias . ' (copy)';
-    $table->id = 0;
+    // TODO: check for potential alias conflicts
+    $this->table->alias = $this->table->alias . ' (copy)';
+    $this->table->id = 0;
 
     // Redirect back to the list screen.
     $this->setRedirect(
       Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list, false)
     );
 
-    $table->store();
-    
+    $this->table->store();
+
     return true;
   }
 
@@ -89,25 +80,20 @@ class EventinfosController extends AdminController
     // Check for request forgeries.
     $this->checkToken();
 
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\EventInfosModel $model */
-    $model   = $this->getModel();
-    $table   = $model->getTable();
-    $cid    = $this->input->post->get('cid', [], 'array');
-
-    if ( count($cid) != 1 ) {
+    if (count($this->cid) != 1) {
       $this->setMessage('1 (and only 1) row must be selected.', 'error');
       $this->setRedirect(Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list, false));
       return false;
     }
 
-    $result = $table->load($cid[0]);
-    if ( $result ) $table->delete();
+    $result = $this->table->load($this->cid[0]);
+    if ($result) $this->table->delete();
 
     // Redirect back to the list screen.
     $this->setRedirect(
       Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list, false)
     );
-    
+
     return $result;
   }
 
@@ -116,30 +102,23 @@ class EventinfosController extends AdminController
     // Check for request forgeries.
     $this->checkToken();
 
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\EventInfosModel $model */
-    $model   = $this->getModel();
-    $table   = $model->getTable();
-    $cid    = $this->input->post->get('cid', [], 'array');
-    $task  = $this->getTask();
-    
-
-    if ( count($cid) != 1 ) {
+    if (count($this->cid) != 1) {
       $this->setMessage('1 (and only 1) row must be selected.', 'error');
       $this->setRedirect(Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list, false));
       return false;
     }
 
-    $result = $table->load($cid[0]);
-    if ( $result ) {
-      $table->active = $task == 'unpublish' ? 0 : 1;
-      $table->store();
+    $result = $this->table->load($this->cid[0]);
+    if ($result) {
+      $this->table->active = $this->task == 'unpublish' ? 0 : 1;
+      $this->table->store();
     }
 
     // Redirect back to the list screen.
     $this->setRedirect(
       Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list, false)
     );
-    
+
     return $result;
   }
 }

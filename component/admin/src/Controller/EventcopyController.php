@@ -14,44 +14,44 @@ namespace ClawCorp\Component\Claw\Administrator\Controller;
 \defined('_JEXEC') or die;
 
 use Joomla\CMS\MVC\Controller\FormController;
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Form\FormFactoryInterface;
+use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
+use ClawCorpLib\Traits\Controller;
 
 /**
  * Shifts list controller class.
  */
 class EventcopyController extends FormController
 {
-  // /**
-  //  * Proxy for getModel.
-  //  *
-  //  * @param   string  $name    The model name. Optional.
-  //  * @param   string  $prefix  The class prefix. Optional.
-  //  * @param   array   $config  The array of possible config values. Optional.
-  //  *
-  //  * @return  \Joomla\CMS\MVC\Model\BaseDatabaseModel
-  //  *
-  //  * @since   1.6
-  //  */
-  // public function getModel($name = 'Eventcopy', $prefix = 'Administrator', $config = array('ignore_request' => true))
-  // {
-  //   return parent::getModel($name, $prefix, $config);
-  // }
+  use Controller;
+
+  public function __construct(
+    $config = [],
+    MVCFactoryInterface $factory = null,
+    ?CMSApplication $app = null,
+    ?Input $input = null,
+    FormFactoryInterface $formFactory = null
+  ) {
+    parent::__construct($config, $factory, $app, $input, $formFactory);
+
+    $this->controllerSetup();
+  }
 
   public function doCopyEvent()
   {
     $this->checkToken();
 
     /** @var \ClawCorp\Component\Claw\Administrator\Model\EventcopyModel */
-    $model = $this->getModel('Eventcopy');
-
-    $jform = $this->input->get('jform', [], 'array');
+    $model = $this->model;
 
     // Extract individual values from the filtered data
-    $from = $jform['from_event'] ?? '';
-    $to = $jform['to_event'] ?? '';
+    $from = $this->data['from_event'] ?? '';
+    $to = $this->data['to_event'] ?? '';
 
     $response = $model->doCopyEvent($from, $to);
     header('Content-Type: text/html');
-     echo $response; // htmx -> #results
+    echo $response; // htmx -> #results
   }
 }

@@ -16,6 +16,11 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\FormController;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
+use ClawCorpLib\Traits\Controller;
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Form\FormFactoryInterface;
+use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use Joomla\Input\Input;
 
 /**
  * Controller for a single sponsorship PackageInfo record
@@ -24,10 +29,24 @@ use Joomla\CMS\Uri\Uri;
  */
 class SponsorshipController extends FormController
 {
+  use Controller;
+
+  public function __construct(
+    $config = [],
+    MVCFactoryInterface $factory = null,
+    ?CMSApplication $app = null,
+    ?Input $input = null,
+    FormFactoryInterface $formFactory = null
+) {
+    $this->controllerSetup();
+     parent::__construct($config, $factory, $app, $input, $formFactory);
+    }
+
+
   protected function createModel($name, $prefix = '', $config = [])
   {
     if (!isset($config['context']))
-      $config['context'] = $this->controllerContext();
+      $config['context'] = $this->stateContext;
 
     return parent::createModel($name, $prefix, $config);
   }
@@ -36,8 +55,7 @@ class SponsorshipController extends FormController
   {
     $result =  parent::cancel($key);
     if ($result) {
-      $context = $this->controllerContext();
-      $this->app->setUserState($context . '.data', null);
+      $this->app->setUserState($this->stateContext . '.data', null);
     }
     return $result;
   }
@@ -59,21 +77,17 @@ class SponsorshipController extends FormController
     $this->checkToken();
 
     /** @var \ClawCorp\Component\Claw\Administrator\Model\SponsorshipModel $model */
-    $model   = $this->getModel();
-    $table   = $model->getTable();
-    $data    = $this->input->post->get('jform', [], 'array');
-    $context = $this->controllerContext();
-    $task    = $this->getTask();
+    $model   = $this->model;
 
     // Determine the name of the primary key for the data.
     if (empty($key)) {
-      $key = $table->getKeyName();
+      $key = $this->table->getKeyName();
     }
   
     $uri = Uri::getInstance();
     $recordId = $uri->getVar('id', 0);
 
-    if (!$this->checkEditId($context, $recordId)) {
+    if (!$this->checkEditId($this->stateContext, $recordId)) {
       // Somehow the person just went to the form and tried to save it. We don't allow that.
       $this->setMessage(Text::sprintf('JLIB_APPLICATION_ERROR_UNHELD_ID', $recordId), 'error');
       $this->setRedirect(Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list . $this->getRedirectToListAppend(), false));
@@ -120,7 +134,7 @@ class SponsorshipController extends FormController
       }
 
       // Save the data in the session.
-      $this->app->setUserState($context . '.data', $data);
+      $this->app->setUserState($this->stateContext . '.data', $data);
 
       // Redirect back to the edit screen.
       $this->setRedirect(
@@ -130,9 +144,9 @@ class SponsorshipController extends FormController
       return false;
     }
 
-    if ( $task !== 'save2copy' && !$model->save($validData) ) {
+    if ( $this->task !== 'save2copy' && !$model->save($validData) ) {
       $this->setMessage(Text::sprintf('JLIB_APPLICATION_ERROR_SAVE_FAILED', $model->getError()), 'error');
-      $this->app->setUserState($context . '.data', $data);
+      $this->app->setUserState($this->stateContext . '.data', $data);
 
       // Redirect back to the edit screen.
       $this->setRedirect(
@@ -142,18 +156,18 @@ class SponsorshipController extends FormController
       return false;
     }
 
-    if ( 'save2copy' === $task ) {
+    if ( 'save2copy' === $this->task ) {
       $data[$key] = 0;
       $data['alias'] = '';
       $data['title'] = $data['title'] . ' (copy)';
 
       // Model will use this state in loadFormData() to populate the form
-      $this->app->setUserState($context . '.data', $data);
+      $this->app->setUserState($this->stateContext . '.data', $data);
     }
 
-    switch ($task) {
+    switch ($this->task) {
       case 'save2copy':
-        $model->setState($this->context . '.id', 0);
+        $model->setState($this->stateContext . '.id', 0);
         $uri->setVar('id', 0);
         $this->setRedirect($uri->toString());
         return true;
@@ -167,7 +181,7 @@ class SponsorshipController extends FormController
       break;
 
       default:
-        $this->app->setUserState($context . '.data', null);
+        $this->app->setUserState($this->stateContext . '.data', null);
         $uri->setVar('id', null);
         $uri->setVar('layout', null);
         $uri->setVar('view', 'sponsorships');
@@ -180,10 +194,5 @@ class SponsorshipController extends FormController
     }
 
     return true;
-  }
-
-  private function controllerContext(): string
-  {
-    return implode('.', [$this->option, 'edit', $this->context]);
   }
 }

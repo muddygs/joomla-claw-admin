@@ -11,7 +11,12 @@ namespace ClawCorp\Component\Claw\Administrator\Controller;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Traits\Controller;
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Form\FormFactoryInterface;
 use Joomla\CMS\MVC\Controller\FormController;
+use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use Joomla\Input\Input;
 
 /**
  * Example Input data post:
@@ -28,10 +33,9 @@ data: array(9)
       owner-fields0: array(2)
         owner_name: "name_xxx"
         owner_email: "xxx"
-  addon-D: "D"
-  addon-B: "B"
+  addon-D: 11
+  addon-B: 22
   htmxChangedField: "jform[owner-fields][owner-fields0][owner_email]"
-  helix_id: 9
   controller: "coupongenerator"
 */
 
@@ -41,17 +45,28 @@ data: array(9)
 
 class CoupongeneratorController extends FormController
 {
+  use Controller;
+
+  public function __construct(
+    $config = [],
+    MVCFactoryInterface $factory = null,
+    ?CMSApplication $app = null,
+    ?Input $input = null,
+    FormFactoryInterface $formFactory = null
+  ) {
+    parent::__construct($config, $factory, $app, $input, $formFactory);
+
+    $this->controllerSetup();
+  }
+
   public function packageOptions()
   {
     $this->checkToken();
 
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\CoupongeneratorModel */
-    $model = $this->getModel('Coupongenerator');
-
     /** @var \ClawCorp\Component\Claw\Administrator\View\Coupongenerator\HtmxAddonsView */
     $view = $this->getView('Coupongenerator', 'HtmxPackages');
-    $view->setModel($model, true);
-    $view->input = $this->input->get('jform', [], 'array');
+    $view->setModel($this->model, true);
+    $view->input = $this->data;
 
     $view->display();
   }
@@ -60,12 +75,9 @@ class CoupongeneratorController extends FormController
   {
     $this->checkToken();
 
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\CoupongeneratorModel */
-    $model = $this->getModel('Coupongenerator');
-
     /** @var \ClawCorp\Component\Claw\Administrator\View\Coupongenerator\HtmxAddonsView */
     $view = $this->getView('Coupongenerator', 'HtmxAddons');
-    $view->setModel($model, true);
+    $view->setModel($this->model, true);
     $view->input = $this->input->get('jform', [], 'array');
 
     $view->display();
@@ -73,68 +85,53 @@ class CoupongeneratorController extends FormController
 
   public function couponValue()
   {
-    // Check for request forgeries.
     $this->checkToken();
 
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\CoupongeneratorModel */
-    $model = $this->getModel('Coupongenerator');
-
-    // Because checkboxes are not create by form template, we'll need to manually include in $input
-    $input = $this->input->get('jform', [], 'array');
-
+    // Handle dynamically created checkboxes
     foreach ( $this->input->post->getArray() AS $key => $value ) {
       if ( str_starts_with($key, 'addon-') && strlen($key) == 7 ) {
-        $input[$key] = $this->input->getString($key, '');
+        $this->data[$key] = $this->input->getString($key, '');
       }
     }
 
     /** @var \ClawCorp\Component\Claw\Administrator\View\Coupongenerator\HtmxCouponView */
     $view = $this->getView('Coupongenerator', 'HtmxCoupon');
-    $view->setModel($model, true);
-    $view->input = $input;
+    $view->setModel($this->model, true);
+    $view->input = $this->data;
 
     $view->display();
   }
 
   public function createCoupons()
   {
-    // Check for request forgeries.
     $this->checkToken();
 
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\CoupongeneratorModel */
-    $model = $this->getModel('Coupongenerator');
-
-    // Because checkboxes are not create by form template, we'll need to manually include in $input
-    $input = $this->input->get('jform', [], 'array');
-
+    // Handle dynamically created checkboxes
     foreach ( $this->input->post->getArray() AS $key => $value ) {
-      if ( str_starts_with($key, 'addon-') && strlen($key) == 7 ) {
-        $input[$key] = $this->input->getString($key, '');
-      }
-    }
+     if ( str_starts_with($key, 'addon-') && strlen($key) == 7 ) {
+       $this->data[$key] = $this->input->getString($key, '');
+     }
+   }
 
-    $input['emailOverride'] = $this->input->get('emailOverride', 0, 'int');
+    $this->data['emailOverride'] = $this->input->get('emailOverride', 0, 'int');
+    // End checkboxes
 
     /** @var \ClawCorp\Component\Claw\Administrator\View\Coupongenerator\HtmxGenerateView */
     $view = $this->getView('Coupongenerator', 'HtmxGenerate');
-    $view->setModel($model, true);
-    $view->input = $input;
+    $view->setModel($this->model, true);
+    $view->input = $this->data;
 
     $view->display();
   }
 
   public function emailStatus()
   {
-    // Check for request forgeries.
     $this->checkToken();
-
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\CoupongeneratorModel */
-    $model = $this->getModel('Coupongenerator');
 
     /** @var \ClawCorp\Component\Claw\Administrator\View\Coupongenerator\HtmxCouponView */
     $view = $this->getView('Coupongenerator', 'HtmxEmailStatus');
-    $view->setModel($model, true);
-    $view->input = $this->input->get('jform', [], 'array');
+    $view->setModel($this->model, true);
+    $view->input = $this->data;
 
     $view->display();
   }
@@ -144,13 +141,10 @@ class CoupongeneratorController extends FormController
     // Check for request forgeries.
     $this->checkToken();
 
-    $input = $this->input->get('jform', [], 'array');
-    $input['htmxChangedField'] = $this->input->get('htmxChangedField', '', 'string');
-    $input['emailOverride'] = $this->input->get('emailOverride', 0, 'int');
+    $this->data['htmxChangedField'] = $this->input->get('htmxChangedField', '', 'string');
+    $this->data['emailOverride'] = $this->input->get('emailOverride', 0, 'int');
 
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\CoupongeneratorModel */
-    $model = $this->getModel('Coupongenerator');
-    $status = $model->emailStatus($input);
+    $status = $this->model->emailStatus($this->data);
 
     header('Content-Type: text/html');
     echo $status->error ? '<span class="fa fa-ban text-danger"></span>' : '<span class="fa fa-check"></span>';

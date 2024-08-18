@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -15,8 +15,14 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Deploy;
 use ClawCorpLib\Lib\Aliases;
-use Joomla\CMS\Factory;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\MVC\Controller\AdminController;
+
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Form\FormFactoryInterface;
+use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use Joomla\Input\Input;
+use ClawCorpLib\Traits\Controller;
 
 /**
  * Skills (classes) list controller class.
@@ -25,44 +31,37 @@ use Joomla\CMS\MVC\Controller\AdminController;
  */
 class SpeeddatinginfosController extends AdminController
 {
-  /**
-   * The prefix to use with controller messages.
-   *
-   * @var    string
-   * @since  1.6
-   */
-  protected $text_prefix = 'COM_CLAW_SPEEDDATINGINFOS';
+  use Controller;
+
+  public function __construct(
+    $config = [],
+    MVCFactoryInterface $factory = null,
+    ?CMSApplication $app = null,
+    ?Input $input = null,
+    FormFactoryInterface $formFactory = null
+  ) {
+    parent::__construct($config, $factory, $app, $input, $formFactory);
+
+    $this->controllerSetup();
+  }
 
   public function process()
-	{
-		$filter = $this->app->getInput()->get('filter', '', 'string');
+  {
+    $filter = $this->app->getInput()->get('filter', '', 'string');
 
-		$event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
+    $event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
 
-    if ( $event == 'all' ) {
-      $app = Factory::getApplication();
-      $app->enqueueMessage('Event selection not valid for deployment.', 'error');
+    if (!EventInfo::isValidEventAlias($event)) {
+      $this->setRedirect(
+        'index.php?option=com_claw&view=speeddatinginfos',
+        'Event selection not valid for deployment.',
+        'error'
+      );
       return false;
     }
 
     $deploy = new Deploy($event, Deploy::SPEEDDATING);
     $results = $deploy->deploy();
     echo $results;
-	}
-
-  /**
-   * Proxy for getModel.
-   *
-   * @param   string  $name    The model name. Optional.
-   * @param   string  $prefix  The class prefix. Optional.
-   * @param   array   $config  The array of possible config values. Optional.
-   *
-   * @return  \Joomla\CMS\MVC\Model\BaseDatabaseModel
-   *
-   * @since   1.6
-   */
-  public function getModel($name = 'Speeddatinginfo', $prefix = 'Administrator', $config = array('ignore_request' => true))
-  {
-    return parent::getModel($name, $prefix, $config);
   }
 }

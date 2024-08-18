@@ -39,6 +39,7 @@ class DisplayController extends BaseController
     return parent::createModel($name, $prefix, $config);
   }
 
+  // TODO: update to use HTMX
   #region Refunds
   public function refundProcessRefund()
   {

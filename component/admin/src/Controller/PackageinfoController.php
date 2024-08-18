@@ -25,6 +25,7 @@ use Joomla\CMS\Uri\Uri;
  */
 class PackageinfoController extends FormController
 {
+  // TODO: WTH?
   protected function createModel($name, $prefix = '', $config = [])
   {
     if (!isset($config['context']))
