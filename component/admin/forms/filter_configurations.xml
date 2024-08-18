@@ -39,5 +39,13 @@
 			<option value="a.fieldname ASC">Section Ascending</option>
 			<option value="a.fieldname DESC">Section Descending</option>
 		</field>
+
+		<field
+			name="limit"
+			type="limitbox"
+			label="JGLOBAL_LIST_LIMIT"
+			default="All"
+			onchange="this.form.submit();"
+		/>
 	</fields>
 </form>
