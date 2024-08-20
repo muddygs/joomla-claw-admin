@@ -16,7 +16,7 @@ class DbBlob
     private string $cacheDir,
     private string $prefix = '',
     private string $extension = '',
-    private string $key = 'id'
+    public readonly string $key = 'id'
   ) {}
 
   /**
