@@ -2,12 +2,10 @@
 
 namespace ClawCorpLib\Lib;
 
-use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Enums\EbPublishedState;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use ClawCorpLib\Enums\EventTypes;
-use ClawCorpLib\Helpers\Config;
 
 class EventInfo
 {
@@ -50,17 +48,15 @@ class EventInfo
   public function __construct(
     public readonly string $alias
   ) {
-    $config = new Config($this->alias);
-    $timezone = $config->getConfigText(ConfigFieldNames::CONFIG_TIMEZONE, 'server');
     $info = $this->loadRawEventInfo($alias);
 
+    $this->timezone = $info->timezone;
     $this->description = $info->description;
     $this->ebLocationId = $info->ebLocationId;
-    $this->start_date = Factory::getDate($info->start_date, $timezone);
-    $this->end_date = Factory::getDate($info->end_date, $timezone);
+    $this->start_date = Factory::getDate($info->start_date, $info->timezone);
+    $this->end_date = Factory::getDate($info->end_date, $info->timezone);
     $this->prefix = strtoupper($info->prefix);
-    $this->cancelBy = Factory::getDate($info->cancelBy, $timezone);
-    $this->timezone = $info->timezone;
+    $this->cancelBy = Factory::getDate($info->cancelBy, $info->timezone);
     $this->active = $info->active;
     $this->eventType = EventTypes::FindValue($info->eventType);
     $this->onsiteActive = $info->onsiteActive;
