@@ -30,8 +30,12 @@ rm media/js/*.json
 /usr/bin/zip --quiet -r package/packages/com_claw.zip media
 
 pushd ~/code
+REV=`svn info . | grep 'Revision' | awk '{print $2}'`
 ./export.sh
 popd
+
+echo "Finish exporting Revision: ${REV}"
+echo $REV > library/svn/svn_info
 
 cp ~/tmp/j4_claw_custom_code_current.tar.gz library/svn
 
