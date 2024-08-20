@@ -13,7 +13,9 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Helpers\DbBlob;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
@@ -50,7 +52,9 @@ class PresenterModel extends AdminModel
   public function validate($form, $data, $group = null)
   {
     // Handle readonly account data 
-    if ($data['uid_readonly_uid'] != 0) $data['uid'] = $data['uid_readonly_uid'];
+    if (array_key_exists('uid_readonly_uid', $data) && $data['uid_readonly_uid'] != 0) {
+      $data['uid'] = $data['uid_readonly_uid'];
+    }
 
     return parent::validate($form, $data, $group);
   }
@@ -74,19 +78,7 @@ class PresenterModel extends AdminModel
     if ($data['id'] == 0) {
       $data['submission_date'] = date("Y-m-d");
 
-      // Check UID record is unique
-      $db = $this->getDatabase();
-      $query = $db->getQuery(true);
-      $query->select($db->quoteName('id'))
-        ->from($db->quoteName('#__claw_presenters'))
-        ->where('uid = :uid')
-        ->where('event = :event')
-        ->bind(':uid', $data['uid'])
-        ->bind(':event', $data['event']);
-      $db->setQuery($query);
-      $result = $db->loadResult();
-
-      if ($result) {
+      if ( $this->checkExists($data['uid'], $data['event']) ) {
         $app->enqueueMessage('Record for this presenter already exists for this event.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
         return false;
       }
@@ -99,14 +91,58 @@ class PresenterModel extends AdminModel
     if (array_key_exists('phone_info', $data)) $data['phone_info'] = implode(',', $data['phone_info']);
 
     $input = $app->input;
+
+    $success = $this->handlePhotoUpload($input, $data);
+
+    if ( !$success ) {
+      $image_preview = Helpers::sessionGet('image_preview'); // from site model
+      if ( $image_preview && !$new) {
+        $this->mergeImageBlobs($data);
+      }
+    }
+
+    $result = parent::save($data);
+
+    if ($result) {
+      $id  = (int) $this->getState($this->getName() . '.id'); // set in save() method
+      $data['id'] = $id;
+
+      // Email if coming from the front end site
+      if ($app->isClient('site') && array_key_exists('email', $data)) {
+        $this->email(new: $new, data: $data);
+      }
+
+      if ($data['event'] == $currentEventAlias && $app->isClient('administrator') && $data['uid'] != 0) {
+        $params = ComponentHelper::getParams('com_claw');
+        $publishedGroup = $params->get('se_approval_group', 0);
+
+        if (!$publishedGroup) {
+          $app->enqueueMessage('No approval group set in configuration.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+          return false;
+        }
+
+        switch ($data['published']) {
+          case (EbPublishedState::published):
+            $this->ensureGroupMembership($data['uid'], $publishedGroup);
+            break;
+          default:
+            $this->removeGroupMembership($data['uid'], $publishedGroup);
+            break;
+        }
+      }
+    }
+
+    return $result;
+  }
+
+  private function handlePhotoUpload(\Joomla\Input\Input $input, array &$data):bool
+  {
     $files = $input->files->get('jform');
     $tmp_name = $files['photo_upload']['tmp_name'];
-    // $mime = $files['photo_upload']['type'];
     $error = $files['photo_upload']['error'];
 
     if (0 == $error) {
       // Copy original out of tmp
-      // $result = copy($tmp_name, $orig);
 
       $path = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, 'tmp']);
       $orig = basename($tmp_name) . '.jpg';
@@ -118,7 +154,7 @@ class PresenterModel extends AdminModel
         deleteSource: true,
         origsize: 1024,
       )) {
-        $app->enqueueMessage('Unable to save original photo file.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+        Factory::getApplication()->enqueueMessage('Unable to process uploaded photo file.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
         return false;
       }
 
@@ -127,36 +163,43 @@ class PresenterModel extends AdminModel
       $data['photo'] = ''; //deprecated column
       $data['image'] = file_get_contents($path . '/orig_' . $orig);
       $data['image_preview'] = file_get_contents($path . '/thumb_' . $orig);
+
+      return true;
     }
+    
+    return false;
+  }
 
-    // Email if coming from the front end site
-    if ($app->isClient('site') && array_key_exists('email', $data)) {
-      $data['orig'] = $orig;
-      $this->email(new: $new, data: $data);
+  private function mergeImageBlobs(&$data)
+  {
+    $db = $this->getDatabase();
+    $query = $db->getQuery(true);
+    $query->select($db->quoteName(['image_preview', 'image']))
+      ->from($db->quoteName('#__claw_presenters'))
+      ->where($db->quoteName('id') . ' = ' . (int) $data['id']);
+
+    $db->setQuery($query);
+    $result = $db->loadObject();
+
+    if ($result) {
+      $data['image_preview'] = $result->image_preview;
+      $data['image'] = $result->image;
     }
+  }
 
-
-
-    if ($data['event'] == $currentEventAlias && $app->isClient('administrator') && $data['uid'] != 0) {
-      $params = ComponentHelper::getParams('com_claw');
-      $publishedGroup = $params->get('se_approval_group', 0);
-
-      if (!$publishedGroup) {
-        $app->enqueueMessage('No approval group set in configuration.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-        return false;
-      }
-
-      switch ($data['published']) {
-        case (1):
-          $this->ensureGroupMembership($data['uid'], $publishedGroup);
-          break;
-        default:
-          $this->removeGroupMembership($data['uid'], $publishedGroup);
-          break;
-      }
-    }
-
-    return parent::save($data);
+  private function checkExists($uid, $event): bool
+  {
+    $db = $this->getDatabase();
+    $query = $db->getQuery(true);
+    $query->select($db->quoteName('id'))
+    ->from($db->quoteName('#__claw_presenters'))
+    ->where('uid = :uid')
+    ->where('event = :event')
+    ->bind(':uid', $uid)
+    ->bind(':event', $event);
+    
+    $db->setQuery($query);
+    return $db->loadResult();
   }
 
   public function migrateToCurrentEvent(Table $table, bool $copy = true)
@@ -226,7 +269,7 @@ class PresenterModel extends AdminModel
   protected function loadFormData()
   {
     // Check the session for previously entered form data.
-    /** @var Joomla\CMS\Application\AdministratorApplication */
+    /** @var \Joomla\CMS\Application\AdministratorApplication */
     $app = Factory::getApplication();
     $data = $app->getUserState('com_claw.edit.presenter.data', []);
 
@@ -273,17 +316,35 @@ class PresenterModel extends AdminModel
 
   private function email(bool $new, array $data)
   {
-    // Get notification configuration
-    /** @var \Joomla\CMS\Application */
-    $app = Factory::getApplication();
-    $params = $app->getParams();
+    $params = ComponentHelper::getParams('com_claw');
     $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
 
+    // prepare image_preview as attachment
     $alias = Aliases::current();
     $info = new EventInfo($alias);
     $config = new Config($alias);
-    $presentersDir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters');
+    $presentersDir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
+    $data['event'] = $info->description;
 
+    $itemIds = [$data['id']];
+    $itemMinAges = [new \DateTime($this->presenter->mtime, new \DateTimeZone('UTC'))];
+
+    // Insert property for cached presenter preview image
+    $cache = new DbBlob(
+      db: $this->getDatabase(),
+      cacheDir: JPATH_ROOT . $presentersDir,
+      prefix: 'web_',
+      extension: 'jpg'
+    );
+
+    $filenames = $cache->toFile(
+      tableName: '#__claw_presenters',
+      rowIds: $itemIds,
+      key: 'image_preview',
+      minAges: $itemMinAges
+    );
+
+    $image_preview_path = $filenames[$data[$cache->key]] ?? '';
 
     $subject = $new ? '[New] ' : '[Updated] ';
     $subject .= $info->description . ' Presenter Application - ';
@@ -296,7 +357,7 @@ class PresenterModel extends AdminModel
       fromname: 'CLAW Skills and Education',
       frommail: $notificationEmail,
       subject: $subject,
-      attachments: [implode(DIRECTORY_SEPARATOR, [$presentersDir, 'orig', $data['uid'] . '.jpg'])]
+      attachments: [$image_preview_path ? '/'.$image_preview_path : ''],
     );
 
     $header = <<< HTML
@@ -308,7 +369,7 @@ HTML;
 
     $m->appendToMessage($header);
     $m->appendToMessage('<p>Application Details:</p>');
-    $m->appendToMessage($m->arrayToTable($data, ['photo', 'uid', 'email', 'id', 'mtime', 'orig']));
+    $m->appendToMessage($m->arrayToTable($data, ['photo', 'image', 'image_preview', 'uid', 'email', 'id', 'mtime', 'tags', 'published']));
 
     $m->appendToMessage('<p>Questions? Please email <a href="mailto:' . $notificationEmail . '">Education Coordinator</a></p>');
 

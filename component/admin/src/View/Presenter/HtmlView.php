@@ -183,7 +183,7 @@ class HtmlView extends BaseHtmlView
         ToolbarHelper::save('presenter.save');
 
         // If the form event is not current, allow copying to current
-        if ( $this->item->event != Aliases::current() ) {
+        if ( $this->item->event != Aliases::current() && $this->item->id) {
           ToolbarHelper::save2copy('presenter.save2copy', 'Copy to current');
         }
     }

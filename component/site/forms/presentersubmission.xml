@@ -81,12 +81,6 @@
     />
 
     <field
-      name="photo"
-      type="hidden"
-      default=""
-    />
-
-    <field
       name="arrival"
       type="checkboxes"
       label="Availability (Pick best options for you)"

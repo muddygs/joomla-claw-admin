@@ -81,12 +81,11 @@ class PresentersubmissionController extends FormController
 
     $files = $input->files->get('jform');
 
-    if ( !$data['photo'] && (!array_key_exists('photo_upload', $files) || $files['photo_upload']['size'] < 1) )
+    $oldImage = Helpers::sessionGet('image_preview');
+
+    if ( !$oldImage && (!array_key_exists('photo_upload', $files) || $files['photo_upload']['size'] < 1) )
     {
-      $photo = Helpers::sessionGet('photo');
-      if ( !$photo ) {
-        $app->enqueueMessage('A representative photo is required', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      }
+      $app->enqueueMessage('A representative photo is required', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       return false;
     }
 
@@ -125,7 +124,7 @@ class PresentersubmissionController extends FormController
       $data['published'] = 3; // New submission
     }
     
-    /** @var ClawCorp\Component\Claw\Administrator\Model\PresenterModel */    
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\PresenterModel */    
     $adminModel = $this->getModel('Presenter','Administrator');
     $result = $adminModel->save($data);
 

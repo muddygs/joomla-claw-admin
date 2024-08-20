@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -12,14 +12,15 @@ namespace ClawCorp\Component\Claw\Site\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Helpers\DbBlob;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
-use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Router\Route;
 
 /**
@@ -69,7 +70,7 @@ class PresentersubmissionModel extends AdminModel
     $record = $db->loadObject();
 
     // Is this user the owner of the record?
-    if ( is_null($record) || $record->uid != $uid ) {
+    if (is_null($record) || $record->uid != $uid) {
       $app->enqueueMessage('Permission denied.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       $skillRoute = Route::_('index.php?option=com_claw&view=skillssubmissions');
       $app->redirect($skillRoute);
@@ -78,7 +79,7 @@ class PresentersubmissionModel extends AdminModel
     $success = false;
     $currentAlias = Aliases::current(true);
 
-    if ( $record->event != $currentAlias ) {
+    if ($record->event != $currentAlias) {
       $record->id = 0;
       $record->event = $currentAlias;
       $record->published = 3;
@@ -101,11 +102,11 @@ class PresentersubmissionModel extends AdminModel
         ->bind(':idx', $record->id);
       $db->setQuery($query);
       $db->execute();
-  
+
       $success = true;
     }
 
-    if ( $success ) {
+    if ($success) {
       $app->enqueueMessage('Biography copied successfully.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_INFO);
     } else {
       $app->enqueueMessage('Biography copy failed.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
@@ -123,7 +124,6 @@ class PresentersubmissionModel extends AdminModel
       $mergeData = json_decode($submittedFormData, true);
     }
 
-
     // Check if a record for this presenter exists
     $app = Factory::getApplication();
     $uid = $app->getIdentity()->id;
@@ -134,13 +134,13 @@ class PresentersubmissionModel extends AdminModel
     $id = 0;
     $mtime = 0;
 
-    foreach ( $bios AS $bio ) {
-      if ( $bio->event == Aliases::current(true) ) {
+    foreach ($bios as $bio) {
+      if ($bio->event == Aliases::current(true)) {
         $id = $bio->id;
         break;
       }
 
-      if ( $bio->mtime > $mtime ) {
+      if ($bio->mtime > $mtime) {
         $id = $bio->id;
         $mtime = $bio->mtime;
       }
@@ -158,11 +158,6 @@ class PresentersubmissionModel extends AdminModel
       }
     }
 
-    Helpers::sessionSet('photo', '');
-    if ($data->photo) {
-      Helpers::sessionSet('photo', $data->photo);
-    }
-
     return $data;
   }
 
@@ -176,5 +171,28 @@ class PresentersubmissionModel extends AdminModel
     }
 
     throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
+  }
+
+  public function getPresenterImagePath(int $pid, string $eventConfigAlias): string
+  {
+    $itemIds = [$pid];
+    $config = new Config($eventConfigAlias);
+    $presentersDir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
+
+    // Insert property for cached presenter preview image
+    $cache = new DbBlob(
+      db: $this->getDatabase(),
+      cacheDir: JPATH_ROOT . $presentersDir,
+      prefix: 'web_',
+      extension: 'jpg'
+    );
+
+    $filenames = $cache->toFile(
+      tableName: '#__claw_presenters',
+      rowIds: $itemIds,
+      key: 'image_preview',
+    );
+
+    return $filenames[$pid] ?? '';
   }
 }

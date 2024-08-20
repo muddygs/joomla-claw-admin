@@ -18,6 +18,9 @@ use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Helpers\DbBlob;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
@@ -86,12 +89,16 @@ class HtmlView extends BaseHtmlView
 
     // In read-only mode? New bios accepted, but current ones are locked
 
-    if ( !$this->canEditBio && $this->item->id > 0) {
+    if (!$this->canEditBio && $this->item->id > 0) {
       $fieldSet = $this->form->getFieldset('userinput');
       foreach ($fieldSet as $field) {
         $this->form->setFieldAttribute($field->getAttribute('name'), 'readonly', 'true');
       }
     }
+
+    # used in controller for managing data update during save task
+    $this->image_preview_path = $this->getModel()->getPresenterImagePath($this->item->id, $this->item->event);
+    Helpers::sessionSet('image_preview', $this->image_preview_path);
 
     parent::display($tpl);
   }
