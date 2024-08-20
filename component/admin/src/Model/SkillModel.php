@@ -23,6 +23,7 @@ use ClawCorpLib\Helpers\Mailer;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
+use Joomla\CMS\Component\ComponentHelper;
 
 /**
  * Methods to handle processing a skill submission
@@ -180,13 +181,12 @@ class SkillModel extends AdminModel
 
   public function email(bool $new, array $data)
   {
-    /** @var Joomla\CMS\Application\AdministratorApplication */
-    $app = Factory::getApplication();
-    $params = $app->getParams();
+    $params = ComponentHelper::getParams('com_claw');
     $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
     
     $alias = Aliases::current();
     $info = new EventInfo($alias);
+    $data['event'] = $info->description;
 
     $subject = $new ? '[New] ' : '[Updated] ';
     $subject .= $info->description. ' Class Submission - ';
@@ -211,7 +211,7 @@ class SkillModel extends AdminModel
 
     $m->appendToMessage('<p>Class Submission Details:</p>');
 
-    $m->appendToMessage($m->arrayToTable($data, ['id', 'mtime', 'day', 'presenters', 'owner']));
+    $m->appendToMessage($m->arrayToTable($data, ['id', 'uid', 'published', 'location', 'mtime', 'day', 'presenters', 'owner']));
 
     $m->send();
   }
