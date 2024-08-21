@@ -97,8 +97,13 @@ class HtmlView extends BaseHtmlView
     }
 
     # used in controller for managing data update during save task
-    $this->image_preview_path = $this->getModel()->getPresenterImagePath($this->item->id, $this->item->event);
-    Helpers::sessionSet('image_preview', $this->image_preview_path);
+    Helpers::sessionSet('image_preview', '');
+    $this->image_preview_path = null;
+
+    if ($this->item->id) {
+      $this->image_preview_path = $this->getModel()->getPresenterImagePath($this->item->id, $this->item->event);
+      Helpers::sessionSet('image_preview', $this->image_preview_path);
+    }
 
     parent::display($tpl);
   }
