@@ -115,7 +115,7 @@ class EventcopyModel extends FormModel
       $rows = $db->loadObjectList();
 
       foreach ($rows as $row) {
-        $row->event = $to;
+        $row->$eventColumn = $to;
         $row->id = null;
 
         switch ($table) {
@@ -142,6 +142,8 @@ class EventcopyModel extends FormModel
 
             // TODO: Handle false here!
             $row->eventId = 0;
+            $row->alias = 'Assigned during publication';
+            $row->meta = '[]';
             break;
 
           case '#__claw_shifts':
