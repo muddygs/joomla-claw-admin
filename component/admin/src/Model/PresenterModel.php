@@ -78,7 +78,7 @@ class PresenterModel extends AdminModel
     if ($data['id'] == 0) {
       $data['submission_date'] = date("Y-m-d");
 
-      if ( $this->checkExists($data['uid'], $data['event']) ) {
+      if ($this->checkExists($data['uid'], $data['event'])) {
         $app->enqueueMessage('Record for this presenter already exists for this event.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
         return false;
       }
@@ -94,9 +94,9 @@ class PresenterModel extends AdminModel
 
     $success = $this->handlePhotoUpload($input, $data);
 
-    if ( !$success ) {
+    if (!$success) {
       $image_preview = Helpers::sessionGet('image_preview'); // from site model
-      if ( $image_preview && !$new) {
+      if ($image_preview && !$new) {
         $this->mergeImageBlobs($data);
       }
     }
@@ -122,7 +122,7 @@ class PresenterModel extends AdminModel
         }
 
         switch ($data['published']) {
-          case (EbPublishedState::published):
+          case (EbPublishedState::published->value):
             $this->ensureGroupMembership($data['uid'], $publishedGroup);
             break;
           default:
@@ -135,7 +135,7 @@ class PresenterModel extends AdminModel
     return $result;
   }
 
-  private function handlePhotoUpload(\Joomla\Input\Input $input, array &$data):bool
+  private function handlePhotoUpload(\Joomla\Input\Input $input, array &$data): bool
   {
     $files = $input->files->get('jform');
     $tmp_name = $files['photo_upload']['tmp_name'];
@@ -166,7 +166,7 @@ class PresenterModel extends AdminModel
 
       return true;
     }
-    
+
     return false;
   }
 
@@ -192,14 +192,14 @@ class PresenterModel extends AdminModel
     $db = $this->getDatabase();
     $query = $db->getQuery(true);
     $query->select($db->quoteName('id'))
-    ->from($db->quoteName('#__claw_presenters'))
-    ->where('uid = :uid')
-    ->where('event = :event')
-    ->bind(':uid', $uid)
-    ->bind(':event', $event);
-    
+      ->from($db->quoteName('#__claw_presenters'))
+      ->where('uid = :uid')
+      ->where('event = :event')
+      ->bind(':uid', $uid)
+      ->bind(':event', $event);
+
     $db->setQuery($query);
-    return $db->loadResult();
+    return $db->loadResult() ?? false;
   }
 
   public function migrateToCurrentEvent(Table $table, bool $copy = true)
@@ -357,7 +357,7 @@ class PresenterModel extends AdminModel
       fromname: 'CLAW Skills and Education',
       frommail: $notificationEmail,
       subject: $subject,
-      attachments: [$image_preview_path ? '/'.$image_preview_path : ''],
+      attachments: [$image_preview_path ? '/' . $image_preview_path : ''],
     );
 
     $header = <<< HTML
