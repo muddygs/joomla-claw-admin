@@ -13,5 +13,18 @@
     label="To Event"
     required="true"
   />
+
+  <field
+   name="tables"
+   label="Source Tables"
+   type="checkboxes">
+   <option value="Schedule" checked="1">Schedule</option>
+   <option value="Vendors" checked="1">Vendors</option>
+   <option value="Shifts" checked="1">Shifts</option>
+   <option value="Locations" checked="1">Locations</option>
+   <option value="FieldValues" checked="1">Field Values</option>
+   <option value="Packages" checked="1">Packages</option>
+  </field>
+
 </form>
 

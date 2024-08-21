@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -13,7 +14,6 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
-use Joomla\CMS\Toolbar\Toolbar;
 
 class HtmlView extends BaseHtmlView
 {
@@ -23,27 +23,15 @@ class HtmlView extends BaseHtmlView
    */
   function display($tpl = null)
   {
-    $model       = $this->getModel();
     $this->form  = $this->get('Form');
 
     $user = Factory::getApplication()->getIdentity();
 
-    $user = Factory::getApplication()->getIdentity();
-
-    if ( $user->authorise('core.admin', 'com_claw') ) {
-    } else {
+    if (!$user->authorise('core.admin', 'com_claw')) {
       Factory::getApplication()->enqueueMessage('You do not have permission to access this page.', 'error');
       Factory::getApplication()->redirect('/administrator/index.php');
     }
 
-    // Get the toolbar object instance
-    $toolbar = Toolbar::getInstance('toolbar');
-
-    $toolbar->standardButton('refresh')
-    ->text('Rebuild Mappings')
-    ->task('eventcopy.repair')
-    ->formValidation(false);
-    
     parent::display($tpl);
   }
 }

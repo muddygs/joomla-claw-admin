@@ -50,7 +50,7 @@ class EventcopyController extends FormController
     $from = $this->data['from_event'] ?? '';
     $to = $this->data['to_event'] ?? '';
 
-    $response = $model->doCopyEvent($from, $to);
+    $response = $model->doCopyEvent($from, $to, $this->data['tables'] ?? []);
     header('Content-Type: text/html');
     echo $response; // htmx -> #results
   }

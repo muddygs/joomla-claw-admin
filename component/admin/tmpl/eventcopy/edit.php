@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -25,26 +26,25 @@ $token = Session::getFormToken();
 <h1 class="mb-4">Event Copy</h1>
 
 <form action="#" method="post" id="claw-eventcopy-form" name="Event Copy" hx-headers='{"X-CSRF-Token": "<?= $token ?>"}'>
-  <div class="row align-items-center">
+  <div class="row align-items-top">
     <div class="col-12 col-lg-4">
       <?php echo $this->form->renderField('from_event'); ?>
+      <?php echo $this->form->renderField('tables'); ?>
     </div>
     <div class="col-12 col-lg-4">
       <?php echo $this->form->renderField('to_event'); ?>
     </div>
     <div class="col-12 col-lg-4">
-      <input name="copy" id="copy" type="button" value="Copy Event" class="btn btn-info mb-2" 
+      <input name="copy" id="copy" type="button" value="Copy Event" class="btn btn-info mb-2"
         hx-post="/administrator/index.php?option=com_claw&task=eventcopy.doCopyEvent&format=raw"
-        hx-target="#results"
-      />
+        hx-target="#results" />
     </div>
   </div>
-  
+
   <?php echo HTMLHelper::_('form.token'); ?>
 </form>
 
 
-<hr/>
+<hr />
 <h2>Action Results:</h2>
 <div id="results"></div>
-

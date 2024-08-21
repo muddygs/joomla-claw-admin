@@ -55,7 +55,7 @@ class EventcopyModel extends FormModel
     return $form;
   }
 
-  public function doCopyEvent(string $from, string $to): string
+  public function doCopyEvent(string $from, string $to, array $tableNames): string
   {
     try {
       $srcEventConfig = new EventConfig($from);
@@ -69,37 +69,48 @@ class EventcopyModel extends FormModel
       return 'Invalid from event: ' . $to;
     }
 
-    if ( $srcEventConfig->eventInfo->alias === $dstEventConfig->eventInfo->alias ) {
+    if ($srcEventConfig->eventInfo->alias === $dstEventConfig->eventInfo->alias) {
       return 'Cannot copy to the same event';
+    }
+
+    if (count($tableNames) == 0) {
+      return 'No tables selected to copy';
     }
 
     // Do some database magic!
 
     $db = $this->getDatabase();
 
-    $tables = [
-      '#__claw_schedule',
-      '#__claw_vendors',
-      '#__claw_shifts',
-      '#__claw_locations',
-      '#__claw_field_values',
-    ];
+    $tables = [];
+    foreach ($tableNames as $name) {
+      $tables[] = match ($name) {
+        "Schedule" => '#__claw_schedule',
+        "Vendors" => '#__claw_vendors',
+        "Shifts" => '#__claw_shifts',
+        "Locations" => '#__claw_locations',
+        "FieldValues" => '#__claw_field_values',
+        "Packages" => '#__claw_packages',
+      };
+    }
 
     $results = [];
 
     foreach ($tables as $table) {
+      $results[$table] = '';
       // Delete existing
       // $query = $db->getQuery(true);
       // $query->delete($db->quoteName($table))
       //   ->where($db->quoteName('event') . ' = ' . $db->quote($to));
       // $db->setQuery($query);
       // $db->execute();
-      
+      //
+      $eventColumn = $table == '#__claw_packages' ? 'eventAlias' : 'event';
+
       // Copy from older event
       $query = $db->getQuery(true);
       $query->select('*')
         ->from($db->quoteName($table))
-        ->where($db->quoteName('event') . ' = ' . $db->quote($from));
+        ->where($db->quoteName($eventColumn) . ' = ' . $db->quote($from));
       $db->setQuery($query);
       $rows = $db->loadObjectList();
 
@@ -119,6 +130,20 @@ class EventcopyModel extends FormModel
             $row->event_id = 0;
             break;
 
+          case '#__claw_packages':
+            if ($row->start != $db->getNullDate()) {
+              $targetDay = new Date($row->start);
+              $startDate = $this->translateDate($srcEventConfig->eventInfo->start_date, $targetDay, $dstEventConfig->eventInfo->start_date);
+              $row->start = $startDate->toSql();
+              $targetDay = new Date($row->end);
+              $endDate = $this->translateDate($srcEventConfig->eventInfo->start_date, $targetDay, $dstEventConfig->eventInfo->start_date);
+              $row->end = $endDate->toSql();
+            }
+
+            // TODO: Handle false here!
+            $row->eventId = 0;
+            break;
+
           case '#__claw_shifts':
             $row->grid = $this->resetGrid($row->grid);
             break;
@@ -127,9 +152,10 @@ class EventcopyModel extends FormModel
         $row->mtime = Helpers::mtime();
 
         $db->insertObject($table, $row);
+        #$results[$table] .= print_r($row, true);
       }
 
-      $results[$table] = "$table: " . count($rows) . ' rows copied';
+      $results[$table] .= "$table: " . count($rows) . ' rows copied';
     }
 
     return implode("<br/>", $results);
@@ -147,9 +173,11 @@ class EventcopyModel extends FormModel
       throw new \Exception("Invalid date diff");
     }
 
-    $newtime = $dstBase->modify($diff->format('%R%d days'));
+    $newtime = $dstBase->modify($diff->format('%d days %H hours %M minutes'));
 
-    return $newtime;
+    $result = clone $newtime;
+
+    return $result;
   }
 
   private function resetGrid(string $grid): string
