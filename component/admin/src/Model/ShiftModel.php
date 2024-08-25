@@ -32,7 +32,7 @@ class ShiftModel extends AdminModel
    * @var    string
    * @since  1.6
    */
-  protected $text_prefix = 'COM_CLAW_SHIFT';
+  protected $text_prefix = 'COM_CLAW';
 
   public function save($data)
   {
