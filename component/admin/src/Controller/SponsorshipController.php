@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -37,18 +38,9 @@ class SponsorshipController extends FormController
     ?CMSApplication $app = null,
     ?Input $input = null,
     FormFactoryInterface $formFactory = null
-) {
+  ) {
+    parent::__construct($config, $factory, $app, $input, $formFactory);
     $this->controllerSetup();
-     parent::__construct($config, $factory, $app, $input, $formFactory);
-    }
-
-
-  protected function createModel($name, $prefix = '', $config = [])
-  {
-    if (!isset($config['context']))
-      $config['context'] = $this->stateContext;
-
-    return parent::createModel($name, $prefix, $config);
   }
 
   public function cancel($key = null)
@@ -83,7 +75,7 @@ class SponsorshipController extends FormController
     if (empty($key)) {
       $key = $this->table->getKeyName();
     }
-  
+
     $uri = Uri::getInstance();
     $recordId = $uri->getVar('id', 0);
 
@@ -100,7 +92,7 @@ class SponsorshipController extends FormController
     // $uri->setVar('id', 0);
 
     // Access check.
-    if (!$this->allowSave($data,$key)) {
+    if (!$this->allowSave($data, $key)) {
       $this->setMessage(Text::_('JLIB_APPLICATION_ERROR_SAVE_NOT_PERMITTED'), 'error');
       $this->setRedirect(Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list . $this->getRedirectToListAppend(), false));
 
@@ -109,10 +101,10 @@ class SponsorshipController extends FormController
 
     // Validate the posted data.
     // Sometimes the form needs some posted data, such as for plugins and modules.
-    $form = $model->getForm($data, false);
-
-    if (!$form) {
-      $this->app->enqueueMessage($model->getError(), 'error');
+    try {
+      $form = $model->getForm($data, false);
+    } catch (\Exception $e) {
+      $this->app->enqueueMessage($e->getMessage(), 'error');
       return false;
     }
 
@@ -144,7 +136,7 @@ class SponsorshipController extends FormController
       return false;
     }
 
-    if ( $this->task !== 'save2copy' && !$model->save($validData) ) {
+    if ($this->task !== 'save2copy' && !$model->save($validData)) {
       $this->setMessage(Text::sprintf('JLIB_APPLICATION_ERROR_SAVE_FAILED', $model->getError()), 'error');
       $this->app->setUserState($this->stateContext . '.data', $data);
 
@@ -156,7 +148,7 @@ class SponsorshipController extends FormController
       return false;
     }
 
-    if ( 'save2copy' === $this->task ) {
+    if ('save2copy' === $this->task) {
       $data[$key] = 0;
       $data['alias'] = '';
       $data['title'] = $data['title'] . ' (copy)';
@@ -171,14 +163,14 @@ class SponsorshipController extends FormController
         $uri->setVar('id', 0);
         $this->setRedirect($uri->toString());
         return true;
-      break;
-        
+        break;
+
       case 'apply':
         // Redirect back to the edit screen.
         $this->setRedirect(
           Route::_('index.php?option=' . $this->option . '&view=' . $this->view_item . $this->getRedirectToItemAppend($recordId, $key), false)
         );
-      break;
+        break;
 
       default:
         $this->app->setUserState($this->stateContext . '.data', null);
@@ -190,7 +182,7 @@ class SponsorshipController extends FormController
         $this->setRedirect(
           Route::_('index.php?option=' . $this->option . '&view=' . $this->view_list . $this->getRedirectToListAppend(), false)
         );
-      break;
+        break;
     }
 
     return true;
