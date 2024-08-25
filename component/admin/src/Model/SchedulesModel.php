@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -75,7 +75,7 @@ class SchedulesModel extends ListModel
    *
    * @since   3.0.1
    */
-  protected function populateState($ordering = 'day', $direction = 'ASC')
+  protected function populateState($ordering = 'a.day', $direction = 'ASC')
   {
     $app = Factory::getApplication();
 
@@ -189,20 +189,20 @@ class SchedulesModel extends ListModel
 
     if ($day != null) {
       date_default_timezone_set('etc/UTC');
-      $dayInt = date('w', strtotime($day)); 
+      $dayInt = date('w', strtotime($day));
 
-      if ( $dayInt !== false ) {
+      if ($dayInt !== false) {
         $dayInt++; // PHP to MariaDB conversion
         $query->where('DAYOFWEEK(a.day) = :dayint');
         $query->bind(':dayint', $dayInt, ParameterType::INTEGER);
       }
     }
 
-    if ( $event != 'all' ) {
+    if ($event != 'all') {
       $query->where('a.event = :event')->bind(':event', $event);
     }
 
-    if ( $published != null && $published != '*') {
+    if ($published != null && $published != '*') {
       $query->where('a.published = :published')
         ->bind(':published', $published, ParameterType::INTEGER);
     }
@@ -216,12 +216,18 @@ class SchedulesModel extends ListModel
     $orderCol  = $this->getState('list.ordering', 'a.day');
     $orderDirn = $this->getState('list.direction', 'ASC');
 
-    $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
+    if ($orderCol == 'a.day') {
+      $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
+      $query->order($db->escape('a.start_time') . ' ' . $db->escape($orderDirn));
+    } else {
+      $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
+    }
+
 
     $limit = $this->getState('list.limit', 0);
     $start = $this->getState('list.start', 0);
 
-    if ( $limit > 0 ) {
+    if ($limit > 0) {
       $query->setLimit($limit, $start);
     }
 
@@ -242,7 +248,6 @@ class SchedulesModel extends ListModel
     return true;
   }
 
-
   public function delete(array $cid): bool
   {
     $db = $this->getDatabase();
@@ -253,7 +258,6 @@ class SchedulesModel extends ListModel
     $query->delete($db->quoteName($this->getTable()->getTableName()))
       ->where($db->quoteName('id') . ' IN (' . implode(',', (array)$cid) . ')');
     $db->setQuery($query);
-    $db->execute();
-    return true;
+    return $db->execute();
   }
 }
