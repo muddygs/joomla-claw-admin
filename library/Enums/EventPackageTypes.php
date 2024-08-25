@@ -19,6 +19,7 @@ enum EventPackageTypes: int
   case buffet_wed = 21;
   case buffet_thu = 9;
   case buffet_fri = 10;
+  case buffet_sat = 31;
   case buffet_bluf = 30;
   case buffet_sun = 11;
   case meal_combo_all = 24;
@@ -33,15 +34,15 @@ enum EventPackageTypes: int
   case pass = 18;
   case vip = 20;
 
-  // Additional options for registration options
+    // Additional options for registration options
   case addons = 27;
   case vip2 = 28;
 
-  // Virtual CLAW
+    // Virtual CLAW
   case virtual_claw = 29;
 
-  // Combos for c0424 and beyond
-  // TODO: Needs better abstraction, meta events are very hacky
+    // Combos for c0424 and beyond
+    // TODO: Needs better abstraction, meta events are very hacky
   case combo_meal_1 = 100;
   case combo_meal_2 = 101;
   case combo_meal_3 = 102;
@@ -101,20 +102,20 @@ enum EventPackageTypes: int
     };
   }
 
-  public static function FindValue(int $key): EventPackageTypes {
-    foreach (EventPackageTypes::cases() as $c )
-    {
-      if ( $c->value == $key ) return $c;
+  public static function FindValue(int $key): EventPackageTypes
+  {
+    foreach (EventPackageTypes::cases() as $c) {
+      if ($c->value == $key) return $c;
     }
 
-    throw(new \Exception("Invalid EventPackageTypes value: $key"));
+    throw (new \Exception("Invalid EventPackageTypes value: $key"));
   }
 
   public static function toOptions(): array
   {
     $result = [];
 
-    foreach ( EventPackageTypes::cases() as $c ) {
+    foreach (EventPackageTypes::cases() as $c) {
       if (
         $c == EventPackageTypes::none ||
         $c == EventPackageTypes::vip2 ||
@@ -123,7 +124,7 @@ enum EventPackageTypes: int
         $c == EventPackageTypes::sponsorship
       ) {
         continue;
-      }      
+      }
 
       // Convert name to string
       $name = $c->name;
@@ -140,6 +141,4 @@ enum EventPackageTypes: int
 
     return $result;
   }
-
-
 }
