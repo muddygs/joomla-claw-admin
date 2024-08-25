@@ -50,13 +50,15 @@ class EventInfo
   ) {
     $info = $this->loadRawEventInfo($alias);
 
+    // Get server timezone
     $this->timezone = $info->timezone;
+
     $this->description = $info->description;
     $this->ebLocationId = $info->ebLocationId;
-    $this->start_date = Factory::getDate($info->start_date, $info->timezone);
-    $this->end_date = Factory::getDate($info->end_date, $info->timezone);
+    $this->start_date = Factory::getDate($info->start_date, $this->timezone);
+    $this->end_date = Factory::getDate($info->end_date, $this->timezone);
     $this->prefix = strtoupper($info->prefix);
-    $this->cancelBy = Factory::getDate($info->cancelBy, $info->timezone);
+    $this->cancelBy = Factory::getDate($info->cancelBy, $this->timezone);
     $this->active = $info->active;
     $this->eventType = EventTypes::FindValue($info->eventType);
     $this->onsiteActive = $info->onsiteActive;
@@ -124,6 +126,7 @@ class EventInfo
   {
     // Clone because modify changes the original Date object
     $date = clone $this->start_date;
+    $date->setTimezone(new \DateTimeZone('UTC'));
 
     try {
       $result = $date->modify($modifier);
