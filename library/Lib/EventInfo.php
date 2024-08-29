@@ -37,6 +37,7 @@ class EventInfo
   public int $eb_cat_buffets;
   public int $eb_cat_combomeals;
   public array $eb_cat_invoicables;
+  public array $group_mapping;
 
 
   /**
@@ -75,6 +76,7 @@ class EventInfo
     $this->eb_cat_buffets = $info->eb_cat_buffets ?? 0;
     $this->eb_cat_combomeals = $info->eb_cat_combomeals ?? 0;
     $this->eb_cat_invoicables = json_decode($info->eb_cat_invoicables ?? '[]') ?? [];
+    $this->group_mapping = json_decode($info->group_mapping ?? '[]', true) ?? [];
 
 
     // Data validation
