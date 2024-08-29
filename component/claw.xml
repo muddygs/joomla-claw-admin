@@ -92,7 +92,7 @@
       to copy FROM in the package to install therefore files copied
       in this section are copied from /admin/ in the package -->
 
-    <files folder="admin/">
+    <files folder="admin">
       <folder>cron</folder>
       <folder>forms</folder>
       <folder>language</folder>
@@ -107,9 +107,9 @@
     </files>
 
     <!-- Have not done much with these yet -->
-    <languages>
-      <language tag="en-GB">admin/language/en-GB/com_claw.ini</language>
-      <language tag="en-GB">admin/language/en-GB/com_claw.sys.ini</language>
+    <languages folder="admin">
+      <language tag="en-GB">language/en-GB/com_claw.ini</language>
+      <language tag="en-GB">language/en-GB/com_claw.sys.ini</language>
     </languages>
   </administration>
 
