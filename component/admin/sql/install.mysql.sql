@@ -7,8 +7,6 @@ CREATE TABLE IF NOT EXISTS `#__claw_locations`(
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
-# CREATE UNIQUE INDEX `aliasindex` ON `#__claw_locations` (`alias`, `catid`);
-
 CREATE TABLE IF NOT EXISTS `#__claw_sponsors`(
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
@@ -207,6 +205,7 @@ CREATE TABLE IF NOT EXISTS `#__claw_eventinfos` (
   `eb_cat_buffets`  INT(11) DEFAULT NULL,
   `eb_cat_combomeals` INT(11) DEFAULT NULL,
   `eb_cat_invoicables` longTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Invoice Categories' CHECK (json_valid(`eb_cat_invoicables`)),
+  `group_mapping` longTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Event Auth Mapping' CHECK (json_valid(`eb_cat_invoicables`)),
   `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
   KEY `fb_alias_INDEX` (`alias`)
