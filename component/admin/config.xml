@@ -60,18 +60,6 @@
         <option value="0">JNO</option>
       </field>
 
-      <field
-        name="se_approval_group"
-        type="UserGroupList"
-        label="Approval Group"
-        description="Select group allowing presenter registration"
-        layout="joomla.form.field.list-fancy-select"
-        default=""
-        multiple="0"
-      >
-        <option value="0">Select group</option>
-      </field>
-
       <field 
         name="se_survey_link"
         type="menuitem"
