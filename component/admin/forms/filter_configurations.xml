@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
-	<fields name="filter">
-		<field
-			name="search"
-			type="text"
-			label="Search"
-			description="Value search"
-			hint="JSEARCH_FILTER"
-		/>
+  <fields name="filter">
+    <field
+      name="search"
+      type="text"
+      label="Search"
+      description="Value search"
+      hint="JSEARCH_FILTER"
+    />
 
-		<field
-		  name="event"
-			type="ClawEventsList"
-			label="Event Filter"
-			default="0"
-			onchange="this.form.submit();"
-		/>
+    <field
+      name="event"
+      type="ClawEventsList"
+      label="Event Filter"
+      default="0"
+      onchange="this.form.submit();"
+    />
 
-		<field
-			name="fieldname"
-			type="ConfigFieldNamesList"
-			label="Type"
-			default="0"
-			onchange="this.form.submit();"
-		/>
+    <field
+      name="fieldname"
+      type="ConfigFieldNamesList"
+      label="Type"
+      default="0"
+      onchange="this.form.submit();"
+    />
 
-	</fields>
+  </fields>
 
-	<fields name="list">
-		<field
-			name="fullordering"
-			type="list"
-			label="JGLOBAL_SORT_BY"
-			default="a.title ASC"
-			onchange="this.form.submit();"
-			>
-			<option value="">JGLOBAL_SORT_BY</option>
-			<option value="a.fieldname ASC">Section Ascending</option>
-			<option value="a.fieldname DESC">Section Descending</option>
-		</field>
+  <fields name="list">
+    <field
+      name="fullordering"
+      type="list"
+      label="JGLOBAL_SORT_BY"
+      default="a.title ASC"
+      onchange="this.form.submit();"
+    >
+      <option value="">JGLOBAL_SORT_BY</option>
+      <option value="a.fieldname ASC">Section Ascending</option>
+      <option value="a.fieldname DESC">Section Descending</option>
+    </field>
 
-		<field
-			name="limit"
-			type="limitbox"
-			label="JGLOBAL_LIST_LIMIT"
-			default="All"
-			onchange="this.form.submit();"
-		/>
-	</fields>
+    <field
+      name="limit"
+      type="limitbox"
+      label="JGLOBAL_LIST_LIMIT"
+      default="All"
+      onchange="this.form.submit();"
+    />
+  </fields>
 </form>
