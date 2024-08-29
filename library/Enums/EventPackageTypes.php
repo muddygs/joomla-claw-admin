@@ -7,7 +7,8 @@ enum EventPackageTypes: int
   case none = 0;
   case attendee = 1;
   case volunteer1 = 2;
-  case claw_staff = 3; // Multiple list values
+  case claw_staff = 3;
+  case claw_board = 32;
   case event_staff = 4; // Multiple list values
   case event_talent = 5; // Renamed to recruited, Multiple list values
   case vendor_crew = 6;
@@ -58,6 +59,7 @@ enum EventPackageTypes: int
       EventPackageTypes::none => 'None',
       EventPackageTypes::attendee => 'Attendee',
       EventPackageTypes::claw_staff => 'Coordinator',
+      EventPackageTypes::claw_board => 'Board',
       EventPackageTypes::event_staff => 'Staff',
       EventPackageTypes::event_talent => 'Volunteer',
       EventPackageTypes::vendor_crew => 'Vendor Crew',
@@ -87,6 +89,7 @@ enum EventPackageTypes: int
     return match ($this) {
       EventPackageTypes::attendee => 'att',
       EventPackageTypes::claw_staff => 'claw',
+      EventPackageTypes::claw_board => 'board',
       EventPackageTypes::event_staff => 'sta',
       EventPackageTypes::event_talent => 'tal',
       EventPackageTypes::vendor_crew => 'ven',
