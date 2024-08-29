@@ -159,7 +159,7 @@
   >
     <option value="">Select Groups</option>
   </field>
-    
+
   <field
     name="authNetProfile"
     type="radio"
@@ -258,12 +258,12 @@
   <field
     name="meta"
     type="list"
-    label="Meta Events for Combos:"
-    description="Select combo events."
+    label="Meta Events for Combos (VIP, Coordinator, Board, Combo Meals):"
+    description="Select combo events &lt;b&gt;(must be performed after events are deployed)&lt;/b&gt;."
     required="false"
     default=""
     layout="joomla.form.field.list-fancy-select"
     multiple="true"
-    showon="packageInfoType:3[OR]eventPackageType:20"
+    showon="packageInfoType:3[OR]eventPackageType:3[OR]eventPackageType:32[OR]eventPackageType:20"
   />
 </form>
