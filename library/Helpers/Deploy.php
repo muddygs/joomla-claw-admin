@@ -604,11 +604,13 @@ class Deploy
     return [true, "Added discount: $title"];
   }
 
+  /**
+   * Sets internal variables for public and registered groups 
+   * @return void  */
   private function setDefaultGroups()
   {
-    $config = new Config($this->eventAlias);
-    $this->gid_public = $config->getGlobalConfig('packaginfo_public_group', 0);
-    $this->gid_registered = $config->getGlobalConfig('packaginfo_registered_group', 0);
+    $this->gid_public = Config::getGlobalConfig('packaginfo_public_group', 0);
+    $this->gid_registered = Config::getGlobalConfig('packaginfo_registered_group', 0);
 
     if (0 == $this->gid_public || 0 == $this->gid_registered) {
       die('Invalid group id');

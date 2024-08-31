@@ -71,7 +71,7 @@ class Config
     return $query;
   }
 
-  public function getGlobalConfig(string $key = '', $default = null): array|string
+  public static function getGlobalConfig(string $key = '', $default = null): array|string
   {
     $comclaw = ComponentHelper::getParams('com_claw');
 

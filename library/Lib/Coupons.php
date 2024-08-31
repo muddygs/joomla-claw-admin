@@ -4,6 +4,7 @@ namespace ClawCorpLib\Lib;
 use \Joomla\CMS\Factory;
 use ClawCorpLib\Enums\EbCouponTypes;
 use ClawCorpLib\Enums\EbCouponAssignments;
+use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Coupon;
 
@@ -33,7 +34,7 @@ class Coupons
   {
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $this->access = Helpers::getAccessId('Registered');
+    $this->access = Config::getGlobalConfig('packaginfo_registered_group');
 
     $this->discount = $discount;
     $this->note = preg_replace("/[^A-Za-z0-9_]/", '', $note);
@@ -127,7 +128,8 @@ class Coupons
       die('Cannot create per-event coupon without event assignment(s).');
     }
 
-    $db = Factory::getDbo();
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
     
     $insert = (object)[
       'id' => '0',
