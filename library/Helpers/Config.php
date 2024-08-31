@@ -6,14 +6,15 @@ use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseDriver;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
+use Joomla\CMS\Component\ComponentHelper;
 
 class Config
 {
   private DatabaseDriver $db;
 
   public function __construct(
-    public readonly string $eventConfigAlias)
-  {
+    public readonly string $eventConfigAlias
+  ) {
     $this->db = Factory::getContainer()->get('DatabaseDriver');
   }
 
@@ -29,7 +30,7 @@ class Config
     $this->db->setQuery($query);
     $row = $this->db->loadObject();
 
-    if ( !is_null($row) ) {
+    if (!is_null($row)) {
       return $row->text;
     }
 
@@ -45,7 +46,7 @@ class Config
   {
     $query = $this->buildGetQuery($section);
     $this->db->setQuery($query);
-    return $this->db->loadAssocList('value','text');
+    return $this->db->loadAssocList('value', 'text');
   }
 
   private function buildGetQuery(ConfigFieldNames $section, string $key = ''): \Joomla\Database\DatabaseQuery
@@ -54,7 +55,7 @@ class Config
     $configAlias = $this->eventConfigAlias;
 
     $query = $this->db->getQuery(true);
-    $query->select(['value','text'])
+    $query->select(['value', 'text'])
       ->from('#__claw_field_values')
       ->where('fieldname = :fieldname')
       ->where('event = :event')
@@ -68,5 +69,17 @@ class Config
     }
 
     return $query;
+  }
+
+  public function getGlobalConfig(string $key = '', $default = null): array|string
+  {
+    $comclaw = ComponentHelper::getParams('com_claw');
+
+    if ($key) {
+      $result = $comclaw->get($key, $default);
+      return is_null($result) ? '' : $result;
+    }
+
+    return $comclaw->toArray();
   }
 }
