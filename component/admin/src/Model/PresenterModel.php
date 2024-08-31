@@ -14,6 +14,7 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Enums\EbPublishedState;
+use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\DbBlob;
 use Joomla\CMS\Factory;
@@ -24,6 +25,7 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Mailer;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Table\Table;
 use Joomla\CMS\User\UserFactoryInterface;
@@ -113,8 +115,7 @@ class PresenterModel extends AdminModel
       }
 
       if ($data['event'] == $currentEventAlias && $app->isClient('administrator') && $data['uid'] != 0) {
-        $params = ComponentHelper::getParams('com_claw');
-        $publishedGroup = $params->get('se_approval_group', 0);
+        $publishedGroup = $this->loadEducatorGroupId($data['event']);
 
         if (!$publishedGroup) {
           $app->enqueueMessage('No approval group set in configuration.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
@@ -211,6 +212,17 @@ class PresenterModel extends AdminModel
     $table->event = Aliases::current(true);
     $table->published = 0;
     $table->mtime = Helpers::mtime();
+  }
+
+  /**
+   * Look up the event config and extract the group required for registration to
+   * the Educator event
+   */
+  private function loadEducatorGroupId(string $eventAlias): int
+  {
+    $eventConfig = new EventConfig($eventAlias);
+    $package = $eventConfig->getMainEventByPackageType(EventPackageTypes::educator);
+    return $package->group_id;
   }
 
   private function ensureGroupMembership($uid, $group)
