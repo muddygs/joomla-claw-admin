@@ -18,11 +18,8 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Locations;
 use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Factory;
-use Joomla\CMS\MVC\View\GenericDataException;
-use Joomla\CMS\Router\Route;
 use Joomla\Database\Exception\DatabaseNotFoundException;
 
 /**
@@ -82,14 +79,14 @@ class SkillsubmissionModel extends AdminModel
     $record = $db->loadObject();
 
     // Is this user the owner of the record?
-    if ( $record == null || $record->owner != $uid ) {
+    if ($record == null || $record->owner != $uid) {
       $app->enqueueMessage('Permission denied.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      return [ false, [] ];
+      return [false, []];
     }
 
     $success = false;
 
-    if ( $record->event != Aliases::current() ) {
+    if ($record->event != Aliases::current()) {
       $record->id = 0;
       $record->event = Aliases::current();
       $record->published = 3;
@@ -112,11 +109,11 @@ class SkillsubmissionModel extends AdminModel
         ->bind(':idx', $record->id);
       $db->setQuery($query);
       $db->execute();
-  
+
       $success = true;
     }
 
-    if ( $success ) {
+    if ($success) {
       $app->enqueueMessage('Class copied successfully.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_INFO);
     } else {
       $app->enqueueMessage('Class copy failed.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
@@ -128,8 +125,8 @@ class SkillsubmissionModel extends AdminModel
     $skills = new Skills($db, Aliases::current(true));
     $bio = $skills->GetPresenterBios($record->owner);
     $record->name = is_null($bio) ? '' : $bio[0]->name;
-    
-    return [ $success, (array)$record ];
+
+    return [$success, (array)$record];
   }
 
   protected function loadFormData()
