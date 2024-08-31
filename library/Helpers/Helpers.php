@@ -25,7 +25,7 @@ use RuntimeException;
 class Helpers
 {
 
-#region Date/Time functions
+  #region Date/Time functions
   /**
    * Quicky that produces a mostly correct SQL time
    * TODO: set time zone
@@ -62,11 +62,13 @@ class Helpers
   public static function timeToSeconds(string $time): int|bool
   {
     $timeParts = explode(':', $time);
-    if (!is_numeric($timeParts[0]) || !is_numeric($timeParts[1]) || 
-      $timeParts[0] < 0 || $timeParts[0] > 23 || $timeParts[1] < 0 || $timeParts[1] > 59) {
+    if (
+      !is_numeric($timeParts[0]) || !is_numeric($timeParts[1]) ||
+      $timeParts[0] < 0 || $timeParts[0] > 23 || $timeParts[1] < 0 || $timeParts[1] > 59
+    ) {
       return false;
     }
-    
+
     $seconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60);
     return $seconds;
   }
@@ -81,7 +83,7 @@ class Helpers
   {
     $d = Factory::getDate($date);
     $n = $d->format('w');
-    if ( $n < 2 ) $n += 7;
+    if ($n < 2) $n += 7;
     return $n;
   }
 
@@ -135,9 +137,9 @@ class Helpers
     return $result;
   }
 
-#endregion Date/Time functions
+  #endregion Date/Time functions
 
-#region User Helpers
+  #region User Helpers
   public static function getUsersByGroupName(DatabaseDriver $db, string $groupname): array
   {
     $groupId = Helpers::getGroupId($groupname);
@@ -162,7 +164,7 @@ class Helpers
    */
   public static function getUserViewLevelsByName(DatabaseDriver $db, int $userId = 0): array
   {
-    if ( $userId == 0 ) {
+    if ($userId == 0) {
       $identity = Factory::getApplication()->getIdentity();
       if (!$identity) return [];
 
@@ -198,16 +200,16 @@ class Helpers
       if (!$identity || !$identity->id) {
         return [];
       }
-      
+
       $userId = $identity->id;
     }
 
     $groupIds = UserHelper::getUserGroups($userId);
-    
+
     $query = $db->getQuery(true);
     $query->select(['id', 'title'])
-    ->from('#__usergroups')
-    ->where('id IN (' . implode(',',$query->bindArray($groupIds)) . ')');
+      ->from('#__usergroups')
+      ->where('id IN (' . implode(',', $query->bindArray($groupIds)) . ')');
     $db->setQuery($query);
     $groups  = $db->loadAssocList('title');
 
@@ -230,23 +232,6 @@ class Helpers
     return $groupId != null ? $groupId : 0;
   }
 
-  public static function getAccessId($accessLevelName): int
-  {
-    /** @var \Joomla\Database\DatabaseDriver */
-    $db = Factory::getContainer()->get('DatabaseDriver');
-
-    $query = $db->getQuery(true);
-    $query->select($db->qn(['id']))
-      ->from($db->qn('#__viewlevels'))
-      ->where($db->qn('title') . ' LIKE ' . $db->q($accessLevelName));
-
-    $db->setQuery($query);
-    $accessLevelId = $db->loadResult();
-
-    return $accessLevelId != null ? $accessLevelId : 0;
-  }
-
-
   /**
    * Get the Joomla user id for an email address
    * @param string The email address
@@ -263,9 +248,9 @@ class Helpers
 
     return ($id == null) ? 0 : intval($id);
   }
-#endregion User Helpers
+  #endregion User Helpers
 
-#region Session
+  #region Session
   /**
    * Sets a CLAW-specific Joomla session variable.
    * @param string $key Key to variable
@@ -277,7 +262,7 @@ class Helpers
     $app = Factory::getApplication();
     $session = $app->getSession();
     if ($session->isActive()) {
-      $session->set('claw'.$key, $value);
+      $session->set('claw' . $key, $value);
     }
   }
 
@@ -293,12 +278,12 @@ class Helpers
     $app = Factory::getApplication();
     $session = $app->getSession();
     if ($session->isActive()) {
-      return $session->get('claw'.$key, $default);
+      return $session->get('claw' . $key, $default);
     }
 
     return null;
   }
-#endregion Session
+  #endregion Session
 
   /**
    * Pass in some data - it gets emailed to webmaster for debugging
@@ -342,18 +327,18 @@ class Helpers
     bool $deleteSource = false,
     int $quality = 80
   ): bool {
-    if ( $copyto ) {
+    if ($copyto) {
       $success = self::imageRotate(source: $source, dest: $copyto, size: $origsize, quality: $quality);
-      
-      if ( !$success ) {
-        if ( $deleteSource ) unlink($source);
+
+      if (!$success) {
+        if ($deleteSource) unlink($source);
         return false;
       }
     }
-    
+
     $success = self::imageRotate(source: $source, dest: $thumbnail, size: $thumbsize, quality: $quality);
 
-    if ( $deleteSource ) unlink($source);
+    if ($deleteSource) unlink($source);
 
     return $success;
   }
@@ -374,7 +359,7 @@ class Helpers
         $image = new Image();
         $image->loadFile($source);
         $exif = @exif_read_data($source);
-        if ( $size > 0) $image->resize($size, $size, false);
+        if ($size > 0) $image->resize($size, $size, false);
 
         if ($exif && array_key_exists('Orientation', $exif)) {
           switch ($exif['Orientation']) {
@@ -410,8 +395,8 @@ class Helpers
    */
   public static function convertMediaManagerUrl(string $mediaManagerPath): ?string
   {
-    if ( trim($mediaManagerPath) == '' ) return null;
-    
+    if (trim($mediaManagerPath) == '') return null;
+
     // Split the internal path by the "#" symbol
     // It's ok if the # portion is missing
     $parts = explode("#", $mediaManagerPath);
@@ -424,38 +409,37 @@ class Helpers
 
     // Check if the file actually exists
     if (file_exists($fullPath)) {
-        // Convert the internal path to URL using Uri class
-        return Uri::root() . $actualPath;
+      // Convert the internal path to URL using Uri class
+      return Uri::root() . $actualPath;
     } else {
-        // Handle the case where the file doesn't exist
-        return null;
+      // Handle the case where the file doesn't exist
+      return null;
     }
   }
 
-  public static function cleanHtmlForCsv($htmlString) {
+  public static function cleanHtmlForCsv($htmlString)
+  {
     // Replace <br> and <br/> with two carriage returns "\r\n\r\n"
     $cleanedString = preg_replace('/<br\s*\/?>/i', "\r\n\r\n", $htmlString);
 
     // Remove anchor tags but keep the href part.
     // This finds all href attributes and replaces the anchor tag with its URL in parenthesis.
     $cleanedString = preg_replace_callback(
-        '/<a\s+[^>]*href=(["\'])(.*?)\1[^>]*>(.*?)<\/a>/i',
-        function($matches) {
-            // If the link text is the same as the URL, we'll just use the URL
-            if ($matches[3] === $matches[2]) {
-                return $matches[2];
-            }
-            // Otherwise, return the link text followed by the URL in parenthesis
-            return $matches[3] . ' (' . $matches[2] . ')';
-        },
-        $cleanedString
+      '/<a\s+[^>]*href=(["\'])(.*?)\1[^>]*>(.*?)<\/a>/i',
+      function ($matches) {
+        // If the link text is the same as the URL, we'll just use the URL
+        if ($matches[3] === $matches[2]) {
+          return $matches[2];
+        }
+        // Otherwise, return the link text followed by the URL in parenthesis
+        return $matches[3] . ' (' . $matches[2] . ')';
+      },
+      $cleanedString
     );
 
     // Strip remaining HTML tags
     $cleanedString = strip_tags($cleanedString);
 
     return $cleanedString;
-}
-
-
+  }
 }
