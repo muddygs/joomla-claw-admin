@@ -29,18 +29,11 @@ class Deploy
     public string $eventAlias,
     public int $type
   ) {
-    // Validate events are valid
     if (!EventInfo::isValidEventAlias($this->eventAlias)) {
       die('Invalid to deployment event: ' . $this->eventAlias);
     }
 
-    $this->gid_public = Helpers::getAccessId('Public');
-    $this->gid_registered = Helpers::getAccessId('Registered');
-
-    if (0 == $this->gid_public || 0 == $this->gid_registered) {
-      die('Invalid group id');
-    }
-
+    $this->setDefaultGroups();
     /** @var \Joomla\Database\DatabaseDriver */
     $this->db = Factory::getContainer()->get('DatabaseDriver');
   }
@@ -235,7 +228,7 @@ class Deploy
       $end = $endDate;
       $cutoff = $endDate;
 
-      $accessGroup = $this->gid_registered;
+      $accessGroup = $packageInfo->group_id > 0 ? $packageInfo->group_id : $this->gid_registered;
       $reg_start_date = $registration_start_date;
 
       $price_text = '';
@@ -610,5 +603,15 @@ class Deploy
 
     return [true, "Added discount: $title"];
   }
-}
 
+  private function setDefaultGroups()
+  {
+    $config = new Config($this->eventAlias);
+    $this->gid_public = $config->getGlobalConfig('packaginfo_public_group', 0);
+    $this->gid_registered = $config->getGlobalConfig('packaginfo_registered_group', 0);
+
+    if (0 == $this->gid_public || 0 == $this->gid_registered) {
+      die('Invalid group id');
+    }
+  }
+}
