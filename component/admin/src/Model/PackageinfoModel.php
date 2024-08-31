@@ -1,9 +1,10 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -14,6 +15,7 @@ use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\EventInfo;
+#use ClawCorpLib\Helpers\Config;
 
 defined('_JEXEC') or die;
 
@@ -33,8 +35,9 @@ class PackageinfoModel extends EventconfigModel
   {
     $form = $this->loadForm('com_claw.packageinfo', 'packageinfo', array('control' => 'jform', 'load_data' => $loadData));
     if (empty($form)) return false;
-  
-    if ( !$loadData ) return $form;
+
+    if (!$loadData) return $form;
+
 
     // Populate combo select list from any deployed events
 
@@ -44,22 +47,48 @@ class PackageinfoModel extends EventconfigModel
     $eventPackageType = $form->getField('eventPackageType')->value;
 
     // meta can only be populated with known information (requires save before full edit)
-    if ( !EventInfo::isValidEventAlias($eventAlias) ) return $form;
+    if (!EventInfo::isValidEventAlias($eventAlias)) return $form;
+    #$config = new Config($eventAlias);
+    #$defaultGroupId = (int)$config->getGlobalConfig('packaginfo_registered_group');
+
+    #if (is_null($defaultGroupId)) {
+    #throw new \Exception('com_claw requires group IDs for Public and Registered.');
+    #}
 
     // Validate other fields
     $packageInfoType = PackageInfoTypes::tryFrom($packageInfoType);
-    if ( $packageInfoType == null ) return $form;
+    if ($packageInfoType == null) return $form;
 
     $eventPackageType = EventPackageTypes::tryFrom($eventPackageType);
-    if ( $eventPackageType == null ) return $form;
+    if ($eventPackageType == null) return $form;
+
+    /** @var \Joomla\CMS\Form\Field\UserGroupListField */
+    #$parentField = $form->getField('group_id');
+    #var_dump($parentField);
+    #$xmlnode = $parentField->element;
+    #$dnode = dom_import_simplexml($parentField->element);
+    #$dnode->setAttribute('default', $defaultGroupId);
+
+    #dd($parentField);
 
     /** @var \Joomla\CMS\Form\Field\ListField */
-		$parentField = $form->getField('meta');
+    $parentField = $form->getField('meta');
 
-    if ( $packageInfoType == PackageInfoTypes::combomeal) {
+    // These statements correspond to the packageinfo.xml form layout field for "meta"
+
+    $staffSpecial = [
+      EventPackageTypes::claw_staff,
+      EventPackageTypes::claw_board,
+    ];
+
+    // Select addon
+    if (
+      $packageInfoType == PackageInfoTypes::combomeal ||
+      in_array($eventPackageType, $staffSpecial)
+    ) {
       $eventConfig = new EventConfig($eventAlias);
       /** @var \ClawCorpLib\Lib\PackageInfo */
-      foreach ( $eventConfig->packageInfos AS $p) {
+      foreach ($eventConfig->packageInfos as $p) {
         if (
           $p->eventId > 0 &&
           $p->published == EbPublishedState::published &&
@@ -68,17 +97,18 @@ class PackageinfoModel extends EventconfigModel
           $parentField->addOption($p->title, ['value' => $p->eventId]);
         }
       }
-    } else if ( $eventPackageType == EventPackageTypes::vip ) {
+      // Select combo meals only
+    } else if ($eventPackageType == EventPackageTypes::vip) {
       $eventConfig = new EventConfig($eventAlias, []);
       /** @var \ClawCorpLib\Lib\PackageInfo */
-      foreach ( $eventConfig->packageInfos AS $p) {
+      foreach ($eventConfig->packageInfos as $p) {
         if (
           $p->eventId > 0 &&
           $p->published == EbPublishedState::published &&
-          ( $p->eventPackageType == EventPackageTypes::combo_meal_1 ||
+          ($p->eventPackageType == EventPackageTypes::combo_meal_1 ||
             $p->eventPackageType == EventPackageTypes::combo_meal_2 ||
             $p->eventPackageType == EventPackageTypes::combo_meal_3 ||
-            $p->eventPackageType == EventPackageTypes::combo_meal_4 )
+            $p->eventPackageType == EventPackageTypes::combo_meal_4)
         ) {
           $parentField->addOption($p->title, ['value' => $p->eventId]);
         }
@@ -89,5 +119,4 @@ class PackageinfoModel extends EventconfigModel
 
     return $form;
   }
-
 }
