@@ -18,9 +18,6 @@ use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
-use ClawCorpLib\Enums\ConfigFieldNames;
-use ClawCorpLib\Helpers\Config;
-use ClawCorpLib\Helpers\DbBlob;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView

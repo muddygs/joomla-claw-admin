@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -13,15 +13,12 @@ namespace ClawCorp\Component\Claw\Site\View\Registrationsurvey;
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Coupon;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Help\Help;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
-use ReflectionClass;
 
 require_once(JPATH_ROOT . '/components/com_eventbooking/helper/cart.php');
 require_once(JPATH_ROOT . '/components/com_eventbooking/helper/database.php');
@@ -48,12 +45,12 @@ class HtmlView extends BaseHtmlView
 
     /** @var \Joomla\CMS\Application\SiteApplication */
     $this->app = Factory::getApplication();
-    
+
     $this->params = $params = $this->app->getParams();
     $this->eventAlias = $params->get('eventAlias', '');
 
     // Kill on bad event alias
-    if ( $this->eventAlias == '' || !EventInfo::isValidEventAlias($this->eventAlias)) {
+    if ($this->eventAlias == '' || !EventInfo::isValidEventAlias($this->eventAlias)) {
       $this->app->enqueueMessage('No/invalid event alias specified.', 'error');
       return;
     }
@@ -63,7 +60,7 @@ class HtmlView extends BaseHtmlView
 
     // Do we need to clear the cart (i.e., when switching events)?
     $oldEventAlias = Helpers::sessionGet('eventAlias');
-    if ( $oldEventAlias != $this->eventAlias ) {
+    if ($oldEventAlias != $this->eventAlias) {
       $cart = new \EventbookingHelperCart();
       $cart->reset();
     }
@@ -72,7 +69,7 @@ class HtmlView extends BaseHtmlView
      * SET EVENT ALIAS
      **************************************************************/
     Helpers::sessionSet('eventAlias', $this->eventAlias);
-    
+
     $this->events = new EventConfig($this->eventAlias);
     $this->uid = $this->app->getIdentity()->id;
     $this->onsiteActive = $this->events->eventInfo->onsiteActive;
@@ -81,7 +78,7 @@ class HtmlView extends BaseHtmlView
     $this->couponCode = trim($this->app->input->get('coupon', '', 'string'));
 
     // set referrer tracking
-    if ( $this->referrer != '' ) {
+    if ($this->referrer != '') {
       Helpers::sessionSet('referrer', $this->referrer);
     } else {
       Helpers::sessionSet('referrer', '');
@@ -97,14 +94,14 @@ class HtmlView extends BaseHtmlView
     $this->form  = $this->get('Form');
     $this->item  = $this->get('Item');
 
-    if ( is_null($this->events) ) {
+    if (is_null($this->events)) {
       $this->app->enqueueMessage('Direct registration linking not permitted.', 'error');
       return;
     }
 
-    if ( $this->events->eventInfo->onsiteActive) {
+    if ($this->events->eventInfo->onsiteActive) {
       if ($this->app->getIdentity()->id != 0) $this->app->logout();
-      $coupon = new Coupon('',0);
+      $coupon = new Coupon('', 0);
       $this->autoCoupon = $coupon;
     } else {
       if (!$this->uid) {
@@ -117,9 +114,9 @@ class HtmlView extends BaseHtmlView
       $registrant = new Registrant($this->eventAlias, $this->uid);
       $registrant->loadCurrentEvents();
       $mainEvent = $registrant->getMainEvent();
-      if ( $mainEvent ) {
+      if ($mainEvent) {
         $this->mainEvent = $mainEvent;
-      } 
+      }
 
       $this->autoCoupon = $this->getUserCoupon();
     }
@@ -135,12 +132,12 @@ class HtmlView extends BaseHtmlView
   private function getUserCoupon(): Coupon
   {
     // Has a coupon already been generated for this registrant?
-    if ( !$this->hasMainEvent ) {
+    if (!$this->hasMainEvent) {
       $eventIds = $this->events->getMainEventIds();
       return $this->getAssignedCoupon($this->uid, $eventIds);
     }
 
-    return new Coupon('', 0 );
+    return new Coupon('', 0);
   }
 
   /**
@@ -149,28 +146,26 @@ class HtmlView extends BaseHtmlView
    * @param array $eventIds Array of event ids
    * @return object null or coupon info (code and event_id)
    */
-   private function getAssignedCoupon( int $uid, array $eventIds ): Coupon
-   {
-     if ( 0 == $uid || count($eventIds) == 0 ) return null;
- 
-     $db = Factory::getDbo();
-    //  $db = Factory::getContainer()->get(DatabaseInterface::class);
-     $events = join(',',$eventIds);
- 
-     $query = $db->getQuery(true);
-     $query->select('c.code, e.event_id')
-         ->from('#__eb_coupons c')
-         ->leftJoin('#__eb_coupon_events e ON e.coupon_id = c.id')
-         ->where('c.user_id = ' . $uid)
-         ->where('c.published = 1')
-         ->where('e.event_id IN (' . $events . ')');
-     $db->setQuery($query);
-     $result = $db->loadObject();
- 
-     if ( $result == null ) return new Coupon('',0);
- 
-     return new Coupon($result->code, $result->event_id);
-   }
- 
+  private function getAssignedCoupon(int $uid, array $eventIds): Coupon
+  {
+    if (0 == $uid || count($eventIds) == 0) return null;
 
+    $db = Factory::getDbo();
+
+    $events = join(',', $eventIds);
+
+    $query = $db->getQuery(true);
+    $query->select('c.code, e.event_id')
+      ->from('#__eb_coupons c')
+      ->leftJoin('#__eb_coupon_events e ON e.coupon_id = c.id')
+      ->where('c.user_id = ' . $uid)
+      ->where('c.published = 1')
+      ->where('e.event_id IN (' . $events . ')');
+    $db->setQuery($query);
+    $result = $db->loadObject();
+
+    if ($result == null) return new Coupon('', 0);
+
+    return new Coupon($result->code, $result->event_id);
+  }
 }
