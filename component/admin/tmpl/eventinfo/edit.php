@@ -99,7 +99,8 @@ $view = 'eventinfo';
       <?= $this->form->renderField('eb_cat_brunches'); ?>
       <?= $this->form->renderField('eb_cat_combomeals'); ?>
       <?= $this->form->renderField('eb_cat_invoicables'); ?>
-      
+      <?= $this->form->renderField('group_mapping'); ?>
+
     </div>
   </div>
 

@@ -68,6 +68,7 @@ $view = 'packageinfo';
       </div>
       <div class="col-lg-6">
         <?= $this->form->renderField('eventPackageType'); ?>
+        <?= $this->form->renderField('group_id'); ?>
       </div>
     </div>
 
