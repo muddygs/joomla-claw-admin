@@ -123,6 +123,16 @@
   />
 
   <field
+    name="group_id"
+    type="usergrouplist"
+    label="Registration Group"
+    description="Select Joomla &quot;Registered&quot; group"
+    checksuperusergroup="0"
+    default="0"
+    multiple="false"
+  />
+
+  <field
     name="minShifts"
     type="integer"
     label="Minimum Shifts:"

@@ -226,37 +226,4 @@
     required="false"
     multiple="true"
   />
-
-  <field name="group_mapping"
-    type="subform"
-    label="Event Group Authentication:"
-    multiple="true"
-    min="1"
-    max="20"
-    layout="joomla.form.field.subform.repeatable-table"
-  >
-    <form>
-      <field
-        name="eventPackageType"
-        type="ClawEventPackageTypeList"
-        label="Ticket Type:"
-        required="true"
-        default=""
-        filter="string"
-      >
-        <option value="">Select Package Type</option>
-      </field>
-      <field
-        name="group"
-        type="UserGroupList"
-        label="Approval Group"
-        description="Select group allowing registration"
-        layout="joomla.form.field.list-fancy-select"
-        default=""
-        multiple="0"
-      >
-        <option value="0">Select group</option>
-      </field>
-    </form>
-  </field>
 </form>

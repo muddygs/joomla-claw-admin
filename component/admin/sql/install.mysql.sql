@@ -205,7 +205,6 @@ CREATE TABLE IF NOT EXISTS `#__claw_eventinfos` (
   `eb_cat_buffets`  INT(11) DEFAULT NULL,
   `eb_cat_combomeals` INT(11) DEFAULT NULL,
   `eb_cat_invoicables` longTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Invoice Categories' CHECK (json_valid(`eb_cat_invoicables`)),
-  `group_mapping` longTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Event Auth Mapping' CHECK (json_valid(`eb_cat_invoicables`)),
   `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
   KEY `fb_alias_INDEX` (`alias`)
@@ -220,6 +219,7 @@ CREATE TABLE IF NOT EXISTS `#__claw_packages` (
   `alias` VARCHAR(255) NOT NULL DEFAULT '',
   `eventPackageType` SMALLINT(5) NOT NULL DEFAULT 0,
   `packageInfoType` TINYINT(4) NOT NULL DEFAULT 0,
+  `group_id` INT(11) NOT NULL DEFAULT 0,
   `couponKey` VARCHAR(10) NOT NULL DEFAULT '',
   `couponValue` FLOAT NOT NULL DEFAULT 0.0,
   `fee` FLOAT NOT NULL DEFAULT 0.0,
