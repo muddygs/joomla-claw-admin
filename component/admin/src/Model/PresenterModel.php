@@ -81,7 +81,10 @@ class PresenterModel extends AdminModel
       $data['submission_date'] = date("Y-m-d");
 
       if ($this->checkExists($data['uid'], $data['event'])) {
-        $app->enqueueMessage('Record for this presenter already exists for this event.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+        $app->enqueueMessage(
+          'Record for this presenter already exists for this event.',
+          \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR
+        );
         return false;
       }
 
@@ -115,19 +118,19 @@ class PresenterModel extends AdminModel
       }
 
       if ($data['event'] == $currentEventAlias && $app->isClient('administrator') && $data['uid'] != 0) {
-        $publishedGroup = $this->loadEducatorGroupId($data['event']);
+        $publishedAcl = $this->loadEducatorAclId($data['event']);
 
-        if (!$publishedGroup) {
+        if (!$publishedAcl) {
           $app->enqueueMessage('No approval group set in configuration.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
           return false;
         }
 
         switch ($data['published']) {
           case (EbPublishedState::published->value):
-            $this->ensureGroupMembership($data['uid'], $publishedGroup);
+            $this->ensureAclMembership($data['uid'], $publishedAcl);
             break;
           default:
-            $this->removeGroupMembership($data['uid'], $publishedGroup);
+            $this->removeAclMembership($data['uid'], $publishedAcl);
             break;
         }
       }
@@ -215,36 +218,40 @@ class PresenterModel extends AdminModel
   }
 
   /**
-   * Look up the event config and extract the group required for registration to
+   * Look up the event config and extract the ACL required for registration to
    * the Educator event
    */
-  private function loadEducatorGroupId(string $eventAlias): int
+  private function loadEducatorAclId(string $eventAlias): int
   {
     $eventConfig = new EventConfig($eventAlias);
     $package = $eventConfig->getMainEventByPackageType(EventPackageTypes::educator);
-    return $package->group_id;
+    return $package->group_id; // the ACL id
   }
 
-  private function ensureGroupMembership($uid, $group)
+  private function ensureAclMembership($uid, $targetAcl)
   {
     $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
     $user = $userFactory->loadUserById($uid);
-    $groups = $user->getAuthorisedGroups();
+    $acl = $user->getAuthorisedViewLevels();
 
-    if (!in_array($group, $groups)) {
-      $user->groups = array_merge($groups, [$group]);
+    return;
+
+    if (!in_array($targetAcl, $acl)) {
+      $user->groups = array_merge($acl, [$targetAcl]);
       $user->save(updateOnly: true);
     }
   }
 
-  private function removeGroupMembership($uid, $group)
+  private function removeAclMembership($uid, $targetAcl)
   {
     $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
     $user = $userFactory->loadUserById($uid);
-    $groups = $user->getAuthorisedGroups();
+    $groups = $user->getAuthorisedViewLevels();
 
-    if (in_array($group, $groups)) {
-      $user->groups = array_diff($groups, [$group]);
+    return;
+
+    if (in_array($targetAcl, $groups)) {
+      $user->groups = array_diff($groups, [$targetAcl]);
       $user->save();
     }
   }

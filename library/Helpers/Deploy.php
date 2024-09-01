@@ -21,8 +21,8 @@ class Deploy
   public const EQUIPMENTRENTAL = 3;
   public const SPONSORSHIPS = 4;
 
-  private int $gid_public = 0;
-  private int $gid_registered = 0;
+  private int $public_acl = 0;
+  private int $registered_acl = 0;
   private DatabaseDriver $db;
 
   public function __construct(
@@ -165,7 +165,7 @@ class Deploy
           publish_down: $end,
           individual_price: 0,
           registration_start_date: $registration_start_date,
-          registration_access: $this->gid_registered,
+          registration_access: $this->registered_acl,
           event_capacity: $event_capacity,
         );
 
@@ -228,7 +228,7 @@ class Deploy
       $end = $endDate;
       $cutoff = $endDate;
 
-      $accessGroup = $packageInfo->group_id > 0 ? $packageInfo->group_id : $this->gid_registered;
+      $accessGroup = $packageInfo->group_id > 0 ? $packageInfo->group_id : $this->registered_acl;
       $reg_start_date = $registration_start_date;
 
       $price_text = '';
@@ -278,7 +278,7 @@ class Deploy
           // Remove any non-ascii char from title
           $name = preg_replace('/[^\S]+/', '-', $packageInfo->title);
           $packageInfo->alias = strtolower($info->prefix . '-' . $name);
-          $accessGroup = $this->gid_public;
+          $accessGroup = $this->public_acl;
           $reg_start_date = $startDate;
           $enable_cancel_registration = '0';
           break;
@@ -399,7 +399,7 @@ class Deploy
     $registration_start_date = Factory::getDate();
     $publish_down = $info->modify('+8 days');
 
-    $accessGroup = $this->gid_public;
+    $accessGroup = $this->public_acl;
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
@@ -461,7 +461,7 @@ class Deploy
         publish_down: $publish_down,
         individual_price: $packageInfo->fee,
         registration_start_date: $registration_start_date,
-        registration_access: $this->gid_registered,
+        registration_access: $this->registered_acl,
         user_email_body: $user_email_body,
         payment_methods: '2,5' // Credit Card, Invoice
       );
@@ -609,10 +609,10 @@ class Deploy
    * @return void  */
   private function setDefaultGroups()
   {
-    $this->gid_public = Config::getGlobalConfig('packaginfo_public_group', 0);
-    $this->gid_registered = Config::getGlobalConfig('packaginfo_registered_group', 0);
+    $this->public_acl = Config::getGlobalConfig('packageinfo_public_acl', 0);
+    $this->registered_acl = Config::getGlobalConfig('packageinfo_registered_acl', 0);
 
-    if (0 == $this->gid_public || 0 == $this->gid_registered) {
+    if (0 == $this->public_acl || 0 == $this->registered_acl) {
       die('Invalid group id');
     }
   }

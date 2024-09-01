@@ -123,12 +123,13 @@
   />
 
   <field
+    addruleprefix="ClawCorp\Component\Claw\Administrator\Field\Rule"
     name="group_id"
-    type="usergrouplist"
-    label="Registration Group"
-    description="Select Joomla &quot;Registered&quot; group"
-    checksuperusergroup="0"
+    type="accesslevel"
+    label="Registration Access Level:"
+    description="Select Joomla &quot;Registered&quot; viewing access level"
     default="0"
+    validate="simpleacl"
     multiple="false"
   />
 
