@@ -131,8 +131,9 @@ class HtmlView extends BaseHtmlView
     if ($user->authorise('core.admin', 'com_claw')) {
       $toolbar->addNew('shift.add');
 
-      $toolbar->delete('shift.delete')
-        ->text('Delete')
+      $toolbar->delete('shifts.delete')
+        ->text('Deleted Selected')
+        ->message('Confirm delete selected shift(s)?')
         ->listCheck(true);
 
       $toolbar->basicButton('process', 'Deploy Events', 'shifts.process')
