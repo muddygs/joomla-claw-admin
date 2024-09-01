@@ -5,7 +5,7 @@
     name="permissions"
     label="JCONFIG_PERMISSIONS_LABEL"
     description="JCONFIG_PERMISSIONS_DESC"
-    >
+  >
 
     <field
       name="rules"
@@ -15,101 +15,102 @@
       validate="rules"
       component="com_claw"
       section="component"
-     />
+    />
   </fieldset>
+
   <fieldset
     name="skills"
     label="S&amp;E"
     description="Settings for Skills and Education"
+  >
+    <field
+      name="se_group"
+      type="UserGroupList"
+      label="Submission Group"
+      description="Select group allowed to submit"
+      layout="joomla.form.field.list-fancy-select"
+      checksuperusergroup="1"
+      default=""
+      multiple="0"
     >
-      <field
-        name="se_group"
-        type="UserGroupList"
-        label="Submission Group"
-        description="Select group allowed to submit"
-        layout="joomla.form.field.list-fancy-select"
-        checksuperusergroup="1"
-        default=""
-        multiple="0"
-        >
-        <option value="0">Select group</option>
-      </field>
+      <option value="0">Select group</option>
+    </field>
 
-      <field 
-        name="se_submissions_open"
-        type="radio"
-        default="0"
-        label="Submissions Open"
-        description=""
-        class="btn-group btn-group-yesno"
-      >
-        <option value="1">JYES</option>
-        <option value="0">JNO</option>
-      </field>
+    <field
+      name="se_submissions_open"
+      type="radio"
+      default="0"
+      label="Submissions Open"
+      description=""
+      class="btn-group btn-group-yesno"
+    >
+      <option value="1">JYES</option>
+      <option value="0">JNO</option>
+    </field>
 
-      <field 
-        name="se_submissions_bioonly"
-        type="radio"
-        default="0"
-        label="Bios Only Open"
-        description=""
-        class="btn-group btn-group-yesno"
-        showon="se_submissions_open:0"
-      >
-        <option value="1">JYES</option>
-        <option value="0">JNO</option>
-      </field>
+    <field
+      name="se_submissions_bioonly"
+      type="radio"
+      default="0"
+      label="Bios Only Open"
+      description=""
+      class="btn-group btn-group-yesno"
+      showon="se_submissions_open:0"
+    >
+      <option value="1">JYES</option>
+      <option value="0">JNO</option>
+    </field>
 
-      <field 
-        name="se_survey_link"
-        type="menuitem"
-        label="Survey RS Form Menu Item"
-      >
-        <option value="">JDEFAULT</option>
-      </field>
+    <field
+      name="se_survey_link"
+      type="menuitem"
+      label="Survey RS Form Menu Item"
+    >
+      <option value="">JDEFAULT</option>
+    </field>
 
-      <field
-        name="se_notification_email"
-        type="email"
-        label="Notification Email"
-        default="education@clawinfo.org"
-        required="true"
-        validate="email"
-      />
+    <field
+      name="se_notification_email"
+      type="email"
+      label="Notification Email"
+      default="education@clawinfo.org"
+      required="true"
+      validate="email"
+    />
 
-      <field
-        name="se_bio_max_length"
-        type="text"
-        label="Bio Max Length"
-        default="1000"
-        required="true"
-      />
+    <field
+      name="se_bio_max_length"
+      type="text"
+      label="Bio Max Length"
+      default="1000"
+      required="true"
+    />
 
-      <field
-        name="se_class_description_max_length"
-        type="text"
-        label="Class Description Max Length"
-        default="500"
-        required="true"
-      />
+    <field
+      name="se_class_description_max_length"
+      type="text"
+      label="Class Description Max Length"
+      default="500"
+      required="true"
+    />
 
-      <field
-        name="se_email_presenter_intro"
-        type="editor"
-        label="Presenter Email Common Intro"
-        description="Opening text to be included in presenter submission emails"
-        width="100%"
-        filter="safehtml"
-      />
+    <field
+      name="se_email_presenter_intro"
+      type="editor"
+      label="Presenter Email Common Intro"
+      description="Opening text to be included in presenter submission emails"
+      width="100%"
+      filter="safehtml"
+    />
 
-      <field
-        name="se_email_bio_intro"
-        type="editor"
-        label="Class Email Common Intro"
-        description="Opening text to be included in class submission emails"
-        width="100%"
-        filter="safehtml"
-      />
+    <field
+      name="se_email_bio_intro"
+      type="editor"
+      label="Class Email Common Intro"
+      description="Opening text to be included in class submission emails"
+      width="100%"
+      filter="safehtml"
+    />
 
 
   </fieldset>
@@ -150,25 +151,22 @@
     description="Settings for Package Info">
 
     <field
-      name="packaginfo_public_group"
-      type="usergrouplist"
-      label="Public Group"
-      description="Select Joomla &quot;public&quot; group"
-      checksuperusergroup="1"
+      name="packageinfo_public_acl"
+      type="accesslevel"
+      label="Public Access Level"
+      description="Select Joomla &quot;Public&quot; viewing access level"
       default="1"
       multiple="false"
     />
 
     <field
-      name="packaginfo_registered_group"
-      type="usergrouplist"
-      label="Registered Group"
-      description="Select Joomla &quot;Registered&quot; group"
-      checksuperusergroup="1"
+      name="packageinfo_registered_acl"
+      type="accesslevel"
+      label="Registered Access Level"
+      description="Select Joomla &quot;Registered&quot; viewing access level"
       default="1"
       multiple="false"
     />
-
 
     <field
       name="sponsorship_registration_email"
@@ -211,7 +209,7 @@
     label="Onsite"
     description="Settings for Onsite">
 
-    <field 
+    <field
       name="onsite_printer_attendee"
       type="list"
       default="sequential"
@@ -222,7 +220,7 @@
       <option value="fb">Fronts/Backs Forward</option>
       <option value="fbr">Fronts/Backs Reverse</option>
     </field>
-    <field 
+    <field
       name="onsite_printer_volunteer"
       type="list"
       default="sequential"
@@ -233,7 +231,7 @@
       <option value="fb">Fronts/Backs Forward</option>
       <option value="fbr">Fronts/Backs Reverse</option>
     </field>
-    <field 
+    <field
       name="onsite_printer_others"
       type="list"
       default="sequential"
