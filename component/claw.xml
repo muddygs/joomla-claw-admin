@@ -11,7 +11,7 @@
   <version>25.0.4</version>
   <description>CLAW Data Administration</description>
 
-  <namespace path="src/">ClawCorp\Component\Claw</namespace>
+  <namespace path="src">ClawCorp\Component\Claw</namespace>
 
   <install>
     <sql>
