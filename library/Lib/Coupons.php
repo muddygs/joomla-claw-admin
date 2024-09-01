@@ -5,8 +5,6 @@ use \Joomla\CMS\Factory;
 use ClawCorpLib\Enums\EbCouponTypes;
 use ClawCorpLib\Enums\EbCouponAssignments;
 use ClawCorpLib\Helpers\Config;
-use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Lib\Coupon;
 
 /** @package ClawCorpLib\Lib\Coupons */
 class Coupons
@@ -18,7 +16,7 @@ class Coupons
   private int $times = 0;
   private int $max_usage_per_user = 0; // non-0 special handling in helper/override/registration.php
   private string $note = '';
-  private int $access = 0; // defaults to "registered" until further notice
+  private int $access = 0;
   private $prefix = '';
   private int $userId = 0;
 
@@ -34,7 +32,7 @@ class Coupons
   {
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $this->access = Config::getGlobalConfig('packaginfo_registered_group');
+    $this->access = Config::getGlobalConfig('packageinfo_registered_acl');
 
     $this->discount = $discount;
     $this->note = preg_replace("/[^A-Za-z0-9_]/", '', $note);
@@ -67,16 +65,6 @@ class Coupons
     }
 
     $this->prefix = $prefix;
-  }
-
-  /**
-   * Stores the coupon to the database
-   * @return bool True is successfully stored
-   */
-  public function storeCoupon(): bool {
-    // validate conflict between non-empty $couponEventIds and $clawCouponAssignment
-
-    return false;
   }
 
   public function setUserId(int $userId): void
