@@ -33,16 +33,6 @@ class SponsorModel extends AdminModel
     return parent::save($data);
   }
 
-  /**
-   * Method to get the record form.
-   *
-   * @param   array    $data      Data for the form.
-   * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
-   *
-   * @return  Form|boolean  A Form object on success, false on failure
-   *
-   * @since   1.6
-   */
   public function getForm($data = array(), $loadData = true)
   {
     // Get the form.
@@ -105,4 +95,3 @@ class SponsorModel extends AdminModel
     throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
   }
 }
-
