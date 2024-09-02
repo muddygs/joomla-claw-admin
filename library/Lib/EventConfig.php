@@ -31,7 +31,7 @@ class EventConfig
     PackageInfoTypes::addon,
     PackageInfoTypes::passes
   ];
-  
+
   /**
    * @param string $alias Event alias (required)
    * @param array $filter By default, only primary registration events are included
@@ -41,12 +41,10 @@ class EventConfig
   public function __construct(
     public string $alias,
     public array $filter = self::DEFAULT_FILTERS
-  )
-  {
-    if ( !EventInfo::isValidEventAlias($this->alias) ) throw(new Exception("Invalid event alias: $this->alias"));
+  ) {
+    if (!EventInfo::isValidEventAlias($this->alias)) throw (new Exception("Invalid event alias: $this->alias"));
 
-    // TODO: Error handling
-    if ( !array_key_exists($alias, self::$_EventInfoCache) ) {
+    if (!array_key_exists($alias, self::$_EventInfoCache)) {
       self::$_EventInfoCache[$alias] = new EventInfo($alias);
     }
 
@@ -56,7 +54,7 @@ class EventConfig
     $this->packageInfos = new PackageInfos();
 
     // For refunds, we need access to all active EventConfigs and their PackageInfos
-    if ( $this->eventInfo->eventType == EventTypes::refunds ) {
+    if ($this->eventInfo->eventType == EventTypes::refunds) {
       $this->filter = [
         PackageInfoTypes::main,
         PackageInfoTypes::daypass,
@@ -65,14 +63,13 @@ class EventConfig
       $eventInfos = EventInfo::getEventInfos();
       $this->loadPackageInfos(array_keys($eventInfos));
     } else {
-      if ( !array_key_exists($this->eventInfo->alias, self::$_PackageInfosCache) ) {
+      if (!array_key_exists($this->eventInfo->alias, self::$_PackageInfosCache)) {
         $this->loadPackageInfos([$this->eventInfo->alias]);
         self::$_PackageInfosCache[$this->eventInfo->alias] = $this->packageInfos;
-      } 
+      }
 
       $this->packageInfos = self::$_PackageInfosCache[$this->eventInfo->alias];
     }
-
   }
 
   private function loadPackageInfos(array $aliases = [])
@@ -84,10 +81,10 @@ class EventConfig
 
     $query->select('*')
       ->from('#__claw_packages')
-      ->where('eventAlias IN ('. $aliases .')');
+      ->where('eventAlias IN (' . $aliases . ')');
 
-    if ( !empty($this->filter) ) {
-      $packageInfoTypesFilter = implode(',' , array_map(fn($e) => $e->value, $this->filter));
+    if (!empty($this->filter)) {
+      $packageInfoTypesFilter = implode(',', array_map(fn($e) => $e->value, $this->filter));
       $query->where('packageInfoType IN (' . $packageInfoTypesFilter . ')');
     }
 
@@ -97,9 +94,9 @@ class EventConfig
 
     $rows = $db->loadObjectList();
 
-    if ( is_null($rows) ) return;
+    if (is_null($rows)) return;
 
-    foreach ( $rows as $row ) {
+    foreach ($rows as $row) {
       $this->packageInfos[$row->id] = new PackageInfo($this->eventInfo, $row->id);
     }
   }
@@ -138,7 +135,7 @@ class EventConfig
   {
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->packageInfos as $e) {
-      if ($e->eventPackageType == $packageType ) {
+      if ($e->eventPackageType == $packageType) {
         return $e;
       }
     }
@@ -148,11 +145,12 @@ class EventConfig
 
   public function getMainEventIds(): array
   {
-    if ( !empty($this->filter) && 
-      !in_array(PackageInfoTypes::main, $this->filter) && 
+    if (
+      !empty($this->filter) &&
+      !in_array(PackageInfoTypes::main, $this->filter) &&
       !in_array(PackageInfoTypes::daypass, $this->filter)
     ) {
-      throw(new Exception('getMainEventIds() requires main and daypass in filter'));
+      throw (new Exception('getMainEventIds() requires main and daypass in filter'));
     }
 
     $result = [];
@@ -189,20 +187,20 @@ class EventConfig
       PackageInfoTypes::equipment,
     ];
 
-    if ( !empty($this->filter) ) {
-      throw(new Exception('EventConfig() should be constructed with [] event filter.'));
+    if (!empty($this->filter)) {
+      throw (new Exception('EventConfig() should be constructed with [] event filter.'));
     }
 
     $result = [];
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->packageInfos as $e) {
-      if ( in_array($e->packageInfoType, $packageInfoTypes) ) {
-        if ( $e->eventId ) $result[] = $e->eventId;
-      } 
+      if (in_array($e->packageInfoType, $packageInfoTypes)) {
+        if ($e->eventId) $result[] = $e->eventId;
+      }
       // Speeddating is a damned mess. Need to process all the events by roles
-      elseif ( $e->packageInfoType == PackageInfoTypes::speeddating ) {
-        foreach ( $e->meta AS $meta ) {
-          if ( $meta->eventId ) $result[] = $meta->eventId;
+      elseif ($e->packageInfoType == PackageInfoTypes::speeddating) {
+        foreach ($e->meta as $meta) {
+          if ($meta->eventId) $result[] = $meta->eventId;
         }
       }
     }
@@ -232,8 +230,8 @@ class EventConfig
     foreach ($this->packageInfos as $packageInfo) {
       if (!property_exists($packageInfo, $property)) die(__FILE__ . ': Unknown key requested: ' . $property);
 
-      if ( $mainOnly && !($packageInfo->packageInfoType == PackageInfoTypes::main || $packageInfo->packageInfoType == PackageInfoTypes::daypass) ) continue;
-      if ( $mainOnly && $packageInfo->couponOnly ) continue;
+      if ($mainOnly && !($packageInfo->packageInfoType == PackageInfoTypes::main || $packageInfo->packageInfoType == PackageInfoTypes::daypass)) continue;
+      if ($mainOnly && $packageInfo->couponOnly) continue;
 
       if ($packageInfo->$property == $value) {
         $result = $packageInfo;
@@ -268,9 +266,9 @@ class EventConfig
 
     $query = $db->getQuery(true);
     $query->select([
-        'e.*',
-        '( SELECT COUNT(*) FROM `#__eb_registrants` WHERE event_id = e.id AND published=1 ) AS `total_registrants`'
-      ])
+      'e.*',
+      '( SELECT COUNT(*) FROM `#__eb_registrants` WHERE event_id = e.id AND published=1 ) AS `total_registrants`'
+    ])
       ->from('#__eb_events e')
       ->where('main_category_id IN (' . $qCategoryIds . ')')
       ->order($db->qn($orderBy));
@@ -285,18 +283,18 @@ class EventConfig
     return $db->loadObjectList() ?? [];
   }
 
-#region Event Alias Initialization
+  #region Event Alias Initialization
 
-public static function getTitleMapping(): array
+  public static function getTitleMapping(): array
   {
-    if ( count(self::$_titles)) return self::$_titles;
+    if (count(self::$_titles)) return self::$_titles;
 
     $eventList = EventInfo::getEventInfos();
     $titles = [];
 
     /** @var \ClawCorpLib\Lib\EventInfo */
-    foreach ( $eventList AS $alias => $eventInfo ) {
-      if ( $eventInfo->eventType != EventTypes::main ) continue;
+    foreach ($eventList as $alias => $eventInfo) {
+      if ($eventInfo->eventType != EventTypes::main) continue;
       $titles[$alias] = $eventInfo->description;
     }
 
@@ -306,42 +304,42 @@ public static function getTitleMapping(): array
 
   public static function getCurrentEventAlias(): string
   {
-    if ( self::$_current != '' ) return self::$_current;
+    if (self::$_current != '') return self::$_current;
 
     $eventList = EventInfo::getEventInfos();
 
-    if ( count($eventList) == 0 ) {
+    if (count($eventList) == 0) {
       die('No events found in Config::getCurrentEvent().');
     };
 
     $endDates = [];
 
     /** @var \ClawCorpLib\Lib\EventInfo */
-    foreach ( $eventList AS $alias => $eventInfo ) {
-      if ( $eventInfo->eventType != EventTypes::main ) continue;
-      
+    foreach ($eventList as $alias => $eventInfo) {
+      if ($eventInfo->eventType != EventTypes::main) continue;
+
       $endDates[$eventInfo->end_date->toSql()] = $alias;
     }
 
     // Find earliest event that has not ended
-    
+
     ksort($endDates);
 
     $now = Factory::getDate()->toSql();
 
-    foreach ( array_keys($endDates) AS $endDate ) {
-      if ( $endDate > $now ) {
+    foreach (array_keys($endDates) as $endDate) {
+      if ($endDate > $now) {
         self::$_current = $endDates[$endDate];
         break;
       }
     }
 
-    if ( self::$_current == '' ) {
+    if (self::$_current == '') {
       // Failsafe-ish: Get last item in array
       self::$_current = array_pop($endDates);
     }
 
-    if ( self::$_current == '' ) {
+    if (self::$_current == '') {
       die('No current event found in EventConfig::getCurrentEvent().');
     }
 
@@ -352,8 +350,8 @@ public static function getTitleMapping(): array
   {
     $eventList = EventInfo::getEventInfos();
     /** @var \ClawCorpLib\Lib\EventInfo */
-    foreach ( $eventList AS $alias => $eventInfo ) {
-      if ( $mainOnly && $eventInfo->eventType != EventTypes::main ) {
+    foreach ($eventList as $alias => $eventInfo) {
+      if ($mainOnly && $eventInfo->eventType != EventTypes::main) {
         unset($eventList[$alias]);
       }
     }
@@ -362,5 +360,6 @@ public static function getTitleMapping(): array
 
 
 
-#endregion
+  #endregion
 }
+
