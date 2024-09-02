@@ -17,6 +17,8 @@ use ClawCorpLib\Lib\Coupon;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\Registrant;
+use ClawCorpLib\Helpers\EventBooking;
+use ClawCorpLib\Enums\EventPackageTypes;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 
@@ -70,10 +72,10 @@ class HtmlView extends BaseHtmlView
      **************************************************************/
     Helpers::sessionSet('eventAlias', $this->eventAlias);
 
-    $this->events = new EventConfig($this->eventAlias);
+    $this->eventConfig = new EventConfig($this->eventAlias);
     $this->uid = $this->app->getIdentity()->id;
-    $this->onsiteActive = $this->events->eventInfo->onsiteActive;
-    $this->prefix = $this->events->eventInfo->prefix;
+    $this->onsiteActive = $this->eventConfig->eventInfo->onsiteActive;
+    $this->prefix = $this->eventConfig->eventInfo->prefix;
 
     $this->couponCode = trim($this->app->input->get('coupon', '', 'string'));
 
@@ -94,12 +96,12 @@ class HtmlView extends BaseHtmlView
     $this->form  = $this->get('Form');
     $this->item  = $this->get('Item');
 
-    if (is_null($this->events)) {
+    if (is_null($this->eventConfig)) {
       $this->app->enqueueMessage('Direct registration linking not permitted.', 'error');
       return;
     }
 
-    if ($this->events->eventInfo->onsiteActive) {
+    if ($this->onsiteActive) {
       if ($this->app->getIdentity()->id != 0) $this->app->logout();
       $coupon = new Coupon('', 0);
       $this->autoCoupon = $coupon;
@@ -113,27 +115,32 @@ class HtmlView extends BaseHtmlView
 
       $registrant = new Registrant($this->eventAlias, $this->uid);
       $registrant->loadCurrentEvents();
-      $mainEvent = $registrant->getMainEvent();
-      if ($mainEvent) {
-        $this->mainEvent = $mainEvent;
-      }
-
+      $this->mainEvent = $registrant->getMainEvent();
       $this->autoCoupon = $this->getUserCoupon();
     }
 
-    // Easier than reflection: https://bugs.php.net/bug.php?id=79620
-    // $this->hasMainEvent =  (new ReflectionClass(self::class))->getProperty('mainEvent')->isInitialized($this);
-    // TODO: hasMainEvent is unnecessary - replace with !is_null($this->mainEvent)
-    $this->hasMainEvent = !is_null($this->mainEvent);
+    // Links available to templates
+    $this->registrationLinks = [];
+    $this->registrationLinks['attendee'] =
+      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::attendee);
+    $this->registrationLinks['vol2'] =
+      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::volunteer2);
+    $this->registrationLinks['vol3'] =
+      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::volunteer3);
+    $this->registrationLinks['vip'] =
+      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip);
+    $this->registrationLinks['vip-express'] =
+      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip2);
 
-    parent::display($tpl ?? $this->eventAlias);
+    $this->setLayout($this->eventAlias);
+    parent::display();
   }
 
   private function getUserCoupon(): Coupon
   {
-    // Has a coupon already been generated for this registrant?
-    if (!$this->hasMainEvent) {
-      $eventIds = $this->events->getMainEventIds();
+    // Has coupon and not registered
+    if (is_null($this->mainEvent)) {
+      $eventIds = $this->eventConfig->getMainEventIds();
       return $this->getAssignedCoupon($this->uid, $eventIds);
     }
 
