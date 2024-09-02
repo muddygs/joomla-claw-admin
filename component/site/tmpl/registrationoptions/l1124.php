@@ -16,8 +16,6 @@ use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\HTML\HTMLHelper;
 
-$tab = $this->tab;
-$addons = $this->addons;
 $vipRedirect = $this->vipRedirect;
 
 if (EventPackageTypes::vip2 == $this->eventPackageType) {
@@ -26,86 +24,36 @@ if (EventPackageTypes::vip2 == $this->eventPackageType) {
 }
 
 ?>
-<h1>Registration Options for <?= $this->eventConfig->eventInfo->description ?></h1>
+<h1 class="text-center">Registration Options for <?= $this->eventConfig->eventInfo->description ?></h1>
 <?php
 
 
+$eventLayout = $this->getLayout();
+$this->setLayout('common');
 echo $this->loadTemplate('toast');
+#$this->setLayout($eventLayout);
 
 $eventInfo = $this->eventConfig->eventInfo;
-
-// Cache date limits for this event to filter in .../model/list.php
-Helpers::sessionSet('filter_start', $eventInfo->start_date->toSql());
-Helpers::sessionSet('filter_end', $eventInfo->end_date->toSql());
-
-/** @var \ClawCorpLib\Lib\PackageInfo */
-$regEvent = $this->eventConfig->getPackageInfo($this->eventPackageType);
-
-// Auto add this registration to the cart
-// Remove any other main events that might be in cart
-if (!$addons && is_null($mainEvent)) {
-  $cart = new EventbookingHelperCart();
-
-  $items = $cart->getItems();
-  if (!in_array($regEvent->eventId, $items)) {
-    $cart->reset();
-    array_unshift($items, $regEvent->eventId);
-    $cart->addEvents($items);
-    $items = $cart->getItems();
-  }
-
-  // In case there are any oddball nulls, clean them out
-  $cart->remove(null);
-
-  $cartMainEvents = array_intersect($items, $this->eventConfig->getMainEventIds());
-
-  if (sizeof($cartMainEvents) > 1) {
-    foreach ($cartMainEvents as $c) {
-      if ($c != $regEvent->eventId) {
-        $cart->remove($c);
-      }
-    }
-  }
-}
-
-if ($vipRedirect) {
-  $cart = new \EventbookingHelperCart();
-  $cart->reset();
-
-  /** @var \ClawCorpLib\Lib\PackageInfo $vipClawEvent */
-  $vipClawEvent = $this->eventConfig->getPackageInfo(EventPackageTypes::vip);
-  $comboMealsAll = $vipClawEvent->meta[0];
-  $cart->addEvents([$vipClawEvent->eventId, $comboMealsAll]);
-
-  // In case they want to come back, fall back to vip
-  Helpers::sessionSet('eventAction', EventPackageTypes::vip->value);
-
-  $this->app->redirect('/index.php?option=com_eventbooking&view=cart');
-}
-
-$coupon = Helpers::sessionGet('clawcoupon');
-
-$couponHtml = '';
-if ($coupon != '') {
-  $couponHtml = <<<HTML
-  <p style="margin-bottom:0px !important;">Your Coupon Code: <strong>$coupon</strong></p>
-HTML;
-}
-
-$eventDescription = $addons == false ? $regEvent->title . ' Registration' : $mainEvent->event->title . ' Addons';
-$optionslink = Helpers::sessionGet('optionslink', '/');
 
 ?>
 <div class="container">
   <div class="row">
     <div class="col-6 col-lg-2">
       <div class="d-grid">
-        <a href="<?= $optionslink ?>" class="btn btn-danger" role="button"><i class="fa fa-chevron-left"></i> Back</a>
+        <a href="<?= $this->registrationSurveyLink ?>" class="btn btn-danger" role="button"><i class="fa fa-chevron-left"></i> Back</a>
       </div>
     </div>
     <div class="col-6 col-lg-6">
-      <h1><?php echo $eventDescription ?></h1>
-      <?php echo $couponHtml ?>
+      <h1><?= $this->eventDescription ?></h1>
+      <?php
+      if ($this->coupon != ''):
+      ?>
+        <p style="margin-bottom:0px !important;">Your Coupon Code: <strong><?= $this->coupon ?></strong></p>
+      <?php
+      endif;
+      ?>
+
+
     </div>
     <div class="col-12 col-lg-4">
       <div class="d-grid gap-2">
@@ -119,7 +67,7 @@ $optionslink = Helpers::sessionGet('optionslink', '/');
 
 <?php
 
-if ($mainEvent != null) :
+if ($this->mainEvent != null) :
 ?>
   <p class="text-warning">
     <b>You are already registered. To view all your registrations, click <a href="/planning/my-reg">here</a></b>.
@@ -138,12 +86,7 @@ $content = [];
 $headings = [];
 
 $headings[] = 'Shifts';
-if ($this->eventConfig->eventInfo->onsiteActive) {
-  $content[] = contentShiftsOnsite();
-} else {
-  $content[] = contentShifts($this->eventConfig->eventInfo, $this->eventPackageType);
-}
-
+$content[] = $this->loadTemplate('shifts');
 $headings[] = 'Meals';
 $content[] = contentMeals($this->eventConfig->eventInfo);
 
@@ -158,7 +101,7 @@ if (!$this->eventConfig->eventInfo->onsiteActive) {
 $headings[] = 'Community';
 $content[] = contentLeatherHeart($this->eventConfig->eventInfo);
 
-Bootstrap::writePillTabs($headings, $content, $tab);
+Bootstrap::writePillTabs($headings, $content, $this->tab);
 
 echo contentSponsorships();
 
@@ -186,26 +129,6 @@ function categoryLinkButtons(string $urlPrefix, array $categoryIds): string
 
 
 #region content
-
-function contentShiftsOnsite(): string
-{
-  $result = <<<HTML
-    <div class="border border=info text-white p-3 mx-2 mb-2 rounded">
-    <span style="font-size:large;">
-      <i class="fa fa-info-circle fa-2x"></i>&nbsp;After you register, 
-      please go to the Volunteer Assignments Desk to get your shift assignments.
-    </span>
-    <br>Remember:
-    <ul class="mt-2">
-      <li>You must show up to your shift <u>15 minutes early</u></li>
-      <li>Allow time between shifts for break and travel</li>
-      <li>CLAW reserves the right to change your shifts (with sufficient notification)</li>
-    </ul>
-  </div>
-HTML;
-
-  return $result;
-}
 
 function contentShifts(EventInfo $eventInfo, EventPackageTypes $EventPackageType): string
 {
