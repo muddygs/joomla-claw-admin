@@ -6,10 +6,11 @@
     </message>
   </layout>
 
-	<fields name="params">
-		<!-- Options -->
-		<fieldset name="options">
-			<field name="eventAlias" type="text" label="Event Alias" description="" filter="string" required="true"/>
-		</fieldset>
-	</fields>
+  <fields name="params">
+    <!-- Options -->
+    <fieldset name="options">
+      <field name="eventAlias" type="text" label="Event Alias" description="" filter="string"
+        required="true" />
+    </fieldset>
+  </fields>
 </metadata>
