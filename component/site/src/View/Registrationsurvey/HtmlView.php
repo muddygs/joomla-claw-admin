@@ -87,7 +87,7 @@ class HtmlView extends BaseHtmlView
     }
 
     // Remember link back to this menu item
-    Helpers::sessionSet('optionslink', \Joomla\CMS\Uri\Uri::getInstance()->toString());
+    Helpers::sessionSet('registrationSurveyLink', \Joomla\CMS\Uri\Uri::getInstance()->toString());
   }
 
   public function display($tpl = null)
