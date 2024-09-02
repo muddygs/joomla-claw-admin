@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="library" method="upgrade">
-    <name>CLAW Support Libraries</name>
-    <author>CLAW Corp.</author>
-    <creationDate>2024-AUG-17</creationDate>
-    <copyright>Copyright 2024 CLAW Corp. - All Rights Reserved</copyright>
-    <license>GNU/GPLv2</license>
-    <authorEmail>webmaster@clawinfo.org</authorEmail>
-    <authorUrl>www.clawinfo.org</authorUrl>
-    <version>25.0.4</version>
-    <description>CLAW Support Libraries</description>
+  <name>CLAW Support Libraries</name>
+  <author>CLAW Corp.</author>
+  <creationDate>2024-SEP-02</creationDate>
+  <copyright>Copyright 2024 CLAW Corp. - All Rights Reserved</copyright>
+  <license>GNU/GPLv2</license>
+  <authorEmail>webmaster@clawinfo.org</authorEmail>
+  <authorUrl>www.clawinfo.org</authorUrl>
+  <version>25.0.5</version>
+  <description>CLAW Support Libraries</description>
 
-    <libraryname>claw</libraryname>
-    <namespace path="">ClawCorpLib</namespace>
+  <libraryname>claw</libraryname>
+  <namespace path="">ClawCorpLib</namespace>
 
-    <files>
-        <folder>Enums</folder>
-        <folder>External</folder>
-        <folder>Grid</folder>
-        <folder>Helpers</folder>
-        <folder>Lib</folder>
-        <folder>Traits</folder>
-        <folder>svn</folder>
-        <file>claw.xml</file>
-        <file>LICENSE.txt</file>
-    </files>
+  <files>
+    <folder>Enums</folder>
+    <folder>External</folder>
+    <folder>Grid</folder>
+    <folder>Helpers</folder>
+    <folder>Lib</folder>
+    <folder>Traits</folder>
+    <folder>svn</folder>
+    <file>claw.xml</file>
+    <file>LICENSE.txt</file>
+  </files>
 </extension>

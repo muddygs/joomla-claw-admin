@@ -3,12 +3,12 @@
   method="upgrade">
 
   <name>CLAW</name>
-  <creationDate>2024-AUG-17</creationDate>
+  <creationDate>2024-SEP-02</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>25.0.4</version>
+  <version>25.0.5</version>
   <description>CLAW Data Administration</description>
 
   <namespace path="src">ClawCorp\Component\Claw</namespace>
@@ -46,39 +46,39 @@
     <submenu>
       <menu link="option=com_claw"
         img="class:banners">
-            Dashboard
+        Dashboard
       </menu>
       <menu link="option=com_claw&amp;view=locations"
         img="class:banners">
-            Locations
+        Locations
       </menu>
       <menu link="option=com_claw&amp;view=sponsors"
         img="class:banners">
-            Sponsors
+        Sponsors
       </menu>
       <menu link="option=com_claw&amp;view=schedules"
         img="class:banners">
-            Schedules
+        Schedules
       </menu>
       <menu link="option=com_claw&amp;view=vendors"
         img="class:banners">
-            Vendors
+        Vendors
       </menu>
       <menu link="option=com_claw&amp;view=shifts"
         img="class:banners">
-            Shifts
+        Shifts
       </menu>
       <menu link="option=com_claw&amp;view=presenters"
         img="class:banners">
-            Skills Presenters
+        Skills Presenters
       </menu>
       <menu link="option=com_claw&amp;view=skills"
         img="class:banners">
-            Skills Classes
+        Skills Classes
       </menu>
       <menu link="option=com_claw&amp;view=configurations"
         img="class:banners">
-          Config
+        Config
       </menu>
 
     </submenu>
