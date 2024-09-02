@@ -79,6 +79,7 @@ class PackageinfoModel extends EventconfigModel
     $staffSpecial = [
       EventPackageTypes::claw_staff,
       EventPackageTypes::claw_board,
+      EventPackageTypes::vip,
     ];
 
     // Select addon
@@ -97,24 +98,6 @@ class PackageinfoModel extends EventconfigModel
           $parentField->addOption($p->title, ['value' => $p->eventId]);
         }
       }
-      // Select combo meals only
-    } else if ($eventPackageType == EventPackageTypes::vip) {
-      $eventConfig = new EventConfig($eventAlias, []);
-      /** @var \ClawCorpLib\Lib\PackageInfo */
-      foreach ($eventConfig->packageInfos as $p) {
-        if (
-          $p->eventId > 0 &&
-          $p->published == EbPublishedState::published &&
-          ($p->eventPackageType == EventPackageTypes::combo_meal_1 ||
-            $p->eventPackageType == EventPackageTypes::combo_meal_2 ||
-            $p->eventPackageType == EventPackageTypes::combo_meal_3 ||
-            $p->eventPackageType == EventPackageTypes::combo_meal_4)
-        ) {
-          $parentField->addOption($p->title, ['value' => $p->eventId]);
-        }
-      }
-
-      $form->setFieldAttribute('meta', 'multiple', false);
     }
 
     return $form;
