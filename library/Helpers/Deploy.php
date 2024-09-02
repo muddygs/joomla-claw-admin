@@ -43,7 +43,8 @@ class Deploy
     switch ($this->type) {
       case self::PACKAGEINFO:
         $log = $this->Packages();
-        $log .= $this->DiscountBundles();
+        $log .= $this->VolunteerDiscountBundles();
+        $log .= $this->MetaDiscountBundles();
         return $log;
         break;
 
@@ -399,8 +400,6 @@ class Deploy
     $registration_start_date = Factory::getDate();
     $publish_down = $info->modify('+8 days');
 
-    $accessGroup = $this->public_acl;
-
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
       if ($packageInfo->eventId > 0) {
@@ -489,7 +488,52 @@ class Deploy
     return '<p>' . implode('</p><p>', $log) . '</p>';
   }
 
-  public function DiscountBundles(): string
+  public function MetaDiscountBundles(): string
+  {
+    $log = [];
+    $count = 0;
+
+    $eventConfig = new EventConfig($this->eventAlias, []);
+    $mainPackages = $eventConfig->packageInfos;
+
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ($mainPackages as $packageInfo) {
+      if (
+        !is_array($packageInfo->meta) ||
+        count($packageInfo->meta) == 0 ||
+        $packageInfo->isVolunteer ||
+        $packageInfo->packageInfoType != PackageInfoTypes::main
+      ) {
+        continue;
+      }
+
+      /** @var \ClawCorpLib\Lib\PackageInfo */
+      foreach ($packageInfo->meta as $eventId) {
+        // Retrieve the addon PackageInfo since $addon is an Event Booking event id
+        $addon = null;
+
+        /** @var \ClawCorpLib\Lib\PackageInfo */
+        foreach ($mainPackages as $subPackageInfo) {
+          if ($subPackageInfo->eventId == $eventId) {
+            $addon = $subPackageInfo;
+            break;
+          }
+        }
+
+        if (is_null($addon)) continue;
+
+        list($success, $log[]) = $this->addDiscountBundle($addon->fee, $packageInfo, $addon);
+
+        if ($success) $count++;
+      }
+    }
+
+    $log[] = "Updated $count meta discount bundles.";
+
+    return '<p>' . implode('</p><p>', $log) . '</p>';
+  }
+
+  public function VolunteerDiscountBundles(): string
   {
     $log = [];
     $count = 0;
