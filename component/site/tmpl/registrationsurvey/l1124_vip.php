@@ -23,7 +23,7 @@ $tags = [
 
 <h2 class="pb-2">VIP Package</h2>
 <hr>
-<p>The VIP Package ($499) includes the following:</p>
+<p>The VIP Package includes the following:</p>
 
 <?php
 Bootstrap::writeGrid($content, $tags);
@@ -38,18 +38,17 @@ if ($this->onsiteActive):
 else:
 ?>
   <p class="text-center">Click 'Express' for quickest checkout. For more options (meals, equipment rental, and speed dating) use 'Add Ons' button.</p>
+  <p class="text-center"><strong><i class="fa fa-2x fa-info"></i>&nbsp;Meals will show in your cart but are discounted at checkout</strong></p>
   <div class="row">
     <div class="col-12 col-lg-4 text-center">
-      <a role="button" href="/index.php?option=com_eventbooking&view=register&event_id=<?= $vipEventId ?>" class="btn btn-danger btn-lg w-100">Express VIP Checkout</a><br />
-      No meals<br /><span class="h3">$499</span>
+      &nbsp;
     </div>
     <div class="col-12 col-lg-4 text-center">
       <a role="button" href="<?= $this->registrationLinks['vip'] ?>" class="btn btn-danger btn-lg w-100">Express VIP Checkout</a><br />
-      7-Meal BLUF Combo<br /><span class="h3">$1,039</span>
+      All Meals Included<br /><span class="h3">$925</span>
     </div>
     <div class="col-12 col-lg-4 text-center">
-      <a role="button" href="<?= $this->registrationLinks['vip'] ?>" class="btn btn-danger btn-lg w-100">VIP Package+</a><br />
-      Select Your Add Ons<br /><span class="h3">$499+</span>
+      &nbsp;
     </div>
   </div>
 <?php
