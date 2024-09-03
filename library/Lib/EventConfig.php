@@ -40,15 +40,16 @@ class EventConfig
    */
   public function __construct(
     public string $alias,
-    public array $filter = self::DEFAULT_FILTERS
+    public array $filter = self::DEFAULT_FILTERS,
   ) {
+    $cacheKey = md5($alias . implode(',', array_map(fn($e) => $e->value, $filter)));
+
     if (!EventInfo::isValidEventAlias($this->alias)) throw (new Exception("Invalid event alias: $this->alias"));
 
     if (!array_key_exists($alias, self::$_EventInfoCache)) {
       self::$_EventInfoCache[$alias] = new EventInfo($alias);
     }
 
-    // $this->eventInfo = new EventInfo($alias);
     $this->eventInfo = self::$_EventInfoCache[$alias];
 
     $this->packageInfos = new PackageInfos();
@@ -63,12 +64,12 @@ class EventConfig
       $eventInfos = EventInfo::getEventInfos();
       $this->loadPackageInfos(array_keys($eventInfos));
     } else {
-      if (!array_key_exists($this->eventInfo->alias, self::$_PackageInfosCache)) {
+      if (!array_key_exists($cacheKey, self::$_PackageInfosCache)) {
         $this->loadPackageInfos([$this->eventInfo->alias]);
-        self::$_PackageInfosCache[$this->eventInfo->alias] = $this->packageInfos;
+        self::$_PackageInfosCache[$cacheKey] = $this->packageInfos;
       }
 
-      $this->packageInfos = self::$_PackageInfosCache[$this->eventInfo->alias];
+      $this->packageInfos = self::$_PackageInfosCache[$cacheKey];
     }
   }
 
