@@ -30,6 +30,7 @@ rm media/js/*.json
 /usr/bin/zip --quiet -r package/packages/com_claw.zip media
 
 pushd ~/code
+svn up
 REV=`svn info . | grep 'Revision' | awk '{print $2}'`
 ./export.sh
 popd
