@@ -53,7 +53,13 @@ $view = 'eventinfo';
       <div class="col-lg-6">
         <?= $this->form->renderField('prefix'); ?>
       </div>
-      <div class="col-lg-6">
+      <div class="col-lg-2">
+        &nbsp;
+      </div>
+      <div class="col-lg-2">
+        <?= $this->form->renderField('badgeOverride'); ?>
+      </div>
+      <div class="col-lg-2">
         &nbsp;
       </div>
     </div>

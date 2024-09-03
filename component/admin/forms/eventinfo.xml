@@ -34,6 +34,18 @@
   </field>
 
   <field
+    name="badgeOverride"
+    type="radio"
+    label="Badge Override:"
+    required="true"
+    default="0"
+    class="btn-group btn-group-yesno"
+  >
+    <option value="1">JYES</option>
+    <option value="0">JNO</option>
+  </field>
+
+  <field
     name="alias"
     type="text"
     label="Event Alias:"
