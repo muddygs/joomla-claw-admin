@@ -9,6 +9,7 @@ use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Ebmgmt;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Lib\PackageInfo;
 use DateTimeImmutable;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Date\Date;
@@ -221,6 +222,7 @@ class Deploy
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
       if ($packageInfo->eventId > 0) {
+        $this->createRedirect($info, $packageInfo);
         $log[] =  "Already deployed: $packageInfo->title @ $packageInfo->eventId";
         continue;
       }
@@ -296,6 +298,8 @@ class Deploy
           $start = $packageInfo->start;
           $end = $packageInfo->end;
           $cutoff = $startDate;
+          $name = preg_replace('/[^\S]+/', '-', $packageInfo->title);
+          $packageInfo->alias = strtolower($info->prefix . '-' . $name);
           break;
 
         case PackageInfoTypes::coupononly:
@@ -342,14 +346,7 @@ class Deploy
         $packageInfo->save();
       }
 
-      // Create friendly redirects
-      $suffix = $packageInfo->eventPackageType->toLink();
-      if ($suffix != '') {
-        $fromLink = strtolower($info->prefix . '-reg-' . $suffix);
-        $toLink = EventBooking::buildRegistrationLink($this->eventAlias, $packageInfo->eventPackageType);
-        $redirect = new Redirects($this->db, '/' . $fromLink, $toLink, $fromLink);
-        $redirect->insert();
-      }
+      $this->createRedirect($info, $packageInfo);
     }
 
     // Special friendly redirects cases
@@ -360,15 +357,26 @@ class Deploy
     $redirect = new Redirects($this->db, '/' . $fromLink, $toLink, $fromLink);
     $redirect->insert();
     // vip2
-    $suffix = EventPackageTypes::vip2->toLink();
-    $fromLink = strtolower($info->prefix . '-reg-' . $suffix);
-    $toLink = EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip2);
-    $redirect = new Redirects($this->db, '/' . $fromLink, $toLink, $fromLink);
-    $redirect->insert();
+    #$suffix = EventPackageTypes::vip2->toLink();
+    #$fromLink = strtolower($info->prefix . '-reg-' . $suffix);
+    #$toLink = EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip2);
+    #$redirect = new Redirects($this->db, '/' . $fromLink, $toLink, $fromLink);
+    #$redirect->insert();
 
     $log[] = "Deployed $count packages.";
 
     return '<p>' . implode('</p><p>', $log) . '</p>';
+  }
+
+  private function createRedirect(EventInfo $eventInfo, PackageInfo $packageInfo)
+  {
+    $suffix = $packageInfo->eventPackageType->toLink();
+    if ($suffix != '') {
+      $fromLink = strtolower($eventInfo->prefix . '-reg-' . $suffix);
+      $toLink = EventBooking::buildRegistrationLink($this->eventAlias, $packageInfo->eventPackageType);
+      $redirect = new Redirects($this->db, '/' . $fromLink, $toLink, $fromLink);
+      $redirect->insert();
+    }
   }
 
   public function Sponsorships(): string
