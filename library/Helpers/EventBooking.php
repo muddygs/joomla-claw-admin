@@ -22,7 +22,7 @@ class EventBooking
     $regAction  = Helpers::sessionGet('eventAction', EventPackageTypes::none->value);
     $referrer   = Helpers::sessionGet('referrer');
 
-    if ( $regAction == EventPackageTypes::none->value ) {
+    if ($regAction == EventPackageTypes::none->value) {
       return '/';
     }
 
@@ -31,20 +31,19 @@ class EventBooking
 
   public static function buildRegistrationLink(string $eventAlias, EventPackageTypes $eventAction, string $referrer = ''): string
   {
-    $route = Route::link('site','index.php?option=com_claw&view=registrationoptions&event=' . $eventAlias . '&action='. $eventAction->value);
+    $route = Route::link('site', 'index.php?option=com_claw&view=registrationoptions&event=' . $eventAlias . '&action=' . $eventAction->value);
     if ('' != $referrer) {
       $route .= '&referrer=' . $referrer;
     }
 
     return $route;
-
   }
 
   public static function subscribeByRegistrantId($row)
   {
     // Ignore mailchimp subscription if not on clawinfo.org (i.e., dev site)
     $uri_path = Uri::getInstance()->getHost();
-    if ( !str_contains($uri_path, 'clawinfo') ) {
+    if (!str_contains($uri_path, 'clawinfo')) {
       return;
     }
 
@@ -127,29 +126,6 @@ class EventBooking
     $db->setQuery($query);
     $result = $db->loadResult();
 
-    if ( !$result ) {
-      throw new Exception('Location not found: ' . $locationId);
-    }
-
-    return $result;
+    return $result ?? '';
   }
-
-  public static function getLocationAlias(int $locationId): string
-  {
-    $db = Factory::getContainer()->get('DatabaseDriver');
-    $query = $db->getQuery(true);
-    $query
-      ->select('alias')
-      ->from('#__eb_locations')
-      ->where('id = ' . $locationId);
-    $db->setQuery($query);
-    $result = $db->loadResult();
-
-    if ( !$result ) {
-      throw new Exception('Location not found: ' . $locationId);
-    }
-
-    return $result;
-  }
-
 }
