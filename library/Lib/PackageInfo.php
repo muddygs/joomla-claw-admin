@@ -41,6 +41,7 @@ class PackageInfo
   public string $badgeValue = '';
   public bool $couponOnly = false;
   public array|object $meta = []; // JSON
+  public bool $badgeOverride = false;
 
   private DatabaseDriver $db;
 
@@ -85,6 +86,7 @@ class PackageInfo
     $result->bundleDiscount = $this->bundleDiscount;
     $result->badgeValue = $this->badgeValue;
     $result->couponOnly = $this->couponOnly ? 1 : 0;
+    // TODO: add to DB $result->badgeOverride = $this->badgeOverride ? 1 : 0;
     $result->meta = json_encode($this->meta);
 
     return $result;
@@ -129,6 +131,7 @@ class PackageInfo
     $this->bundleDiscount = $result->bundleDiscount;
     $this->badgeValue = $result->badgeValue;
     $this->couponOnly = $result->couponOnly;
+    // TODO: add to DB $this->badgeOverride = $result->badgeOverride;
     $this->meta = json_decode($result->meta);
   }
 
@@ -148,4 +151,3 @@ class PackageInfo
     return true;
   }
 }
-
