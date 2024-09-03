@@ -38,7 +38,7 @@ foreach ($this->items AS $item) {
   $event_id = $item->event_id;
   $location = array_key_exists($item->location, $this->locations) ? $this->locations[$item->location]->value : '';
   if ( $locationView == 'd-none' ) {
-    $location->value = '';
+    $location = '';
   }
 
   if ( $this->eventInfo->onsiteActive ) {
