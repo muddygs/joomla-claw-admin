@@ -9,13 +9,9 @@ if ($this->onsiteActive):
       <li>Register at a reduced rate. If you do not perform your shifts, we will charge the card on file up to
         the cost of an Attendee Registration package rate.</li>
       <li>Volunteers choosing to do three shifts - check out for $1.</li>
-      <li>Volunteers choosing to do two shifts - check out for $89.</li>
       <li>All on-site volunteer shifts are assigned at the Volunteer Assignments Desk</li>
     </ul>
     <div class="d-grid gap-2">
-      <a href="<?= $this->registrationLinks['vol2'] ?>" class="btn btn-danger btn-lg" role="button">
-        Click To Register As A Volunteer (2 Shifts)
-      </a>
       <a href="<?= $this->registrationLinks['vol3'] ?>" class="btn btn-danger btn-lg" role="button">
         Click To Register As A Volunteer (3 Shifts)
       </a>
@@ -33,10 +29,9 @@ else:
     options are:
   <ul>
     <li>Volunteer for 3-shifts for a $1 package fee</li>
-    <li>Volunteer for 2-shifts for a $89 package fee</li>
   </ul>
-  <p>If you are interested in a leadership or recruited volunteer position, please complete the survey
-    <a href="https://forms.gle/qoJ61i9qQZ1bCvLv5" target="_blank">here.</a> You may also find more information about leadership
+  <p>If you are interested in a leadership or recruited volunteer position, you may also find more
+    information about leadership
     opportunities <a href="https://clawinfo.org/planning/leadership-opportunities" target="_blank">here.</a>
   </p>
 
@@ -47,7 +42,6 @@ else:
     <ul>
       <li><span style="color:#ffae00">Food and Drinks:</span> Free food and non-alcoholic drinks in the Volunteer Hospitality Suite at the host hotel all weekend long</li>
       <li><span style="color:#ffae00">Discounts</span> on event meals (calculated at checkout)</li>
-      <li><span style="color:#ffae00">Automatic Entry</span> into the Volunteer Raffle to win a $1,500 prize for CLAW 24 or Leather Getaway 24, including 4 nights at a CLAW hotel</li>
     </ul>
     <li>There are many volunteers that should register as a Recruited Volunteer, such as supervisors, bootblacks, entertainers, photographers, and cashiers. If you are interested
       in one of these positions, please complete the survey <a href="https://forms.gle/qoJ61i9qQZ1bCvLv5" target="_blank">here</a> and do not register at this time. Guest Services will contact you to discuss opportunities.</li>
@@ -68,10 +62,10 @@ $content = [
     'Volunteer',
     '$1<br><a href="' . $this->registrationLinks['vol3'] . '" role="button" class="btn btn-danger">Volunteer for 3 Shifts</a>'
   ],
-  'battery-half' => [
-    'Volunteer',
-    '$89<br><a href="' . $this->registrationLinks['vol2'] . '" role="button" class="btn btn-danger">Volunteer for 2 Shifts</a>'
-  ],
+  #'battery-half' => [
+  #'Volunteer',
+  #'$89<br><a href="' . $this->registrationLinks['vol2'] . '" role="button" class="btn btn-danger">Volunteer for 2 Shifts</a>'
+  #],
   'user-tag' => [
     'Recruited Volunteer',
     'If you are an approved Recruited Volunteer, please enter your coupon code above and click Start Registration or contact <a href="/planning/guest-services?category_id=19">guest services</a> to obtain your registration coupon.'
