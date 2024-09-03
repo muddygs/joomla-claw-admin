@@ -11,7 +11,6 @@ require_once(JPATH_ROOT . '/components/com_eventbooking/helper/helper.php');
 
 use ClawCorpLib\Helpers\Bootstrap;
 use ClawCorpLib\Helpers\Config;
-use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -164,13 +163,13 @@ function contentMeals(EventInfo $eventInfo): string
 {
   $result = '';
 
-  $categories = [
-    $eventInfo->eb_cat_dinners,
-    $eventInfo->eb_cat_brunches,
-    $eventInfo->eb_cat_buffets,
-  ];
+  $categories = [];
 
-  if (! $eventInfo->onsiteActive) {
+  if ($eventInfo->eb_cat_dinners > 0) $categories[] = $eventInfo->eb_cat_dinners;
+  if ($eventInfo->eb_cat_brunches > 0) $categories[] = $eventInfo->eb_cat_brunches;
+  if ($eventInfo->eb_cat_buffets > 0) $categories[] = $eventInfo->eb_cat_buffets;
+
+  if (! $eventInfo->onsiteActive && $eventInfo->eb_cat_combomeals > 0) {
     $categories[] = $eventInfo->eb_cat_combomeals;
   }
 
@@ -186,6 +185,8 @@ function contentMeals(EventInfo $eventInfo): string
 
 function contentSpeedDating(EventInfo $eventInfo): string
 {
+  if ($eventInfo->eb_cat_speeddating < 1) return '';
+
   $categoryIds = $eventInfo->eb_cat_speeddating;
   $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
   return HTMLHelper::_('content.prepare', $content);
@@ -193,6 +194,8 @@ function contentSpeedDating(EventInfo $eventInfo): string
 
 function contentRentals(EventInfo $eventInfo): string
 {
+  if ($eventInfo->eb_cat_equipment < 1) return '';
+
   $categoryIds = $eventInfo->eb_cat_equipment;
   $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
   return HTMLHelper::_('content.prepare', $content);
