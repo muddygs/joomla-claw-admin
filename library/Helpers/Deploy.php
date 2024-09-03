@@ -4,6 +4,7 @@ namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
+use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Ebmgmt;
 use ClawCorpLib\Lib\EventConfig;
@@ -33,7 +34,7 @@ class Deploy
       die('Invalid to deployment event: ' . $this->eventAlias);
     }
 
-    $this->setDefaultGroups();
+    $this->setDefaultAcls();
     /** @var \Joomla\Database\DatabaseDriver */
     $this->db = Factory::getContainer()->get('DatabaseDriver');
   }
@@ -132,6 +133,8 @@ class Deploy
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
+      if ($packageInfo->published != EbPublishedState::published) continue;
+
       foreach ($packageInfo->meta as $metaKey => $metaRow) {
         $role = $metaRow->role;
         $event_capacity = $metaRow->limit;
@@ -219,6 +222,11 @@ class Deploy
     foreach ($packageInfos as $packageInfo) {
       if ($packageInfo->eventId > 0) {
         $log[] =  "Already deployed: $packageInfo->title @ $packageInfo->eventId";
+        continue;
+      }
+
+      if ($packageInfo->published != EbPublishedState::published) {
+        $log[] =  "Skipping unpublished: $packageInfo->title";
         continue;
       }
 
@@ -407,6 +415,11 @@ class Deploy
         continue;
       }
 
+      if ($packageInfo->published != EbPublishedState::published) {
+        $log[] =  "Skipping unpublished sponsorship: $packageInfo->title";
+        continue;
+      }
+
       $packageInfo->alias = strtolower($info->prefix . '_spo_' . preg_replace("/[^A-Za-z0-9]+/", '_', $packageInfo->title));
 
       $end = clone ($endDate);
@@ -498,6 +511,10 @@ class Deploy
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($mainPackages as $packageInfo) {
+      if ($packageInfo->published != EbPublishedState::published) {
+        continue;
+      }
+
       if (
         !is_array($packageInfo->meta) ||
         count($packageInfo->meta) == 0 ||
@@ -546,18 +563,25 @@ class Deploy
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($mainPackages as $packageInfo) {
+      if ($packageInfo->published != EbPublishedState::published) {
+        continue;
+      }
+
+      if (!$packageInfo->isVolunteer) {
+        continue;
+      }
+
       if ($packageInfo->eventId == 0) {
         $log[] =  "Skipping Discount Bundle (Event ID 0): $packageInfo->title";
         continue;
       }
 
-      if (!$packageInfo->isVolunteer) {
-        $log[] =  "Skipping Discount Bundle (Not Volunteer): $packageInfo->title";
-        continue;
-      }
-
       /** @var \ClawCorpLib\Lib\PackageInfo */
       foreach ($addonsPackages as $addon) {
+        if ($addon->published != EbPublishedState::published) {
+          continue;
+        }
+
         if ($addon->eventId == 0) {
           $log[] =  "Skipping Discount Bundle (Event ID 0): $addon->title";
           continue;
@@ -625,7 +649,7 @@ class Deploy
       'to_date' => $query->nullDate(false),
       'times' => 0,
       'used' => 0,
-      'published' => 1,
+      'published' => EbPublishedState::published->value,
       'number_events' => 0,
       'discount_type' => 1
     ];
@@ -645,13 +669,13 @@ class Deploy
       if ($result === false) return [false, "Error adding discount events: $title"];
     }
 
-    return [true, "Added discount: $title"];
+    return [true, "Added discount: $title (\$$dollarAmount)"];
   }
 
   /**
    * Sets internal variables for public and registered groups 
    * @return void  */
-  private function setDefaultGroups()
+  private function setDefaultAcls()
   {
     $this->public_acl = Config::getGlobalConfig('packageinfo_public_acl', 0);
     $this->registered_acl = Config::getGlobalConfig('packageinfo_registered_acl', 0);
