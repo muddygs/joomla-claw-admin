@@ -13,6 +13,7 @@ namespace ClawCorp\Component\Claw\Site\View\Registrationoptions;
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\User\User;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\Application\SiteApplication;
 
@@ -20,6 +21,8 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Enums\PackageInfoTypes;
+use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Lib\Registrant;
 use ClawCorpLib\Lib\RegistrantRecord;
 use ClawCorpLib\Lib\PackageInfo;
@@ -43,12 +46,13 @@ class HtmlView extends BaseHtmlView
   public bool $addons = false;
   public bool $vipRedirect = false;
   public ?EventPackageTypes $eventPackageType;
-  private int $uid;
+  private User $identity;
   public ?Registrant $registrant;
   public ?RegistrantRecord $mainEvent;
   public ?PackageInfo $targetPackage;
   public string $registrationSurveyLink = '';
   public string $coupon = '';
+  public array $mealCategoryIds = [];
 
   public function __construct($config = [])
   {
@@ -56,30 +60,49 @@ class HtmlView extends BaseHtmlView
 
     /** @var \Joomla\CMS\Application\SiteApplication */
     $this->app = Factory::getApplication();
+    $this->identity = $this->app->getIdentity();
+
     $this->isAuthenticated();
 
     $input = $this->app->getInput();
-    $this->eventAlias = $input->get('event', '', 'STRING');
-    $this->action = $input->get('action', '', 'STRING');
+    $this->eventAlias = $input->get('event', '');
+    $this->action = $input->get('action', 0);
 
     $activeEvents = EventConfig::getActiveEventAliases(mainOnly: true);
     if (!in_array($this->eventAlias, $activeEvents)) {
       $this->eventAlias = Aliases::current(true);
     }
 
-    $this->eventConfig = new EventConfig($this->eventAlias);
-    $this->registrant = new Registrant($this->eventAlias, $this->uid);
-    $this->mainEvent = $this->registrant->getMainEvent();
-
     $this->resetSession();
+    $this->registrationSurveyLink = Helpers::sessionGet('registrationSurveyLink', '/');
 
     $this->eventPackageType = EventPackageTypes::tryFrom($this->action);
+
+    if (is_null($this->eventPackageType) || $this->eventPackageType == EventPackageTypes::none) {
+      $this->app->enqueueMessage('Invalid registration action requested.', 'error');
+      $this->app->redirect($this->registrationSurveyLink);
+      return;
+    }
+
+    $this->eventConfig = new EventConfig($this->eventAlias);
     $this->targetPackage = $this->eventConfig->getPackageInfo($this->eventPackageType);
-    $this->setDefaultTab();
+
+    if (!$this->isValidTargetPackage()) {
+      $this->app->enqueueMessage('Invalid package registration requested.', 'error');
+      $this->app->redirect($this->registrationSurveyLink);
+      return;
+    }
+
+    $this->isAuthorized(); // fu British spelling! LOL
+
+    $this->registrant = new Registrant($this->eventAlias, $this->identity->id);
+    $this->mainEvent = $this->registrant->getMainEvent();
+
+    $this->setVolunteerDefaultTab();
     $this->resetCart();
     $this->addons = EventPackageTypes::addons == $this->eventPackageType;
     $this->eventDescription = !$this->addons ? $this->targetPackage->title . ' Registration' : $this->mainEvent->event->title . ' Addons';
-    $this->registrationSurveyLink = Helpers::sessionGet('registrationSurveyLink', '/');
+    $this->mealCategoryIds = $this->getMealCategoryIds();
 
     $config = new Config($this->eventAlias);
     $this->shiftsBaseUrl = $config->getConfigText(ConfigFieldNames::CONFIG_URLPREFIX, 'shifts');
@@ -87,7 +110,7 @@ class HtmlView extends BaseHtmlView
     $this->coupon = Helpers::sessionGet('clawcoupon');
   }
 
-  private function setDefaultTab()
+  private function setVolunteerDefaultTab()
   {
     if (in_array($this->eventPackageType, [
       EventPackageTypes::volunteer2,
@@ -141,6 +164,29 @@ class HtmlView extends BaseHtmlView
     Helpers::sessionSet('eventAction', $this->action);
   }
 
+  private function getMealCategoryIds(): array
+  {
+    $categoryIds = [];
+
+    $keys = [
+      'eb_cat_dinners',
+      'eb_cat_brunches',
+      'eb_cat_buffets',
+    ];
+
+    foreach ($keys as $key) {
+      if ($this->eventConfig->eventInfo->$key > 0) {
+        $categoryIds[] = $this->eventConfig->eventInfo->$key;
+      }
+    }
+
+    if (! $this->eventConfig->eventInfo->onsiteActive && $this->eventConfig->eventInfo->eb_cat_combomeals > 0) {
+      $categories[] = $this->eventConfig->eventInfo->eb_cat_combomeals;
+    }
+
+    return $categoryIds;
+  }
+
   public function display($tpl = null)
   {
     if (is_null($this->eventPackageType) || $this->eventPackageType == EventPackageTypes::none) {
@@ -181,17 +227,45 @@ class HtmlView extends BaseHtmlView
     parent::display();
   }
 
+  private function isValidTargetPackage(): bool
+  {
+    $valid = false;
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ($this->eventConfig->packageInfos as $packageInfo) {
+      if (
+        $packageInfo->eventPackageType == $this->targetPackage->eventPackageType &&
+        $packageInfo->published == EbPublishedState::published &&
+        $packageInfo->packageInfoType == PackageInfoTypes::main
+      ) {
+        $valid = true;
+        break;
+      }
+    }
+
+    $valid = $valid || $this->targetPackage->eventPackageType == EventPackageTypes::addons;
+    return $valid;
+  }
+
   private function isAuthenticated(): bool
   {
-    $this->uid = Factory::getApplication()->getIdentity()->id;
-
     // Redirect to login page
-    if (!$this->uid) {
+    if (!$this->identity->id) {
       $return = \Joomla\CMS\Uri\Uri::getInstance()->toString();
       $url    = 'index.php?option=com_users&view=login';
       $url   .= '&return=' . base64_encode($return);
       $this->app->enqueueMessage('Please sign in to continue registration.', 'warning');
       $this->app->redirect($url);
+    }
+
+    return true;
+  }
+
+  private function isAuthorized(): bool
+  {
+    $acl = $this->identity->getAuthorisedViewLevels();
+    if (! in_array($this->targetPackage->group_id, $acl)) {
+      $this->app->enqueueMessage('You are not authorized to register for this event.', 'error');
+      $this->app->redirect($this->registrationSurveyLink);
     }
 
     return true;
