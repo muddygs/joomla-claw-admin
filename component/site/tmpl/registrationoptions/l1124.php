@@ -69,7 +69,7 @@ $eventInfo = $this->eventConfig->eventInfo;
 if ($this->mainEvent != null) :
 ?>
   <p class="text-warning">
-    <b>You are already registered. To view all your registrations, click <a href="/planning/my-reg">here</a></b>.
+    <b>You are already registered. To view all your registrations, click <a href="/planning/my-reg">here</a></b> to view My Registrations.
   </p>
 <?php
 endif;
@@ -86,146 +86,31 @@ $headings = [];
 
 $headings[] = 'Shifts';
 $content[] = $this->loadTemplate('shifts');
-$headings[] = 'Meals';
-$content[] = contentMeals($this->eventConfig->eventInfo);
 
-$headings[] = 'Speed Dating';
-$content[] = contentSpeedDating($this->eventConfig->eventInfo);
+$this->categories = $this->mealCategoryIds;
+if (count($this->categories)) {
+  $headings[] = 'Meals';
+  $content[] = $this->loadTemplate('categories');
+}
+
+$this->categories = $this->eventConfig->eventInfo->eb_cat_speeddating;
+if (count($this->categories)) {
+  $headings[] = 'Speed Dating';
+  $content[] = $this->loadTemplate('categories');
+}
 
 if (!$this->eventConfig->eventInfo->onsiteActive) {
-  $headings[] = 'Rentals';
-  $content[] = contentRentals($this->eventConfig->eventInfo);
+  $this->categories = $this->eventConfig->eventInfo->eb_cat_equipment;
+
+  if (count($this->categories)) {
+    $headings[] = 'Rentals';
+    $content[] = $this->loadTemplate('categories');
+  }
 }
 
 $headings[] = 'Community';
-$content[] = contentLeatherHeart($this->eventConfig->eventInfo);
+$content[] = $this->loadTemplate('heart');
 
 Bootstrap::writePillTabs($headings, $content, $this->tab);
 
-echo contentSponsorships();
-
-// end output
-
-function categoryLinkButtons(string $urlPrefix, array $categoryIds): string
-{
-  $categoryInfo = ClawEvents::getRawCategories($categoryIds);
-  $html = [];
-
-  foreach ($categoryInfo as $alias => $info) {
-    $url = $urlPrefix . $alias;
-    $html[] = <<<HTML
-              <div class="col d-flex flex-wrap">
-                  <a href="$url" class="w-100 btn btn-outline-danger" role="button">
-                      <h2>{$info->name}</h2>
-                      <small class="text-center" style="color:#ffae00">{$info->meta_description}</small>
-                  </a>
-              </div>
-          HTML;
-  }
-
-  return '<div class="row row-cols-1 row-cols-sm-2 g-2 px-4 py-2">' . implode('', $html) . '</div><div class="clearfix"></div>';
-}
-
-
-#region content
-
-function contentShifts(EventInfo $eventInfo, EventPackageTypes $EventPackageType): string
-{
-  $result = <<<HTML
-  <div class="border border=info text-white p-3 mx-2 mb-2 rounded">
-  <span style="font-size:large;"><i class="fa fa-info-circle fa-2x"></i>&nbsp;Select shifts from <u>one category</u>, then times that work for you. Please note the requirements listed for each shift.</span><br>Remember:
-  <ul class="mt-2">
-    <li>You must show up to your shift <u>15 minutes early</u></li>
-    <li>Allow time between shifts for break and travel</li>
-    <li>CLAW reserves the right to change your shifts (with sufficient notification)</li>
-  </ul>
-</div>
-HTML;
-
-  $categoryIds = $eventInfo->eb_cat_shifts;
-  if ($EventPackageType == EventPackageTypes::volunteersuper) {
-    $categoryIds = array_merge($categoryIds, $eventInfo->eb_cat_supershifts);
-  }
-
-  $config = new Config($eventInfo->alias);
-  $baseURL = $config->getConfigText(ConfigFieldNames::CONFIG_URLPREFIX, 'shifts');
-
-  if (null == $baseURL) {
-    die('shift base URL not found');
-  }
-
-  $result .= categoryLinkButtons($baseURL, $categoryIds);
-
-  return $result;
-}
-
-function contentMeals(EventInfo $eventInfo): string
-{
-  $result = '';
-
-  $categories = [];
-
-  if ($eventInfo->eb_cat_dinners > 0) $categories[] = $eventInfo->eb_cat_dinners;
-  if ($eventInfo->eb_cat_brunches > 0) $categories[] = $eventInfo->eb_cat_brunches;
-  if ($eventInfo->eb_cat_buffets > 0) $categories[] = $eventInfo->eb_cat_buffets;
-
-  if (! $eventInfo->onsiteActive && $eventInfo->eb_cat_combomeals > 0) {
-    $categories[] = $eventInfo->eb_cat_combomeals;
-  }
-
-  $categoryInfo = ClawEvents::getRawCategories($categories);
-
-  foreach ($categoryInfo as $info) {
-    $content = "{ebcategory {$info->id} toast}";
-    $result .= HTMLHelper::_('content.prepare', $content);
-  }
-
-  return $result;
-}
-
-function contentSpeedDating(EventInfo $eventInfo): string
-{
-  if ($eventInfo->eb_cat_speeddating < 1) return '';
-
-  $categoryIds = $eventInfo->eb_cat_speeddating;
-  $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
-  return HTMLHelper::_('content.prepare', $content);
-}
-
-function contentRentals(EventInfo $eventInfo): string
-{
-  if ($eventInfo->eb_cat_equipment < 1) return '';
-
-  $categoryIds = $eventInfo->eb_cat_equipment;
-  $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
-  return HTMLHelper::_('content.prepare', $content);
-}
-
-function contentSponsorships(): string
-{
-  return <<<HTML
-<div class="border rounded-top border-primary p-3 mt-3 mb-2 text-center">
-  <b>Sponsor a CLAW Event!</b> Options available from single events to Master Sponsorships. 
-  Click <a href="/sponsor/sponsor-events" target="_blank">HERE</a> for more details.</div>
-HTML;
-}
-
-function contentLeatherHeart(EventInfo $eventInfo): string
-{
-  $result = <<<HTML
-  <div class="border border=info text-white p-3 mx-2 mb-2 rounded">
-    <span style="font-size:large;"><i class="fa fa-heart fa-2x"></i>&nbsp;Leather Heart Events:
-    Help CLAW volunteers or a community member.</span>
-  </div>
-HTML;
-
-  $result = ''; // for now
-
-  $categoryIds = $eventInfo->eb_cat_sponsorship;
-  $content = '{ebcategory ' . $categoryIds[0] . ' toast}';
-  $result .= HTMLHelper::_('content.prepare', $content);
-
-  return $result;
-}
-
-#endregion
+echo $this->loadTemplate('footer');
