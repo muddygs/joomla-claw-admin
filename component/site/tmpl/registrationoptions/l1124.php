@@ -1,26 +1,7 @@
 <?php
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Enums\ConfigFieldNames;
-use ClawCorpLib\Enums\EventPackageTypes;
-
-// *sigh* not namespaced
-require_once(JPATH_ROOT . '/components/com_eventbooking/helper/cart.php');
-require_once(JPATH_ROOT . '/components/com_eventbooking/helper/database.php');
-require_once(JPATH_ROOT . '/components/com_eventbooking/helper/helper.php');
-
 use ClawCorpLib\Helpers\Bootstrap;
-use ClawCorpLib\Helpers\Config;
-use ClawCorpLib\Lib\ClawEvents;
-use ClawCorpLib\Lib\EventInfo;
-use Joomla\CMS\HTML\HTMLHelper;
-
-$vipRedirect = $this->vipRedirect;
-
-if (EventPackageTypes::vip2 == $this->eventPackageType) {
-  $this->eventPackageType == EventPackageTypes::vip;
-  $vipRedirect = true;
-}
 
 ?>
 <h1 class="text-center">Registration Options for <?= $this->eventConfig->eventInfo->description ?></h1>
