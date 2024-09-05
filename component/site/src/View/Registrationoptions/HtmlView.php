@@ -38,21 +38,20 @@ require_once(JPATH_ROOT . '/components/com_eventbooking/helper/helper.php');
 class HtmlView extends BaseHtmlView
 {
   public ?SiteApplication $app;
+  private User $identity;
   public string $eventAlias;
   public string $action;
-  public string $prefix;
   public EventConfig $eventConfig;
-  public string $tab = 'Meals';
-  public bool $addons = false;
-  public bool $vipRedirect = false;
+  public string $registrationSurveyLink;
   public ?EventPackageTypes $eventPackageType;
-  private User $identity;
-  public ?Registrant $registrant;
-  public ?RegistrantRecord $mainEvent;
   public ?PackageInfo $targetPackage;
-  public string $registrationSurveyLink = '';
-  public string $coupon = '';
+  public ?RegistrantRecord $mainEvent;
+  public bool $addons = false;
+  public string $eventDescription;
   public array $mealCategoryIds = [];
+  public string $shiftsBaseUrl;
+  public string $coupon = '';
+  public string $tab = 'Meals';
 
   public function __construct($config = [])
   {
@@ -62,7 +61,7 @@ class HtmlView extends BaseHtmlView
     $this->app = Factory::getApplication();
     $this->identity = $this->app->getIdentity();
 
-    $this->isAuthenticated();
+    if (!$this->isAuthenticated()) die('Redirect error in Registration Options');
 
     $input = $this->app->getInput();
     $this->eventAlias = $input->get('event', '');
@@ -72,6 +71,7 @@ class HtmlView extends BaseHtmlView
     if (!in_array($this->eventAlias, $activeEvents)) {
       $this->eventAlias = Aliases::current(true);
     }
+    $this->eventConfig = new EventConfig($this->eventAlias);
 
     $this->resetSession();
     $this->registrationSurveyLink = Helpers::sessionGet('registrationSurveyLink', '/');
@@ -84,7 +84,6 @@ class HtmlView extends BaseHtmlView
       return;
     }
 
-    $this->eventConfig = new EventConfig($this->eventAlias);
     $this->targetPackage = $this->eventConfig->getPackageInfo($this->eventPackageType);
 
     if (!$this->isValidTargetPackage()) {
@@ -93,10 +92,10 @@ class HtmlView extends BaseHtmlView
       return;
     }
 
-    $this->isAuthorized(); // fu British spelling! LOL
+    if (!$this->isAuthorized()) die('Redirect error in Registration Options [2]');
 
-    $this->registrant = new Registrant($this->eventAlias, $this->identity->id);
-    $this->mainEvent = $this->registrant->getMainEvent();
+    $registrant = new Registrant($this->eventAlias, $this->identity->id);
+    $this->mainEvent = $registrant->getMainEvent();
 
     $this->setVolunteerDefaultTab();
     $this->resetCart();
@@ -255,6 +254,7 @@ class HtmlView extends BaseHtmlView
       $url   .= '&return=' . base64_encode($return);
       $this->app->enqueueMessage('Please sign in to continue registration.', 'warning');
       $this->app->redirect($url);
+      return false;
     }
 
     return true;
@@ -266,6 +266,7 @@ class HtmlView extends BaseHtmlView
     if (! in_array($this->targetPackage->group_id, $acl)) {
       $this->app->enqueueMessage('You are not authorized to register for this event.', 'error');
       $this->app->redirect($this->registrationSurveyLink);
+      return false;
     }
 
     return true;
@@ -308,7 +309,7 @@ class HtmlView extends BaseHtmlView
 
     $cart->addEvents($cartEventIds);
 
-    // In case they want to come back, fall back to vip
+    // In case they want to come back
     Helpers::sessionSet('eventAction', $this->eventPackageType->value);
     Helpers::sessionSet('autocart', '1');
 
