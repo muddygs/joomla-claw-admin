@@ -86,6 +86,9 @@ class HtmlView extends BaseHtmlView
 
     $this->targetPackage = $this->eventConfig->getPackageInfo($this->eventPackageType);
 
+    $registrant = new Registrant($this->eventAlias, $this->identity->id);
+    $this->mainEvent = $registrant->getMainEvent();
+
     if (!$this->isValidTargetPackage()) {
       $this->app->enqueueMessage('Invalid package registration requested.', 'error');
       $this->app->redirect($this->registrationSurveyLink);
@@ -94,12 +97,9 @@ class HtmlView extends BaseHtmlView
 
     if (!$this->isAuthorized()) die('Redirect error in Registration Options [2]');
 
-    $registrant = new Registrant($this->eventAlias, $this->identity->id);
-    $this->mainEvent = $registrant->getMainEvent();
+    if (!$this->addons) $this->setVolunteerDefaultTab();
 
-    $this->setVolunteerDefaultTab();
     $this->resetCart();
-    $this->addons = EventPackageTypes::addons == $this->eventPackageType;
     $this->eventDescription = !$this->addons ? $this->targetPackage->title . ' Registration' : $this->mainEvent->event->title . ' Addons';
     $this->mealCategoryIds = $this->getMealCategoryIds();
 
@@ -228,6 +228,11 @@ class HtmlView extends BaseHtmlView
 
   private function isValidTargetPackage(): bool
   {
+    if ($this->eventPackageType == EventPackageTypes::addons && !is_null($this->mainEvent)) {
+      $this->addons = true;
+      return true;
+    }
+
     $valid = false;
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->eventConfig->packageInfos as $packageInfo) {
@@ -262,6 +267,10 @@ class HtmlView extends BaseHtmlView
 
   private function isAuthorized(): bool
   {
+    # addons are inherently assigned "registered" ACL, so we can (currently)
+    # be assured we're good to continue
+    if ($this->addons) return true;
+
     $acl = $this->identity->getAuthorisedViewLevels();
     if (! in_array($this->targetPackage->group_id, $acl)) {
       $this->app->enqueueMessage('You are not authorized to register for this event.', 'error');
