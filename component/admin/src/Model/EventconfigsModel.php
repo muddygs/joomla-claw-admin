@@ -1,9 +1,10 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -35,7 +36,7 @@ class EventConfigsModel extends ListModel
     'start',
     'end',
     'fee'
-  ];	
+  ];
 
   /**
    * Constructor.
@@ -49,11 +50,10 @@ class EventConfigsModel extends ListModel
   {
     if (empty($config['filter_fields'])) {
       $config['filter_fields'] = [];
-      
-      foreach( $this->list_fields AS $f )
-      {
+
+      foreach ($this->list_fields as $f) {
         $config['filter_fields'][] = $f;
-        $config['filter_fields'][] = 'a.'.$f;
+        $config['filter_fields'][] = 'a.' . $f;
       }
     }
 
@@ -134,7 +134,10 @@ class EventConfigsModel extends ListModel
     // Select the required fields from the table.
     $query->select(
       $this->getState(
-        'list.select', array_map( function($a) use($db) { return $db->quoteName('a.'.$a); }, $this->list_fields)
+        'list.select',
+        array_map(function ($a) use ($db) {
+          return $db->quoteName('a.' . $a);
+        }, $this->list_fields)
       )
     )
       ->from($this->db->quoteName('#__claw_packages', 'a'));
@@ -146,14 +149,14 @@ class EventConfigsModel extends ListModel
 
     if (!empty($search)) {
       $search = $this->db->quote('%' . $this->db->escape(trim($search), true) . '%');
-      $query->where('(a.title LIKE ' . $search . ') OR (a.eventAlias LIKE ' . $search . ')');
+      $query->where('((a.title LIKE ' . $search . ') OR (a.eventAlias LIKE ' . $search . '))');
     }
-    
-    if ( $event != 'all' ) {
+
+    if ($event != 0) {
       $query->where('a.eventAlias = :event')->bind(':event', $event);
     }
 
-    if ( $type != 0 ) {
+    if ($type != 0) {
       $query->where('a.packageInfoType = :type')->bind(':type', $type);
     }
 
