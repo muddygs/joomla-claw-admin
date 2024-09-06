@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -46,11 +47,10 @@ class EventInfosModel extends ListModel
   {
     if (empty($config['filter_fields'])) {
       $config['filter_fields'] = [];
-      
-      foreach( $this->list_fields AS $f )
-      {
+
+      foreach ($this->list_fields as $f) {
         $config['filter_fields'][] = $f;
-        $config['filter_fields'][] = 'a.'.$f;
+        $config['filter_fields'][] = 'a.' . $f;
       }
     }
 
@@ -135,7 +135,10 @@ class EventInfosModel extends ListModel
     // Select the required fields from the table.
     $query->select(
       $this->getState(
-        'list.select', array_map( function($a) use($db) { return $db->quoteName('a.'.$a); }, $this->list_fields)
+        'list.select',
+        array_map(function ($a) use ($db) {
+          return $db->quoteName('a.' . $a);
+        }, $this->list_fields)
       )
     )
       ->from($this->db->quoteName('#__claw_eventinfos', 'a'));
@@ -145,12 +148,11 @@ class EventInfosModel extends ListModel
 
     if (!empty($search)) {
       $search = $this->db->quote('%' . str_replace(' ', '%', $this->db->escape(trim($search), true) . '%'));
-      $query->where('(a.alias LIKE ' . $search . ')', 'OR')
-        ->where('(a.description LIKE ' . $search . ')');
+      $query->where('((a.alias LIKE ' . $search . ') OR (a.description LIKE ' . $search . '))')
     }
 
     // Never show "refund" rows
-    $query->where('a.eventType != '. $db->quote(EventTypes::refunds->value));
+    $query->where('a.eventType != ' . $db->quote(EventTypes::refunds->value));
 
     // Add the list ordering clause.
     $orderCol  = $this->getState('list.ordering', 'a.start_date');
