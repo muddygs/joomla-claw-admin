@@ -24,17 +24,17 @@ class Registrant
   public int $count = 0;
 
   public function __construct(
-    private string $clawEventAlias, 
-    private int $uid, 
-    private array $eventIdFilter = [], 
-    private bool $enablePastEvents = false)
-  {
-    if ( 0 == $uid ) {
-      throw(new UnexpectedValueException('User ID cannot be zero when retrieving registrant record'));
+    private string $clawEventAlias,
+    private int $uid,
+    private array $eventIdFilter = [],
+    private bool $enablePastEvents = false
+  ) {
+    if (0 == $uid) {
+      throw (new UnexpectedValueException('User ID cannot be zero when retrieving registrant record'));
     }
-    
+
     $this->eventConfig = new EventConfig($clawEventAlias, []);
-    $this->badgeId = $this->eventConfig->eventInfo->prefix.'-'. str_pad($uid, 5, '0', STR_PAD_LEFT);
+    $this->badgeId = $this->eventConfig->eventInfo->prefix . '-' . str_pad($uid, 5, '0', STR_PAD_LEFT);
   }
 
   /**
@@ -44,21 +44,21 @@ class Registrant
    */
   public function getMainEvent(): ?RegistrantRecord
   {
-    if ( $this->eventConfig->eventInfo->eventType != EventTypes::main ) {
-      die(__FILE__.': cannot request Main Event for "any"');
+    if ($this->eventConfig->eventInfo->eventType != EventTypes::main) {
+      die(__FILE__ . ': cannot request Main Event for "any"');
     }
-    if ( !count($this->_records) ) $this->loadCurrentEvents();
+    if (!count($this->_records)) $this->loadCurrentEvents();
 
     $mainEventIds = $this->eventConfig->getMainEventIds();
 
     /** @var \ClawCorpLib\Lib\RegistrantRecord $r */
-    foreach ( $this->_records as $r ) {
-      if ( EbPublishedState::published->value == $r->registrant->published ) {
-        if ( in_array($r->event->eventId, $mainEventIds)) {
+    foreach ($this->_records as $r) {
+      if (EbPublishedState::published->value == $r->registrant->published) {
+        if (in_array($r->event->eventId, $mainEventIds)) {
           $r->registrant->badgeId = $this->badgeId;
           /** @var \ClawCorpLib\Lib\PackageInfo */
           $e = $this->eventConfig->getPackageInfoByProperty('eventId', $r->event->eventId);
-          if ( !is_null($e) ) {
+          if (!is_null($e)) {
             $r->registrant->eventPackageType = $e->eventPackageType;
             return $r;
           }
@@ -71,22 +71,29 @@ class Registrant
 
   /**
    * Finds all the active main events (across all event aliases) for a registrant
+   * @see components/com_eventbooking/themes/default/history/default.php
    * @param int $uid 
    * @return array eventId => RegistrantRecord
    */
-  public static function getHistoricalMainEvents(int $uid): array
+  public static function getCurrentRegistrantEvents(int $uid): array
   {
     // Array of registrant records
     $result = [];
 
-    // Get list of active events with mainAllowed = true
-    $aliases = EventConfig::getActiveEventAliases(mainOnly: true);
+    // Need to check if we're past end date
+    $activeEventInfos = EventInfo::getEventInfos();
 
-    foreach ( $aliases as $alias ) {
-      $r = new Registrant($alias, $uid);
+    $now = Factory::getDate();
+
+    /** @var \ClawCorpLib\Lib\EventInfo */
+    foreach ($activeEventInfos as $eventInfo) {
+      if ($now > $eventInfo->end_date) continue;
+      if ( EventTypes::refunds == $eventInfo->eventType ) continue;
+
+      $r = new Registrant($eventInfo->alias, $uid);
       /** @var \ClawCorpLib\Lib\RegistrantRecord */
       $main = $r->getMainEvent();
-      if ( !is_null($main) ) $result[$main->event->eventId] = $main;
+      if (!is_null($main)) $result[$main->event->eventId] = $main;
     }
 
     return $result;
@@ -100,8 +107,8 @@ class Registrant
    */
   public function records(bool $single = false): array
   {
-    if ( $single && (sizeof($this->_records) > 1 || sizeof($this->_records) == 0) ) die(__FILE__.': Single records expected, none/multiple available');
-    if ( !$single) return $this->_records;
+    if ($single && (sizeof($this->_records) > 1 || sizeof($this->_records) == 0)) die(__FILE__ . ': Single records expected, none/multiple available');
+    if (!$single) return $this->_records;
 
     $result = [];
     reset($this->_records);
@@ -118,15 +125,15 @@ class Registrant
    */
   public static function loadRegistrantRow(string $value, string $key = 'id'): ?object
   {
-      $db = Factory::getContainer()->get('DatabaseDriver');
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
-      $q = $db->getQuery(true);
+    $q = $db->getQuery(true);
 
-      $q->select('*')
-          ->from('#__eb_registrants')
-          ->where($db->quotename($key).'='.$db->quote($value));
-      $db->setQuery($q);
-      return $db->loadObject();
+    $q->select('*')
+      ->from('#__eb_registrants')
+      ->where($db->quotename($key) . '=' . $db->quote($value));
+    $db->setQuery($q);
+    return $db->loadObject();
   }
 
   public function uid()
@@ -144,18 +151,41 @@ class Registrant
 
     $startDate = $this->eventConfig->eventInfo->start_date->toSql();
     $endDate = $this->eventConfig->eventInfo->end_date->toSql();
-  
+
     $columns = [
-        'e.id as eventId','e.alias','e.title','e.event_date', 'e.event_end_date'
-      , 'c.category_id'
-      , 'r.id','r.published','r.user_id','r.first_name', 'r.last_name'
-      , 'r.invoice_number', 'r.email'
-      , 'r.address', 'r.address2', 'r.city', 'r.state', 'r.zip', 'r.country'
-      , 'r.ts_modified', 'r.register_date'
-      , 'r.payment_status', 'r.deposit_amount', 'r.payment_amount', 'r.total_amount', 'r.discount_amount'
-      , 'r.deposit_payment_transaction_id','r.deposit_payment_method'
-      , 'r.amount', 'r.payment_method', 'r.transaction_id'
-      , 'r.ts_modified', 'r.registration_code'
+      'e.id as eventId',
+      'e.alias',
+      'e.title',
+      'e.event_date',
+      'e.event_end_date',
+      'c.category_id',
+      'r.id',
+      'r.published',
+      'r.user_id',
+      'r.first_name',
+      'r.last_name',
+      'r.invoice_number',
+      'r.email',
+      'r.address',
+      'r.address2',
+      'r.city',
+      'r.state',
+      'r.zip',
+      'r.country',
+      'r.ts_modified',
+      'r.register_date',
+      'r.payment_status',
+      'r.deposit_amount',
+      'r.payment_amount',
+      'r.total_amount',
+      'r.discount_amount',
+      'r.deposit_payment_transaction_id',
+      'r.deposit_payment_method',
+      'r.amount',
+      'r.payment_method',
+      'r.transaction_id',
+      'r.ts_modified',
+      'r.registration_code'
     ];
 
     $q = $db->getQuery(true);
@@ -167,22 +197,21 @@ class Registrant
       ->where($db->qn('r.user_id') . ' = ' . $db->quote($this->uid))
       ->where($db->qn('r.invoice_number') . '!=' . $db->q('0'));
 
-    if ( $this->eventConfig->eventInfo->eventType == EventTypes::main && !$this->enablePastEvents ) {
+    if ($this->eventConfig->eventInfo->eventType == EventTypes::main && !$this->enablePastEvents) {
       $q->where($db->qn('e.event_end_date') . '<=' . $db->q($endDate))
-      ->where($db->qn('e.event_date') . '>=' . $db->q($startDate))
-      ->where($db->qn('r.published') . '=' . EbPublishedState::published->value);
+        ->where($db->qn('e.event_date') . '>=' . $db->q($startDate))
+        ->where($db->qn('r.published') . '=' . EbPublishedState::published->value);
     }
 
-    if ( count($this->eventIdFilter) ) {
-      $in = implode(',',$db->quote($this->eventIdFilter));
+    if (count($this->eventIdFilter)) {
+      $in = implode(',', $db->quote($this->eventIdFilter));
       $q->where($db->qn('r.event_id') . ' IN (' . $in . ')');
-    }
-    else {
+    } else {
       $q->where($db->qn('e.id') . ' IS NOT NULL ');
     }
 
-    if ( EventTypes::refunds == $this->eventConfig->eventInfo->eventType ) {
-      $q->where('('.$db->qn('r.published') . '=' . EbPublishedState::published->value.' OR '.$db->qn('r.published') . '=' . EbPublishedState::cancelled->value.')');
+    if (EventTypes::refunds == $this->eventConfig->eventInfo->eventType) {
+      $q->where('(' . $db->qn('r.published') . '=' . EbPublishedState::published->value . ' OR ' . $db->qn('r.published') . '=' . EbPublishedState::cancelled->value . ')');
       $q->order($db->qn(['r.transaction_id']));
     }
 
@@ -190,15 +219,14 @@ class Registrant
     $records = $db->loadObjectList($index->value);
 
     // Refunds can only retrieve main events
-    $mainOnly = ( 'refunds' == $this->clawEventAlias );
+    $mainOnly = ('refunds' == $this->clawEventAlias);
 
-    foreach( $records AS $index => $record )
-    {
+    foreach ($records as $index => $record) {
       /** @var \ClawCorpLib\Lib\PackageInfo */
       $event = $this->eventConfig->getPackageInfoByProperty('eventId', $record->eventId);
 
-      if ( null != $event ) {
-        if ( $event->packageInfoType == PackageInfoTypes::main || $event->packageInfoType == PackageInfoTypes::daypass ) $record->couponKey = $event->couponKey;
+      if (null != $event) {
+        if ($event->packageInfoType == PackageInfoTypes::main || $event->packageInfoType == PackageInfoTypes::daypass) $record->couponKey = $event->couponKey;
         $record->eventPackageType = $event->eventPackageType;
       }
 
@@ -213,17 +241,17 @@ class Registrant
    * by fieldValue->fieldName; records must be loaded by record id
    * 
    * @param array $field_ids String array of custom field aliases
-  */
+   */
   function mergeFieldValues(array $fieldNames): void
   {
-    if ( count($this->_records) < 1 ) {
-      if ( !$this->enablePastEvents ) die('Cannot merge until records loaded.');
+    if (count($this->_records) < 1) {
+      if (!$this->enablePastEvents) die('Cannot merge until records loaded.');
       return;
     }
 
-    if ( !count($fieldNames) ) return;
+    if (!count($fieldNames)) return;
 
-    if ($this->indexType != EbRecordIndexType::default) die ('Cannot merge on non-id index.');
+    if ($this->indexType != EbRecordIndexType::default) die('Cannot merge on non-id index.');
 
     /** @var \Joomla\Database\DatabaseDriver  */
     $db = Factory::getContainer()->get('DatabaseDriver');
@@ -231,10 +259,10 @@ class Registrant
     $registrantIds = implode(',', array_keys($this->_records));
 
     $query = $db->getQuery(true);
-    $query->select(['v.*','f.name'])
+    $query->select(['v.*', 'f.name'])
       ->from('#__eb_field_values v')
       ->join('LEFT OUTER', '#__eb_fields f', 'f.id = v.field_id')
-      ->where($db->qn('registrant_id').' IN ('.$registrantIds.')');
+      ->where($db->qn('registrant_id') . ' IN (' . $registrantIds . ')');
 
     if (count($fieldNames) > 0) {
       $fields = implode(',', (array)$db->q($fieldNames));
@@ -242,8 +270,8 @@ class Registrant
     }
 
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
-    foreach ( $this->_records as $r ) {
-      foreach ( $fieldNames as $f ) $r->fieldValue->{$f} = '';
+    foreach ($this->_records as $r) {
+      foreach ($fieldNames as $f) $r->fieldValue->{$f} = '';
     }
 
     $db->setQuery($query);
@@ -269,18 +297,18 @@ class Registrant
 
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    if ( !array_key_exists($registrant_id, $this->_records)) {
-      die(__FILE__.': invalid registrant_id ('.$registrant_id.') in '.__FUNCTION__);
+    if (!array_key_exists($registrant_id, $this->_records)) {
+      die(__FILE__ . ': invalid registrant_id (' . $registrant_id . ') in ' . __FUNCTION__);
     }
 
-    foreach ( $values as $k => $v ) {
+    foreach ($values as $k => $v) {
       $fieldId = ClawEvents::getFieldId($k);
 
       $q = $db->getQuery(true);
-      $q->select(['id','field_value'])
+      $q->select(['id', 'field_value'])
         ->from('#__eb_field_values')
-        ->where($db->qn('field_id').'='.$db->q($fieldId))
-        ->where($db->qn('registrant_id').'='.$db->q($registrant_id));
+        ->where($db->qn('field_id') . '=' . $db->q($fieldId))
+        ->where($db->qn('registrant_id') . '=' . $db->q($registrant_id));
 
 
       $db->setQuery($q);
@@ -292,9 +320,9 @@ class Registrant
 
       if (!is_null($row)) {
         $id = $row->id;
-        
-        if ( true == $merge ) {
-          $newValue = $row->field_value.','.$v;
+
+        if (true == $merge) {
+          $newValue = $row->field_value . ',' . $v;
         }
       }
 
@@ -315,7 +343,7 @@ class Registrant
       return $matches[2];
     }
 
-    if ( is_numeric($invoice) && strlen($invoice) == 5 ) {
+    if (is_numeric($invoice) && strlen($invoice) == 5) {
       return $invoice;
     }
 
@@ -336,19 +364,19 @@ class Registrant
     $uidCandidate = registrant::invoiceToUid($regid);
 
     $invoiceWhereOr = '';
-    if ( $uidCandidate > 0 && $uidCandidate < 100000 ) {
-      $l = $db->q('%-'.str_pad($uidCandidate, 5, '0', STR_PAD_LEFT).'-%');
-      $invoiceWhereOr .= 'invoice_number LIKE '.$l.' OR ';
+    if ($uidCandidate > 0 && $uidCandidate < 100000) {
+      $l = $db->q('%-' . str_pad($uidCandidate, 5, '0', STR_PAD_LEFT) . '-%');
+      $invoiceWhereOr .= 'invoice_number LIKE ' . $l . ' OR ';
     }
-    $invoiceWhereOr .= 'BINARY `registration_code` = '.$db->q($regid);
+    $invoiceWhereOr .= 'BINARY `registration_code` = ' . $db->q($regid);
 
     $q = $db->getQuery(true);
     $q->select('user_id')
       ->from('#__eb_registrants')
-      ->where('('.$invoiceWhereOr.')');
+      ->where('(' . $invoiceWhereOr . ')');
 
-    if ( !$any ) {
-      $q->where('published = '. EbPublishedState::published->value);
+    if (!$any) {
+      $q->where('published = ' . EbPublishedState::published->value);
     }
 
     $db->setQuery($q);
@@ -398,26 +426,22 @@ class Registrant
         /** @var \ClawCorpLib\Lib\RegistrantRecord $r */
         if (!in_array($r->category->category_id, $categoryIds)) continue;
 
-        if ( $l->event->eventId == $r->event->eventId )
-        {
+        if ($l->event->eventId == $r->event->eventId) {
           continue;
         }
 
         // Make left alway start first
-        if ( $l->event->event_date > $r->event->event_date )
-        {
+        if ($l->event->event_date > $r->event->event_date) {
           continue;
         }
 
         // no overlap
-        if ( $l->event->event_end_date <= $r->event->event_date)
-        {
+        if ($l->event->event_end_date <= $r->event->event_date) {
           continue;
         }
 
         // right starts before left end
-        if ( $r->event->event_date < $l->event->event_end_date ) 
-        {
+        if ($r->event->event_date < $l->event->event_end_date) {
           $result[] = $l;
           $result[] = $r;
           break;
@@ -437,8 +461,7 @@ class Registrant
   {
     $recordsCategoryIds = [];
 
-    foreach( $this->_records as $r )
-    {
+    foreach ($this->_records as $r) {
       $recordsCategoryIds[] = $r->category->category_id;
     }
 
@@ -448,13 +471,13 @@ class Registrant
   }
 
   public static function getInvoiceNumber($row = null)
-	{
-		if (null == $row) die("Whoa! Something bad happened. Sorry. Please let us know how you got here: https://www.clawinfo.org/help");
+  {
+    if (null == $row) die("Whoa! Something bad happened. Sorry. Please let us know how you got here: https://www.clawinfo.org/help");
 
-		$uid = $row->user_id;
+    $uid = $row->user_id;
     $alias = ClawEvents::eventIdtoAlias($row->event_id);
 
-    if ( false === $alias) {
+    if (false === $alias) {
       // Load from global config, defaults to clean Joomla group install
       $componentParams = ComponentHelper::getParams('com_claw');
       $nonEventCategories = $componentParams->get('eb_cat_nonpackageinfo', []);
@@ -469,48 +492,48 @@ class Registrant
       $db->setQuery($query);
       $mainCategory = $db->loadResult();
 
-      if ( !is_null($mainCategory) && in_array($mainCategory, $nonEventCategories) ) {
+      if (!is_null($mainCategory) && in_array($mainCategory, $nonEventCategories)) {
         $alias = Aliases::current(true);
       }
     }
 
     $info = new EventInfo($alias);
-    return Registrant::generateNextInvoiceNumber($info->prefix.'-', $uid);
+    return Registrant::generateNextInvoiceNumber($info->prefix . '-', $uid);
   }
 
   public static function generateNextInvoiceNumber(string $prefix, int $uid): string
   {
     $uid = str_pad($uid, 5, '0', STR_PAD_LEFT);
 
-    if ( 0 == $uid ) {
+    if (0 == $uid) {
       $referrer = Helpers::sessionGet('referrer');
-      if ( $referrer ) {
+      if ($referrer) {
         $uid = substr($referrer, 0, 5);
       }
     }
 
     /** @var \Joomla\Database\DatabaseDriver */
-		$db     = Factory::getContainer()->get('DatabaseDriver');
-		$query  = $db->getQuery(true);
-		$query->select('invoice_number')
+    $db     = Factory::getContainer()->get('DatabaseDriver');
+    $query  = $db->getQuery(true);
+    $query->select('invoice_number')
       ->from('#__eb_registrants')
-			->where('invoice_number LIKE "' . $prefix . $uid . '%"');
+      ->where('invoice_number LIKE "' . $prefix . $uid . '%"');
 
-		$db->setQuery($query);
-		$invoice_numbers = $db->loadColumn();
-		$nextInvoice = 0;
+    $db->setQuery($query);
+    $invoice_numbers = $db->loadColumn();
+    $nextInvoice = 0;
 
-		foreach ($invoice_numbers as $invoice) {
-			$parts = explode('-', $invoice);
+    foreach ($invoice_numbers as $invoice) {
+      $parts = explode('-', $invoice);
 
-			if (count($parts) == 3) {
-				$x = (int)$parts[2];
-				if ($x > $nextInvoice) $nextInvoice = $x;
-			}
-		}
+      if (count($parts) == 3) {
+        $x = (int)$parts[2];
+        if ($x > $nextInvoice) $nextInvoice = $x;
+      }
+    }
 
-		$nextInvoice++;
+    $nextInvoice++;
 
-		return $prefix . $uid . '-' . $nextInvoice;
-	}
+    return $prefix . $uid . '-' . $nextInvoice;
+  }
 }
