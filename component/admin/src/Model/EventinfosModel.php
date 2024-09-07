@@ -148,7 +148,7 @@ class EventInfosModel extends ListModel
 
     if (!empty($search)) {
       $search = $this->db->quote('%' . str_replace(' ', '%', $this->db->escape(trim($search), true) . '%'));
-      $query->where('((a.alias LIKE ' . $search . ') OR (a.description LIKE ' . $search . '))')
+      $query->where('((a.alias LIKE ' . $search . ') OR (a.description LIKE ' . $search . '))');
     }
 
     // Never show "refund" rows
