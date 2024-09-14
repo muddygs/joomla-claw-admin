@@ -51,6 +51,16 @@ class ShiftsController extends AdminController
     $grid->createEvents();
   }
 
+  public function repair()
+  {
+    $filter = $this->app->getInput()->get('filter', '', 'string');
+
+    $event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
+
+    $grid = new Grids($event, true); // true sets repair mode
+    $grid->createEvents();
+  }
+
   // TODO: Implement this method
   // public function reset()
   // {
@@ -61,16 +71,4 @@ class ShiftsController extends AdminController
   // 	$grid = new Grids($event);
   // 	$grid->resetEvents();
   // }
-
-  /**
-   * Proxy for getModel.
-   *
-   * @param   string  $name    The model name. Optional.
-   * @param   string  $prefix  The class prefix. Optional.
-   * @param   array   $config  The array of possible config values. Optional.
-   *
-   * @return  \ClawCorp\Component\Claw\Administrator\Model\ShiftsModel
-   *
-   * @since   1.6
-   */
 }
