@@ -21,7 +21,8 @@ class Grids
   private DatabaseDriver $db;
 
   public function __construct(
-    private string $eventAlias
+    private string $eventAlias,
+    private bool $repair = false
   ) {
     $this->db = Factory::getContainer()->get('DatabaseDriver');
   }
@@ -31,6 +32,7 @@ class Grids
     $days = Helpers::getDays();
 
     $eventInfo = new EventInfo($this->eventAlias);
+    date_default_timezone_set($eventInfo->timezone);
 
     $newEvents = 0;
     $possibleEvents = 0;
@@ -87,7 +89,7 @@ class Grids
 
           if ($grid->needed > 0) $possibleEvents++;
 
-          if ($grid->event_id != 0 || $grid->needed < 1 || $grid->shift_area == 'tbd') {
+          if ((!$this->repair && $grid->event_id != 0) || $grid->needed < 1 || $grid->shift_area == 'tbd') {
             continue;
           }
 
@@ -133,6 +135,10 @@ class Grids
 
           $insert = new Ebmgmt($this->eventAlias, $main_category_id, $alias, $title, $description);
 
+          if ($this->repair) {
+            $insert->load($grid->event_id);
+          }
+
           $insert->set('location_id', $location);
           $insert->set('event_date', $s);
           $insert->set('event_end_date', $e);
@@ -140,7 +146,11 @@ class Grids
           $insert->set('cut_off_date', $cut_off_date);
           $insert->set('enable_cancel_registration', 0);
 
-          $grid->event_id = $insert->insert();
+          if ($this->repair && $grid->event_id != 0) {
+            $insert->update('id', $grid->event_id);
+          } else {
+            $grid->event_id = $insert->insert();
+          }
 
           if ($grid->event_id != 0):
           ?>
@@ -181,6 +191,11 @@ class Grids
     $this->db->setQuery($query);
 
     $shift = $this->db->loadObject();
+
+    if ( is_null($shift)) {
+      throw new \Exception("Shift ID $shift_id not found");
+    }
+
     $grids = json_decode($shift->grid);
 
     // TODO: Lazy but quick to implement
