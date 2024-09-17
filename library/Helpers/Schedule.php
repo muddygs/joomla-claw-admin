@@ -1,10 +1,12 @@
 <?php
+
 namespace ClawCorpLib\Helpers;
 
 use DateTime;
 use Joomla\Database\DatabaseDriver;
 
-class Schedule {
+class Schedule
+{
   private array $cache;
 
   public function __construct(
@@ -12,8 +14,7 @@ class Schedule {
     private DatabaseDriver &$db,
     public readonly string $view = 'default',
     public readonly ?DateTime $date = null
-  )
-  {
+  ) {
     $this->loadSchedule();
   }
 
@@ -28,7 +29,7 @@ class Schedule {
       ->where('event = :event')->bind(':event', $this->event)
       ->order('day ASC');
 
-    if ( 'default' == $this->view ) {
+    if ('default' == $this->view) {
       $q->order('featured DESC');
     }
 
@@ -36,10 +37,10 @@ class Schedule {
       ->order('end_time_int ASC')
       ->order('event_title ASC');
 
-    switch($this->view) {
+    switch ($this->view) {
       case 'upcoming':
         $now = $this->date == null ? 'NOW()' : $this->date->format('Y-m-d H:i:s');
-        $q->where('TIMESTAMP(day,start_time) >= '.$now);
+        $q->where('TIMESTAMP(day,start_time) >= ' . $now);
         break;
       default:
     }
@@ -51,8 +52,8 @@ class Schedule {
   public function getScheduleByDate(string $date): array
   {
     $result = [];
-    foreach ( $this->cache AS $c ) {
-      if ( $c->day == $date ) $result[] = $c;
+    foreach ($this->cache as $c) {
+      if ($c->day == $date) $result[] = $c;
     }
 
     return $result;
@@ -63,7 +64,7 @@ class Schedule {
     $result = [];
     reset($this->cache);
 
-    for ( $i = 0; $i < $limit && current($this->cache); $i++ ) {
+    for ($i = 0; $i < $limit && current($this->cache); $i++) {
       $result[] = current($this->cache);
       next($this->cache);
     }
@@ -80,7 +81,7 @@ class Schedule {
     $columnNames[] = 'track';
 
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="'. $filename . '"');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
     header("Pragma: public");
@@ -92,25 +93,27 @@ class Schedule {
     $fp = fopen('php://output', 'wb');
     fputcsv($fp, $columnNames);
 
-    foreach ( $this->cache AS $c) {
+    foreach ($this->cache as $c) {
       $row = [];
-      foreach ( $columnNames AS $col ) {
-        switch($col) {
+      foreach ($columnNames as $col) {
+        switch ($col) {
           case 'id':
-            $row[] = 'schedule_'.$c->$col;
+            $row[] = 'schedule_' . $c->$col;
             break;
           case 'start_time':
           case 'end_time':
             $time = Helpers::formatTime($c->$col);
-            if ( $time == 'Midnight' ) $time = '12:00 AM';
-            if ( $time == 'Noon' ) $time = '12:00 PM';
+            if ($time == 'Midnight') $time = '12:00 AM';
+            if ($time == 'Noon') $time = '12:00 PM';
             $row[] = $time;
             break;
           case 'sponsors':
             $json = json_decode($c->$col);
-            if ( $json !== null ) {
+            if ($json !== null) {
               // prefix with sponsor_
-              $json = array_map(function($v) { return 'sponsor_'.$v; }, $json);
+              $json = array_map(function ($v) {
+                return 'sponsor_' . $v;
+              }, $json);
               $row[] = implode(',', $json);
             } else {
               $row[] = '';
@@ -139,5 +142,5 @@ class Schedule {
     fclose($fp);
     ob_end_flush();
   }
-
 }
+
