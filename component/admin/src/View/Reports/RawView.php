@@ -24,9 +24,11 @@ class RawView extends BaseHtmlView
     /** @var \ClawCorp\Component\Claw\Administrator\Model\ReportsModel */
     $this->model = $this->getModel('Reports');
 
+    $this->db = Factory::getContainer()->get('DatabaseDriver');
+
     $layout = $this->getLayout();
 
-    switch ( $layout ) {
+    switch ($layout) {
       case 'speeddating':
         $this->items = $this->model->getSpeedDatingItems();
         break;
@@ -53,7 +55,7 @@ class RawView extends BaseHtmlView
       default:
         break;
     }
- 
+
     parent::display($tpl);
   }
 }
