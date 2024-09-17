@@ -16,6 +16,7 @@ cd component && zip --quiet -r ../package/packages/com_claw.zip . && cd -
 rm -rf media
 mkdir -p media/js
 mkdir -p media/css
+mkdir -p media/fonts
 cd media_raw/js
 ## compile
 /usr/bin/tsc
@@ -24,6 +25,7 @@ cd ../..
 cp media_raw/joomla.asset.json media/
 cp media_raw/js/*.js* media/js/
 cp media_raw/css/* media/css/
+cp media_raw/fonts/* media/css/fonts/
 rm media/js/*.json
 
 # Directories to append to main component package once admin is added
