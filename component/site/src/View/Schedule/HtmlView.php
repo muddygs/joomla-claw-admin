@@ -19,7 +19,7 @@ use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Locations;
 use ClawCorpLib\Helpers\Schedule;
-use ClawCorpLib\Helpers\Sponsors;
+use ClawCorpLib\Lib\Sponsors;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
 
@@ -27,7 +27,7 @@ use ClawCorpLib\Lib\EventInfo;
 class HtmlView extends BaseHtmlView
 {
   public \ClawCorpLib\Lib\EventInfo $eventInfo;
-  
+
   public function display($tpl = null)
   {
     /** @var \Joomla\CMS\Application\SiteApplication */
@@ -51,9 +51,9 @@ class HtmlView extends BaseHtmlView
     $l = new Locations($eventAlias);
     $this->locations = $l->GetLocationsList();
 
-    $this->sponsors = new Sponsors();
+    $this->sponsors = (new Sponsors(published: true))->sponsors;
     $schedule = new Schedule($eventAlias, $db);
-    
+
     $this->eventInfo = new EventInfo($eventAlias);
 
     $dates = Helpers::getDateArray($this->eventInfo->start_date, true);
@@ -62,24 +62,23 @@ class HtmlView extends BaseHtmlView
     $this->start_date = '';
     $this->end_date = '';
 
-    foreach ( $dates AS $date ) {
+    foreach ($dates as $date) {
       $this->events[$date] = [];
 
       $events = $schedule->getScheduleByDate($date);
 
-      foreach ( $events AS $e ) {
+      foreach ($events as $e) {
         $this->events[$date][] = $e;
       }
 
       // Set start/end dates
       // TODO: assumes continuous schedule events - is that what I want?
-      if ( count($this->events[$date]) > 0) {
-        if ( !$this->start_date ) {
+      if (count($this->events[$date]) > 0) {
+        if (!$this->start_date) {
           $this->start_date = $date;
         }
 
         $this->end_date = $date;
-  
       }
     }
 
@@ -88,7 +87,7 @@ class HtmlView extends BaseHtmlView
     $now = \date('Y-m-d');
 
     // Set default tab
-    if ( $this->eventInfo->onsiteActive && $now >= $this->start_date && $now <= $this->end_date ) {
+    if ($this->eventInfo->onsiteActive && $now >= $this->start_date && $now <= $this->end_date) {
       $this->start_tab = date('D', strtotime($now));
     } else {
       $this->start_tab = date('D', strtotime($this->start_date));
@@ -96,7 +95,7 @@ class HtmlView extends BaseHtmlView
 
     # all caps $this->start_tab
     $this->start_tab = strtoupper($this->start_tab);
-    
+
     parent::display($tpl);
   }
 }

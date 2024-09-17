@@ -1,9 +1,10 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -18,8 +19,7 @@ use Joomla\CMS\Language\Text;
 
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Helpers\EventBooking;
-use ClawCorpLib\Helpers\Sponsors;
+use ClawCorpLib\Lib\Sponsors;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\EventInfo;
 
@@ -30,13 +30,13 @@ use ClawCorpLib\Lib\EventInfo;
  */
 class ScheduleModel extends AdminModel
 {
-    /**
+  /**
    * The prefix to use with controller messages.
    *
    * @var    string
    * @since  1.6
    */
-  protected $text_prefix = 'COM_CLAW_SCHEDULE';
+  protected $text_prefix = 'COM_CLAW';
 
   public function save($data)
   {
@@ -44,22 +44,22 @@ class ScheduleModel extends AdminModel
     // https://github.com/muddygs/joomla-claw-admin/wiki/Joomla-Form-Load-Save-of-Checkboxes-and-Multi-Select-Lists
 
     $data['sponsors'] = json_encode($data['sponsors']);
-    $data['fee_event'] = implode(',',$data['fee_event']);
+    $data['fee_event'] = implode(',', $data['fee_event']);
     $data['mtime'] = Helpers::mtime();
 
     $eventInfo = new EventInfo($data['event']);
 
     if (array_key_exists('day', $data) && in_array($data['day'], Helpers::getDays())) {
-      $day = $eventInfo->modify( $data['day'] ?? '');
+      $day = $eventInfo->modify($data['day'] ?? '');
       if ($day !== false) {
         $data['day'] = $day->toSql();
-      } 
+      }
     } else {
       $data['day'] = $this->getDatabase()->getNullDate();
     }
 
     // Process accessiblemedia field
-    if ( !is_null($data['poster']) && !empty($data['poster']['imagefile']) ) {
+    if (!is_null($data['poster']) && !empty($data['poster']['imagefile'])) {
       $orig = JPATH_ROOT . DIRECTORY_SEPARATOR . explode("#", $data['poster']['imagefile'])[0];
 
       $basename = basename($orig);
@@ -67,9 +67,9 @@ class ScheduleModel extends AdminModel
       $basename = preg_replace('/\.[a-zA-Z0-9]{3,4}$/', '.jpg', $basename);
       $basepath = dirname($orig);
 
-      $thumbname = implode(DIRECTORY_SEPARATOR, [$basepath, 'thumb_'.$basename]);
+      $thumbname = implode(DIRECTORY_SEPARATOR, [$basepath, 'thumb_' . $basename]);
 
-      if ( !Helpers::ProcessImageUpload(
+      if (!Helpers::ProcessImageUpload(
         source: $orig,
         thumbnail: $thumbname,
         thumbsize: 200,
@@ -107,17 +107,18 @@ class ScheduleModel extends AdminModel
     // Seed location list
     Helpers::sessionSet('eventAlias', $event);
 
-    $sponsors = Sponsors::GetPublishedSponsors($this->getDatabase());
+    $sponsors = new Sponsors(published: true);
 
     /** @var \Joomla\CMS\Form\Field\ListField */
     $parentField = $form->getField('sponsors');
-    foreach ( $sponsors AS $s ) {
-      $parentField->addOption($s->name, ['value' => $s->id]);
+    /** @var \ClawCorpLib\Lib\Sponsor */
+    foreach ($sponsors->sponsors as $s) {
+      $parentField->addOption($s->name . ' (' . $s->type->toString() . ')', ['value' => $s->id]);
     }
 
     /** @var \Joomla\CMS\Form\Field\ListField */
     $parentField = $form->getField('event_id');
-    foreach ( $eventConfig->packageInfos AS $packageInfo ) {
+    foreach ($eventConfig->packageInfos as $packageInfo) {
       $parentField->addOption($packageInfo->title, ['value' => $packageInfo->eventId]);
     }
 
@@ -152,5 +153,4 @@ class ScheduleModel extends AdminModel
 
     throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
   }
-
 }

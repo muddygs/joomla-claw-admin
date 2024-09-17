@@ -10,15 +10,14 @@ use ClawCorpLib\Helpers\Bootstrap;
 $tabs = [];
 $tabData = [];
 
-foreach ( $this->events AS $date => $events ) {
-  if ( $date >= $this->start_date && $date <= $this->end_date ) {
+foreach ($this->events as $date => $events) {
+  if ($date >= $this->start_date && $date <= $this->end_date) {
     # convert date to day of week
     $tabs[] = strtoupper(date('D', strtotime($date)));
-    
+
     // Start clean for future tab data
     $html = '';
-    
-    /** @var \Joomla\CMS\MVC\View\HtmlView $this */
+
     $this->items = $events;
     $this->loadTemplate('items'); // handles output buffering
     $html .= $this->_output; // result of output buffering

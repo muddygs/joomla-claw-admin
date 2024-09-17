@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -11,7 +12,7 @@ namespace ClawCorp\Component\Claw\Administrator\View\Schedules;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Helpers\Sponsors;
+use ClawCorpLib\Lib\Sponsors;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
@@ -81,14 +82,14 @@ class HtmlView extends BaseHtmlView
     $this->pagination    = $model->getPagination();
     $this->filterForm    = $model->getFilterForm();
     $this->activeFilters = $model->getActiveFilters();
-    
+
     // Check for errors.
     if (count($errors = $this->get('Errors'))) {
       throw new GenericDataException(implode("\n", $errors), 500);
     }
 
     $this->addToolbar();
-    $this->sponsors = new Sponsors();
+    $this->sponsors = (new Sponsors(published: true))->sponsors;
 
     parent::display($tpl);
   }
@@ -97,7 +98,7 @@ class HtmlView extends BaseHtmlView
   {
     $app = Factory::getApplication();
 
-    ToolbarHelper::title('CLAW Events Schedule','calendar');
+    ToolbarHelper::title('CLAW Events Schedule', 'calendar');
 
     // Get the toolbar object instance
     $toolbar = Toolbar::getInstance('toolbar');
@@ -108,16 +109,15 @@ class HtmlView extends BaseHtmlView
       $toolbar->addNew('schedule.add');
 
       $toolbar->delete('schedules.delete')
-      ->text('Delete')
-      ->listCheck(true);
+        ->text('Delete')
+        ->listCheck(true);
     }
 
-    if ($this->state->get('filter.published') == -2 && $user->authorise('core.delete', 'com_claw'))
-    {
+    if ($this->state->get('filter.published') == -2 && $user->authorise('core.delete', 'com_claw')) {
       $toolbar->delete('schedules.delete')
-      ->text('JTOOLBAR_EMPTY_TRASH')
-      ->message('JGLOBAL_CONFIRM_DELETE')
-      ->listCheck(true);
+        ->text('JTOOLBAR_EMPTY_TRASH')
+        ->message('JGLOBAL_CONFIRM_DELETE')
+        ->listCheck(true);
     }
   }
 }

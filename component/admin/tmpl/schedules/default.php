@@ -101,8 +101,8 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
                 if ($sponsors !== null):
                   $names = [];
                   foreach ($sponsors as $s):
-                    $sponsor = ($this->sponsors)->GetSponsorById($s);
-                    $names[] = $sponsor ? ($this->sponsors)->GetSponsorById($s)->name : '<span class="text-danger">Error: Sponsor ' . $s . ' not found</span>';
+                    $sponsor = $this->sponsors[$s];
+                    $names[] = $sponsor ? $sponsor->name : '<span class="text-danger">Error: Sponsor ' . $s . ' not found</span>';
                   endforeach;
                   echo implode('<br/>', $names);
                 endif;
