@@ -42,6 +42,7 @@ class PackageInfo
   public bool $couponOnly = false;
   public array|object $meta = []; // JSON
   public bool $badgeOverride = false;
+  public ?Date $mtime = null;
 
   private DatabaseDriver $db;
 
@@ -59,7 +60,7 @@ class PackageInfo
     $this->fromSqlRow();
   }
 
-  public function toSqlObject()
+  private function toSqlObject()
   {
     $result = new \stdClass();
 
@@ -88,24 +89,22 @@ class PackageInfo
     $result->couponOnly = $this->couponOnly ? 1 : 0;
     // TODO: add to DB $result->badgeOverride = $this->badgeOverride ? 1 : 0;
     $result->meta = json_encode($this->meta);
+    $result->mtime = (new Date())->toSql();
 
     return $result;
   }
 
   private function fromSqlRow()
   {
-    $db = $this->db;
-    $id = $this->id;
+    $nullDate = $this->db->getNullDate();
 
-    $nullDate = $db->getNullDate();
-
-    $query = $db->getQuery(true);
+    $query = $this->db->getQuery(true);
     $query->select('*')
       ->from('#__claw_packages')
       ->where('id = :id')
-      ->bind(':id', $id);
-    $db->setQuery($query);
-    $result = $db->loadObject();
+      ->bind(':id', $this->id);
+    $this->db->setQuery($query);
+    $result = $this->db->loadObject();
 
     if ($result == null) return;
 
@@ -137,15 +136,13 @@ class PackageInfo
 
   public function save(): bool
   {
-    $db = $this->db;
-
     $data = $this->toSqlObject();
 
     if ($this->id == 0) {
-      $db->insertObject('#__claw_packages', $data);
-      $this->id = $db->insertid();
+      $this->db->insertObject('#__claw_packages', $data);
+      $this->id = $this->db->insertid();
     } else {
-      $db->updateObject('#__claw_packages', $data, 'id');
+      $this->db->updateObject('#__claw_packages', $data, 'id');
     }
 
     return true;
