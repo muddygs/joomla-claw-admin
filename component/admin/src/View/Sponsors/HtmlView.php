@@ -104,9 +104,13 @@ class HtmlView extends BaseHtmlView
     if ($user->authorise('claw.events', 'com_claw')) {
       $toolbar->addNew('sponsor.add');
       $toolbar->delete('sponsors.delete')
-			->text('Deleted Selected')
-			->message('Confirm delete selected sponsor(s)?')
-			->listCheck(true);
+        ->text('Deleted Selected')
+        ->message('Confirm delete selected sponsor(s)?')
+        ->listCheck(true);
+      $toolbar->basicButton('eblast', 'Eblast Graphics', 'sponsors.eblast')
+        ->icon('fas fa-tools')
+        ->buttonClass('btn')
+        ->listCheck(false);
     }
   }
 }
