@@ -45,6 +45,7 @@ class SponsorModel extends AdminModel
     /** @var \Joomla\CMS\FormField */
     $p = $form->getField('type');
     foreach (SponsorshipType::cases() as $type) {
+      if ($type == SponsorshipType::None) continue;
       $p->addOption($type->toString(), ['value' => $type->value]);
     }
 
