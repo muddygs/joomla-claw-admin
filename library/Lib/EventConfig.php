@@ -5,7 +5,7 @@ namespace ClawCorpLib\Lib;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
-use Exception;
+use ClawCorpLib\Iterators\PackageInfoArray;
 use InvalidArgumentException;
 use Joomla\CMS\Factory;
 use Joomla\Database\Exception\UnsupportedAdapterException;
@@ -17,7 +17,7 @@ use UnexpectedValueException;
 class EventConfig
 {
   public EventInfo $eventInfo;
-  public PackageInfos $packageInfos;
+  public PackageInfoArray $packageInfos;
 
   // Cache of config values
   private static array $_titles = [];
@@ -44,7 +44,7 @@ class EventConfig
   ) {
     $cacheKey = md5($alias . implode(',', array_map(fn($e) => $e->value, $filter)));
 
-    if (!EventInfo::isValidEventAlias($this->alias)) throw (new Exception("Invalid event alias: $this->alias"));
+    if (!EventInfo::isValidEventAlias($this->alias)) throw (new \Exception("Invalid event alias: $this->alias"));
 
     if (!array_key_exists($alias, self::$_EventInfoCache)) {
       self::$_EventInfoCache[$alias] = new EventInfo($alias);
@@ -52,7 +52,7 @@ class EventConfig
 
     $this->eventInfo = self::$_EventInfoCache[$alias];
 
-    $this->packageInfos = new PackageInfos();
+    $this->packageInfos = new PackageInfoArray();
 
     // For refunds, we need access to all active EventConfigs and their PackageInfos
     if ($this->eventInfo->eventType == EventTypes::refunds) {
@@ -151,7 +151,7 @@ class EventConfig
       !in_array(PackageInfoTypes::main, $this->filter) &&
       !in_array(PackageInfoTypes::daypass, $this->filter)
     ) {
-      throw (new Exception('getMainEventIds() requires main and daypass in filter'));
+      throw (new \Exception('getMainEventIds() requires main and daypass in filter'));
     }
 
     $result = [];
@@ -189,7 +189,7 @@ class EventConfig
     ];
 
     if (!empty($this->filter)) {
-      throw (new Exception('EventConfig() should be constructed with [] event filter.'));
+      throw (new \Exception('EventConfig() should be constructed with [] event filter.'));
     }
 
     $result = [];
@@ -347,15 +347,20 @@ class EventConfig
     return self::$_current;
   }
 
+  // TODO: refactor to use getEventInfos / getActiveEventAliases better
   public static function getActiveEventAliases(bool $mainOnly = false): array
   {
     $eventList = EventInfo::getEventInfos();
-    /** @var \ClawCorpLib\Lib\EventInfo */
-    foreach ($eventList as $alias => $eventInfo) {
-      if ($mainOnly && $eventInfo->eventType != EventTypes::main) {
-        unset($eventList[$alias]);
+
+    if ($mainOnly) {
+      /** @var \ClawCorpLib\Lib\EventInfo */
+      foreach ($eventList as $alias => $eventInfo) {
+        if ($eventInfo->eventType != EventTypes::main) {
+          unset($eventList[$alias]);
+        }
       }
     }
+
     return array_keys($eventList);
   }
 
@@ -363,4 +368,3 @@ class EventConfig
 
   #endregion
 }
-

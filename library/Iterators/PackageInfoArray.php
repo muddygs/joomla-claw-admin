@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ClawCorpLib\Lib;
+namespace ClawCorpLib\Iterators;
 
-class PackageInfos implements \IteratorAggregate, \ArrayAccess
+use ClawCorpLib\Lib\PackageInfo;
+
+class PackageInfoArray implements \IteratorAggregate, \ArrayAccess
 {
   private $packageInfos = [];
 
@@ -35,7 +37,7 @@ class PackageInfos implements \IteratorAggregate, \ArrayAccess
 
   public function offsetSet($offset, $value): void
   {
-    if ( !($value instanceof PackageInfo) ) {
+    if (!($value instanceof PackageInfo)) {
       throw new \InvalidArgumentException('Value must be of type PackageInfo');
     }
 
