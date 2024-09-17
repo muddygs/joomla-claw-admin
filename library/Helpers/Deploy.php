@@ -69,23 +69,23 @@ class Deploy
   }
 
   private function Insert(
-    string $mainCategoryId,
+    int $mainCategoryId,
     string $itemAlias,
     string $title,
     string $description,
-    string $article_id,
+    int $article_id,
     ?Date $cancel_before_date,
     ?Date $cut_off_date,
     Date $event_date,
     Date $event_end_date,
     ?Date $publish_down,
-    string $individual_price,
+    float $individual_price,
     Date $registration_start_date,
     string $registration_access,
     string $price_text = '',
     string $user_email_body = '',
     string $payment_methods = '2',
-    string $enable_cancel_registration = '1',
+    int $enable_cancel_registration = 1,
     int $event_capacity = 0,
   ): int {
     $insert = new ebMgmt(
@@ -98,7 +98,7 @@ class Deploy
 
     $nullDate = $this->db->getNullDate();
 
-    $insert->set('article_id', $article_id, false);
+    $insert->set('article_id', $article_id);
     $insert->set('cancel_before_date', $cancel_before_date ? $cancel_before_date->toSql() : $nullDate);
     $insert->set('cut_off_date', $cut_off_date ? $cut_off_date->toSql() : $nullDate);
     $insert->set('event_date', $event_date->toSql());
