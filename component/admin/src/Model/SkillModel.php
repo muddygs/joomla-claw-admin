@@ -12,7 +12,6 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Helpers\EventBooking;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
@@ -46,22 +45,22 @@ class SkillModel extends AdminModel
     $presenters = $skills->GetPresentersList(true);
 
     $okToPublish = true;
-    if ( 1 == $data['published']) {
-      if ( !array_key_exists($data['owner'], $presenters) ) {
+    if (1 == $data['published']) {
+      if (!array_key_exists($data['owner'], $presenters)) {
         $okToPublish = false;
       }
 
-      if ( array_key_exists('presenters', $data)) {
-      foreach ( $data['presenters'] AS $copresenter ) {
-          if ( !array_key_exists($copresenter, $presenters) ) {
+      if (array_key_exists('presenters', $data)) {
+        foreach ($data['presenters'] as $copresenter) {
+          if (!array_key_exists($copresenter, $presenters)) {
             $okToPublish = false;
             break;
           }
         }
       }
     }
-    
-    if ( !$okToPublish ) {
+
+    if (!$okToPublish) {
       $app = Factory::getApplication();
       $app->enqueueMessage('Class cannot be published until all presenters are published.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       return false;
@@ -69,7 +68,7 @@ class SkillModel extends AdminModel
 
     return parent::validate($form, $data, $group);
   }
- 
+
   public function save($data)
   {
     $app = Factory::getApplication();
@@ -78,10 +77,10 @@ class SkillModel extends AdminModel
     $info = new EventInfo($data['event']);
 
     if (array_key_exists('day', $data) && in_array($data['day'], Helpers::getDays())) {
-      $day = $info->modify( $data['day'] ?? '' );
+      $day = $info->modify($data['day'] ?? '');
       if ($day !== false) {
         $data['day'] = $day->toSql();
-      } 
+      }
     } else {
       $data['day'] = $this->getDatabase()->getNullDate();
     }
@@ -90,11 +89,11 @@ class SkillModel extends AdminModel
     $data['presenters'] = json_encode($data['presenters'] ?? []);
 
     if (!isset($data['location']) || !$data['location']) {
-        $data['location'] = Locations::$blankLocation;
+      $data['location'] = Locations::$blankLocation;
     }
-    
+
     // If we're coming from the front end controller, email will be defined
-    if ( $app->isClient('site') && array_key_exists('email', $data)) {
+    if ($app->isClient('site') && array_key_exists('email', $data)) {
       $this->email(new: $data['id'] == 0, data: $data);
     }
 
@@ -120,16 +119,9 @@ class SkillModel extends AdminModel
       return false;
     }
 
-		$event = $form->getField('event')->value;
+    $event = $form->getField('event')->value;
     $eventAlias = !empty($event) ? $event : Aliases::current();
     Helpers::sessionSet('eventAlias', $eventAlias);
-
-		$info = new EventInfo($eventAlias);
-
-		// /** @var $parentField \ClawCorp\Component\Claw\Administrator\Field\LocationListField */
-		// $parentField = $form->getField('location');
-    // $locationAlias = EventBooking::getLocationAlias($info->ebLocationId);
-    // $parentField->populateOptions($locationAlias);
 
     return $form;
   }
@@ -183,13 +175,13 @@ class SkillModel extends AdminModel
   {
     $params = ComponentHelper::getParams('com_claw');
     $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
-    
+
     $alias = Aliases::current();
     $info = new EventInfo($alias);
     $data['event'] = $info->description;
 
     $subject = $new ? '[New] ' : '[Updated] ';
-    $subject .= $info->description. ' Class Submission - ';
+    $subject .= $info->description . ' Class Submission - ';
     $subject .= $data['name'];
 
     $m = new Mailer(
@@ -205,9 +197,10 @@ class SkillModel extends AdminModel
     // TODO: Substitute the notification email
 
     $m->appendToMessage(
-      '<p>Thank you for your interest in presenting at the CLAW/Leather Getaway Skills and Education Program.</p>'.
-      '<p>Your class submission has been received and will be reviewed by the CLAW Education Committee.  You will be notified of the status of your application by email.</p>'.
-      '<p>If you have any questions, please contact us at <a href="mailto:'.$notificationEmail.'">CLAW S&E Program Manager</a>.</p>');
+      '<p>Thank you for your interest in presenting at the CLAW/Leather Getaway Skills and Education Program.</p>' .
+        '<p>Your class submission has been received and will be reviewed by the CLAW Education Committee.  You will be notified of the status of your application by email.</p>' .
+        '<p>If you have any questions, please contact us at <a href="mailto:' . $notificationEmail . '">CLAW S&E Program Manager</a>.</p>'
+    );
 
     $m->appendToMessage('<p>Class Submission Details:</p>');
 
@@ -215,5 +208,4 @@ class SkillModel extends AdminModel
 
     $m->send();
   }
-
 }
