@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     CLAW.Sponsors
  * @subpackage  mod_claw_sponsors
@@ -14,24 +15,19 @@ namespace ClawCorpLib\Helpers;
 // phpcs:enable PSR1.Files.SideEffects
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\Database\DatabaseDriver;
-use Symfony\Component\VarDumper\Cloner\Data;
 
 /**
  * Helper for mod_claw_sponsors
- *
- * @since  1.5
  */
 class Vendors
 {
   private DatabaseDriver $db;
   private array $cache = [];
-  
+
   public function __construct(
     public string $eventAlias
-  )
-  {
+  ) {
     $this->db = Factory::getContainer()->get('DatabaseDriver');
     $this->loadVendors();
   }
@@ -48,7 +44,7 @@ class Vendors
 
     $this->db->setQuery($query);
     $results = $this->db->loadObjectList();
-    if ( !is_null($results) ) $this->cache = $results;
+    if (!is_null($results)) $this->cache = $results;
   }
 
   public function toCSV(string $filename)
@@ -57,7 +53,7 @@ class Vendors
     $columnNames = array_keys($this->db->getTableColumns('#__claw_vendors'));
 
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="'. $filename . '"');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
     ob_clean();
@@ -68,12 +64,12 @@ class Vendors
     $fp = fopen('php://output', 'wb');
     fputcsv($fp, $columnNames);
 
-    foreach ( $this->cache AS $c) {
+    foreach ($this->cache as $c) {
       $row = [];
-      foreach ( $columnNames AS $col ) {
+      foreach ($columnNames as $col) {
         switch ($col) {
           case 'id':
-            $row[] = 'vendor_'.$c->$col;
+            $row[] = 'vendor_' . $c->$col;
             break;
           case 'logo':
             $link = Helpers::convertMediaManagerUrl($c->$col);
@@ -90,5 +86,4 @@ class Vendors
     fclose($fp);
     ob_end_flush();
   }
-
 }
