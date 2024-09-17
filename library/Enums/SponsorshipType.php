@@ -1,8 +1,10 @@
 <?php
+
 namespace ClawCorpLib\Enums;
 
 enum SponsorshipType: int
 {
+  case None = 0;
   case Sponsor = 1;
   case Sustaining = 2;
   case Legacy_Sustaining = 6;
@@ -12,7 +14,7 @@ enum SponsorshipType: int
 
   public function toString(): string
   {
-    return match($this) {
+    return match ($this) {
       SponsorshipType::Sponsor => 'Sponsor',
       SponsorshipType::Sustaining => 'Sustaining',
       SponsorshipType::Legacy_Sustaining => 'Legacy Sustaining',
@@ -39,12 +41,12 @@ enum SponsorshipType: int
     return $result;
   }
 
-  public static function FindValue(int $key): SponsorshipType {
-    foreach (SponsorshipType::cases() as $c )
-    {
-      if ( $c->value == $key ) return $c;
+  public static function FindValue(int $key): SponsorshipType
+  {
+    foreach (SponsorshipType::cases() as $c) {
+      if ($c->value == $key) return $c;
     }
 
-    throw(new \Exception("Invalid SponsorshipType value: $key"));
+    throw (new \Exception("Invalid SponsorshipType value: $key"));
   }
 }
