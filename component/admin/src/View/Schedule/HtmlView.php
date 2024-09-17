@@ -1,9 +1,10 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -52,7 +53,8 @@ class HtmlView extends BaseHtmlView
     $isNew      = ($this->item->id == 0);
 
     ToolbarHelper::title(
-      'CLAW Schedule ' . ($isNew ? 'Add' : 'Edit'), 'calendar'
+      'CLAW Schedule ' . ($isNew ? 'Add' : 'Edit'),
+      'calendar'
     );
 
     $toolbarButtons = [];
@@ -63,13 +65,13 @@ class HtmlView extends BaseHtmlView
 
       $toolbarButtons[] = ['save2new', 'schedule.save2new'];
 
-      if ( !$isNew ) {
-          $toolbarButtons[] = ['save2copy', 'schedule.save2copy'];
+      if (!$isNew) {
+        $toolbarButtons[] = ['save2copy', 'schedule.save2copy'];
       }
-  
+
       ToolbarHelper::saveGroup(
-          $toolbarButtons,
-          'btn-success'
+        $toolbarButtons,
+        'btn-success'
       );
     }
 
@@ -81,5 +83,4 @@ class HtmlView extends BaseHtmlView
 
     ToolbarHelper::divider();
   }
-
 }
