@@ -3,32 +3,32 @@
   method="upgrade">
 
   <name>CLAW Sponsors Display</name>
-  <creationDate>2024-02-26</creationDate>
+  <creationDate>2024-09-18</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>4.3.0</version>
+  <version>4.4.0</version>
   <description>Displays sponsor logos</description>
 
   <namespace path="src">ClawCorp\Module\Sponsors</namespace>
 
-	<files>
-		<folder module="mod_claw_sponsors">services</folder>
-		<folder>tmpl</folder>
-		<folder>src</folder>
-	</files>
+  <files>
+    <folder module="mod_claw_sponsors">services</folder>
+    <folder>tmpl</folder>
+    <folder>src</folder>
+  </files>
 
   <config>
     <fields name="params">
       <fieldset name="module" label="Options">
         <field
-					name="layout"
-					type="modulelayout"
-					label="JFIELD_ALT_LAYOUT_LABEL"
-					class="form-select"
-					validate="moduleLayout"
-				/>
+          name="layout"
+          type="modulelayout"
+          label="JFIELD_ALT_LAYOUT_LABEL"
+          class="form-select"
+          validate="moduleLayout"
+        />
       </fieldset>
     </fields>
   </config>

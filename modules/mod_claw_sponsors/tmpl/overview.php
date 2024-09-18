@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     ClawCorp.Site
+ * @package     COM_CLAW
  * @subpackage  mod_claw_sponsors
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.
@@ -12,58 +12,68 @@ use ClawCorpLib\Enums\SponsorshipType;
 
 defined('_JEXEC') or die;
 
-$typeOrdering = [
-    SponsorshipType::Legacy_Master->value => [
-        'heading' => 'Legacy Master Sponsors',
-        'class' => 'legacymaster'
-    ],
-    SponsorshipType::Master->value => [
-        'heading' => 'Master Sponsors',
-        'class' => 'master'
-    ],
-    SponsorshipType::Legacy_Sustaining->value => [
-        'heading' => 'Legacy Sustaining Sponsors',
-        'class' => 'legacysus'
-    ],
-    SponsorshipType::Sustaining->value => [
-        'heading' => 'Sustaining Sponsors',
-        'class' => 'sus'
-    ],
-    SponsorshipType::Sponsor->value => [
-        'heading' => 'Event Sponsors',
-        'class' => 'sus'
-    ],
-    SponsorshipType::Media->value => [
-        'heading' => 'Media Sponsors',
-        'class' => 'sus'
-    ],
-];
+$currentType = null;
 
-foreach ( $typeOrdering AS $sponsorshipType => $sponsorshipTypeData ) {
-  if (!count($sponsors[$sponsorshipType])) return;
-  $heading = $sponsorshipTypeData['heading'];
-  $class = $sponsorshipTypeData['class'];
+?>
+<style>
+  .masterlogo,
+  .mastername {
+    max-width: 150px;
+  }
 
-  ?>
-    <h1 style="text-align:center;" class="m-3"><?= $heading ?></h1>
-    <div class="d-flex flex-row flex-wrap justify-content-center mb-3">
-      <?php
-      foreach ($sponsors[$sponsorshipType] as $row):
-        $name = $row->name;
-        $url = $row->link;
-        $click = empty($url) ? '' : "style=\"cursor:pointer;\" onClick=\"javascript:window.open('$url','_blank')\"";
+  .mastername,
+  .susname {
+    border-top: 2px solid #ffae00;
+  }
 
-      ?>
-        <div class="m-2 p-2 <?= $class ?>" style="background-color:#111;" <?= $click ?>>
-          <div class="mb-1">
-            <img src="<?= $row->logo_large ?>" class="img-fluid mx-auto d-block <?= $class ?>logo" alt="<?= $name ?>" title="<?= $name ?>" />
-          </div>
-          <p class="<?=$class?>name text-center" style="margin-bottom:0 !important;"><?=$name?></p>
+  .legacymasterlogo {
+    max-width: 300px;
+  }
+
+  .suslogo,
+  .susname {
+    max-width: 100px;
+  }
+
+  .legacysuslogo {
+    max-width: 200px;
+  }
+</style>
+<?php
+
+/** @var \ClawCorpLib\Lib\Sponsor $sponsorItem */
+foreach ($sponsorsByType as $type => $sponsorItems) {
+  /** @var \ClawCorpLib\Enum\SponsorshipType $type */
+  $class = match ($type) {
+    SponsorshipType::Legacy_Master->value => 'legacymaster',
+    SponsorshipType::Master->value => 'master',
+    SponsorshipType::Legacy_Sustaining->value => 'legacysus',
+    default => 'sus'
+  };
+
+  $heading = $sponsorItems[0]->type->toString() . ' Sponsor';
+
+?>
+  <h1 style="text-align:center;" class="m-3"><?= $heading ?></h1>
+  <div class="d-flex flex-row flex-wrap justify-content-center mb-3">
+    <?php
+
+    /** @var \ClawCorpLib\Lib\Sponsor */
+    foreach ($sponsorItems as $sponsorItem) {
+      $name = $sponsorItem->name;
+      $url = $sponsorItem->link;
+      $click = empty($url) ? '' : "style=\"cursor:pointer;\" onClick=\"javascript:window.open('$url','_blank')\"";
+    ?>
+      <div class="m-2 p-2 <?= $class ?>" style="background-color:#111;" <?= $click ?>>
+        <div class="mb-1">
+          <img src="<?= $sponsorItem->logo_large ?>" class="img-fluid mx-auto d-block <?= $class ?>logo" alt="<?= $name ?>" title="<?= $name ?>" />
         </div>
-      <?php
-      endforeach;
-      ?>
-    </div>
+        <p class="<?= $class ?>name text-center" style="margin-bottom:0 !important;"><?= $name ?></p>
+      </div>
+    <?php
+    }
+
+    ?>
+  </div>
 <?php
 }
-

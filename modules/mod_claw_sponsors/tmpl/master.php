@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @package     Joomla.Site
- * @subpackage  mod_banners
+ * @package     COM_CLAW
+ * @subpackage  mod_claw_sponsors
  *
- * @copyright   (C) 2006 Open Source Matters, Inc. <https://www.joomla.org>
+ * @copyright   (C) 2024 C.L.A.W. Corp.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -12,7 +12,8 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\SponsorshipType;
 
-$masterCells = count($sponsors[SponsorshipType::Legacy_Master->value]) * 2 + count($sponsors[SponsorshipType::Master->value]);
+$masterCells = count($sponsorsByType[SponsorshipType::Legacy_Master->value]) * 2 +
+  count($sponsorsByType[SponsorshipType::Master->value]);
 $masterwidth = 100.0;
 if ($masterCells > 10) $masterwidth = round(100 * (10 / $masterCells));
 
@@ -60,57 +61,37 @@ if ($masterCells > 10) $masterwidth = round(100 * (10 / $masterCells));
         </div>
         <div class="d-flex flex-wrap justify-content-center">
           <?php
-          $class = 'mastersponsor2x';
-          foreach ($sponsors[SponsorshipType::Legacy_Master->value] as $row) {
-            $sponsor = $row->name;
-            $logo = $row->logo_small;
-            $url = $row->link;
-          ?>
-            <div class="<?= $class ?>">
+          foreach ([SponsorshipType::Legacy_Master->value, SponsorshipType::Master->value] as $type) {
+            $class = match ($type) {
+              SponsorshipType::Legacy_Master->value => 'mastersponsor2x',
+              SponsorshipType::Master->value => 'mastersponsor',
+            };
 
-              <?php
-              if (!empty($url)) {
-              ?>
-                <a href="<?= $url ?>" target="_blank" rel="noopener">
-                <?php
-              }
-                ?>
-                <img src="<?= $logo ?>" class="img-fluid mx-auto d-block <?= $class ?>logo" alt="<?= $sponsor ?>" title="<?= $sponsor ?>" />
+            /** @var \ClawCorpLib\Lib\Sponsor */
+            foreach ($sponsorsByType[$type] as $sponsor) {
+              $logo = $sponsor->logo_small;
+              $url = $sponsor->link;
+          ?>
+              <div class="<?= $class ?>">
+
                 <?php
                 if (!empty($url)) {
                 ?>
-                </a>
-              <?php
+                  <a href="<?= $sponsor->link ?>" target="_blank" rel="noopener">
+                  <?php
                 }
-              ?>
-            </div>
-          <?php
-          }
-          $class = 'mastersponsor';
-          foreach ($sponsors[SponsorshipType::Master->value] as $row) {
-            $sponsor = $row->name;
-            $logo = $row->logo_small;
-            $url = $row->link;
-          ?>
-            <div class="<?= $class ?>">
-
-              <?php
-              if (!empty($url)) {
-              ?>
-                <a href="<?= $url ?>" target="_blank" rel="noopener">
+                  ?>
+                  <img src="<?= $logo ?>" class="img-fluid mx-auto d-block <?= $class ?>logo" alt="<?= $sponsor->name ?>" title="<?= $sponsor->name ?>" />
+                  <?php
+                  if (!empty($url)) {
+                  ?>
+                  </a>
                 <?php
-              }
+                  }
                 ?>
-                <img src="<?= $logo ?>" class="img-fluid mx-auto d-block <?= $class ?>logo" alt="<?= $sponsor ?>" title="<?= $sponsor ?>" />
-                <?php
-                if (!empty($url)) {
-                ?>
-                </a>
-              <?php
-                }
-              ?>
-            </div>
+              </div>
           <?php
+            }
           }
           ?>
         </div>
