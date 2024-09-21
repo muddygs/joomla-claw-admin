@@ -128,4 +128,40 @@ class EventBooking
 
     return $result ?? '';
   }
+
+  /**
+   * This is a simplified version of EventbookingEventModel::getEventData()
+   * that simply checks event capacity and assumes the events are not
+   * configured for offline nor waitlist
+   * @return array of (id,event_capacity,number_registants)
+   */
+  public static function getEventsCapacityInfo(array $eventIds): array
+  {
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
+    $query = $db->getQuery(true);
+
+    $query
+      ->select('a.id')
+      ->select('event_capacity')
+      ->select('IFNULL(SUM(b.number_registrants), 0) AS total_registrants')
+      ->from('#__eb_events AS a')
+      ->leftJoin(
+        '#__eb_registrants AS b ON a.id = b.event_id'
+      )
+      ->whereIn('a.id', $eventIds)
+      ->where('a.published = 1')
+      ->where('(b.published = 1 or b.published is null)')
+      ->group('a.id');
+
+    //echo '<pre>' . $query->__toString() . '</pre>';
+
+    //dd($query);
+
+    $db->setQuery($query);
+
+    $result = $db->loadObjectList('id');
+
+    return $result;
+  }
 }
