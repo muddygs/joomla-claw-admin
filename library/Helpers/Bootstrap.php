@@ -14,8 +14,8 @@ class Bootstrap
    */
   public static function writePillTabs(array $tabTitles, array $tabContent, string $activeTab = '')
   {
-    $guid = Bootstrap::writePillTabList($tabTitles, $activeTab);
-    Bootstrap::writePillTabContent($guid, $tabTitles, $tabContent, $activeTab);
+    $guid = self::writePillTabList($tabTitles, $activeTab);
+    self::writePillTabContent($guid, $tabTitles, $tabContent, $activeTab);
   }
 
   public static function writePillTabList(array $tabTitles, string $activeTab = ''): string
@@ -47,7 +47,7 @@ class Bootstrap
   {
     if ($activeTab == '') $activeTab = $tabTitles[0];
 
-    if (!array_key_exists($guid, Bootstrap::$tabGuids)) {
+    if (!array_key_exists($guid, self::$tabGuids)) {
     ?>
       <div class="tab-content" id="pills-tab-<?php echo $guid ?>Content">
       <?php
@@ -70,8 +70,8 @@ class Bootstrap
       <?php
     }
 
-    if (!array_key_exists($guid, Bootstrap::$tabGuids)) {
-      Bootstrap::$tabGuids[$guid] = 0;
+    if (!array_key_exists($guid, self::$tabGuids)) {
+      self::$tabGuids[$guid] = 0;
       ?>
       </div>
     <?php
