@@ -107,6 +107,9 @@ class Helpers
     } else if (str_starts_with($time, '12:00')) {
       $time = "Noon";
     } else {
+      // Do our best here; we'll see in debug env
+      trigger_error("Unexpected time $time", E_USER_NOTICE);
+
       date_default_timezone_set('etc/UTC');
       $time = date('g:iA', strtotime(substr($time, 0, 5)));
     }
@@ -262,7 +265,7 @@ class Helpers
     $app = Factory::getApplication();
     $session = $app->getSession();
     if ($session->isActive()) {
-      $session->set('claw' . $key, $value);
+      $session->set('com_claw.' . $key, $value);
     }
   }
 
@@ -274,11 +277,11 @@ class Helpers
    */
   static function sessionGet(string $key, string $default = ''): string|null
   {
-    /** @var $app \Joomla\CMS\Application\SiteApplication */
+    /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
     $session = $app->getSession();
     if ($session->isActive()) {
-      return $session->get('claw' . $key, $default);
+      return $session->get('com_claw.' . $key, $default);
     }
 
     return null;
