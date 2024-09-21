@@ -131,7 +131,7 @@ class PackageInfo
     $this->badgeValue = $result->badgeValue;
     $this->couponOnly = $result->couponOnly;
     // TODO: add to DB $this->badgeOverride = $result->badgeOverride;
-    $this->meta = json_decode($result->meta);
+    $this->meta = json_decode($result->meta) ?? [];
   }
 
   public function save(): bool
