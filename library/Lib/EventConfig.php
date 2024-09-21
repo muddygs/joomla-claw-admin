@@ -75,6 +75,7 @@ class EventConfig
 
   private function loadPackageInfos(array $aliases = [])
   {
+    /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
     $aliases = implode(',', (array)($db->q($aliases)));
 
@@ -89,7 +90,7 @@ class EventConfig
       $query->where('packageInfoType IN (' . $packageInfoTypesFilter . ')');
     }
 
-    $query->order('start ASC');
+    $query->order('start ASC')->order('end ASC');
 
     $db->setQuery($query);
 
@@ -186,6 +187,7 @@ class EventConfig
       PackageInfoTypes::addon,
       PackageInfoTypes::combomeal,
       PackageInfoTypes::equipment,
+      PackageInfoTypes::spa,
     ];
 
     if (!empty($this->filter)) {
