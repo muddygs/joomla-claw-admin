@@ -13,4 +13,5 @@ rsync -arv /var/www/j4_dev/public_html/modules/mod_claw_vendors modules/
 rsync -arv /var/www/j4_dev/public_html/modules/mod_claw_regbuttons modules/
 rsync -arv /var/www/j4_dev/public_html/modules/mod_claw_tabferret modules/
 rsync -arv /var/www/j4_dev/public_html/modules/mod_claw_schedule modules/
+rsync -arv /var/www/j4_dev/public_html/modules/mod_claw_spaschedule modules/
 rsync -arv /var/www/j4_dev/public_html/modules/mod_claw_skillslist modules/
