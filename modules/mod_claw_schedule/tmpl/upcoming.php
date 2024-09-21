@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     CLAW.Schedule
+ * @subpackage  mod_claw_schedule
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Sponsors;
 
