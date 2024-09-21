@@ -55,7 +55,6 @@ class PackageInfoArray implements \IteratorAggregate, \ArrayAccess
 
   public function getIterator(): \Traversable
   {
-    //return new \ArrayIterator($this->packageInfos);
     yield from $this->packageInfos;
   }
 }
