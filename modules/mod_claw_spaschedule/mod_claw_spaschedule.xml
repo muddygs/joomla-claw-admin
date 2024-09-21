@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" client="site"
+  method="upgrade">
+
+  <name>CLAW Schedule Display</name>
+  <creationDate>2024-09-19</creationDate>
+  <author>CLAW Corp.</author>
+  <authorUrl>https://www.clawinfo.org/</authorUrl>
+  <copyright>(c) 2024 CLAW Corp.</copyright>
+  <license>GPLv2</license>
+  <version>4.4.0</version>
+  <description>Displays spa event schedule for current event</description>
+
+  <namespace path="src">ClawCorp\Module\Spaschedule</namespace>
+
+  <files>
+    <folder module="mod_claw_spaschedule">services</folder>
+    <folder>tmpl</folder>
+    <folder>src</folder>
+  </files>
+</extension>
