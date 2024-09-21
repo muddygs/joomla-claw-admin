@@ -25,13 +25,13 @@ cd ../..
 cp media_raw/joomla.asset.json media/
 cp media_raw/js/*.js* media/js/
 cp media_raw/css/* media/css/
-cp media_raw/fonts/* media/css/fonts/
+cp media_raw/fonts/* media/fonts/
 rm media/js/*.json
 
 # Directories to append to main component package once admin is added
 /usr/bin/zip --quiet -r package/packages/com_claw.zip media
 
-pushd ~/code
+pushd ~/code # symlink to local SVN repository
 svn up
 REV=`svn info . | grep 'Revision' | awk '{print $2}'`
 ./export.sh
@@ -49,21 +49,27 @@ cd package && /usr/bin/zip --quiet -r ../pkg_claw.zip . && cd -
 
 # Build modules separately
 
-cd modules/mod_claw_sponsors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_sponsors.zip . && cd -
-cd modules/mod_claw_cart && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_cart.zip . && cd -
-cd modules/mod_claw_vendors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_vendors.zip . && cd -
-cd modules/mod_claw_regbuttons && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_regbuttons.zip . && cd -
-cd modules/mod_claw_tabferret && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_tabferret.zip . && cd -
-cd modules/mod_claw_schedule && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_schedule.zip . && cd -
-cd modules/mod_claw_skillslist && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_skillslist.zip . && cd -
+VMODSPONSORS=`xmllint --xpath '/extension/version/text()' modules/mod_claw_sponsors/mod_claw_sponsors.xml` 
+VMODCART=`xmllint --xpath '/extension/version/text()' modules/mod_claw_cart/mod_claw_cart.xml` 
+VMODVENDORS=`xmllint --xpath '/extension/version/text()' modules/mod_claw_vendors/mod_claw_vendors.xml` 
+VMODREGBUTTONS=`xmllint --xpath '/extension/version/text()' modules/mod_claw_regbuttons/mod_claw_regbuttons.xml` 
+VMODTABFERRET=`xmllint --xpath '/extension/version/text()' modules/mod_claw_tabferret/mod_claw_tabferret.xml` 
+VMODSCHEDULE=`xmllint --xpath '/extension/version/text()' modules/mod_claw_schedule/mod_claw_schedule.xml` 
+VMODSPASCHEDULE=`xmllint --xpath '/extension/version/text()' modules/mod_claw_spaschedule/mod_claw_spaschedule.xml` 
+VMODSKILLSLIST=`xmllint --xpath '/extension/version/text()' modules/mod_claw_skillslist/mod_claw_skillslist.xml` 
+
+cd modules/mod_claw_sponsors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_sponsors_$VMODSPONSORS.zip . && cd -
+cd modules/mod_claw_cart && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_cart_$VMODCART.zip . && cd -
+cd modules/mod_claw_vendors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_vendors_$VMODVENDORS.zip . && cd -
+cd modules/mod_claw_regbuttons && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_regbuttons_$VMODREGBUTTONS.zip . && cd -
+cd modules/mod_claw_tabferret && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_tabferret_$VMODTABFERRET.zip . && cd -
+cd modules/mod_claw_schedule && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_schedule_$VMODSCHEDULE.zip . && cd -
+cd modules/mod_claw_spaschedule && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_spachedule_$VMODSPASCHEDULE.zip . && cd -
+cd modules/mod_claw_skillslist && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_skillslist_$VMODSKILLSLIST.zip . && cd -
 
 VPACKAGE=`xmllint --xpath '/extension/version/text()' package/pkg_claw.xml`
 VCOMPONENT=`xmllint --xpath '/extension/version/text()' component/claw.xml`
 VLIB=`xmllint --xpath '/extension/version/text()' library/claw.xml`
-#VMODCART="0.1.0"
-#VMODSKILLS="0.1.2"
-#VMODSPONSORS="0.1.0"
-#VMODVENDORS="0.1.0"
 
 echo "Build completed for:"
 echo "  PACKAGE: $VPACKAGE"
