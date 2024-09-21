@@ -34,6 +34,7 @@ enum EventPackageTypes: int
   case day_pass_sun = 17;
   case pass = 18;
   case vip = 20;
+  case spa = 33;
 
     // Additional options for registration options
   case addons = 27;

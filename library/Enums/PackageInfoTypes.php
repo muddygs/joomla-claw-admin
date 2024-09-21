@@ -1,4 +1,5 @@
 <?php
+
 namespace ClawCorpLib\Enums;
 
 enum PackageInfoTypes: int
@@ -13,10 +14,11 @@ enum PackageInfoTypes: int
   case coupononly = 7;
   case passes = 8;
   case equipment = 9;
+  case spa = 10;
 
   public function toString(): string
   {
-    return match($this) {
+    return match ($this) {
       PackageInfoTypes::none => 'None',
       PackageInfoTypes::main => 'Main',
       PackageInfoTypes::addon => 'Addon',
@@ -27,25 +29,26 @@ enum PackageInfoTypes: int
       PackageInfoTypes::coupononly => 'Coupon Only',
       PackageInfoTypes::passes => 'Passes',
       PackageInfoTypes::equipment => 'Equipment Rental',
+      PackageInfoTypes::spa => 'Spa Session',
     };
 
-    throw(new \Exception("Unhandled PackageInfoTypes value: $this->value"));
+    throw (new \Exception("Unhandled PackageInfoTypes value: $this->value"));
   }
 
-  public static function FindValue(int $value): PackageInfoTypes {
-    foreach (PackageInfoTypes::cases() as $c )
-    {
-      if ( $c->value == $value ) return $c;
+  public static function FindValue(int $value): PackageInfoTypes
+  {
+    foreach (PackageInfoTypes::cases() as $c) {
+      if ($c->value == $value) return $c;
     }
 
-    throw(new \Exception("Invalid PackageInfoTypes value: $value"));
+    throw (new \Exception("Invalid PackageInfoTypes value: $value"));
   }
 
   public static function toOptions(): array
   {
     $result = [];
 
-    foreach ( PackageInfoTypes::cases() as $c ) {
+    foreach (PackageInfoTypes::cases() as $c) {
       $result[$c->value] = $c->toString();
     }
 
@@ -54,5 +57,4 @@ enum PackageInfoTypes: int
 
     return $result;
   }
-
 }

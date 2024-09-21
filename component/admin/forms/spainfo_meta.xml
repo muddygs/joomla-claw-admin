@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+  <field
+    name="userid"
+    type="UsersByGroup"
+    label="Spa Personnel"
+    multiple="false"
+    default=""
+    groupnames="Super Users"
+    required="true"
+  />
+
+  <field
+    name="services"
+    type="list"
+    label="Services"
+    multiple="true"
+    required="true"
+    default="0">
+    <option value="">Select Service(s)</option>
+    <option value="therapeutic">Therapeutic</option>
+    <option value="sensual">Sensual</option>
+    <option value="tie">Tie Down</option>
+  </field>
+
+  <field
+    name="eventId"
+    type="text"
+    label="Event ID:"
+    default="0"
+    filter="integer"
+    readonly="true"
+  />
+</form>

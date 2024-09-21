@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
+  <field
+    name="id"
+    type="hidden"
+    label="JGLOBAL_FIELD_ID_LABEL"
+    class="readonly"
+    default="0"
+    readonly="true"
+  />
+
+  <field
+    name="eventAlias"
+    type="ClawEventsList"
+    label="Event Selection"
+    required="true"
+    multiple="false"
+    default=""
+    validate="options" />
+
+  <field name="published"
+    type="list"
+    label="JSTATUS"
+    class="form-select-color-state"
+    default="1"
+    validate="options">
+    <option value="1">JPUBLISHED</option>
+    <option value="0">JUNPUBLISHED</option>
+  </field>
+
+  <field
+    name="day"
+    type="ClawDaysList"
+    label="Event Day"
+    dayfilter="FRI,SAT,SUN"
+  >
+    <option value="">Select Day</option>
+  </field>
+
+  <field
+    name="start_time"
+    type="time"
+    label="Time"
+    description="Session start time"
+    required="true"
+    min="08:00"
+    max="23:00"
+    step="15"
+    default="0"
+  />
+  <field
+    name="length"
+    type="list"
+    label="Session Length (minutes)"
+    required="true"
+    default=""
+    validate="options"
+  >
+    <option value="">Select Session Length</option>
+    <option value="60">60</option>
+    <option value="90">90</option>
+  </field>
+
+  <field
+    name="meta"
+    type="subform"
+    label="Select Personnel:"
+    multiple="true"
+    min="1"
+    max="5"
+    formsource="/administrator/components/com_claw/forms/spainfo_meta.xml"
+    layout="joomla.form.field.subform.repeatable-table"
+  />
+
+  <field
+    name="fee"
+    type="text"
+    label="Session Deposit Fee ($):"
+    required="true"
+    default="0"
+    filter="integer"
+  />
+</form>

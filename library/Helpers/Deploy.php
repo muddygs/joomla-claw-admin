@@ -22,6 +22,7 @@ class Deploy
   public const SPEEDDATING = 2;
   public const EQUIPMENTRENTAL = 3;
   public const SPONSORSHIPS = 4;
+  public const SPA = 5;
 
   private int $public_acl = 0;
   private int $registered_acl = 0;
@@ -38,6 +39,8 @@ class Deploy
     $this->setDefaultAcls();
     /** @var \Joomla\Database\DatabaseDriver */
     $this->db = Factory::getContainer()->get('DatabaseDriver');
+
+    date_default_timezone_set('etc/UTC');
   }
 
   public function deploy(): string
@@ -60,6 +63,10 @@ class Deploy
 
       case self::SPONSORSHIPS:
         return $this->Sponsorships();
+        break;
+
+      case self::SPA:
+        return $this->Spa();
         break;
 
       default:
@@ -124,9 +131,6 @@ class Deploy
   {
     $log = [];
     $count = 0;
-
-    // Ignore server-specific timezone information
-    date_default_timezone_set('etc/UTC');
 
     $eventConfig = new EventConfig($this->eventAlias, [PackageInfoTypes::speeddating]);
     $info = $eventConfig->eventInfo;
@@ -198,13 +202,86 @@ class Deploy
     return '<p>' . implode('</p><p>', $log) . '</p>';
   }
 
-  public function Packages(): string
+  public function Spa(): string
   {
     $log = [];
     $count = 0;
 
-    // Ignore server-specific timezone information
-    date_default_timezone_set('etc/UTC');
+    $eventConfig = new EventConfig($this->eventAlias, [PackageInfoTypes::spa]);
+    $info = $eventConfig->eventInfo;
+    $packageInfos = $eventConfig->packageInfos;
+
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ($packageInfos as $packageInfo) {
+      if ($packageInfo->published != EbPublishedState::published) continue;
+      // The $userId in meta points to a therapist - one event/therapist/time
+      $index = 0;
+
+      foreach ($packageInfo->meta as $metaKey => $metaRow) {
+        $eventId = $metaRow->eventId;
+
+        if ($eventId > 0) {
+          $log[] =  "Already deployed: $packageInfo->title ($metaRow->userid) @ $eventId";
+          continue;
+        }
+
+        $event_capacity = 1;
+
+        $start = $packageInfo->start;
+        $end = $packageInfo->end;
+        $cancel_before_date = $start;
+        $cutoff = $start;
+
+        // start and ending usability of these events
+        $registration_start_date = Factory::getDate();
+
+        $alias = strtolower(preg_replace('/[^\S]+/', '_', implode('-', [$info->prefix, 'spa', $packageInfo->title, $index++])));
+
+        $eventId = $this->Insert(
+          mainCategoryId: $packageInfo->category,
+          itemAlias: $alias,
+          title: $info->prefix . ' ' . $packageInfo->title,
+          description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
+          article_id: $info->termsArticleId,
+          cancel_before_date: $cancel_before_date,
+          cut_off_date: $cutoff,
+          event_date: $start,
+          event_end_date: $end,
+          publish_down: $end,
+          individual_price: $packageInfo->fee,
+          registration_start_date: $registration_start_date,
+          registration_access: $this->registered_acl,
+          event_capacity: $event_capacity,
+        );
+
+        if ($eventId == 0) {
+          $log[] =  "Skipping existing: $packageInfo->title";
+
+          // So the alias exists, let's pull the event id from the database
+          $eventId = ClawEvents::getEventId($alias, true);
+          if ($eventId != 0) {
+            $packageInfo->meta->$metaKey->eventId = $eventId;
+            $packageInfo->save();
+            $log[] = "Updated: $packageInfo->title at event id $eventId";
+          }
+        } else {
+          $count++;
+          $log[] =  "Added: $packageInfo->title at event id $eventId";
+          $packageInfo->meta->$metaKey->eventId = $eventId;
+          $packageInfo->save();
+        }
+      }
+    }
+
+    $log[] = "Deployed $count packages.";
+
+    return '<p>' . implode('</p><p>', $log) . '</p>';
+  }
+
+  public function Packages(): string
+  {
+    $log = [];
+    $count = 0;
 
     $eventConfig = new EventConfig($this->eventAlias, []);
     $info = $eventConfig->eventInfo;
@@ -302,10 +379,6 @@ class Deploy
           $packageInfo->alias = strtolower($info->prefix . '-' . $name);
           break;
 
-        case PackageInfoTypes::coupononly:
-          continue 2;
-          break;
-
         default:
           continue 2;
           break;
@@ -384,12 +457,7 @@ class Deploy
     $log = [];
     $count = 0;
 
-    // Ignore server-specific timezone information
-    // TODO: fix all these in this file, below works
-    date_default_timezone_set('etc/UTC');
-
     $eventConfig = new EventConfig($this->eventAlias, [PackageInfoTypes::sponsorship]);
-    date_default_timezone_set($eventConfig->eventInfo->timezone);
     $info = $eventConfig->eventInfo;
     $packageInfos = $eventConfig->packageInfos;
 

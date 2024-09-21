@@ -33,7 +33,7 @@ class EventconfigModel extends AdminModel
    * @var    string
    * @since  1.6
    */
-  protected $text_prefix = 'COM_CLAW_PACKAGEINFO';
+  protected $text_prefix = 'COM_CLAW';
 
   private $jsonFields = ['couponAccessGroups', 'meta'];
 
@@ -94,9 +94,15 @@ class EventconfigModel extends AdminModel
         break;
 
       case PackageInfoTypes::sponsorship:
+      case PackageInfoTypes::equipment:
         break;
 
-      case PackageInfoTypes::equipment:
+      case PackageInfoTypes::spa:
+        $start = $data['day'] . ' ' . $data['start_time'];
+        $end = $data['day'] . ' ' . $data['start_time'] . ' +' . (int)$data['length'] - 10 . ' minutes';
+
+        $data['start'] = $eventInfo->modify($start ?? '')->toSql();
+        $data['end'] = $eventInfo->modify($end ?? '')->toSql();
         break;
 
       default:
@@ -112,10 +118,8 @@ class EventconfigModel extends AdminModel
     $data['mtime'] = Helpers::mtime();
 
     $result = parent::save($data);
-    if ( $result ) {
-      /** @var $app AdministratorApplication */
-      $app = Factory::getApplication();
-      $app->setUserState($this->context . '.data', []);
+    if ($result) {
+      Factory::getApplication()->setUserState($this->context . '.data', []);
     }
 
     return $result;
@@ -140,9 +144,7 @@ class EventconfigModel extends AdminModel
   protected function loadFormData()
   {
     // Check the session for previously entered form data.
-    /** @var $app AdministratorApplication */
-    $app = Factory::getApplication();
-    $data = $app->getUserState($this->context. '.data', []);
+    $data = Factory::getApplication()->getUserState($this->context . '.data', []);
     if (empty($data)) {
       $data = $this->getItem();
 
@@ -170,6 +172,7 @@ class EventconfigModel extends AdminModel
         PackageInfoTypes::daypass->value,
         PackageInfoTypes::speeddating->value,
         PackageInfoTypes::passes->value,
+        PackageInfoTypes::spa->value,
       ];
 
       // Convert start and end times to day, start_time, end_time
@@ -180,6 +183,8 @@ class EventconfigModel extends AdminModel
         $data->day = strtolower($start->format('D'));
         $data->start_time = $start->format('H:i');
         $data->end_time = $end->format('H:i');
+
+        $data->delta_time_minutes = (int)round(($end->toUnix() - $start->toUnix()) / 60);
       }
     }
 
