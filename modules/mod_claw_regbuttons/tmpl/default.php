@@ -1,4 +1,13 @@
 <?php
+
+/**
+ * @package     ClawCorp.Module.RegButtons
+ * @subpackage  mod_claw_regbuttons
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Bootstrap;
@@ -25,7 +34,7 @@ if ($mobileapp) {
 if ($hotels) {
   $content['hotel'] = ['<a href="' . $hotels . '">Hotel Reservations</a>'];
 }
-if ( $local ) {
+if ($local) {
   $content['map-marker'] = ['<a href="' . $local . '">Supporting Restaurants</a>'];
 }
 

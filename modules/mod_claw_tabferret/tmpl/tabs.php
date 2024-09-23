@@ -1,4 +1,13 @@
 <?php
+
+/**
+ * @package     Joomla.Site
+ * @subpackage  mod_claw_tabferret
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
@@ -42,12 +51,12 @@ reset($tabContents);
 
 ?>
 <div class="tab-content" id="pills-tab-<?= $guid ?>Content">
-<?php
+  <?php
 
-foreach ($tabs as $i => $title) {
-  $active = $i == $tabActive ? 'show active' : '';
-  $tabName = strtolower($title);
-  $tabName = preg_replace("/[^\w]/", '', $tabName);
+  foreach ($tabs as $i => $title) {
+    $active = $i == $tabActive ? 'show active' : '';
+    $tabName = strtolower($title);
+    $tabName = preg_replace("/[^\w]/", '', $tabName);
 
   ?>
     <div class="tab-pane fade <?= $active ?>" id="pills-<?= $tabName ?>" role="tabpanel" aria-labelledby="pills-<?= $tabName ?>-tab">
@@ -57,8 +66,8 @@ foreach ($tabs as $i => $title) {
       ?>
     </div>
   <?php
-}
-?>
+  }
+  ?>
 </div>
 <?php
 \Joomla\CMS\HTML\HTMLHelper::_('bootstrap.tab', '.selector', []);
