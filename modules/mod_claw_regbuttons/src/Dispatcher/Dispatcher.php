@@ -19,29 +19,35 @@ use Joomla\CMS\Dispatcher\AbstractModuleDispatcher;
 /**
  * Dispatcher class for mod_claw_regbuttons
  */
-class Dispatcher extends AbstractModuleDispatcher 
+class Dispatcher extends AbstractModuleDispatcher
 {
-    /**
-     * Returns the layout data.
-     *
-     * @return  array
-     *
-     * @since   4.4.0
-     */
-    protected function getLayoutData(): array
-    {
-        $data = parent::getLayoutData();
+  /**
+   * Returns the layout data.
+   *
+   * @return  array
+   *
+   * @since   4.4.0
+   */
+  protected function getLayoutData(): array
+  {
+    $data = parent::getLayoutData();
 
-        $data['registration'] = $data['params']->get('registration', '');
-        $data['schedule'] =  $data['params']->get('schedule', '');
-        $data['skills'] = $data['params']->get('skills', '');
-        $data['vendormart'] = $data['params']->get('vendormart', '');
-        $data['silentauction'] = $data['params']->get('silentauction', '');
-        $data['mobileapp'] = $data['params']->get('mobileapp', '');
-        $data['hotels'] = $data['params']->get('hotels', '');
-        $data['local'] = $data['params']->get('local', '');
-        $data['infotext'] = $data['params']->get('infotext', '');
+    $keys = [
+      'registration',
+      'schedule',
+      'skills',
+      'vendormart',
+      'silentauction',
+      'mobileapp',
+      'hotels',
+      'local',
+      'infotext',
+    ];
 
-        return $data;
+    foreach ($keys as $key) {
+      $data[$key] = $data['params']->get($key, '');
     }
+
+    return $data;
+  }
 }
