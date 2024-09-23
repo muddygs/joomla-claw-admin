@@ -9,6 +9,7 @@ use Joomla\CMS\Uri\Uri;
 
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\EventInfo;
 
 class EventBooking
 {
@@ -135,11 +136,12 @@ class EventBooking
    * configured for offline nor waitlist
    * @return array of (id,event_capacity,number_registants)
    */
-  public static function getEventsCapacityInfo(array $eventIds): array
+  public static function getEventsCapacityInfo(EventInfo $eventInfo, array $eventIds): array
   {
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
     $query = $db->getQuery(true);
+    $currentDate = Factory::getDate('now', $eventInfo->timezone);
 
     $query
       ->select('a.id')
@@ -151,6 +153,8 @@ class EventBooking
       )
       ->whereIn('a.id', $eventIds)
       ->where('a.published = 1')
+      ->where('a.registration_start_date < ' . $db->q($currentDate))
+      ->where('a.event_end_date < ' . $db->q($eventInfo->end_date))
       ->where('(b.published = 1 or b.published is null)')
       ->group('a.id');
 
