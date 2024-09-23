@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -105,8 +106,7 @@ class HtmlView extends BaseHtmlView
     /** @var Toolbar $toolbar */
     $toolbar = Factory::getContainer()->get(ToolbarFactoryInterface::class)->createToolbar('toolbar');
 
-    if ( $user->authorise('core.admin', 'com_claw') )
-    {
+    if ($user->authorise('core.admin', 'com_claw')) {
       $toolbar->addNew('speeddatinginfo.add');
 
       $toolbar->delete('speeddatinginfos.delete')
@@ -114,7 +114,7 @@ class HtmlView extends BaseHtmlView
         ->message('Confirm delete selected?')
         ->listCheck(true);
 
-      $toolbar->basicButton('process','Deploy Events','speeddatinginfos.process')
+      $toolbar->basicButton('process', 'Deploy Events', 'speeddatinginfos.process')
         ->icon('fas fa-calendar')
         ->buttonClass('btn')
         ->listCheck(false);

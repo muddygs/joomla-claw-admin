@@ -48,7 +48,7 @@ $view = "spainfos";
               <?php echo HTMLHelper::_('searchtools.sort', 'JSTATUS', 'a.published', $listDirn, $listOrder); ?>
             </th>
             <th scope="col">
-              EB Links
+              Therapist/EB Link
             </th>
             <th scope="col">
               <?php echo HTMLHelper::_('searchtools.sort', 'Title', 'a.title', $listDirn, $listOrder); ?>
