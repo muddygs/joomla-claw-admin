@@ -46,7 +46,7 @@ class SpascheduleHelper implements DatabaseAwareInterface
       }
     }
 
-    $capacityInfo = EventBooking::getEventsCapacityInfo($eventIds);
+    $capacityInfo = EventBooking::getEventsCapacityInfo($eventConfig->eventInfo, $eventIds);
 
     // Remove item from meta if missing or at capacity
 
@@ -62,7 +62,7 @@ class SpascheduleHelper implements DatabaseAwareInterface
       }
 
       if (count((array)$packageInfo->meta) == 0) {
-        unset($eventConfig->packageInfos->$pKey);
+        unset($eventConfig->packageInfos[$pKey]);
       }
     }
 
