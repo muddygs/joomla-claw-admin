@@ -61,6 +61,7 @@
     label="Event Day"
     description="Select day"
     multiple="false"
+    required="true"
     default="0"
   >
   </field>
@@ -86,6 +87,5 @@
     max="3"
     formsource="/administrator/components/com_claw/forms/speeddatinginfo_meta.xml"
     layout="joomla.form.field.subform.repeatable-table"
-
   />
 </form>
