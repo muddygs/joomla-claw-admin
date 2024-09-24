@@ -12,22 +12,19 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Session\Session;
 
 HTMLHelper::_('behavior.formvalidator');
 HTMLHelper::_('behavior.keepalive');
 
-$view = 'spainfo-form';
-$token = Session::getFormToken();
+$view = 'spainfo';
 $route = Route::_('index.php?option=com_claw&view=' . $view . '&layout=edit&id=' . (int) $this->item->id);
 
 ?>
-
 <form
   action="<?= $route ?>"
   method="post"
   name="adminForm"
-  id="<?= $view ?>"
+  id="<?= $view ?>-form"
   class="form-validate">
 
   <h1>Spa Session Information</h1>
