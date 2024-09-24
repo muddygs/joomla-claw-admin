@@ -37,7 +37,6 @@ class SponsorshipModel extends EventconfigModel
     $data['eventPackageType'] = EventPackageTypes::sponsorship->value;
 
     $result = parent::save($data);
-    if ($result) $app->setUserState('com_claw.edit.sponsorship.data', null);
     return $result;
   }
 

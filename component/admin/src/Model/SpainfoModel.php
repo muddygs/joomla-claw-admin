@@ -28,7 +28,7 @@ class SpainfoModel extends EventconfigModel
     // Save the data in the session in case of error
     /** @var \Joomla\CMS\Application\AdministratorApplication */
     $app = Factory::getApplication();
-    $app->setUserState('com_claw.edit.packageinfo.data', $data);
+    $app->setUserState('com_claw.edit.spainfo.data', $data);
 
     // TODO: Put into config db table
     $data['category'] = ClawEvents::getCategoryId('spa');
@@ -38,7 +38,6 @@ class SpainfoModel extends EventconfigModel
     $data['alias'] ??= 'TBD';
 
     $result = parent::save($data);
-    if ($result) $app->setUserState('com_claw.edit.spainfo.data', null);
     return $result;
   }
 

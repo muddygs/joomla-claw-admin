@@ -27,10 +27,8 @@ class SpeeddatinginfoModel extends EventconfigModel
     // Save the data in the session in case of error
     /** @var \Joomla\CMS\Application\AdministratorApplication */
     $app = Factory::getApplication();
-    $app->setUserState('com_claw.edit.packageinfo.data', $data);
+    $app->setUserState('com_claw.edit.speeddatinginfo.data', $data);
 
-    // Convert meta to a single column array
-    //$data['meta'] = array_column($data['meta'], 'role');
     $data['packageInfoType'] = PackageInfoTypes::speeddating->value;
     $data['eventPackageType'] = EventPackageTypes::speeddating->value;
 
@@ -38,7 +36,6 @@ class SpeeddatinginfoModel extends EventconfigModel
     $data['category'] = ClawEvents::getCategoryId('speed-dating');
     
     $result = parent::save($data);
-    if ( $result ) $app->setUserState('com_claw.edit.packageinfo.data', null);
     return $result;
   }
 
