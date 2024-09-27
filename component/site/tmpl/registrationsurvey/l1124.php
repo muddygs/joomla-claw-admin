@@ -25,10 +25,11 @@ if ($this->onsiteActive) {
   $html[] = $this->loadTemplate('daypasses');
   $tabs[] = 'Passes';
   $html[] = $this->loadTemplate('passes');
-} else {
-  $tabs[] = 'Other';
-  $html[] = $this->loadTemplate('other');
 }
+
+$tabs[] = 'Other';
+$html[] = $this->loadTemplate('other');
+
 
 Bootstrap::writePillTabs($tabs, $html, 'none');
 

@@ -40,14 +40,14 @@ else:
   <p class="text-center">Click 'Express' for quickest checkout. For more options (meals, equipment rental, and speed dating) use 'Add Ons' button.</p>
   <p class="text-center"><strong><i class="fa fa-2x fa-info"></i>&nbsp;Meals will show in your cart but are discounted at checkout</strong></p>
   <div class="row">
-    <div class="col-12 col-lg-4 text-center">
+    <div class="col-lg-4 text-center">
       &nbsp;
     </div>
-    <div class="col-12 col-lg-4 text-center">
+    <div class="col-lg-4 text-center">
       <a role="button" href="<?= $this->registrationLinks['vip'] ?>" class="btn btn-danger btn-lg w-100">Express VIP Checkout</a><br />
       All Meals Included<br /><span class="h3">$925</span>
     </div>
-    <div class="col-12 col-lg-4 text-center">
+    <div class="col-lg-4 text-center">
       &nbsp;
     </div>
   </div>
