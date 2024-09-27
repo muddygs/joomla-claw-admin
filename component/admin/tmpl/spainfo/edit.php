@@ -55,7 +55,6 @@ $route = Route::_('index.php?option=com_claw&view=' . $view . '&layout=edit&id='
       <?= $this->form->renderField('alias'); ?>
     </div>
   </div>
-  </div>
   <div class="row">
     <div class="col">
       <?= $this->form->renderField('meta'); ?>
