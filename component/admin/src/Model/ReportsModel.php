@@ -24,6 +24,7 @@ use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Ebfield;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\Registrants;
+use ClawCorpLib\Helpers\EventBooking;
 
 /**
  * Methods to handle a list of records.
@@ -327,6 +328,79 @@ class ReportsModel extends BaseDatabaseModel
       }
 
       $items['submissions'][$submissionId] = $data;
+    }
+
+    return $items;
+  }
+
+  public function getSpaSchedule(): array
+  {
+    /** Item info:
+     * day -> therapist (userid) -> [
+     *   start time (string)
+     *   end time (string),
+     *   deposit $ (float), 
+     *   services (string),
+     *   registrants (array of Registrant)
+     * ]
+     */
+
+    $items = [];
+
+    // Find full events and remove from $packageInfos
+    $eventIds = [];
+
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ($this->eventConfig->packageInfos as $packageInfo) {
+      if ($packageInfo->packageInfoType != PackageInfoTypes::spa) continue;
+
+      foreach ($packageInfo->meta as $meta) {
+        $eventIds[] = $meta->eventId;
+      }
+    }
+
+    $capacityInfo = EventBooking::getEventsCapacityInfo($this->eventConfig->eventInfo, $eventIds);
+
+    // Remove item from meta if missing or at capacity
+
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ($this->eventConfig->packageInfos as $packageInfo) {
+      if ($packageInfo->packageInfoType != PackageInfoTypes::spa) continue;
+
+      $startDay = $packageInfo->start->format('D');
+      $startTime = $packageInfo->start->format('M:i A');
+      $endTime = $packageInfo->end->format('M:i A');
+
+      if (!array_key_exists($startDay, $items))
+        $items[$startDay] = [];
+
+      foreach ($packageInfo->meta as $meta) {
+        if (!array_key_exists($meta->eventId, $capacityInfo)) continue;
+
+        if (!array_key_exists($meta->userid, $items[$startDay])) {
+          $items[$startDay][$meta->userid] = [];
+        }
+
+        if ($capacityInfo[$meta->eventId]->total_registrants > 0) {
+          /** @var \ClawCorpLib\Lib\Registrant */
+          $registrant = Registrants::byEventId($meta->eventId)[0];
+          /** @var \ClawCorpLib\Lib\RegistrantRecord */
+          $record = $registrant->records(true)[0];
+
+          $session = [
+            'start_time' => $startTime,
+            'end_time' => $endTime,
+            'deposit' => $packageInfo->fee,
+            'services' => implode(',', $meta->services),
+            'registrant' => [
+              'name' => $record->registrant->first_name . ' ' . $record->registrant->last_name,
+              'email' => $record->registrant->email,
+            ]
+          ];
+
+          $items[$startDay][$meta->userid][] = $session;
+        }
+      }
     }
 
     return $items;
