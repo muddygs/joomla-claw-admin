@@ -23,7 +23,6 @@ use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\BaseModel;
-use Joomla\Database\DatabaseDriver;
 
 /**
  * Minimal code for a component to configure state, but do nothing else
@@ -62,14 +61,16 @@ class RegistrationsurveyModel extends BaseModel
     $coupon = $db->loadRow();
 
     if ($coupon != null) {
-      $events = new EventConfig(Aliases::current(),
-      [
-        PackageInfoTypes::main,
-        PackageInfoTypes::daypass,
-        PackageInfoTypes::addon,
-        PackageInfoTypes::passes,
-        PackageInfoTypes::coupononly,
-      ]);
+      $events = new EventConfig(
+        Aliases::current(),
+        [
+          PackageInfoTypes::main,
+          PackageInfoTypes::daypass,
+          PackageInfoTypes::addon,
+          PackageInfoTypes::passes,
+          PackageInfoTypes::coupononly,
+        ]
+      );
 
       /** @var \ClawCorpLib\Lib\PackageInfo */
       foreach ($events->packageInfos as $e) {
