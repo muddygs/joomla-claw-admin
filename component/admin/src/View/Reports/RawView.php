@@ -52,6 +52,8 @@ class RawView extends BaseHtmlView
       case 'csv_artshow':
         $this->items = $this->model->getArtShowSubmissions();
         break;
+      case 'spa':
+        $this->items = $this->model->getSpaSchedule();
       default:
         break;
     }
