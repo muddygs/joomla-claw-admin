@@ -131,6 +131,12 @@ class HtmlView extends BaseHtmlView
       EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip);
     $this->registrationLinks['vip-express'] =
       EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip2);
+    $this->registrationLinks['educator'] =
+      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::educator);
+    $this->registrationLinks['coordinator'] =
+      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::claw_staff);
+    $this->registrationLinks['board'] =
+      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::claw_board);
 
     $this->setLayout($this->eventAlias);
     parent::display();
