@@ -98,32 +98,39 @@ class Bootstrap
   /**
    * Generates HTML based on Bootstrap 5 flex. Input is array with icon and content.
    */
-  public static function writeGrid(array $content, array $tags = [], bool $asString = false, bool $justified = true)
+  public static function writeGrid(array $content, array $tags = [], bool $justified = true)
   {
-    $result = '<div class="container px-2 py-2" id="icon-grid-vip">
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2 px-4 py-2 ';
-    $result .= $justified ? 'justify-content-center' : 'justify-content-start';
-    $result .= '">';
+  ?>
+    <div class="container px-2 py-2" id="icon-grid-vip">
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2 px-4 py-2 <?= $justified ? 'justify-content-center' : 'justify-content-start' ?>">
+        <?php
 
-    $tagSize = count($tags);
+        $tagSize = count($tags);
 
-    foreach ($content as $icon => $content) {
-      $result .= '<div class="col d-flex align-items-start">';
-      $result .= '<div class="flex-grow-0"><span style="color:#ffae00; width:2.5em" class="py-2 py-md-0 text-center fa fa-2x fa-' . $icon . '"></span></div>';
-      $result .= '<div class="py-2 py-md-0">';
-      foreach ($content as $i => $t) {
-        if ($i < $tagSize) $result .= $tags[$i][0];
-        $result .= $t;
-        if ($i < $tagSize) $result .= $tags[$i][1];
-      }
-      $result .= '</div>';
-      $result .= '</div>';
-    }
-
-    $result .= '</div></div>';
-
-    if ($asString) return $result;
-    echo $result;
+        foreach ($content as $icon => $content):
+        ?>
+          <div class="col d-flex align-items-start">
+            <div class="flex-grow-0">
+              <span style="color:#ffae00; width:2.5em" class="py-2 py-md-0 text-center fa fa-2x fa-<?= $icon ?>"></span>
+            </div>
+            <div class="py-2 py-md-0">
+              <?php
+              foreach ($content as $i => $t):
+              ?>
+                <?= $i < $tagSize ? $tags[$i][0] : '' ?>
+                <?= $t ?>
+                <?= $i < $tagSize ? $tags[$i][1] : '' ?>
+              <?php
+              endforeach;
+              ?>
+            </div>
+          </div>
+        <?php
+        endforeach;
+        ?>
+      </div>
+    </div>
+  <?php
   }
 
   public static function rawHeader(array $js = [], array $css = [])
