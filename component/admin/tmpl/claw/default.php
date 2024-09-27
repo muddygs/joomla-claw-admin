@@ -39,7 +39,7 @@ $content = [
   'people-carry' => ['Shifts', '<a href="' . $shifts . '" role="button" class="btn btn-danger">Launch</a>'],
 ];
 
-Bootstrap::writeGrid($content, $tags, false, false);
+Bootstrap::writeGrid($content, $tags, false);
 
 ?>
 <hr />
@@ -53,9 +53,10 @@ $content = [
   'tshirt' => ['Shirts', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=shirts&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
   'utensils' => ['Meals', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=meals&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
   'paint-brush' => ['Art Show', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_artshow&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
+  'spa' => ['Spa', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=spa&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
 ];
 
-Bootstrap::writeGrid($content, $tags, false, false);
+Bootstrap::writeGrid($content, $tags, false);
 
 ?>
 <hr />
@@ -71,7 +72,7 @@ $content = [
   'file-archive' => ['Zip Presenter Images', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=zip_presenters&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
 ];
 
-Bootstrap::writeGrid($content, $tags, false, false);
+Bootstrap::writeGrid($content, $tags, false);
 
 ?>
 <hr />
@@ -84,7 +85,7 @@ $content = [
   'list' => ['Classes Export', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_classes&published_only=0&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
 ];
 
-Bootstrap::writeGrid($content, $tags, false, false);
+Bootstrap::writeGrid($content, $tags, false);
 ?>
 
 <hr />
@@ -97,7 +98,7 @@ $content = [
   'plane-departure' => ['Preflight', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=preflight&format=raw" role="button" class="btn btn-info" target="_blank">Launch</a>'],
 ];
 
-Bootstrap::writeGrid($content, $tags, false, false);
+Bootstrap::writeGrid($content, $tags, false);
 
 ?>
 <hr />
@@ -112,4 +113,4 @@ $content = [
   'spa'   => ['Spa', '<a href="/administrator/index.php?option=com_claw&view=spainfos" role="button" class="btn btn-danger">Launch</a>'],
 ];
 
-Bootstrap::writeGrid($content, $tags, false, false);
+Bootstrap::writeGrid($content, $tags, false);
