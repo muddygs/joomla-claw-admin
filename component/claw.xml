@@ -29,6 +29,7 @@
     <file>joomla.asset.json</file>
     <folder>js</folder>
     <folder>css</folder>
+    <folder>fonts</folder>
   </media>
 
   <files folder="site">
