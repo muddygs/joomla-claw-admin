@@ -24,7 +24,7 @@ class Bootstrap
 
     if ($activeTab == '') $activeTab = $tabTitles[0];
 ?>
-    <ul class="nav nav-pills nav-justified mb-3" id="pills-tab-<?php echo $guid ?>" role="tablist">
+    <ul class="nav nav-pills nav-justified flex-column flex-md-row mb-3" id="pills-tab-<?php echo $guid ?>" role="tablist">
       <?php
       foreach ($tabTitles as $title) {
         $active = $title == $activeTab ? 'active' : '';
