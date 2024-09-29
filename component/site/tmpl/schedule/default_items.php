@@ -1,7 +1,6 @@
 <?php
 
 use Joomla\CMS\HTML\HTMLHelper;
-use ClawCorpLib\Enums\SponsorshipType;
 use ClawCorpLib\Helpers\Helpers;
 
 \defined('_JEXEC') or die;
@@ -26,8 +25,13 @@ $locationView = $this->params->get('ShowLocation') ? '' : 'd-none';
     $etime = $item->end_time;
     $etime = Helpers::formatTime($etime);
 
-    $id = $item->id;
+    $this->id = $item->id;
     $event = $item->event_title;
+
+    $poster = json_decode($item->poster);
+    if (!is_null($poster)) {
+      $poster = explode('#', $poster->imagefile)[0];
+    }
 
     if ($this->eventInfo->onsiteActive) {
       $event_description = $item->onsite_description == '' ?  $item->event_description : $item->onsite_description;
@@ -49,42 +53,6 @@ $locationView = $this->params->get('ShowLocation') ? '' : 'd-none';
     }
 
     $featuredClass = $item->featured ? 'border border-danger border-top-0 border-bottom-0 border-end-0' : '';
-
-
-    //event (optional poster)
-
-    $thumb = $poster = '';
-
-    if (!empty($item->poster)) {
-      $json = json_decode($item->poster);
-      $poster = explode('#', $json->imagefile)[0];
-
-      $dirname = dirname($poster);
-      $basename = basename($poster);
-      $thumbname = $dirname . DIRECTORY_SEPARATOR . 'thumb_' . $basename;
-
-      // Valid file?
-      if (file_exists($thumbname)) {
-        $thumb = <<<HTML
-<button id="show-img-$id" type="button" class="btn btn-default p-0 align-top" data-bs-toggle="modal" data-bs-target="#modal-$id">
-  <img src="$thumbname"/>
-</button>
-<div id="modal-$id" class="modal fade" aria-labelledby="modal-{$id}Label" aria-hidden="true" tabindex="-1" role="dialog">
-<div class="modal-dialog" data-dismiss="modal">
-<div class="modal-content"> 
-  <div class="model-header">
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
-  </div>
-  <div class="modal-body">
-    <img src="$poster" class="img-responsive" style="width: 100%;">
-  </div> 
-</div>
-</div>
-</div>
-HTML;
-      }
-    }
-
 
     $payHtml = '';
 
@@ -132,7 +100,8 @@ HTML;
       <div class="col-9 col-lg-10 g-0 row">
         <div class="col-12 col-lg-2 pt-lg-2 pb-lg-2 mt-2 mb-2 tight"><?= $stime ?>&ndash;<?= $etime ?></div>
         <?php
-        if (!empty($item->poster)):
+        if (!empty($poster)):
+          $this->poster = $poster;
         ?>
           <div class="col-12 col-lg-8 pt-lg-2 pb-lg-2 mt-2 mb-2">
             <div class="row">
