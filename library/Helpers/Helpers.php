@@ -108,7 +108,7 @@ class Helpers
       $time = "Noon";
     } else {
       // Do our best here; we'll see in debug env
-      trigger_error("Unexpected time $time", E_USER_NOTICE);
+      //trigger_error("Unexpected time $time", E_USER_NOTICE);
 
       date_default_timezone_set('etc/UTC');
       $time = date('g:iA', strtotime(substr($time, 0, 5)));
