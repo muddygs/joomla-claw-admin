@@ -2,12 +2,12 @@
 <extension type="library" method="upgrade">
   <name>CLAW Support Libraries</name>
   <author>CLAW Corp.</author>
-  <creationDate>2024-SEP-02</creationDate>
+  <creationDate>2024-SEP-29</creationDate>
   <copyright>Copyright 2024 CLAW Corp. - All Rights Reserved</copyright>
   <license>GNU/GPLv2</license>
   <authorEmail>webmaster@clawinfo.org</authorEmail>
   <authorUrl>www.clawinfo.org</authorUrl>
-  <version>25.0.5</version>
+  <version>25.0.6</version>
   <description>CLAW Support Libraries</description>
 
   <libraryname>claw</libraryname>
