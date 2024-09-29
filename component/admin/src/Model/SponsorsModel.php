@@ -132,7 +132,7 @@ class SponsorsModel extends ListModel
 
     // Email results
     $mailer = new Mailer(
-      tomail: ['webmaster@clawinfo.org'],
+      tomail: ['news@clawinfo.org'],
       toname: ['Webmaster'],
       fromname: 'CLAW',
       frommail: 'nobody@clawinfo.org',
