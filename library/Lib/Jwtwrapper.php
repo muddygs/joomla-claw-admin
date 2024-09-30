@@ -1,5 +1,7 @@
 <?php
+
 namespace ClawCorpLib\Lib;
+
 \defined('_JEXEC') or die('Restricted access');
 
 
@@ -101,7 +103,7 @@ class Jwtwrapper
   {
     try {
       $payload = JwtWrapper::decodeUnverified($token);
-    } catch (Exception $e) {
+    } catch (Exception) {
       return null;
     }
 
@@ -328,7 +330,7 @@ class Jwtwrapper
     $jwt = new Jwtwrapper('stub');
     $decoded = $jwt->loadFromToken($token);
 
-    if (null == $decoded || $decoded->subject != $page ) {
+    if (null == $decoded || $decoded->subject != $page) {
       $app->redirect('/link');
     }
   }
@@ -405,7 +407,7 @@ class Jwtwrapper
 
     $query = $db->getQuery(true);
     $s = $state->value;
-    
+
     $query->update('#__claw_jwt')
       ->set('state=:state')->bind(':state', $s)
       ->where('id=:id')->bind(':id', $rowId);
@@ -487,7 +489,7 @@ class Jwtwrapper
     [$confirmToken, $revokeToken] = $jwt->initEmailTokens($secret, $nonce, $subject);
 
     if ('' != $secret) {
-      Jwtwrapper::emailLink($email, $confirmToken, $revokeToken, 'Registration link for ' . $subject . '('. $email . ')');
+      Jwtwrapper::emailLink($email, $confirmToken, $revokeToken, 'Registration link for ' . $subject . '(' . $email . ')');
     }
 
     return true;
@@ -533,7 +535,7 @@ class Jwtwrapper
     if ($requiredState != JwtStates::confirm && $requiredState != JwtStates::revoked) {
       // read database to update state from there
       $s = $requiredState->value;
-      
+
       $db = Factory::getDbo();
       $query = $db->getQuery(true);
       $query->select($db->qn('state'))
@@ -598,6 +600,6 @@ class Jwtwrapper
 
   public function closeWindow()
   {
-	  echo "<script>window.close();</script>";
+    echo "<script>window.close();</script>";
   }
 }
