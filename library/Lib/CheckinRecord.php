@@ -28,7 +28,6 @@ class CheckinRecord
   public string $error = '';
   public string $info = '';
   public string $legalName = '';
-  public string $overridePackage = '';
   public string $pronouns = '';
   public string $registration_code = '';
   public string $shifts = '';
@@ -47,13 +46,12 @@ class CheckinRecord
 
   public function __construct(
     public EventConfig $eventConfig,
-    public int $uid, 
-  )
-  {
+    public int $uid,
+  ) {
     // Keeping separate since we need to separate these out for badge printing
 
     /** @var \ClawCorpLib\Lib\PackageInfo  */
-    foreach ( $eventConfig->packageInfos AS $packageInfo) {
+    foreach ($eventConfig->packageInfos as $packageInfo) {
       switch ($packageInfo->category) {
         case $eventConfig->eventInfo->eb_cat_dinners:
           $this->dinners[$packageInfo->eventId] = '';
@@ -72,7 +70,7 @@ class CheckinRecord
   {
     $result = trim(implode(' ', $meals));
     return $result != '' ? $result : 'None';
-  } 
+  }
 
   /**
    * Object expected by checkin_events.ts
@@ -92,8 +90,8 @@ class CheckinRecord
     $result->issued = $this->issued ? 'Issued' : 'New';
     $result->printed = $this->printed ? 'Printed' : 'Need to Print';
 
-    $result->clawPackage = $this->overridePackage == '' ? $this->eventPackageType->toString() : $this->overridePackage;
-    if ( $this->dayPassDay != '' ) $result->clawPackage .= ' ('.$this->dayPassDay.')';
+    $result->clawPackage = $this->eventPackageType->toString();
+    if ($this->dayPassDay != '') $result->clawPackage .= ' (' . $this->dayPassDay . ')';
 
     return $result;
   }
