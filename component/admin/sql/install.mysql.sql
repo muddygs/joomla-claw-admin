@@ -191,6 +191,7 @@ CREATE TABLE IF NOT EXISTS `#__claw_eventinfos` (
   `cancelBy` DATETIME DEFAULT NULL,
   `timezone` VARCHAR(255) DEFAULT NULL,
   `active` boolean DEFAULT 0,
+  `badge_printing_override` boolean DEFAULT 0,
   `eventType` TINYINT(4) DEFAULT NULL,
   `onsiteActive` boolean DEFAULT 0,
   `termsArticleId` INT(11) DEFAULT NULL,

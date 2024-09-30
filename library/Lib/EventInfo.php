@@ -24,6 +24,7 @@ class EventInfo
   public bool $active;
   public EventTypes $eventType;
   public bool $onsiteActive;
+  public bool $badgePrintingOverride;
   public int $termsArticleId;
 
   public array $eb_cat_shifts;
@@ -61,6 +62,7 @@ class EventInfo
     $this->active = $info->active;
     $this->eventType = EventTypes::FindValue($info->eventType);
     $this->onsiteActive = $info->onsiteActive;
+    $this->badgePrintingOverride = $info->badge_printing_override;
     $this->termsArticleId = $info->termsArticleId;
 
     $this->eb_cat_shifts = json_decode($info->eb_cat_shifts ?? '[]') ?? [];

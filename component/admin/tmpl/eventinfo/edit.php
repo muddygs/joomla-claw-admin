@@ -57,7 +57,7 @@ $view = 'eventinfo';
         &nbsp;
       </div>
       <div class="col-lg-2">
-        <?= $this->form->renderField('badgeOverride'); ?>
+        <?= $this->form->renderField('badge_printing_override'); ?>
       </div>
       <div class="col-lg-2">
         &nbsp;

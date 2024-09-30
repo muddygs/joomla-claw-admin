@@ -34,9 +34,9 @@
   </field>
 
   <field
-    name="badgeOverride"
+    name="badge_printing_override"
     type="radio"
-    label="Badge Override:"
+    label="Badge Printing Override:"
     required="true"
     default="0"
     class="btn-group btn-group-yesno"
