@@ -104,6 +104,7 @@ class ReportsModel extends BaseDatabaseModel
         foreach ($r->records() as $record) {
           switch ($record->registrant->eventPackageType) {
             case EventPackageTypes::claw_staff:
+            case EventPackageTypes::claw_board:
             case EventPackageTypes::event_staff:
             case EventPackageTypes::event_talent:
             case EventPackageTypes::volunteer1:
