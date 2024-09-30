@@ -158,7 +158,9 @@ class EventConfig
     $result = [];
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->packageInfos as $e) {
-      if ($e->packageInfoType == PackageInfoTypes::main || $e->packageInfoType == PackageInfoTypes::daypass) {
+      if (($e->packageInfoType == PackageInfoTypes::main || $e->packageInfoType == PackageInfoTypes::daypass) &&
+        $e->published && $e->eventId > 0
+      ) {
         $result[] = $e->eventId;
       }
     }
