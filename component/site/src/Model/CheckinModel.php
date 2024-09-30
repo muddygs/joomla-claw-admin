@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -12,6 +13,7 @@ namespace ClawCorp\Component\Claw\Site\Model;
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\JwtStates;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Checkin;
@@ -37,11 +39,11 @@ class CheckinModel extends BaseDatabaseModel
       'token' => ''
     ];
 
-    if ( filter_var($email, FILTER_VALIDATE_EMAIL) && array_key_exists($subject, Jwtwrapper::jwt_token_pages)) {
+    if (filter_var($email, FILTER_VALIDATE_EMAIL) && array_key_exists($subject, Jwtwrapper::jwt_token_pages)) {
       $jwt = new Jwtwrapper($nonce);
-			$result = $jwt->initTokenRequest($email, $nonce, $subject);
-			$jsonValues['state'] = $result ? JwtStates::init->value : JwtStates::error->value;
-		}
+      $result = $jwt->initTokenRequest($email, $nonce, $subject);
+      $jsonValues['state'] = $result ? JwtStates::init->value : JwtStates::error->value;
+    }
 
     return json_encode($jsonValues);
   }
@@ -52,8 +54,8 @@ class CheckinModel extends BaseDatabaseModel
     $nonce = Jwtwrapper::getNonce();
     $jwt = new Jwtwrapper($nonce);
     list($state, $token) = $jwt->getDatabaseState($nonce, $subject);
-		$jsonValues['state'] = $state;
-		$jsonValues['token'] = $token;
+    $jsonValues['state'] = $state;
+    $jsonValues['token'] = $token;
 
     return $jsonValues;
   }
@@ -64,7 +66,7 @@ class CheckinModel extends BaseDatabaseModel
       'state' => 'error',
       'token' => ''
     ];
-    
+
     $nonce = Jwtwrapper::getNonce();
     $jwt = new Jwtwrapper($nonce);
     $payload = $jwt->confirmToken($token, JwtStates::confirm);
@@ -78,7 +80,7 @@ class CheckinModel extends BaseDatabaseModel
     $jwt->closeWindow();
     return json_encode($jsonValues);
   }
-  
+
   public function JwtRevoke($token): string
   {
     $jsonValues = [
@@ -90,11 +92,11 @@ class CheckinModel extends BaseDatabaseModel
     $jwt = new Jwtwrapper($nonce);
     $payload = $jwt->confirmToken($token, JwtStates::revoked);
 
-    if ( $payload != null ) {
+    if ($payload != null) {
       $jwt->updateDatabaseState($payload, JwtStates::revoked);
-			$jsonValues['state'] = $payload->state;
-		}
-		$jwt->closeWindow();
+      $jsonValues['state'] = $payload->state;
+    }
+    $jwt->closeWindow();
     return json_encode($jsonValues);
   }
 
@@ -105,12 +107,12 @@ class CheckinModel extends BaseDatabaseModel
       'state' => JwtStates::error->value
     ];
 
-		$payload = Jwtwrapper::confirmToken($token, JwtStates::issued);
-		if ($payload != null ) {
-			$exp = intval($payload->exp);
-			$remaining = max(0, $exp-time());
-			$result['state'] = $payload->state;
-			$result['time_remaining'] = $remaining;
+    $payload = Jwtwrapper::confirmToken($token, JwtStates::issued);
+    if ($payload != null) {
+      $exp = intval($payload->exp);
+      $remaining = max(0, $exp - time());
+      $result['state'] = $payload->state;
+      $result['time_remaining'] = $remaining;
     }
 
     return $result;
@@ -121,8 +123,8 @@ class CheckinModel extends BaseDatabaseModel
     Jwtwrapper::redirectOnInvalidToken(page: $page, token: $token);
 
     $searchResults = $this->search($search, $page);
-		header('Content-Type: application/json');
-		return $searchResults;
+    header('Content-Type: application/json');
+    return $searchResults;
   }
 
   public function JwtValue(string $token, string $registration_code, string $page)
@@ -130,7 +132,7 @@ class CheckinModel extends BaseDatabaseModel
     Jwtwrapper::redirectOnInvalidToken(page: $page, token: $token);
 
     $checkinRecord = new Checkin($registration_code);
-		$r = $checkinRecord->r->toObject();
+    $r = $checkinRecord->r->toObject();
     return $r;
   }
 
@@ -141,7 +143,7 @@ class CheckinModel extends BaseDatabaseModel
     $checkinRecord = new Checkin($registration_code);
     $checkinRecord->doCheckin();
 
-    $r = [ 'result' => '1'];
+    $r = ['result' => '1'];
     return $r;
   }
 
@@ -151,8 +153,9 @@ class CheckinModel extends BaseDatabaseModel
 
     $eventConfig = new EventConfig(Aliases::current(true));
     $attendee = $eventConfig->getMainEventByPackageType(EventPackageTypes::attendee);
-
-    $attendeeCount = Checkin::getUnprintedBadgeCount($attendee->eventId);
+    $attendeeCount = ($attendee->eventId > 0 && $attendee->published == EbPublishedState::published) ?
+      Checkin::getUnprintedBadgeCount($attendee->eventId) :
+      0;
 
     $volunteerCount = 0;
     // Handle all the volunteer categories
@@ -163,8 +166,11 @@ class CheckinModel extends BaseDatabaseModel
       EventPackageTypes::event_talent,
     ];
 
-    foreach ( $vol AS $v ) {
-      $volunteerCount += Checkin::getUnprintedBadgeCount($eventConfig->getMainEventByPackageType($v)->eventId);
+    foreach ($vol as $v) {
+      $packageInfo = $eventConfig->getMainEventByPackageType($v);
+      if ($packageInfo->eventId > 0 && $packageInfo->published == EbPublishedState::published) {
+        $volunteerCount += Checkin::getUnprintedBadgeCount($eventConfig->getMainEventByPackageType($v)->eventId);
+      }
     }
 
     $all = Checkin::getUnprintedBadgeCount(0);
@@ -186,17 +192,17 @@ class CheckinModel extends BaseDatabaseModel
 
     $checkinRecord = new Checkin($registration_code);
 
-    if ( !$checkinRecord->isValid ) {
+    if (!$checkinRecord->isValid) {
       $errors = ['Record error or invalid badge #/code.'];
       // TODO: r may not be initialized
-      if ( !is_null($checkinRecord->r) ) {
+      if (!is_null($checkinRecord->r)) {
         $errors = explode("\n", $checkinRecord->r->error);
         array_shift($errors);
       }
 
       return [
         'state' => 'error',
-        'message' => '<p class="text-center">'.implode("</p><p class=\"text-center\">", $errors).'</p>'
+        'message' => '<p class="text-center">' . implode("</p><p class=\"text-center\">", $errors) . '</p>'
       ];
     }
 
@@ -208,7 +214,7 @@ class CheckinModel extends BaseDatabaseModel
   {
     Jwtwrapper::redirectOnInvalidToken(page: 'volunteer-roll-call', token: $token);
 
-    $customFields = [ 'BADGE', 'Z_BADGE_ISSUED', 'Z_SHIFT_CHECKIN', 'Z_SHIFT_CHECKOUT' ];
+    $customFields = ['BADGE', 'Z_BADGE_ISSUED', 'Z_SHIFT_CHECKIN', 'Z_SHIFT_CHECKOUT'];
 
     $uid = Registrant::getUserIdFromInvoice($regid);
 
@@ -220,7 +226,7 @@ class CheckinModel extends BaseDatabaseModel
       'shifts' => []
     ];
 
-    if ( $uid == 0 ) {
+    if ($uid == 0) {
       return $result;
     }
 
@@ -231,7 +237,7 @@ class CheckinModel extends BaseDatabaseModel
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
     $mainEvent = $registrant->getMainEvent();
 
-    if ( null == $mainEvent ) {
+    if (null == $mainEvent) {
       $result['message'] = 'User Does Not Have a Main Event';
       return $result;
     }
@@ -246,8 +252,8 @@ class CheckinModel extends BaseDatabaseModel
     $shifts = [];
 
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
-    foreach ( $registrant->records() AS $record) {
-      if ( in_array($record->category->category_id, $shiftCatIds) ) {
+    foreach ($registrant->records() as $record) {
+      if (in_array($record->category->category_id, $shiftCatIds)) {
         $shifts[] = [
           'regid' => $record->registrant->id,
           'title' => $record->event->title,
@@ -259,7 +265,7 @@ class CheckinModel extends BaseDatabaseModel
     }
 
     // Sort shifts by time
-    usort($shifts, function($a, $b) {
+    usort($shifts, function ($a, $b) {
       return strcmp($a['time'], $b['time']);
     });
 
@@ -274,21 +280,21 @@ class CheckinModel extends BaseDatabaseModel
 
     $record = Registrant::loadRegistrantRow($regid);
 
-    if ( $record == null ) {
+    if ($record == null) {
       return 'error';
     }
 
     $registrant = new registrant(Aliases::current(true), $record->user_id, [$record->event_id]);
     $registrant->loadCurrentEvents();
-  
+
     $records = $registrant->records();
     $record = reset($records);
-    if ( false === $record ) return 'error';
-  
+    if (false === $record) return 'error';
+
     $update = [];
-  
-    if ( $action == 'checkin') {
-      if ( true == $currentValue ) {
+
+    if ($action == 'checkin') {
+      if (true == $currentValue) {
         $update = [
           'Z_SHIFT_CHECKIN' => 0,
           'Z_SHIFT_CHECKOUT' => 0
@@ -301,7 +307,7 @@ class CheckinModel extends BaseDatabaseModel
     }
 
     if ($action == 'checkout') {
-      if ( true == $currentValue ) {
+      if (true == $currentValue) {
         $update = [
           'Z_SHIFT_CHECKOUT' => 0
         ];
@@ -311,7 +317,7 @@ class CheckinModel extends BaseDatabaseModel
         ];
       }
     }
-  
+
     $registrant->updateFieldValues($regid, $update);
     return 'ok';
   }
@@ -328,7 +334,7 @@ class CheckinModel extends BaseDatabaseModel
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
     $mainEventId = $registrant->getMainEvent();
 
-    if ( null == $mainEventId ) {
+    if (null == $mainEventId) {
       return 'User Does Not Have a Main Event';
     }
 
@@ -349,44 +355,44 @@ class CheckinModel extends BaseDatabaseModel
     $byName = false;
 
     $eventConfig = new EventConfig(Aliases::current(true));
-    $inMainEventIds = implode(',',$eventConfig->getMainEventIds());
+    $inMainEventIds = implode(',', $eventConfig->getMainEventIds());
     $prefix = $eventConfig->eventInfo->prefix;
 
     $issued = ClawEvents::getFieldId('Z_BADGE_ISSUED');
     $search = strtoupper($search);
-    
+
     /** @var \Joomla\Database\DatabaseDriver */
     $db = $this->getDatabase();
-  
-    if ( substr($search,0,3) == $prefix ) {
-      $search = substr($search,1);
+
+    if (substr($search, 0, 3) == $prefix) {
+      $search = substr($search, 1);
     }
 
     $search = $db->q('%' . $search . '%');
 
     $query = $db->getQuery(true);
-    $query->select(['r.user_id','r.registration_code','r.first_name','r.last_name','r.city','r.invoice_number'], [null, null, null, null, null, 'badgeId'])
+    $query->select(['r.user_id', 'r.registration_code', 'r.first_name', 'r.last_name', 'r.city', 'r.invoice_number'], [null, null, null, null, null, 'badgeId'])
       ->from($db->qn('#__eb_registrants', 'r'))
-      ->join('LEFT OUTER', $db->qn('#__eb_field_values', 'v'). ' ON '. 
-        $db->qn('v.registrant_id') .' = '. $db->qn('r.id'). ' AND ' . $db->qn('v.field_id'). '=' . $db->q($issued))
+      ->join('LEFT OUTER', $db->qn('#__eb_field_values', 'v') . ' ON ' .
+        $db->qn('v.registrant_id') . ' = ' . $db->qn('r.id') . ' AND ' . $db->qn('v.field_id') . '=' . $db->q($issued))
       ->where('r.published = 1')
-      ->where('(r.invoice_number LIKE '.$search. ' OR r.last_name LIKE '.$search.')')
-      ->where('r.event_id IN ('.$inMainEventIds.')')
+      ->where('(r.invoice_number LIKE ' . $search . ' OR r.last_name LIKE ' . $search . ')')
+      ->where('r.event_id IN (' . $inMainEventIds . ')')
       ->order('r.first_name')
       ->setLimit(20);
 
-    if ( 'badge-print' != $page ) {
+    if ('badge-print' != $page) {
       $query->where('(v.field_value IS NULL OR v.field_value != 1)');
     }
 
     $db->setQuery($query);
     $rows = $db->loadObjectList();
 
-    foreach ( $rows AS $r ) {
+    foreach ($rows as $r) {
       $badge = $prefix . '-' . str_pad($r->user_id, 5, '0', STR_PAD_LEFT);
 
       $name = mb_convert_case($r->first_name . ' ' . $r->last_name . ' (' . $r->city . ')', MB_CASE_TITLE);
-      $description = $byName ? $name.' - '.$badge : $badge.' '.$name;
+      $description = $byName ? $name . ' - ' . $badge : $badge . ' ' . $name;
       $results[] = [
         'id' => $r->registration_code,
         'name' => $description
@@ -395,5 +401,5 @@ class CheckinModel extends BaseDatabaseModel
 
     return $results;
   }
-
 }
+
