@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -21,6 +22,7 @@ $ts = '?ts=' . time();
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset=UTF-8>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -63,7 +65,9 @@ $ts = '?ts=' . time();
         break;
       case EventPackageTypes::claw_staff:
         $image = 'coordinator.svg';
-        if ($r->overridePackage == 'Board member') $image = 'board.svg';
+        break;
+      case EventPackageTypes::claw_board:
+        $image = 'board.svg';
         break;
       case EventPackageTypes::event_staff:
         $image = 'staff.svg';
@@ -107,7 +111,7 @@ $ts = '?ts=' . time();
       badgeBack($r);
     }
 
-    if ( $this->checkinRecord ) $c->doCheckin();
+    if ($this->checkinRecord) $c->doCheckin();
     $c->doMarkPrinted();
   endforeach;
 
