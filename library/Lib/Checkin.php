@@ -37,7 +37,7 @@ class Checkin
     }
 
     // Combo meals events
-    if (sizeof(self::$comboMealsCache) == 0) {
+    if (self::$eventConfig->eventInfo->eb_cat_combomeals > 0 && sizeof(self::$comboMealsCache) == 0) {
       foreach ([EventPackageTypes::combo_meal_1, EventPackageTypes::combo_meal_2, EventPackageTypes::combo_meal_3, EventPackageTypes::combo_meal_4] as $comboMeal) {
         $combo = self::$eventConfig->getPackageInfo($comboMeal);
         if (is_null($combo)) continue;
@@ -59,12 +59,10 @@ class Checkin
   {
     // Relay messages
     $errors = [];
-    $info = [];
 
     // TODO: move this to Config class database
     $fieldValues = [
       'BADGE',
-      'Z_BADGE_SPECIAL',
       'Z_BADGE_ISSUED',
       'Z_BADGE_PRINTED',
       'Dinner',
@@ -74,9 +72,6 @@ class Checkin
       'TSHIRT',
       'TSHIRT_VOL',
       'Z_TICKET_SCANNED',
-      'STAFF_TYPE_STAFF',
-      'STAFF_TYPE_TALENT',
-      'STAFF_TYPE_EVENT',
       'PRONOUNS'
     ];
 
@@ -265,13 +260,7 @@ class Checkin
         break;
     }
 
-    if (sizeof($info) != 0) {
-      array_unshift($info, 'Action needed on badge:');
-      $info[] = 'Please direct to Guest Services';
-      $this->r->info = implode("\n", $info);
-    }
-
-    if (!$this->r->printed) {
+    if (!$this->r->printed && !self::$eventConfig->eventInfo->badgePrintingOverride) {
       $errors[] = 'Badge not printed.';
     }
 
@@ -400,6 +389,7 @@ class Checkin
       case EventPackageTypes::buffet_thu:
       case EventPackageTypes::buffet_fri:
       case EventPackageTypes::buffet_bluf:
+      case EventPackageTypes::buffet_sat:
       case EventPackageTypes::buffet_sun:
         if ($this->r->buffets[$packageInfo->eventId] == '') {
           return $this->htmlMsg($packageInfo->title . ' not assigned to this badge', 'btn-dark');
