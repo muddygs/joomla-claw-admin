@@ -11,7 +11,6 @@ use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Component\ComponentHelper;
-use UnexpectedValueException;
 
 class Registrant
 {
@@ -30,7 +29,7 @@ class Registrant
     private bool $enablePastEvents = false
   ) {
     if (0 == $uid) {
-      throw (new UnexpectedValueException('User ID cannot be zero when retrieving registrant record'));
+      throw (new \UnexpectedValueException('User ID cannot be zero when retrieving registrant record'));
     }
 
     $this->eventConfig = new EventConfig($clawEventAlias, []);
