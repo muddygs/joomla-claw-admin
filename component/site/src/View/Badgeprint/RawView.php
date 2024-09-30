@@ -17,6 +17,7 @@ use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Checkin;
 use ClawCorpLib\Lib\EventConfig;
+use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\Jwtwrapper;
 use Joomla\CMS\Factory;
 
@@ -41,7 +42,7 @@ class RawView extends BaseHtmlView
 
     Jwtwrapper::redirectOnInvalidToken(page: $this->page, token: $this->token);
 
-    switch($this->action) {
+    switch ($this->action) {
       case 'print':
         $this->registrationCodes[] = $this->registrationCode;
         break;
@@ -50,7 +51,7 @@ class RawView extends BaseHtmlView
         $this->checkinRecord = true;
         break;
       case 'printbatch':
-        if ( $this->quantity <= 50 && $this->quantity > 0 ) {
+        if ($this->quantity <= 50 && $this->quantity > 0) {
           $this->loadBatchRegistrationCodes();
         }
         break;
@@ -62,6 +63,13 @@ class RawView extends BaseHtmlView
     }
 
     $event = Aliases::current(true);
+
+    $eventInfo = new EventInfo($event);
+
+    if ($eventInfo->badgePrintingOverride) {
+      $event = 'disabled';
+    }
+
     $this->imagePath = '/images/badges/' . $event . '/';
 
     // Load printing modes set in global configuration
@@ -72,7 +80,7 @@ class RawView extends BaseHtmlView
     $this->printOrderings[0] = $params->get('onsite_printer_others', 'sequential');
     $this->printOrderings[1] = $params->get('onsite_printer_attendee', 'sequential');
     $this->printOrderings[2] = $params->get('onsite_printer_volunteer', 'sequential');
- 
+
     parent::display($event);
   }
 
@@ -81,15 +89,16 @@ class RawView extends BaseHtmlView
     $eventConfig = new EventConfig(Aliases::current(true));
     $this->registrationCodes = [];
 
-    switch( $this->type ) {
+    switch ($this->type) {
       case '0':
         $staff = $eventConfig->getMainEventByPackageType(EventPackageTypes::claw_staff)->eventId;
+        $board = $eventConfig->getMainEventByPackageType(EventPackageTypes::claw_board)->eventId;
         $eventStaff = $eventConfig->getMainEventByPackageType(EventPackageTypes::event_staff)->eventId;
         $vendorCrew = $eventConfig->getMainEventByPackageType(EventPackageTypes::vendor_crew)->eventId;
         //$vendorCrewExtra = $eventConfig->getMainEventByPackageType(EventPackageTypes::vendor_crew_extra)->eventId;
         $educator = $eventConfig->getMainEventByPackageType(EventPackageTypes::educator)->eventId;
         $vip = $eventConfig->getMainEventByPackageType(EventPackageTypes::vip)->eventId;
-        $this->registrationCodes = Checkin::getUnprintedBadges([$staff, $eventStaff, $vendorCrew, $educator, $vip], $this->quantity);
+        $this->registrationCodes = Checkin::getUnprintedBadges([$staff, $board, $eventStaff, $vendorCrew, $educator, $vip], $this->quantity);
         break;
       case '1':
         $attendee = $eventConfig->getMainEventByPackageType(EventPackageTypes::attendee);
