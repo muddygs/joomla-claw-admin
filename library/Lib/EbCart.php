@@ -7,7 +7,6 @@ use ClawCorpLib\Enums\EbRecordIndexType;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\EventBooking;
-use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\Factory;
@@ -51,7 +50,7 @@ HTML;
 
     if ($app->getIdentity() == null || $app->getIdentity()->id == 0) {
       $app->enqueueMessage('You must be signed in to use this resource. Please use the Registration menu.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      $app->redirect('https://www.clawinfo.org/', 'You must be signed in to use this resource. Please use the Registration menu.', $msgType = 'error');
+      $app->redirect('https://www.clawinfo.org/', 'You must be signed in to use this resource. Please use the Registration menu.', 'error');
     }
 
     $packageEventId = 0;
@@ -160,7 +159,7 @@ HTML;
         }
       }
 
-      if ( !$packageEventId && $shift_count > 0 ) {
+      if (!$packageEventId && $shift_count > 0) {
         $this->submit = '<div class="alert alert-danger">Please select package registration to go with your shifts. Click Modify Cart to add your package.</div>';
         $this->show_error = true;
       }
@@ -177,7 +176,7 @@ HTML;
       }
     }
 
-    if ( $requires_main_event && !$packageEventId ) {
+    if ($requires_main_event && !$packageEventId) {
       $this->submit = '<div class="alert alert-danger">Some items in your cart require a CLAW package. Click the Modify Cart button above to add an event registration.</div>';
       $this->show_error = true;
     }
@@ -200,21 +199,21 @@ HTML;
 
     // Collect meal event ids
     $comboCount = 0;
-    foreach ( [EventPackageTypes::combo_meal_1, EventPackageTypes::combo_meal_2, EventPackageTypes::combo_meal_3, EventPackageTypes::combo_meal_4] AS $meta ) {
+    foreach ([EventPackageTypes::combo_meal_1, EventPackageTypes::combo_meal_2, EventPackageTypes::combo_meal_3, EventPackageTypes::combo_meal_4] as $meta) {
       $mealEvent = $eventConfig->getPackageInfo($meta);
-      if ( is_null($mealEvent) ) continue;
+      if (is_null($mealEvent)) continue;
 
-      if ( in_array( $mealEvent->eventId, $eventIds ) ) {
+      if (in_array($mealEvent->eventId, $eventIds)) {
         $comboCount++;
 
-        if ( count(array_intersect($eventIds, $mealEvent->meta)) ) {
+        if (count(array_intersect($eventIds, $mealEvent->meta))) {
           $this->submit = "<div class=\"alert alert-danger\">You cannot combine combo-pack meals with individual meals in the combo.</div>";
           $this->show_error = true;
-        } 
+        }
       }
     }
-    
-    if ( $comboCount > 1 ) {
+
+    if ($comboCount > 1) {
       $this->submit = "<div class=\"alert alert-danger\">You cannot combine combo-pack meals.</div>";
       $this->show_error = true;
     }
