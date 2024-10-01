@@ -59,10 +59,10 @@ class EventInfo
     $this->end_date = Factory::getDate($info->end_date, $this->timezone);
     $this->prefix = strtoupper($info->prefix);
     $this->cancelBy = Factory::getDate($info->cancelBy, $this->timezone);
-    $this->active = $info->active;
+    $this->active = $info->active ?? false;
     $this->eventType = EventTypes::FindValue($info->eventType);
-    $this->onsiteActive = $info->onsiteActive;
-    $this->badgePrintingOverride = $info->badge_printing_override;
+    $this->onsiteActive = $info->onsiteActive ?? false;
+    $this->badgePrintingOverride = $info->badge_printing_override ?? true;
     $this->termsArticleId = $info->termsArticleId;
 
     $this->eb_cat_shifts = json_decode($info->eb_cat_shifts ?? '[]') ?? [];
