@@ -87,8 +87,13 @@ class CheckinRecord
     $result->brunch = $this->getMealString($this->brunches);
     $result->dinner = $this->getMealString($this->dinners);
 
+    if ($this->eventConfig->eventInfo->badgePrintingOverride) {
+      $result->printed = '';
+    } else {
+      $result->printed = $this->printed ? 'Printed' : 'Need to Print';
+    }
+
     $result->issued = $this->issued ? 'Issued' : 'New';
-    $result->printed = $this->printed ? 'Printed' : 'Need to Print';
 
     $result->clawPackage = $this->eventPackageType->toString();
     if ($this->dayPassDay != '') $result->clawPackage .= ' (' . $this->dayPassDay . ')';
