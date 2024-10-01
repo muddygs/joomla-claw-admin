@@ -250,6 +250,7 @@
     required="false"
     filter="string"
     default=""
+    maxlength="4"
     showon="packageInfoType:2"
   />
 
