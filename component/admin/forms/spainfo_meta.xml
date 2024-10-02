@@ -2,11 +2,10 @@
 <form>
   <field
     name="userid"
-    type="UsersByGroup"
+    type="SpaGroupUsers"
     label="Spa Personnel"
     multiple="false"
     default=""
-    groupnames="Super Users"
     required="true"
   />
 

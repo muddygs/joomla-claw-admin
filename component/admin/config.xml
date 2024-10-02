@@ -169,6 +169,15 @@
     />
 
     <field
+      name="packageinfo_spa_group"
+      type="usergrouplist"
+      label="Spa Staff Group"
+      description="Select Joomla &quot;Spa&quot; group for therapists"
+      default="1"
+      multiple="false"
+    />
+
+    <field
       name="sponsorship_registration_email"
       type="editor"
       label="Sponsorship Registration Email"
