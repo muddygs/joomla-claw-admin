@@ -26,7 +26,7 @@ class SpascheduleHelper implements DatabaseAwareInterface
 {
   use DatabaseAwareTrait;
 
-  public function loadSchedule(): EventConfig
+  public function loadSchedule(): array
   {
     $alias = Aliases::current(true);
 
@@ -48,6 +48,13 @@ class SpascheduleHelper implements DatabaseAwareInterface
 
     $capacityInfo = EventBooking::getEventsCapacityInfo($eventConfig->eventInfo, $eventIds);
 
+    $days = [
+      'Thu' => 0,
+      'Fri' => 0,
+      'Sat' => 0,
+      'Sun' => 0,
+    ];
+
     // Remove item from meta if missing or at capacity
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
@@ -64,8 +71,13 @@ class SpascheduleHelper implements DatabaseAwareInterface
       if (count((array)$packageInfo->meta) == 0) {
         unset($eventConfig->packageInfos[$pKey]);
       }
+
+      if (!is_null($eventConfig->packageInfos[$pKey])) {
+        $day = $eventConfig->packageInfos[$pKey]->start->format('D');
+        $days[$day]++;
+      }
     }
 
-    return $eventConfig;
+    return [$eventConfig, $days];
   }
 }

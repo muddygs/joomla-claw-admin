@@ -11,30 +11,28 @@
 use ClawCorpLib\Helpers\Bootstrap;
 use Joomla\CMS\Helper\ModuleHelper;
 
-
-$tabs = ['Fri', 'Sat', 'Sun'];
+$path = ModuleHelper::getLayoutPath('mod_claw_spaschedule', 'default_day');
+$tabs = [];
 $content = [];
 
-$path  = ModuleHelper::getLayoutPath('mod_claw_spaschedule', 'default_day');
+foreach ($days as $day => $count) {
+  if ($count > 0) {
+    $tabs[] = $day;
 
-ob_start();
-/** @var \ClawCorpLib\Lib\EventConfig $eventConfig */
-$dayStart = $eventConfig->eventInfo->modify('Fri 00:00')->toUnix();
-$dayEnd = $eventConfig->eventInfo->modify('Fri 23:59')->toUnix();
+    ob_start();
+    /** @var \ClawCorpLib\Lib\EventConfig $eventConfig */
+    $dayStart = $eventConfig->eventInfo->modify($day . ' 00:00')->toUnix();
+    $dayEnd = $eventConfig->eventInfo->modify($day . ' 23:59')->toUnix();
 
-include $path;
-$content[] = ob_get_clean();
+    include $path;
+    $content[] = ob_get_clean();
+  }
+}
 
-ob_start();
-$dayStart = $eventConfig->eventInfo->modify('Sat 00:00')->toUnix();
-$dayEnd = $eventConfig->eventInfo->modify('Sat 23:59')->toUnix();
-include $path;
-$content[] = ob_get_clean();
-
-ob_start();
-$dayStart = $eventConfig->eventInfo->modify('Sun 00:00')->toUnix();
-$dayEnd = $eventConfig->eventInfo->modify('Sun 23:59')->toUnix();
-include $path;
-$content[] = ob_get_clean();
-
-Bootstrap::writePillTabs($tabs, $content);
+if (count($tabs)) {
+  Bootstrap::writePillTabs($tabs, $content);
+} else {
+?>
+  No sessions available for reservation.
+<?php
+}

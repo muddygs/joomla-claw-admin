@@ -38,7 +38,7 @@ $itemCount = 0;
               $eventId = $session->eventId;
               $itemCount++;
             ?>
-              <a href="/index.php?option=com_eventbooking&view=register&event_id=<?= $eventId ?>" role="button" class="mx-auto btn btn-danger"><?= $services ?></a>
+              <a href="/index.php?option=com_eventbooking&view=register&event_id=<?= $eventId ?>" role="button" class="mx-auto btn btn-danger mb-1"><?= $services ?></a>
 
             <?php endforeach ?>
           </td>

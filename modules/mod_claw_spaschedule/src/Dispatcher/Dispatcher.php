@@ -36,7 +36,7 @@ class Dispatcher extends AbstractModuleDispatcher implements HelperFactoryAwareI
   {
     $data = parent::getLayoutData();
 
-    $data['eventConfig'] = $this->getHelperFactory()->getHelper('SpascheduleHelper')->loadSchedule($data['params'], $data['app']);
+    list($data['eventConfig'], $data['days']) = $this->getHelperFactory()->getHelper('SpascheduleHelper')->loadSchedule($data['params'], $data['app']);
 
     return $data;
   }
