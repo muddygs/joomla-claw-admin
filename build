@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 OUTPUT=~/tmp/git-$(date +%F)
 [ -d $OUTPUT ] && rm -rf $OUTPUT
