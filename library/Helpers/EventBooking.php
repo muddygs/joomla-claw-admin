@@ -138,6 +138,10 @@ class EventBooking
    */
   public static function getEventsCapacityInfo(EventInfo $eventInfo, array $eventIds): array
   {
+    if (count($eventIds) == 0) {
+      return [];
+    }
+
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
     $query = $db->getQuery(true);
