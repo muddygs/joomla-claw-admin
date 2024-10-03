@@ -3,12 +3,12 @@
   method="upgrade">
 
   <name>CLAW Schedule Display</name>
-  <creationDate>2024-09-19</creationDate>
+  <creationDate>2024-10-02</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>4.4.0</version>
+  <version>4.4.1</version>
   <description>Displays spa event schedule for current event</description>
 
   <namespace path="src">ClawCorp\Module\Spaschedule</namespace>
