@@ -158,7 +158,7 @@ class EventInfo
       ->from('#__claw_eventinfos')
       ->order('end_date DESC');
 
-    if ($includeUnpublised) {
+    if (!$includeUnpublised) {
       $query->where('active=' . EbPublishedState::published->value);
     }
 
