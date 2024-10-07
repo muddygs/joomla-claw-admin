@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -26,15 +26,16 @@ use ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel;
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
 {
-  public bool $canEdit = false;
-  public bool $canAddOnly = false;
-  public ?EventInfo $currentEventInfo = null;
+  public bool $canSubmit = false;
+  public bool $canAddBioOnly = false;
+  public bool $bioIsCurrent = false;
+
+  public EventInfo $currentEventInfo;
   public SkillssubmissionsModel $model;
 
   public function __construct($config = array())
   {
     parent::__construct($config);
-
     $this->currentEventInfo = new EventInfo(Aliases::current(true));
   }
 
@@ -50,10 +51,8 @@ class HtmlView extends BaseHtmlView
     $this->state = $this->get('State');
     $this->model = $this->getModel();
 
-    
     /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
-    $model = $this->getModel('Skillssubmissions');
     $this->params = $params = $app->getParams();
     $group = $params->get('se_group', '');
     $groups = $app->getIdentity()->getAuthorisedGroups();
@@ -97,7 +96,9 @@ class HtmlView extends BaseHtmlView
       );
 
       $this->bio->image_preview = $filenames[$this->bio->id] ?? '';
+      $this->bioIsCurrent = $this->bio->event == $this->currentEventInfo->alias;
     }
+
     $this->classes = $this->findUnarchivedClasses();
 
     // Check for errors.
@@ -106,17 +107,18 @@ class HtmlView extends BaseHtmlView
       throw new GenericDataException(implode("\n", $errors), 500);
     }
 
-    $this->canEditBio = $this->params->get('se_submissions_open') != 0;
-    $this->canAddOnlyBio = $this->params->get('se_submissions_bioonly') != 0;
+    $this->canSubmit = $this->params->get('se_submissions_open', 0) != 0;
+    $this->canAddBioOnly = $this->params->get('se_submissions_bioonly', 0) != 0;
 
     parent::display($tpl);
   }
 
   private function findNewestBio(): ?object
   {
-    $aliases = EventInfo::getEventInfos();
+    $aliases = EventInfo::getEventInfos(includeUnpublised: true);
+
     /** @var \ClawCorpLib\Lib\EventInfo */
-    foreach ($aliases as $alias => $eventInfo) {
+    foreach ($aliases as $eventInfo) {
       // Skip newer events
       if ($eventInfo->end_date > $this->currentEventInfo->end_date) continue;
       if ($eventInfo->eventType != EventTypes::main) continue;
@@ -140,7 +142,7 @@ class HtmlView extends BaseHtmlView
 
     $aliases = EventInfo::getEventInfos();
     /** @var \ClawCorpLib\Lib\EventInfo */
-    foreach ($aliases as $alias => $eventInfo) {
+    foreach ($aliases as $eventInfo) {
       // Skip newer events
       if ($eventInfo->end_date > $this->currentEventInfo->end_date) continue;
       if ($eventInfo->eventType != EventTypes::main) continue;
