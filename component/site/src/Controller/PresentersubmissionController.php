@@ -27,8 +27,6 @@ use Joomla\CMS\Utility\Utility;
 
 /**
  * Controller for a single sponsor record
- *
- * @since  1.6
  */
 class PresentersubmissionController extends FormController
 {
@@ -43,8 +41,7 @@ class PresentersubmissionController extends FormController
 
     $task = $input->getCmd('task');
 
-    if ( $task == 'submit' && $input != null )
-    {
+    if ($task == 'submit' && $input != null) {
       $this->save();
     }
   }
@@ -69,10 +66,10 @@ class PresentersubmissionController extends FormController
     // 'formdata' is merged in the Model::loadFormData() method
     Helpers::sessionSet('formdata', json_encode($data));
 
-    if ( $validation === false ) {
+    if ($validation === false) {
       $errors = $form->getErrors();
 
-      foreach ( $errors AS $e ) {
+      foreach ($errors as $e) {
         $app->enqueueMessage($e->getMessage(), \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       }
 
@@ -83,23 +80,25 @@ class PresentersubmissionController extends FormController
 
     $oldImage = Helpers::sessionGet('image_preview');
 
-    if ( !$oldImage && (!array_key_exists('photo_upload', $files) || $files['photo_upload']['size'] < 1) )
-    {
+    if (!$oldImage && (!array_key_exists('photo_upload', $files) || $files['photo_upload']['size'] < 1)) {
       $app->enqueueMessage('A representative photo is required', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       return false;
     }
 
-    $maxSize = Utility::getMaxUploadSize();
-    if ( array_key_exists('photo_upload', $files ) && $files['photo_upload']['size'] > $maxSize ) {
+    // From the database - 16MiB
+    $dbMaxSize = 16777216;
+
+    $maxSize = min(Utility::getMaxUploadSize(), $dbMaxSize);
+    if (array_key_exists('photo_upload', $files) && $files['photo_upload']['size'] > $maxSize) {
       $app->enqueueMessage('The photo you uploaded is too large. Please upload a photo less than ' . $maxSize . ' bytes.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       return false;
     }
-    
+
     $data['bio'] = trim($data['bio']);
 
     // Replace CR/LF with LF for the purposes of our counting
     $tmpBio = str_replace("\r\n", "\n", $data['bio']);
-    if ( mb_strlen($tmpBio, 'UTF-8') > 1000 ) {
+    if (mb_strlen($tmpBio, 'UTF-8') > 1000) {
       $app->enqueueMessage('Biography is too long. Please shorten it to 1000 characters or less.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       return false;
     }
@@ -109,27 +108,27 @@ class PresentersubmissionController extends FormController
     // Setup items not included in site model
     $data['uid'] = $identity->id;
     $data['email'] = $identity->email;
-    $data['id'] = $input->get('id',0,'int');
+    $data['id'] = $input->get('id', 0, 'int');
 
     // If it's not the current event, we want to clear the ID and create
     // a new record.
 
-    if ( $data['event'] != Aliases::current(true) ) {
+    if ($data['event'] != Aliases::current(true)) {
       $data['id'] = 0;
     }
 
     $data['event'] = Aliases::current(true);
-    
-    if ( $data['id'] == 0 ) {
+
+    if ($data['id'] == 0) {
       $data['published'] = 3; // New submission
     }
-    
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\PresenterModel */    
-    $adminModel = $this->getModel('Presenter','Administrator');
+
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\PresenterModel */
+    $adminModel = $this->getModel('Presenter', 'Administrator');
     $result = $adminModel->save($data);
 
     // Redirect to the main submission page
-    if ( $result ) {
+    if ($result) {
       $this->setRedirect(Route::_('index.php?option=com_claw&view=skillssubmissions', 'Biography save successful.'));
     } else {
       $app->enqueueMessage('An error occurred during save.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
