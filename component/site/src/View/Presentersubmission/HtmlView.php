@@ -46,6 +46,10 @@ class HtmlView extends BaseHtmlView
     /** @var \Joomla\CMS\Object\CMSObject */
     $this->item  = $this->get('Item');
 
+    if ($this->item === false) {
+      throw new GenericDataException('Item not found', 404);
+    }
+
     // Validate ownership of the record
     if (property_exists($this->item, 'id')) {
       if ($this->item->id > 0) {
@@ -103,5 +107,14 @@ class HtmlView extends BaseHtmlView
     }
 
     parent::display($tpl);
+  }
+
+  /**
+   * Return the component-specific model (PSR helper)
+   * @return \ClawCorp\Component\Claw\Site\Model\PresentersubmissionModel
+   */
+  public function getModel($name = null)
+  {
+    return parent::getModel($name);
   }
 }
