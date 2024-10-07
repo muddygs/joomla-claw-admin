@@ -144,7 +144,7 @@ class EventInfo
    * Returns array, indexed by event alias, with "active" EventInfo objects
    * @return array 
    */
-  public static function getEventInfos(): array
+  public static function getEventInfos(bool $includeUnpublised = false): array
   {
     if (count(self::$_EventList) > 0) return self::$_EventList;
 
@@ -156,8 +156,11 @@ class EventInfo
     $query = $db->getQuery(true);
     $query->select(['alias', 'description'])
       ->from('#__claw_eventinfos')
-      ->where('active=' . EbPublishedState::published->value)
       ->order('end_date DESC');
+
+    if ($includeUnpublised) {
+      $query->where('active=' . EbPublishedState::published->value);
+    }
 
     $db->setQuery($query);
     $rows = $db->loadObjectList();
