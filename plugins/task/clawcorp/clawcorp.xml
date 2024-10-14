@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="plugin" group="task" method="upgrade">
+	<name>plg_task_clawcorp</name>
+	<author>CLAW Corp.</author>
+	<creationDate>2024-10-12</creationDate>
+	<copyright>(C) 2024 C.L.A.W. Corp.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>webmaster@clawinfo.org</authorEmail>
+	<version>4.4.0</version>
+  <description>PLG_TASK_CLAWCORP_XML_DESCRIPTION</description>
+	<namespace path="src">Joomla\Plugin\Task\ClawCorp</namespace>
+
+	<files>
+    <folder plugin="clawcorp">services</folder>
+		<folder>src</folder>
+		<folder>forms</folder>
+		<folder>language</folder>
+	</files>
+	<languages>
+		<language tag="en-GB">language/en-GB/plg_task_clawcorp.ini</language>
+		<language tag="en-GB">language/en-GB/plg_task_clawcorp.sys.ini</language>
+	</languages>
+</extension>
