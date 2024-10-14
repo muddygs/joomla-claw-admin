@@ -1,4 +1,13 @@
 <?php
+
+/**
+ * @package     ClawCorp
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorpLib\Lib;
 
 defined('_JEXEC') or die('Restricted access');
@@ -17,13 +26,12 @@ use net\authorize\api\controller as AnetController;
 
 use ClawCorpLib\Lib\Registrant;
 
-class Authnetprofile {
-  private registrant $_r;
-  private bool $cron;
-
-  public function __construct(registrant $r, bool $cron = false)
-  {
-    $this->_r = $r;
+class Authnetprofile
+{
+  public function __construct(
+    private registrant $_r,
+    private bool $cron = false
+  ) {
     $fields = ['Z_AUTHNET_PROFILEID', 'Z_AUTHNET_PAYMENTPROFILEID', 'INTERNAL_NOTES'];
     $this->_r->mergeFieldValues($fields);
     $this->cron = $cron;
@@ -72,7 +80,7 @@ class Authnetprofile {
     $request->setRefId($refId);
     $request->setTransactionRequest($transactionRequestType);
     $controller = new AnetController\CreateTransactionController($request);
-    /** @var $response \net\authorize\api\contract\v1\CreateTransactionResponse */
+    /** @var \net\authorize\api\contract\v1\CreateTransactionResponse */
     $response = $controller->executeWithApiResponse(ANET_URL);
 
     $status = false;
@@ -120,7 +128,7 @@ class Authnetprofile {
 
     return [$status, $transactionId, $errorMsg];
   }
-  
+
   public function createProfiles(): int
   {
     $msg = [];
@@ -129,34 +137,29 @@ class Authnetprofile {
     $uid = $this->_r->uid();
 
     if (0 == $uid) {
-      die("Problem with registrant record.");      
+      die("Problem with registrant record.");
     }
 
-    foreach ($this->_r->records() AS $r) {
+    foreach ($this->_r->records() as $r) {
       if (
         $r->registrant->published == EbPublishedState::published->value &&
         //$r->registrant->payment_status == registrationPaymentStatus::partial &&
         $r->registrant->payment_method == EbPaymentTypes::authnet->value &&
         is_numeric($r->registrant->transaction_id) &&
-        ( empty($r->fieldValue->Z_AUTHNET_PAYMENTPROFILEID) || empty($r->fieldValue->Z_AUTHNET_PROFILEID) )
+        (empty($r->fieldValue->Z_AUTHNET_PAYMENTPROFILEID) || empty($r->fieldValue->Z_AUTHNET_PROFILEID))
       ) {
-          list($profileId, $paymentProfileId) = $this->createProfile($r);
-          if ( 0 == $profileId || 0 == $paymentProfileId ) 
-          {
-            echo "ERROR CREATING PROFILE FOR: ".$r->registrant->id."\n";
-            $this->storeProfileId($r->registrant->id, 'error', 'error');
-            continue;
-          }
-          else
-          {
-            $this->storeProfileId($r->registrant->id, $profileId, $paymentProfileId);
-            $count++;
-          }
-      }
-      else
-      {
+        list($profileId, $paymentProfileId) = $this->createProfile($r);
+        if (0 == $profileId || 0 == $paymentProfileId) {
+          echo "ERROR CREATING PROFILE FOR: " . $r->registrant->id . "\n";
+          $this->storeProfileId($r->registrant->id, 'error', 'error');
+          continue;
+        } else {
+          $this->storeProfileId($r->registrant->id, $profileId, $paymentProfileId);
+          $count++;
+        }
+      } else {
         continue;
-        
+
         // echo "NAME: " . $r->registrant->first_name . ' ' . $r->registrant->last_name . "\n";
         // echo "INVOICE: " . $r->registrant->invoice_number . "\n";
         // echo "USING:         PROFILE ID : " . $r->fieldValue->Z_AUTHNET_PROFILEID . "\n";
@@ -176,7 +179,7 @@ class Authnetprofile {
   {
     $msg = [];
     $msg[] =  "START   : " . $transactionRecord->registrant->user_id;
-    $msg[] =  "-- NAME    : " . $transactionRecord->registrant->first_name. ' '. $transactionRecord->registrant->last_name;
+    $msg[] =  "-- NAME    : " . $transactionRecord->registrant->first_name . ' ' . $transactionRecord->registrant->last_name;
     $msg[] =  "-- INVOICE : " . $transactionRecord->registrant->invoice_number;
 
     $customerId = $transactionRecord->registrant->user_id;
@@ -205,7 +208,7 @@ class Authnetprofile {
 
     $controller = new AnetController\CreateCustomerProfileFromTransactionController($request);
 
-    /** @var $response \net\authorize\api\contract\v1\CreateCustomerProfileResponse */
+    /** @var \net\authorize\api\contract\v1\CreateCustomerProfileResponse */
     $response = $controller->executeWithApiResponse(ANET_URL);
 
     $profileId = 0;
@@ -246,11 +249,14 @@ class Authnetprofile {
     return [$merchantId, $key];
   }
 
-  public function getAmountDue(string $invoiceId) {
-    foreach ( $this->_r->records() as $r ) {
-      if ( $r->registrant->invoice_number == $invoiceId) {
-        if ($r->registrant->payment_status != EbPaymentStatus::paid->value 
-            && $r->registrant->published != EbPublishedState::cancelled->value) {
+  public function getAmountDue(string $invoiceId)
+  {
+    foreach ($this->_r->records() as $r) {
+      if ($r->registrant->invoice_number == $invoiceId) {
+        if (
+          $r->registrant->payment_status != EbPaymentStatus::paid->value
+          && $r->registrant->published != EbPublishedState::cancelled->value
+        ) {
           return $r->registrant->amount - $r->registrant->deposit_amount - $r->registrant->discount_amount;
         } else {
           return 0;
@@ -258,24 +264,25 @@ class Authnetprofile {
       }
     }
 
-    die(__FILE__.": Unknown invoice ID: ".$invoiceId);
+    die(__FILE__ . ": Unknown invoice ID: " . $invoiceId);
   }
 
   public function updateDepositPayment(int $rowId, $amount, $transactionId)
   {
-    $db = Factory::getDbo();
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
     $query = $db->getQuery(true);
 
     $fields = [
-      $db->qn('process_deposit_payment') .'= 1',
-      $db->qn('deposit_payment_transaction_id') .'='. $db->q($transactionId),
-      $db->qn('deposit_payment_method') .'='. $db->q(EbPaymentTypes::authnet->value),
-      $db->qn('payment_amount') .'='. $db->q($amount),
-      $db->qn('payment_status') .'='. $db->q(EbPaymentStatus::paid->value),
+      $db->qn('process_deposit_payment') . '= 1',
+      $db->qn('deposit_payment_transaction_id') . '=' . $db->q($transactionId),
+      $db->qn('deposit_payment_method') . '=' . $db->q(EbPaymentTypes::authnet->value),
+      $db->qn('payment_amount') . '=' . $db->q($amount),
+      $db->qn('payment_status') . '=' . $db->q(EbPaymentStatus::paid->value),
     ];
 
     $conditions = [
-      $db->qn('id'). '=' .$db->q($rowId)
+      $db->qn('id') . '=' . $db->q($rowId)
     ];
 
     $query->update($db->qn('#__eb_registrants'))->set($fields)->where($conditions);
@@ -299,112 +306,111 @@ class Authnetprofile {
     ];
 
     $this->_r->updateFieldValues($rowId, $update);
-
   }
-#region deprecated hotel stuff
-//   public static function getProfileCount(int $max = 0): int
-//   {
-//     $db = Factory::getDbo();
-//     $profileId = ClawEvents::getFieldId('Z_AUTHNET_PROFILEID');
-//     $published = registrationPublishedState::published;
-//     $partial = registrationPaymentStatus::partial;
-//     $authnet = $db->q(paymentTypes::authnet);
+  #region deprecated hotel stuff
+  //   public static function getProfileCount(int $max = 0): int
+  //   {
+  //     $db = Factory::getDbo();
+  //     $profileId = ClawEvents::getFieldId('Z_AUTHNET_PROFILEID');
+  //     $published = registrationPublishedState::published;
+  //     $partial = registrationPaymentStatus::partial;
+  //     $authnet = $db->q(paymentTypes::authnet);
 
-//     $hotelEvents = new clawEvents(CLAWALIASES::hotels[0]);
-//     $hotelEventIds = join(',',$hotelEvents->getEventIds());
+  //     $hotelEvents = new clawEvents(CLAWALIASES::hotels[0]);
+  //     $hotelEventIds = join(',',$hotelEvents->getEventIds());
 
-//     $query = <<< SQL
-//     SELECT COUNT(*)
-//     FROM #__eb_registrants r
-//     LEFT OUTER JOIN #__eb_field_values v ON (v.registrant_id = r.id AND v.field_id = $profileId)
-//     WHERE r.published = $published AND 
-//       r.payment_status = $partial AND
-//       r.payment_method = $authnet AND
-//       (v.field_value IS NULL OR v.field_value = "") AND
-//       ( r.amount - r.deposit_amount > 0) AND
-//       r.transaction_id REGEXP '^[0-9]+$' AND
-//       r.event_id IN ($hotelEventIds)
-// SQL;
+  //     $query = <<< SQL
+  //     SELECT COUNT(*)
+  //     FROM #__eb_registrants r
+  //     LEFT OUTER JOIN #__eb_field_values v ON (v.registrant_id = r.id AND v.field_id = $profileId)
+  //     WHERE r.published = $published AND 
+  //       r.payment_status = $partial AND
+  //       r.payment_method = $authnet AND
+  //       (v.field_value IS NULL OR v.field_value = "") AND
+  //       ( r.amount - r.deposit_amount > 0) AND
+  //       r.transaction_id REGEXP '^[0-9]+$' AND
+  //       r.event_id IN ($hotelEventIds)
+  // SQL;
 
-//     if ( $max > 0 ) {
-//       $query .= " LIMIT $max";
-//     }
+  //     if ( $max > 0 ) {
+  //       $query .= " LIMIT $max";
+  //     }
 
-//     $db->setQuery($query);
-//     $result = $db->loadResult();
+  //     $db->setQuery($query);
+  //     $result = $db->loadResult();
 
-//     return $result;
-//   }
+  //     return $result;
+  //   }
 
-//   public static function getToChargeCount(): int
-//   {
-//     $db = Factory::getDbo();
-//     $published = registrationPublishedState::published;
+  //   public static function getToChargeCount(): int
+  //   {
+  //     $db = Factory::getDbo();
+  //     $published = registrationPublishedState::published;
 
-//     $hotelEvents = new clawEvents(CLAWALIASES::hotels[0]);
-//     $hotelEventIds = join(',',$hotelEvents->getEventIds());
+  //     $hotelEvents = new clawEvents(CLAWALIASES::hotels[0]);
+  //     $hotelEventIds = join(',',$hotelEvents->getEventIds());
 
-//     $partial = registrationPaymentStatus::partial;
-// 		$authnet = $db->q(paymentTypes::authnet);
+  //     $partial = registrationPaymentStatus::partial;
+  // 		$authnet = $db->q(paymentTypes::authnet);
 
-//     $query = <<< SQL
-//     SELECT COUNT(*)
-//     FROM #__eb_registrants
-//       WHERE published = $published AND event_id IN ($hotelEventIds) AND
-//       payment_status = $partial AND
-//       payment_method = $authnet AND
-//       transaction_id REGEXP '^[0-9]+$' AND
-//       ( amount - deposit_amount - discount_amount > 0)
-// SQL;
+  //     $query = <<< SQL
+  //     SELECT COUNT(*)
+  //     FROM #__eb_registrants
+  //       WHERE published = $published AND event_id IN ($hotelEventIds) AND
+  //       payment_status = $partial AND
+  //       payment_method = $authnet AND
+  //       transaction_id REGEXP '^[0-9]+$' AND
+  //       ( amount - deposit_amount - discount_amount > 0)
+  // SQL;
 
-//     $db->setQuery($query);
-//     $result = $db->loadResult();
+  //     $db->setQuery($query);
+  //     $result = $db->loadResult();
 
-//     return $result;
-//   }
+  //     return $result;
+  //   }
 
-//   public static function getToChargeReport( string $orderBy = "invoice_number" ): string
-//   {
-//     $db = Factory::getDbo();
-//     $published = registrationPublishedState::published;
+  //   public static function getToChargeReport( string $orderBy = "invoice_number" ): string
+  //   {
+  //     $db = Factory::getDbo();
+  //     $published = registrationPublishedState::published;
 
-//     $profileIdField = ClawEvents::getFieldId("Z_AUTHNET_PROFILEID");
+  //     $profileIdField = ClawEvents::getFieldId("Z_AUTHNET_PROFILEID");
 
-//     $hotelEvents = new clawEvents(CLAWALIASES::hotels[0]);
-//     $hotelEventIds = join(',',$hotelEvents->getEventIds());
+  //     $hotelEvents = new clawEvents(CLAWALIASES::hotels[0]);
+  //     $hotelEventIds = join(',',$hotelEvents->getEventIds());
 
-//     $partial = registrationPaymentStatus::partial;
-// 		$authnet = $db->q(paymentTypes::authnet);
+  //     $partial = registrationPaymentStatus::partial;
+  // 		$authnet = $db->q(paymentTypes::authnet);
 
-//     //$orderBy = "register_date";
+  //     //$orderBy = "register_date";
 
-//     $query = <<< SQL
-//     SELECT r.id,first_name,last_name,invoice_number,transaction_id,register_date,amount - deposit_amount - discount_amount AS due
-//     FROM #__eb_registrants r
-//     LEFT OUTER JOIN #__eb_field_values v ON v.field_id = $profileIdField AND v.registrant_id = r.id
-//       WHERE r.published = $published AND r.event_id IN ($hotelEventIds) AND
-//       r.payment_status = $partial AND
-//       r.payment_method = $authnet AND
-//       r.transaction_id REGEXP '^[0-9]+$' AND
-//       ( amount - deposit_amount - discount_amount > 0) AND
-//       v.field_value IS NULL
-//       ORDER BY r.$orderBy
-// SQL;
+  //     $query = <<< SQL
+  //     SELECT r.id,first_name,last_name,invoice_number,transaction_id,register_date,amount - deposit_amount - discount_amount AS due
+  //     FROM #__eb_registrants r
+  //     LEFT OUTER JOIN #__eb_field_values v ON v.field_id = $profileIdField AND v.registrant_id = r.id
+  //       WHERE r.published = $published AND r.event_id IN ($hotelEventIds) AND
+  //       r.payment_status = $partial AND
+  //       r.payment_method = $authnet AND
+  //       r.transaction_id REGEXP '^[0-9]+$' AND
+  //       ( amount - deposit_amount - discount_amount > 0) AND
+  //       v.field_value IS NULL
+  //       ORDER BY r.$orderBy
+  // SQL;
 
-//     $db->setQuery($query);
-//     $rows = $db->loadRowList();
+  //     $db->setQuery($query);
+  //     $rows = $db->loadRowList();
 
-//     $result = [];
-//     $result[] = '<pre>';
+  //     $result = [];
+  //     $result[] = '<pre>';
 
-//     foreach ( $rows AS $row ) {
-//       $result[] = implode(',', $row);
-//     }
-//     $result[] = '</pre>';
+  //     foreach ( $rows AS $row ) {
+  //       $result[] = implode(',', $row);
+  //     }
+  //     $result[] = '</pre>';
 
-//     return implode("\n", $result);
-//   }
-#endregion
+  //     return implode("\n", $result);
+  //   }
+  #endregion
 
 
   /**
@@ -414,7 +420,7 @@ class Authnetprofile {
    * @return int Count of records created
    * @throws RuntimeException 
    */
-  public static function create(string $eventAlias, int $maximum_records = 10, bool $cron=false): int
+  public static function create(string $eventAlias, int $maximum_records = 10, bool $cron = false): int
   {
     set_time_limit(0);
 
@@ -427,7 +433,7 @@ class Authnetprofile {
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($eventConfig->packageInfos as $event) {
-      if ( !$event->authNetProfile ) continue;
+      if (!$event->authNetProfile || $event->published != EbPublishedState::published) continue;
       $description = '';
 
       $recordsByEventId = $registrants->byEventId($event->eventId);
@@ -435,7 +441,7 @@ class Authnetprofile {
       /** @var \ClawCorpLib\Lib\Registrant $registrant */
       foreach ($recordsByEventId as $registrant) {
         $profile = new Authnetprofile($registrant, $cron);
-        if ( !$description ) {
+        if (!$description) {
           $description = $event->title;
           $profile->profilelog([$description], 'h1');
         }
@@ -451,12 +457,13 @@ class Authnetprofile {
     return $count;
   }
 
-  private function profilelog(array $msg, string $tag = 'pre') {
-    if ( !count($msg) ) return;
-    
-    if ( !$this->cron ) echo '<'.$tag.'>';
-    echo implode(PHP_EOL, $msg).PHP_EOL;
-    if ( !$this->cron )  echo '</'.$tag.'>';
+  private function profilelog(array $msg, string $tag = 'pre')
+  {
+    if (!count($msg)) return;
+
+    if (!$this->cron) echo '<' . $tag . '>';
+    echo implode(PHP_EOL, $msg) . PHP_EOL;
+    if (!$this->cron)  echo '</' . $tag . '>';
   }
 
   // These sections are here in case we need to bulk cancel subscriptions again
@@ -470,7 +477,7 @@ class Authnetprofile {
   //   $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
   //   $merchantAuthentication->setName($merchantId);
   //   $merchantAuthentication->setTransactionKey($transactionKey);
-    
+
   //   // Set the transaction's refId
   //   $refId = 'ref' . time();
 
@@ -524,7 +531,7 @@ class Authnetprofile {
   //   $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
   //   $merchantAuthentication->setName($merchantId);
   //   $merchantAuthentication->setTransactionKey($transactionKey);
-    
+
   //   // Set the transaction's refId
   //   $refId = 'ref' . time();
 
@@ -541,14 +548,14 @@ class Authnetprofile {
   //   {
   //       $successMessages = $response->getMessages()->getMessage();
   //       echo "SUCCESS : " . $successMessages[0]->getCode() . "  " .$successMessages[0]->getText() . "\n";
-        
+
   //    }
   //   else
   //   {
   //       echo "ERROR :  Invalid response\n";
   //       $errorMessages = $response->getMessages()->getMessage();
   //       echo "Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n";
-        
+
   //   }
 
   //   return $response;
