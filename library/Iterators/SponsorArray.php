@@ -25,9 +25,9 @@ class SponsorArray implements \IteratorAggregate, \ArrayAccess, \Countable
     return $this->sponsors[$index] ?? null;
   }
 
-  public function set(int $index, SponsorArray $sponsors): void
+  public function set(int $index, Sponsor $sponsor): void
   {
-    $this->sponsors[$index] = $sponsors;
+    $this->sponsors[$index] = $sponsor;
   }
 
   public function offsetExists($offset): bool
