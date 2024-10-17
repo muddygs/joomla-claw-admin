@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -33,7 +34,7 @@ class EventinfoModel extends AdminModel
     'eb_cat_invoicables',
   ];
 
-    /**
+  /**
    * The prefix to use with controller messages.
    *
    * @var    string
@@ -43,6 +44,7 @@ class EventinfoModel extends AdminModel
 
   public function save($data)
   {
+    #dd($data);
     // Handle JSON data
     foreach ($this->jsonFields as $field) {
       if (isset($data[$field])) {
@@ -86,15 +88,14 @@ class EventinfoModel extends AdminModel
   protected function loadFormData()
   {
     // Check the session for previously entered form data.
-    /** @var $app AdministratorApplication */
-    $app = Factory::getApplication();
-    $data = $app->getUserState('com_claw.edit.eventinfo.data', []);
+    $data = Factory::getApplication()->getUserState('com_claw.edit.eventinfo.data', []);
+
     if (empty($data)) {
       $data = $this->getItem();
 
       // Handle JSON data
       foreach ($this->jsonFields as $field) {
-        if ( !property_exists($data, $field) ) continue;
+        if (!property_exists($data, $field)) continue;
         if (is_string($data->$field)) $data->$field = json_decode($data->$field);
 
         // Remove empty values

@@ -15,7 +15,6 @@ use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\EventInfo;
-#use ClawCorpLib\Helpers\Config;
 
 defined('_JEXEC') or die;
 
@@ -48,12 +47,6 @@ class PackageinfoModel extends EventconfigModel
 
     // meta can only be populated with known information (requires save before full edit)
     if (!EventInfo::isValidEventAlias($eventAlias)) return $form;
-    #$config = new Config($eventAlias);
-    #$defaultGroupId = (int)$config->getGlobalConfig('packaginfo_registered_group');
-
-    #if (is_null($defaultGroupId)) {
-    #throw new \Exception('com_claw requires group IDs for Public and Registered.');
-    #}
 
     // Validate other fields
     $packageInfoType = PackageInfoTypes::tryFrom($packageInfoType);
@@ -61,15 +54,6 @@ class PackageinfoModel extends EventconfigModel
 
     $eventPackageType = EventPackageTypes::tryFrom($eventPackageType);
     if ($eventPackageType == null) return $form;
-
-    /** @var \Joomla\CMS\Form\Field\UserGroupListField */
-    #$parentField = $form->getField('group_id');
-    #var_dump($parentField);
-    #$xmlnode = $parentField->element;
-    #$dnode = dom_import_simplexml($parentField->element);
-    #$dnode->setAttribute('default', $defaultGroupId);
-
-    #dd($parentField);
 
     /** @var \Joomla\CMS\Form\Field\ListField */
     $parentField = $form->getField('meta');
