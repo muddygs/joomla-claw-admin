@@ -12,7 +12,6 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
-use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Factory;
 
 defined('_JEXEC') or die;
@@ -44,14 +43,6 @@ class SponsorshipModel extends EventconfigModel
   {
     $form = $this->loadForm('com_claw.sponsorship', 'sponsorship', array('control' => 'jform', 'load_data' => $loadData));
     if (empty($form)) return false;
-
-    if (!$loadData) return $form;
-
-    // Get the event alias from the form
-    $eventAlias = $form->getField('eventAlias')->value;
-
-    // meta can only be populated with known information (requires save before full edit)
-    if (!EventInfo::isValidEventAlias($eventAlias)) return $form;
 
     return $form;
   }

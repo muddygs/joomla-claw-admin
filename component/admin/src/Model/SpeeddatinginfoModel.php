@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -34,7 +35,7 @@ class SpeeddatinginfoModel extends EventconfigModel
 
     // TODO: Put into config db table
     $data['category'] = ClawEvents::getCategoryId('speed-dating');
-    
+
     $result = parent::save($data);
     return $result;
   }
@@ -43,10 +44,8 @@ class SpeeddatinginfoModel extends EventconfigModel
   {
     $form = $this->loadForm('com_claw.speeddatinginfo', 'speeddatinginfo', array('control' => 'jform', 'load_data' => $loadData));
     if (empty($form)) return false;
-  
-    if ( !$loadData ) return $form;
 
     return $form;
   }
-
 }
+
