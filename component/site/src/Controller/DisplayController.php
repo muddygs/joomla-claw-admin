@@ -47,7 +47,7 @@ class DisplayController extends BaseController
     $menu = $this->app->getMenu()->getActive();
     Helpers::sessionSet('menuid', $menu->id);
 
-    if ( $this->input == null ) {
+    if ($this->input == null) {
       $this->input = $this->app->input;
     }
   }
@@ -62,7 +62,7 @@ class DisplayController extends BaseController
     // Email via admin model
     /** @var \ClawCorp\Component\Claw\Administrator\Model\SkillModel */
     $adminModel = $this->getModel('Skill', 'Administrator');
-    if ( $status) $adminModel->email(true, $data);
+    if ($status) $adminModel->email(true, $data);
 
     $skillRoute = Route::_('index.php?option=com_claw&view=skillssubmissions');
     $this->setRedirect($skillRoute);
@@ -135,7 +135,7 @@ class DisplayController extends BaseController
     echo json_encode($json);
   }
 
-#region email token response processing
+  #region email token response processing
   /**
    * Process token confirmation from email link
    *
@@ -147,7 +147,7 @@ class DisplayController extends BaseController
     /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
     $siteModel = $this->getModel('Checkin');
     $json = $siteModel->JwtConfirm(token: $token);
-    
+
     header('Content-Type: application/json');
     echo $json;
   }
@@ -163,13 +163,13 @@ class DisplayController extends BaseController
     /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
     $siteModel = $this->getModel('Checkin');
     $json = $siteModel->JwtRevoke(token: $token);
-    
+
     header('Content-Type: application/json');
     echo $json;
   }
-#endregion
+  #endregion
 
-#region jwtmon
+  #region jwtmon
   public function jwtTokenCheck()
   {
     $this->checkToken();
@@ -183,23 +183,23 @@ class DisplayController extends BaseController
     header('Content-Type: application/json');
     echo json_encode($result);
   }
-#endregion
+  #endregion
 
-#region jwt_dashboard
+  #region jwt_dashboard
   public function jwtdashboardConfirm(JwtStates $state = JwtStates::issued)
   {
     $this->checkToken();
 
-    $result = [ 'id' => 0 ];
+    $result = ['id' => 0];
 
     $json = new Json();
     $id = $json->get('tokenid', [], 'int');
 
     // Verify user permissions
     $user = $this->app->getIdentity();
-    if ( $user->authorise('core.admin') && $id > 0) {
+    if ($user->authorise('core.admin') && $id > 0) {
       $return = Jwtwrapper::setDatabaseState($id, $state);
-      if ( $return) $result['id'] = $id;
+      if ($return) $result['id'] = $id;
     }
 
     header('Content-Type: application/json');
@@ -227,7 +227,6 @@ class DisplayController extends BaseController
     $result = $siteModel->JwtMealCheckin(token: $token, registration_code: $search, meal: $meal);
     header('Content-Type: application/json');
     echo json_encode($result);
-
   }
 
   public function volunteerSearch()
@@ -248,7 +247,6 @@ class DisplayController extends BaseController
   public function volunteerUpdate()
   {
     $this->checkToken();
-
     $json = new Json();
     $token = $json->get('token', '', 'string');
     $regid = $json->get('regid', '', 'uint');
@@ -276,6 +274,5 @@ class DisplayController extends BaseController
     $result = $siteModel->volunteerAddShift(token: $token, uid: $uid, shift: $shift);
     header('Content-Type: text/plain');
     echo $result;
-
   }
 }
