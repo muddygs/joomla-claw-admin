@@ -10,7 +10,6 @@ use ClawCorpLib\Lib\Ebmgmt;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\PackageInfo;
-use DateTimeImmutable;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
@@ -27,14 +26,20 @@ class Deploy
   private int $public_acl = 0;
   private int $registered_acl = 0;
   private DatabaseDriver $db;
+  private EventInfo $eventInfo;
+  private Date $registration_start_date;
 
   public function __construct(
     public string $eventAlias,
     public int $type
   ) {
-    if (!EventInfo::isValidEventAlias($this->eventAlias)) {
-      die('Invalid to deployment event: ' . $this->eventAlias);
+    try {
+      $this->eventInfo = new EventInfo($this->eventAlias);
+    } catch (\Exception) {
+      throw new \InvalidArgumentException('Invalid for deployment - Event alias: ' . $this->eventAlias);
     }
+
+    $this->registration_start_date = Factory::getDate('now', $this->eventInfo->timezone);
 
     $this->setDefaultAcls();
     /** @var \Joomla\Database\DatabaseDriver */
@@ -105,16 +110,17 @@ class Deploy
 
     $nullDate = $this->db->getNullDate();
 
+    $insert->set('registration_start_date', $this->useLocalTimeAsUtcSql($registration_start_date, true));
+
     $insert->set('article_id', $article_id);
-    $insert->set('cancel_before_date', $cancel_before_date ? $cancel_before_date->toSql() : $nullDate);
-    $insert->set('cut_off_date', $cut_off_date ? $cut_off_date->toSql() : $nullDate);
-    $insert->set('event_date', $event_date->toSql());
-    $insert->set('event_end_date', $event_end_date->toSql());
-    $insert->set('publish_down', $publish_down ? $publish_down->toSql() : $nullDate);
+    $insert->set('cancel_before_date', $cancel_before_date ? $this->useLocalTimeAsUtcSql($cancel_before_date) : $nullDate);
+    $insert->set('cut_off_date', $cut_off_date ? $this->useLocalTimeAsUtcSql($cut_off_date, true) : $nullDate);
+    $insert->set('event_date', $this->useLocalTimeAsUtcSql($event_date));
+    $insert->set('event_end_date', $this->useLocalTimeAsUtcSql($event_end_date));
+    $insert->set('publish_down', $publish_down ? $this->useLocalTimeAsUtcSql($publish_down) : $nullDate);
 
     $insert->set('individual_price', $individual_price);
     $insert->set('price_text', $price_text);
-    $insert->set('registration_start_date', $registration_start_date->toSql());
     $insert->set('payment_methods', $payment_methods); // Credit Card
     $insert->set('registration_access', $registration_access);
     $insert->set('user_email_body', $user_email_body);
@@ -127,13 +133,25 @@ class Deploy
     return $eventId;
   }
 
+  private function useLocalTimeAsUtcSql(Date $date, bool $topOfHour = false): string
+  {
+    $d = clone $date;
+
+    if ($topOfHour) {
+      $timestamp = $d->getTimestamp();
+      $timestamp -= $timestamp % 3600;
+      $d->setTimezone(new \DateTimeZone($this->eventInfo->timezone))->setTimestamp($timestamp);
+    }
+
+    return $d->toSql(true);
+  }
+
   public function SpeedDating(): string
   {
     $log = [];
     $count = 0;
 
     $eventConfig = new EventConfig($this->eventAlias, [PackageInfoTypes::speeddating]);
-    $info = $eventConfig->eventInfo;
     $packageInfos = $eventConfig->packageInfos;
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
@@ -155,25 +173,22 @@ class Deploy
         $cancel_before_date = $start;
         $cutoff = $start;
 
-        // start and ending usability of these events
-        $registration_start_date = Factory::getDate();
-
-        $title = $info->prefix . ' ' . $packageInfo->title . ' (' . $role . ')';
-        $alias = strtolower(preg_replace('/[^\S]+/', '_', implode('-', [$info->prefix, 'sd', $packageInfo->title, $role])));
+        $title = $this->eventInfo->prefix . ' ' . $packageInfo->title . ' (' . $role . ')';
+        $alias = strtolower(preg_replace('/[^\S]+/', '_', implode('-', [$this->eventInfo->prefix, 'sd', $packageInfo->title, $role])));
 
         $eventId = $this->Insert(
           mainCategoryId: $packageInfo->category,
           itemAlias: $alias,
           title: $title,
           description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
-          article_id: $info->termsArticleId,
+          article_id: $this->eventInfo->termsArticleId,
           cancel_before_date: $cancel_before_date,
           cut_off_date: $cutoff,
           event_date: $start,
           event_end_date: $end,
           publish_down: $end,
           individual_price: 0,
-          registration_start_date: $registration_start_date,
+          registration_start_date: $this->registration_start_date,
           registration_access: $this->registered_acl,
           event_capacity: $event_capacity,
         );
@@ -208,7 +223,7 @@ class Deploy
     $count = 0;
 
     $eventConfig = new EventConfig($this->eventAlias, [PackageInfoTypes::spa]);
-    $info = $eventConfig->eventInfo;
+    $eventInfo = $eventConfig->eventInfo;
     $packageInfos = $eventConfig->packageInfos;
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
@@ -222,36 +237,32 @@ class Deploy
 
         if ($eventId > 0) {
           $log[] =  "Already deployed: $packageInfo->title ($metaRow->userid) @ $eventId";
+          $index++;
           continue;
         }
-
-        $event_capacity = 1;
 
         $start = $packageInfo->start;
         $end = $packageInfo->end;
         $cancel_before_date = $start;
         $cutoff = $start;
 
-        // start and ending usability of these events
-        $registration_start_date = Factory::getDate();
-
-        $alias = strtolower(preg_replace('/[^\S]+/', '_', implode('-', [$info->prefix, 'spa', $packageInfo->title, $index++])));
+        $alias = strtolower(preg_replace('/[^\S]+/', '_', implode('-', [$eventInfo->prefix, 'spa', $packageInfo->title, $index++])));
 
         $eventId = $this->Insert(
           mainCategoryId: $packageInfo->category,
           itemAlias: $alias,
-          title: $info->prefix . ' ' . $packageInfo->title,
+          title: $eventInfo->prefix . ' ' . $packageInfo->title,
           description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
-          article_id: $info->termsArticleId,
+          article_id: $eventInfo->termsArticleId,
           cancel_before_date: $cancel_before_date,
           cut_off_date: $cutoff,
           event_date: $start,
           event_end_date: $end,
           publish_down: $end,
           individual_price: $packageInfo->fee,
-          registration_start_date: $registration_start_date,
+          registration_start_date: $this->registration_start_date,
           registration_access: $this->registered_acl,
-          event_capacity: $event_capacity,
+          event_capacity: 1,
         );
 
         if ($eventId == 0) {
@@ -284,22 +295,19 @@ class Deploy
     $count = 0;
 
     $eventConfig = new EventConfig($this->eventAlias, []);
-    $info = $eventConfig->eventInfo;
     $packageInfos = $eventConfig->packageInfos;
 
     // Base times to offset by "time" parameter for each event
-    $cancel_before_date = $info->cancelBy;
-    $startDate = $info->modify('Wed 9AM');
-    $endDate = $info->modify('next Monday midnight');;
+    $cancel_before_date = $this->eventInfo->cancelBy;
+    $startDateWed = $this->eventInfo->modify('Wed 9AM');
+    $endDate = $this->eventInfo->modify('next Monday midnight');;
 
-    // start and ending usability of these events
-    $registration_start_date = Factory::getDate();
-    $publish_down = $info->modify('+8 days');
+    $publish_down = $this->eventInfo->modify('+8 days');
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
       if ($packageInfo->eventId > 0) {
-        $this->createRedirect($info, $packageInfo);
+        $this->createRedirect($this->eventInfo, $packageInfo);
         $log[] =  "Already deployed: $packageInfo->title @ $packageInfo->eventId";
         continue;
       }
@@ -310,14 +318,14 @@ class Deploy
       }
 
       $name = str_replace('_', '-', $packageInfo->eventPackageType->name);
-      $packageInfo->alias = strtolower($info->prefix . '-' . $name);
+      $packageInfo->alias = strtolower($this->eventInfo->prefix . '-' . $name);
 
-      $start = $startDate;
+      $start = $startDateWed;
       $end = $endDate;
       $cutoff = $endDate;
 
       $accessGroup = $packageInfo->group_id > 0 ? $packageInfo->group_id : $this->registered_acl;
-      $reg_start_date = $registration_start_date;
+      $reg_start_date = $this->registration_start_date;
 
       $price_text = '';
       $enable_cancel_registration = '1';
@@ -325,7 +333,7 @@ class Deploy
       switch ($packageInfo->packageInfoType) {
         case PackageInfoTypes::combomeal:
         case PackageInfoTypes::main:
-          $packageInfo->start = $startDate;
+          $packageInfo->start = $startDateWed;
           $packageInfo->end = $endDate;
 
           if ($packageInfo->bundleDiscount > 0) {
@@ -334,12 +342,7 @@ class Deploy
           break;
 
         case PackageInfoTypes::addon:
-          $start = $packageInfo->start;
-          $end = $packageInfo->end;
-
-          $origin = new DateTimeImmutable($start->toSql());
-          $target = new DateTimeImmutable($end->toSql());
-          $interval = $origin->diff($target);
+          $interval = $packageInfo->start->diff($packageInfo->end);
 
           // If the event is less than 8 hours, then the cutoff is 3 hours before the event
           if ($interval->h <= 8) {
@@ -355,7 +358,7 @@ class Deploy
         case PackageInfoTypes::daypass:
           $start = $packageInfo->start;
           $end = $packageInfo->end;
-          $reg_start_date = $startDate;
+          $reg_start_date = $startDateWed;
           break;
 
         case PackageInfoTypes::passes:
@@ -365,18 +368,18 @@ class Deploy
           $cancel_before_date = null;
           // Remove any non-ascii char from title
           $name = preg_replace('/[^\S]+/', '-', $packageInfo->title);
-          $packageInfo->alias = strtolower($info->prefix . '-' . $name);
+          $packageInfo->alias = strtolower($this->eventInfo->prefix . '-' . $name);
           $accessGroup = $this->public_acl;
-          $reg_start_date = $startDate;
+          $reg_start_date = $startDateWed;
           $enable_cancel_registration = '0';
           break;
 
         case PackageInfoTypes::equipment:
           $start = $packageInfo->start;
           $end = $packageInfo->end;
-          $cutoff = $startDate;
+          $cutoff = $startDateWed;
           $name = preg_replace('/[^\S]+/', '-', $packageInfo->title);
-          $packageInfo->alias = strtolower($info->prefix . '-' . $name);
+          $packageInfo->alias = strtolower($this->eventInfo->prefix . '-' . $name);
           break;
 
         default:
@@ -387,9 +390,9 @@ class Deploy
       $eventId = $this->Insert(
         mainCategoryId: $packageInfo->category,
         itemAlias: $packageInfo->alias,
-        title: $info->prefix . ' ' . $packageInfo->title,
+        title: $this->eventInfo->prefix . ' ' . $packageInfo->title,
         description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
-        article_id: $info->termsArticleId,
+        article_id: $this->eventInfo->termsArticleId,
         cancel_before_date: $cancel_before_date,
         cut_off_date: $cutoff,
         event_date: $start,
@@ -419,22 +422,16 @@ class Deploy
         $packageInfo->save();
       }
 
-      $this->createRedirect($info, $packageInfo);
+      $this->createRedirect($this->eventInfo, $packageInfo);
     }
 
     // Special friendly redirects cases
     // addons
     $suffix = EventPackageTypes::addons->toLink();
-    $fromLink = strtolower($info->prefix . '-reg-' . $suffix);
+    $fromLink = strtolower($this->eventInfo->prefix . '-reg-' . $suffix);
     $toLink = EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::addons);
     $redirect = new Redirects($this->db, '/' . $fromLink, $toLink, $fromLink);
     $redirect->insert();
-    // vip2
-    #$suffix = EventPackageTypes::vip2->toLink();
-    #$fromLink = strtolower($info->prefix . '-reg-' . $suffix);
-    #$toLink = EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip2);
-    #$redirect = new Redirects($this->db, '/' . $fromLink, $toLink, $fromLink);
-    #$redirect->insert();
 
     $log[] = "Deployed $count packages.";
 
@@ -458,7 +455,6 @@ class Deploy
     $count = 0;
 
     $eventConfig = new EventConfig($this->eventAlias, [PackageInfoTypes::sponsorship]);
-    $info = $eventConfig->eventInfo;
     $packageInfos = $eventConfig->packageInfos;
 
     // Map Eventbooking configured categories to supported sponsorships
@@ -476,13 +472,12 @@ class Deploy
     $user_email_body = $componentParams->get('sponsorship_registration_email', '');
 
     // Base times to offset by "time" parameter for each event
-    $cancel_before_date = $info->cancelBy;
-    $startDate = $info->modify('Wed 9AM');
-    $endDate = $info->modify('next Monday midnight');;
+    $cancel_before_date = $this->eventInfo->cancelBy;
+    $startDate = $this->eventInfo->modify('Wed 9AM');
+    $endDate = $this->eventInfo->modify('next Monday midnight');;
 
     // start and ending usability of these events
-    $registration_start_date = Factory::getDate();
-    $publish_down = $info->modify('+8 days');
+    $publish_down = $this->eventInfo->modify('+8 days');
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
@@ -496,7 +491,7 @@ class Deploy
         continue;
       }
 
-      $packageInfo->alias = strtolower($info->prefix . '_spo_' . preg_replace("/[^A-Za-z0-9]+/", '_', $packageInfo->title));
+      $packageInfo->alias = strtolower($this->eventInfo->prefix . '_spo_' . preg_replace("/[^A-Za-z0-9]+/", '_', $packageInfo->title));
 
       $end = clone ($endDate);
       $cutoff = clone ($startDate);
@@ -539,16 +534,16 @@ class Deploy
       $eventId = $this->Insert(
         mainCategoryId: $packageInfo->category,
         itemAlias: $packageInfo->alias,
-        title: $info->prefix . ' ' . $packageInfo->title,
+        title: $this->eventInfo->prefix . ' ' . $packageInfo->title,
         description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
-        article_id: $info->termsArticleId,
+        article_id: $this->eventInfo->termsArticleId,
         cancel_before_date: $cancel_before_date,
         cut_off_date: $cutoff,
         event_date: $startDate,
         event_end_date: $end,
         publish_down: $publish_down,
         individual_price: $packageInfo->fee,
-        registration_start_date: $registration_start_date,
+        registration_start_date: $this->registration_start_date,
         registration_access: $this->registered_acl,
         user_email_body: $user_email_body,
         payment_methods: '2,5' // Credit Card, Invoice
@@ -587,15 +582,12 @@ class Deploy
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($mainPackages as $packageInfo) {
-      if ($packageInfo->published != EbPublishedState::published) {
-        continue;
-      }
-
       if (
-        !is_array($packageInfo->meta) ||
-        count($packageInfo->meta) == 0 ||
-        $packageInfo->isVolunteer ||
-        $packageInfo->packageInfoType != PackageInfoTypes::main
+        !is_array($packageInfo->meta)
+        || count($packageInfo->meta) == 0
+        || $packageInfo->isVolunteer
+        || $packageInfo->packageInfoType != PackageInfoTypes::main
+        || $packageInfo->published != EbPublishedState::published
       ) {
         continue;
       }
@@ -757,7 +749,7 @@ class Deploy
     $this->registered_acl = Config::getGlobalConfig('packageinfo_registered_acl', 0);
 
     if (0 == $this->public_acl || 0 == $this->registered_acl) {
-      die('Invalid group id');
+      throw new \Exception('Invalid ACL id');
     }
   }
 }
