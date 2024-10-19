@@ -51,8 +51,10 @@ class ReportsModel extends BaseDatabaseModel
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->eventConfig->packageInfos as $packageInfo) {
 
-      if ($packageInfo->packageInfoType != PackageInfoTypes::speeddating) continue;
-      if ($packageInfo->published != EbPublishedState::published) continue;
+      if (
+        $packageInfo->packageInfoType != PackageInfoTypes::speeddating
+        || $packageInfo->published != EbPublishedState::published
+      ) continue;
 
       foreach ($packageInfo->meta as $meta) {
         $object = (object)[];
@@ -89,7 +91,10 @@ class ReportsModel extends BaseDatabaseModel
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->eventConfig->packageInfos as $event) {
-      if ($event->packageInfoType != PackageInfoTypes::main) continue;
+      if (
+        $event->packageInfoType != PackageInfoTypes::main
+        || $event->published != EbPublishedState::published
+      ) continue;
 
       $records = Registrants::byEventId($event->eventId);
       $fields = ['TSHIRT', 'TSHIRT_VOL'];
@@ -353,7 +358,10 @@ class ReportsModel extends BaseDatabaseModel
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->eventConfig->packageInfos as $packageInfo) {
-      if ($packageInfo->packageInfoType != PackageInfoTypes::spa) continue;
+      if (
+        $packageInfo->packageInfoType != PackageInfoTypes::spa
+        || $packageInfo->published != EbPublishedState::published
+      ) continue;
 
       foreach ($packageInfo->meta as $meta) {
         $eventIds[] = $meta->eventId;
@@ -366,7 +374,10 @@ class ReportsModel extends BaseDatabaseModel
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->eventConfig->packageInfos as $packageInfo) {
-      if ($packageInfo->packageInfoType != PackageInfoTypes::spa) continue;
+      if (
+        $packageInfo->packageInfoType != PackageInfoTypes::spa
+        || $packageInfo->published != EbPublishedState::published
+      ) continue;
 
       $startDay = $packageInfo->start->format('D');
       $startTime = $packageInfo->start->format('M:i A');
