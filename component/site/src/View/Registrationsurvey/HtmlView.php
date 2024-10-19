@@ -15,7 +15,7 @@ defined('_JEXEC') or die;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Coupon;
 use ClawCorpLib\Lib\EventConfig;
-use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Lib\EventInfos;
 use ClawCorpLib\Lib\Registrant;
 use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Enums\EventPackageTypes;
@@ -52,8 +52,8 @@ class HtmlView extends BaseHtmlView
     $this->eventAlias = $params->get('eventAlias', '');
 
     // Kill on bad event alias
-    if ($this->eventAlias == '' || !EventInfo::isValidEventAlias($this->eventAlias)) {
-      $this->app->enqueueMessage('No/invalid event alias specified.', 'error');
+    if (!EventInfos::isEventAlias($this->eventAlias)) {
+      $this->app->enqueueMessage('Invalid event alias specified.', 'error');
       return;
     }
 

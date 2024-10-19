@@ -21,6 +21,7 @@ use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Lib\EventInfos;
 use ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
@@ -115,10 +116,10 @@ class HtmlView extends BaseHtmlView
 
   private function findNewestBio(): ?object
   {
-    $aliases = EventInfo::getEventInfos(includeUnpublised: true);
+    $eventInfos = new EventInfos(withUnpublished: true);
 
     /** @var \ClawCorpLib\Lib\EventInfo */
-    foreach ($aliases as $eventInfo) {
+    foreach ($eventInfos as $eventInfo) {
       // Skip newer events
       if ($eventInfo->end_date > $this->currentEventInfo->end_date) continue;
       if ($eventInfo->eventType != EventTypes::main) continue;
@@ -140,9 +141,9 @@ class HtmlView extends BaseHtmlView
   {
     $classes = [];
 
-    $aliases = EventInfo::getEventInfos();
+    $eventInfos = new EventInfos();
     /** @var \ClawCorpLib\Lib\EventInfo */
-    foreach ($aliases as $eventInfo) {
+    foreach ($eventInfos as $eventInfo) {
       // Skip newer events
       if ($eventInfo->end_date > $this->currentEventInfo->end_date) continue;
       if ($eventInfo->eventType != EventTypes::main) continue;
