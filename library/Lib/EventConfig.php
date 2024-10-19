@@ -2,6 +2,7 @@
 
 namespace ClawCorpLib\Lib;
 
+use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
@@ -22,7 +23,7 @@ class EventConfig
   // Cache of config values
   private static array $_titles = [];
   private static string $_current = '';
-  private static array $_EventInfoCache = [];
+  private static EventInfos $_EventInfoCache;
   private static array $_PackageInfosCache = [];
 
   public const DEFAULT_FILTERS = [
@@ -44,13 +45,15 @@ class EventConfig
   ) {
     $cacheKey = md5($alias . implode(',', array_map(fn($e) => $e->value, $filter)));
 
-    if (!EventInfo::isValidEventAlias($this->alias)) throw (new \Exception("Invalid event alias: $this->alias"));
-
-    if (!array_key_exists($alias, self::$_EventInfoCache)) {
-      self::$_EventInfoCache[$alias] = new EventInfo($alias);
+    if (!isset(self::$_EventInfoCache)) {
+      self::$_EventInfoCache = new EventInfos();
     }
 
-    $this->eventInfo = self::$_EventInfoCache[$alias];
+    $this->eventInfo = self::$_EventInfoCache->{$this->alias};
+
+    if (is_null($this->eventInfo)) {
+      throw (new \InvalidArgumentException("Invalid event alias: $this->alias"));
+    }
 
     $this->packageInfos = new PackageInfoArray();
 
@@ -61,8 +64,7 @@ class EventConfig
         PackageInfoTypes::daypass,
       ];
 
-      $eventInfos = EventInfo::getEventInfos();
-      $this->loadPackageInfos(array_keys($eventInfos));
+      $this->loadPackageInfos(self::$_EventInfoCache->keys());
     } else {
       if (!array_key_exists($cacheKey, self::$_PackageInfosCache)) {
         $this->loadPackageInfos([$this->eventInfo->alias]);
@@ -294,11 +296,11 @@ class EventConfig
   {
     if (count(self::$_titles)) return self::$_titles;
 
-    $eventList = EventInfo::getEventInfos();
+    $eventInfos = new EventInfos();
     $titles = [];
 
     /** @var \ClawCorpLib\Lib\EventInfo */
-    foreach ($eventList as $alias => $eventInfo) {
+    foreach ($eventInfos as $alias => $eventInfo) {
       if ($eventInfo->eventType != EventTypes::main) continue;
       $titles[$alias] = $eventInfo->description;
     }
@@ -311,16 +313,16 @@ class EventConfig
   {
     if (self::$_current != '') return self::$_current;
 
-    $eventList = EventInfo::getEventInfos();
+    $eventInfos = new EventInfos();
 
-    if (count($eventList) == 0) {
+    if (count($eventInfos) == 0) {
       die('No events found in Config::getCurrentEvent().');
     };
 
     $endDates = [];
 
     /** @var \ClawCorpLib\Lib\EventInfo */
-    foreach ($eventList as $alias => $eventInfo) {
+    foreach ($eventInfos as $alias => $eventInfo) {
       if ($eventInfo->eventType != EventTypes::main) continue;
 
       $endDates[$eventInfo->end_date->toSql()] = $alias;
@@ -351,21 +353,20 @@ class EventConfig
     return self::$_current;
   }
 
-  // TODO: refactor to use getEventInfos / getActiveEventAliases better
   public static function getActiveEventAliases(bool $mainOnly = false): array
   {
-    $eventList = EventInfo::getEventInfos();
+    $eventInfos = new EventInfos();
 
     if ($mainOnly) {
       /** @var \ClawCorpLib\Lib\EventInfo */
-      foreach ($eventList as $alias => $eventInfo) {
+      foreach ($eventInfos as $alias => $eventInfo) {
         if ($eventInfo->eventType != EventTypes::main) {
           unset($eventList[$alias]);
         }
       }
     }
 
-    return array_keys($eventList);
+    return $eventInfos->keys();
   }
 
 

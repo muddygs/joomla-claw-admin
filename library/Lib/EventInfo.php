@@ -6,10 +6,12 @@ use ClawCorpLib\Enums\EbPublishedState;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use ClawCorpLib\Enums\EventTypes;
+use ClawCorpLib\Iterators\EventInfoArray;
 
 class EventInfo
 {
-  private static $_EventList = [];
+  private static EventInfoArray $_EventList;
+  private static array $ActiveEventAliases = [];
 
   const startdayofweek = 1; // Monday
 
@@ -41,13 +43,17 @@ class EventInfo
 
   /**
    * Event info object with simple date validation if main events are allowed
-   * @param object $info 
-   * @param int $startdayofweek 1 (default for Monday)
+   * @param string $eventAlias
    * @return void 
    */
   public function __construct(
-    public readonly string $alias
+    public readonly string $alias,
+    public readonly bool $withUnpublished = false,
   ) {
+    if (!EventInfos::isEventAlias($this->alias)) {
+      throw new \Exception(__FILE__ . ': Event alias not found or not active: ' . $alias);
+    }
+
     $info = $this->loadRawEventInfo($alias);
 
     // Get server timezone
@@ -77,8 +83,7 @@ class EventInfo
     $this->eb_cat_combomeals = $info->eb_cat_combomeals ?? 0;
     $this->eb_cat_invoicables = json_decode($info->eb_cat_invoicables ?? '[]') ?? [];
 
-    // Data validation
-
+    // Date validation:
     // start_date must be a Monday, only if eventType is main
     // this allows refund and virtualclaw to exist in their odd separate way
 
@@ -91,12 +96,6 @@ class EventInfo
       }
 
       $this->end_date->setTime(23, 59, 59);
-
-      // Validate location exists in eventbooking
-      // if ( !Locations::ValidateLocationAlias($this->ebLocationId) ) {
-      //   var_dump($this);
-      //   die("Location alias not found in eventbooking locations: " . $this->ebLocationId);
-      // }
     }
   }
 
@@ -128,77 +127,6 @@ class EventInfo
     $date = clone $this->start_date;
     $date->setTimezone(new \DateTimeZone('UTC'));
 
-    try {
-      $result = $date->modify($modifier);
-    } catch (\Exception $e) {
-      throw $e;
-    }
-
-    if ($result === false) return false;
-
-    // If we're not supposed to validate, then return the start date
-    return $date;
-  }
-
-  /**
-   * Returns array, indexed by event alias, with "active" EventInfo objects
-   * @return array 
-   */
-  public static function getEventInfos(bool $includeUnpublised = false): array
-  {
-    if (count(self::$_EventList) > 0) return self::$_EventList;
-
-    $EventList = [];
-
-    /** @var \Joomla\Database\DatabaseDriver */
-    $db = Factory::getContainer()->get('DatabaseDriver');
-
-    $query = $db->getQuery(true);
-    $query->select(['alias', 'description'])
-      ->from('#__claw_eventinfos')
-      ->order('end_date DESC');
-
-    if (!$includeUnpublised) {
-      $query->where('active=' . EbPublishedState::published->value);
-    }
-
-    $db->setQuery($query);
-    $rows = $db->loadObjectList();
-
-    foreach ($rows as $row) {
-      $EventList[strtolower($row->alias)] = new EventInfo($row->alias);
-    }
-
-    self::$_EventList = $EventList;
-    return $EventList;
-  }
-
-  /**
-   * Validates if the event alias is from a valid and active event
-   * @param string $alias 
-   * @return bool 
-   * @throws ReflectionException 
-   */
-  public static function isValidEventAlias(string $alias): bool
-  {
-    // If cached, no db lookup, return what we know
-    if (count(self::$_EventList) != 0) {
-      return array_key_exists(strtolower($alias), self::$_EventList);
-    }
-
-    $alias = strtolower($alias);
-
-    // If not cached, do db lookup
-    /** @var \Joomla\Database\DatabaseDriver */
-    $db = Factory::getContainer()->get('DatabaseDriver');
-    $query = $db->getQuery(true);
-    $query->select(['alias', 'description'])
-      ->from('#__claw_eventinfos')
-      ->where('active=' . EbPublishedState::published->value)
-      ->where('alias = :alias')
-      ->bind(':alias', $alias);
-
-    $db->setQuery($query);
-    return $db->loadResult() != null;
+    return $date->modify($modifier);
   }
 }
