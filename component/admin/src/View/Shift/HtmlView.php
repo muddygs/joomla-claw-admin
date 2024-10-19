@@ -39,7 +39,14 @@ class HtmlView extends BaseHtmlView
     }
 
     $eventAlias = $this->form->getField('event')->value ?? Aliases::current(true);
-    $eventInfo = new EventInfo($eventAlias);
+
+    try {
+      $eventInfo = new EventInfo($eventAlias);
+    } catch (\Exception) {
+      Factory::getApplication()->enqueueMessage('Invalid event alias.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
+    }
+
 
     /** @var \Joomla\CMS\Form\Field\ListField */
     $parentField = $this->form->getField('shift_area');
@@ -48,7 +55,7 @@ class HtmlView extends BaseHtmlView
     $shiftCategoryIds = [...$eventInfo->eb_cat_shifts, ...$eventInfo->eb_cat_supershifts];
     $shiftRawCategories = ClawEvents::getRawCategories($shiftCategoryIds);
 
-    foreach ( $shiftRawCategories AS $alias => $row ) {
+    foreach ($shiftRawCategories as $alias => $row) {
       // remove 'shifts-' prefix
       $k = substr($alias, 7);
       $parentField->addOption(htmlentities($row->name), ['value' => $k]);

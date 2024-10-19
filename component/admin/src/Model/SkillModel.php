@@ -74,7 +74,13 @@ class SkillModel extends AdminModel
     $app = Factory::getApplication();
 
     $data['mtime'] = Helpers::mtime();
-    $info = new EventInfo($data['event']);
+
+    try {
+      $info = new EventInfo($data['event']);
+    } catch (\Exception) {
+      $app->enqueueMessage('Invalid event alias.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
+    }
 
     if (array_key_exists('day', $data) && in_array($data['day'], Helpers::getDays())) {
       $day = $info->modify($data['day'] ?? '');
@@ -177,7 +183,14 @@ class SkillModel extends AdminModel
     $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
 
     $alias = Aliases::current();
-    $info = new EventInfo($alias);
+
+    try {
+      $info = new EventInfo($alias);
+    } catch (\Exception) {
+      Factory::getApplication()->enqueueMessage('Email failure due to invalid event alias.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
+    }
+
     $data['event'] = $info->description;
 
     $subject = $new ? '[New] ' : '[Updated] ';

@@ -86,7 +86,14 @@ class HtmlView extends BaseHtmlView
     $this->activeFilters = $model->getActiveFilters();
 
     $eventAlias = $this->activeFilters['event'] ?? Aliases::current(true);
-    $eventInfo = new EventInfo($eventAlias);
+
+    try {
+      $eventInfo = new EventInfo($eventAlias);
+    } catch (\Exception) {
+      Factory::getApplication()->enqueueMessage('Invalid event alias.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
+    }
+
 
     /** @var \Joomla\CMS\Form\Field\ListField */
     $parentField = $this->filterForm->getField('shift_area', 'filter');
