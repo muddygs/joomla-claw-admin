@@ -11,9 +11,10 @@ use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseDriver;
 use Joomla\CMS\Date\Date;
 use ClawCorpLib\Lib\Authnetprofile;
+use ClawCorpLib\Iterators\EventInfoArray;
 
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Lib\EventInfos;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -26,7 +27,7 @@ final class Tasks extends CMSPlugin implements SubscriberInterface
   private DatabaseDriver $db;
   private string $eventAlias = '';
   private Date $now;
-  private array $eventInfos;
+  private EventInfoArray $eventInfos;
 
   /**
    * @var string[]
@@ -54,7 +55,7 @@ final class Tasks extends CMSPlugin implements SubscriberInterface
 
     $this->db = Factory::getContainer()->get('DatabaseDriver');
     $this->eventAlias = Aliases::current(true);
-    $this->eventInfos = EventInfo::getEventInfos();
+    $this->eventInfos = new EventInfos();
 
     $this->now = Factory::getDate();
   }
