@@ -1,5 +1,88 @@
 #!/usr/bin/env bash
 
+function authnet_cleanup () {
+  # auth.net files to remove since .gitignore is not working
+  rm -rf library/External/auth.net/patches library/External/auth.net/patches.zip library/External/auth.net/*.pdf library/External/auth.net/*.md
+}
+
+function initialize_component () {
+  cd component && zip --quiet -r ../package/packages/com_claw.zip . && cd -
+}
+
+function prepare_media () {
+  # prepare media directory
+  rm -rf media
+  mkdir -p media/js
+  mkdir -p media/css
+  mkdir -p media/fonts
+  cd media_raw/js
+  ## compile
+  /usr/bin/tsc
+  cd ../..
+  ## copy
+  cp media_raw/joomla.asset.json media/
+  cp media_raw/js/*.js* media/js/
+  cp media_raw/css/* media/css/
+  cp media_raw/fonts/* media/fonts/
+  rm media/js/*.json
+
+  # Directories to append to main component package once admin is added
+  /usr/bin/zip --quiet -r package/packages/com_claw.zip media
+}
+
+# Items in SVN, while GPL, are based on third-party packages
+# We do not want to distribute these code items because they belong to
+# their respective owners; mostly these are patched files to cooperate with
+# com_claw libraries
+# svn because...legacy repository
+
+function retrieve_svn () {
+  pushd ~/code # symlink to local SVN repository
+  svn up
+  REV=`svn info . | grep 'Revision' | awk '{print $2}'`
+  ./export.sh
+  popd
+
+  echo "Finish exporting Revision: ${REV}"
+  echo $REV > library/svn/svn_info
+
+  cp ~/tmp/j4_claw_custom_code_current.tar.gz library/svn
+
+  cd library && /usr/bin/zip --quiet -r ../package/packages/lib_claw.zip . && cd -
+}
+
+function build_main_package () {
+  cd package && /usr/bin/zip --quiet -r ../pkg_claw.zip . && cd -
+}
+
+# Build modules separately
+# TODO: make loop
+
+function build_modules () {
+  local VMODSPONSORS=`xmllint --xpath '/extension/version/text()' modules/mod_claw_sponsors/mod_claw_sponsors.xml` 
+  local VMODCART=`xmllint --xpath '/extension/version/text()' modules/mod_claw_cart/mod_claw_cart.xml` 
+  local VMODVENDORS=`xmllint --xpath '/extension/version/text()' modules/mod_claw_vendors/mod_claw_vendors.xml` 
+  local VMODREGBUTTONS=`xmllint --xpath '/extension/version/text()' modules/mod_claw_regbuttons/mod_claw_regbuttons.xml` 
+  local VMODTABFERRET=`xmllint --xpath '/extension/version/text()' modules/mod_claw_tabferret/mod_claw_tabferret.xml` 
+  local VMODSCHEDULE=`xmllint --xpath '/extension/version/text()' modules/mod_claw_schedule/mod_claw_schedule.xml` 
+  local VMODSPASCHEDULE=`xmllint --xpath '/extension/version/text()' modules/mod_claw_spaschedule/mod_claw_spaschedule.xml` 
+  local VMODSKILLSLIST=`xmllint --xpath '/extension/version/text()' modules/mod_claw_skillslist/mod_claw_skillslist.xml` 
+
+  cd modules/mod_claw_sponsors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_sponsors_$VMODSPONSORS.zip . && cd -
+  cd modules/mod_claw_cart && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_cart_$VMODCART.zip . && cd -
+  cd modules/mod_claw_vendors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_vendors_$VMODVENDORS.zip . && cd -
+  cd modules/mod_claw_regbuttons && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_regbuttons_$VMODREGBUTTONS.zip . && cd -
+  cd modules/mod_claw_tabferret && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_tabferret_$VMODTABFERRET.zip . && cd -
+  cd modules/mod_claw_schedule && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_schedule_$VMODSCHEDULE.zip . && cd -
+  cd modules/mod_claw_spaschedule && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_spachedule_$VMODSPASCHEDULE.zip . && cd -
+  cd modules/mod_claw_skillslist && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_skillslist_$VMODSKILLSLIST.zip . && cd -
+}
+
+function build_packages () {
+  local VPLUGINTASK=`xmllint --xpath '/extension/version/text()' plugins/task/clawcorp/clawcorp.xml` 
+  cd plugins/task/clawcorp && /usr/bin/zip --quiet -r ../../../package/packages/plg_task_clawcorp_$VPLUGINTASK.zip . && cd -
+}
+
 OUTPUT=~/tmp/git-$(date +%F)
 [ -d $OUTPUT ] && rm -rf $OUTPUT
 mkdir -p $OUTPUT
@@ -7,65 +90,13 @@ git archive main | tar -xf - -C $OUTPUT
 
 pushd $OUTPUT
 
-# auth.net files to remove since .gitignore is not working
-rm -rf library/External/auth.net/patches library/External/auth.net/patches.zip library/External/auth.net/*.pdf library/External/auth.net/*.md
-
-cd component && zip --quiet -r ../package/packages/com_claw.zip . && cd -
-
-# prepare media directory
-rm -rf media
-mkdir -p media/js
-mkdir -p media/css
-mkdir -p media/fonts
-cd media_raw/js
-## compile
-/usr/bin/tsc
-cd ../..
-## copy
-cp media_raw/joomla.asset.json media/
-cp media_raw/js/*.js* media/js/
-cp media_raw/css/* media/css/
-cp media_raw/fonts/* media/fonts/
-rm media/js/*.json
-
-# Directories to append to main component package once admin is added
-/usr/bin/zip --quiet -r package/packages/com_claw.zip media
-
-pushd ~/code # symlink to local SVN repository
-svn up
-REV=`svn info . | grep 'Revision' | awk '{print $2}'`
-./export.sh
-popd
-
-echo "Finish exporting Revision: ${REV}"
-echo $REV > library/svn/svn_info
-
-cp ~/tmp/j4_claw_custom_code_current.tar.gz library/svn
-
-cd library && /usr/bin/zip --quiet -r ../package/packages/lib_claw.zip . && cd -
-#cd plugin    && zip -dr ../package/packages/plg_claw.zip . && cd -
-
-cd package && /usr/bin/zip --quiet -r ../pkg_claw.zip . && cd -
-
-# Build modules separately
-
-VMODSPONSORS=`xmllint --xpath '/extension/version/text()' modules/mod_claw_sponsors/mod_claw_sponsors.xml` 
-VMODCART=`xmllint --xpath '/extension/version/text()' modules/mod_claw_cart/mod_claw_cart.xml` 
-VMODVENDORS=`xmllint --xpath '/extension/version/text()' modules/mod_claw_vendors/mod_claw_vendors.xml` 
-VMODREGBUTTONS=`xmllint --xpath '/extension/version/text()' modules/mod_claw_regbuttons/mod_claw_regbuttons.xml` 
-VMODTABFERRET=`xmllint --xpath '/extension/version/text()' modules/mod_claw_tabferret/mod_claw_tabferret.xml` 
-VMODSCHEDULE=`xmllint --xpath '/extension/version/text()' modules/mod_claw_schedule/mod_claw_schedule.xml` 
-VMODSPASCHEDULE=`xmllint --xpath '/extension/version/text()' modules/mod_claw_spaschedule/mod_claw_spaschedule.xml` 
-VMODSKILLSLIST=`xmllint --xpath '/extension/version/text()' modules/mod_claw_skillslist/mod_claw_skillslist.xml` 
-
-cd modules/mod_claw_sponsors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_sponsors_$VMODSPONSORS.zip . && cd -
-cd modules/mod_claw_cart && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_cart_$VMODCART.zip . && cd -
-cd modules/mod_claw_vendors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_vendors_$VMODVENDORS.zip . && cd -
-cd modules/mod_claw_regbuttons && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_regbuttons_$VMODREGBUTTONS.zip . && cd -
-cd modules/mod_claw_tabferret && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_tabferret_$VMODTABFERRET.zip . && cd -
-cd modules/mod_claw_schedule && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_schedule_$VMODSCHEDULE.zip . && cd -
-cd modules/mod_claw_spaschedule && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_spachedule_$VMODSPASCHEDULE.zip . && cd -
-cd modules/mod_claw_skillslist && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_skillslist_$VMODSKILLSLIST.zip . && cd -
+authnet_cleanup
+initialize_component
+prepare_media
+retrieve_svn
+build_main_package
+build_modules
+build_packages
 
 VPACKAGE=`xmllint --xpath '/extension/version/text()' package/pkg_claw.xml`
 VCOMPONENT=`xmllint --xpath '/extension/version/text()' component/claw.xml`
