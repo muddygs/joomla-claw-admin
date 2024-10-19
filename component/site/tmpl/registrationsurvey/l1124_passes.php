@@ -1,5 +1,6 @@
 <?php
 
+use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\EventBooking;
 
@@ -22,7 +23,10 @@ $now = date('Y-m-d H:i:s');
   /** @var \ClawCorpLib\Lib\PackageInfo */
   foreach ($this->eventConfig->packageInfos as $packageInfo) {
     if ($now > $packageInfo->end) continue;
-    if ($packageInfo->packageInfoType != PackageInfoTypes::passes) continue;
+    if (
+      $packageInfo->packageInfoType != PackageInfoTypes::passes
+      || $packageInfo->published != EbPublishedState::published
+    ) continue;
 
     $linkFull = EventBooking::buildRegistrationLink($this->eventConfig->alias, $packageInfo->eventPackageType);
 
