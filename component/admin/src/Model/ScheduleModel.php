@@ -40,6 +40,7 @@ class ScheduleModel extends AdminModel
 
   public function save($data)
   {
+    $app = Factory::getApplication();
     // Handle array merges
     // https://github.com/muddygs/joomla-claw-admin/wiki/Joomla-Form-Load-Save-of-Checkboxes-and-Multi-Select-Lists
 
@@ -47,7 +48,12 @@ class ScheduleModel extends AdminModel
     $data['fee_event'] = implode(',', $data['fee_event']);
     $data['mtime'] = Helpers::mtime();
 
-    $eventInfo = new EventInfo($data['event']);
+    try {
+      $eventInfo = new EventInfo($data['event']);
+    } catch (\Exception) {
+      $app->enqueueMessage('Invalid event alias.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
+    }
 
     if (array_key_exists('day', $data) && in_array($data['day'], Helpers::getDays())) {
       $day = $eventInfo->modify($data['day'] ?? '');
@@ -74,7 +80,6 @@ class ScheduleModel extends AdminModel
         thumbnail: $thumbname,
         thumbsize: 200,
       )) {
-        $app = Factory::getApplication();
         $app->enqueueMessage('Unable to save poster thumbnail file.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
         return false;
       }
