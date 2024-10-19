@@ -80,14 +80,14 @@ class Registrant
     $result = [];
 
     // Need to check if we're past end date
-    $activeEventInfos = EventInfo::getEventInfos();
+    $eventInfos = new EventInfos();
 
     $now = Factory::getDate();
 
     /** @var \ClawCorpLib\Lib\EventInfo */
-    foreach ($activeEventInfos as $eventInfo) {
+    foreach ($eventInfos as $eventInfo) {
       if ($now > $eventInfo->end_date) continue;
-      if ( EventTypes::refunds == $eventInfo->eventType ) continue;
+      if (EventTypes::refunds == $eventInfo->eventType) continue;
 
       $r = new Registrant($eventInfo->alias, $uid);
       /** @var \ClawCorpLib\Lib\RegistrantRecord */
