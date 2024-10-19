@@ -15,7 +15,7 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Deploy;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Lib\EventInfos;
 use ClawCorpLib\Traits\Controller;
 use Joomla\CMS\MVC\Controller\AdminController;
 use Joomla\CMS\Application\CMSApplication;
@@ -50,7 +50,7 @@ class PackageinfosController extends AdminController
 
     $event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
 
-    if (!EventInfo::isValidEventAlias($event)) {
+    if (!EventInfos::isEventAlias($event)) {
       $this->setRedirect(
         'index.php?option=com_claw&view=packageinfos',
         'Event selection not valid for deployment.',

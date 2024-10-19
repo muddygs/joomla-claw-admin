@@ -14,7 +14,7 @@ use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Lib\EventConfig;
-use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Lib\EventInfos;
 
 defined('_JEXEC') or die;
 
@@ -37,7 +37,6 @@ class PackageinfoModel extends EventconfigModel
 
     if (!$loadData) return $form;
 
-
     // Populate combo select list from any deployed events
 
     // Get the event alias from the form
@@ -46,7 +45,7 @@ class PackageinfoModel extends EventconfigModel
     $eventPackageType = $form->getField('eventPackageType')->value;
 
     // meta can only be populated with known information (requires save before full edit)
-    if (!EventInfo::isValidEventAlias($eventAlias)) return $form;
+    if (!EventInfos::isEventAlias($eventAlias)) return $form;
 
     // Validate other fields
     $packageInfoType = PackageInfoTypes::tryFrom($packageInfoType);

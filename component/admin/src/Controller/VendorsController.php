@@ -18,7 +18,7 @@ use Joomla\CMS\MVC\Controller\AdminController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
 use ClawCorpLib\Traits\Controller;
-use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Lib\EventInfos;
 
 /**
  * 
@@ -48,7 +48,7 @@ class VendorsController extends AdminController
     $filter = $this->app->getInput()->get('filter', '', 'string');
     $event = array_key_exists('event', $filter) ? $filter['event'] : '';
 
-    if (!EventInfo::isValidEventAlias($event)) {
+    if (!EventInfos::isEventAlias($event)) {
       $this->setRedirect(
         'index.php?option=com_claw&view=speeddatinginfos',
         'Event selection not valid for reordering.',
