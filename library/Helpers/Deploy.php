@@ -14,6 +14,7 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseDriver;
+use Joomla\CMS\User\UserFactoryInterface;
 
 class Deploy
 {
@@ -99,6 +100,7 @@ class Deploy
     string $payment_methods = '2',
     int $enable_cancel_registration = 1,
     int $event_capacity = 0,
+    string $notification_emails = '',
   ): int {
     $insert = new ebMgmt(
       eventAlias: $this->eventAlias,
@@ -127,6 +129,7 @@ class Deploy
     $insert->set('user_email_body_offline', $user_email_body);
     $insert->set('enable_cancel_registration', $enable_cancel_registration);
     $insert->set('event_capacity', $event_capacity);
+    $insert->set('notification_emails', $notification_emails);
 
     $eventId = $insert->insert();
 
@@ -226,6 +229,8 @@ class Deploy
     $eventInfo = $eventConfig->eventInfo;
     $packageInfos = $eventConfig->packageInfos;
 
+    $userEmails = [];
+
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
       if ($packageInfo->published != EbPublishedState::published) continue;
@@ -239,6 +244,12 @@ class Deploy
           $log[] =  "Already deployed: $packageInfo->title ($metaRow->userid) @ $eventId";
           $index++;
           continue;
+        }
+
+        if (!array_key_exists($metaRow->userid, $userEmails)) {
+          $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
+          $user = $userFactory->loadUserById($metaRow->userid);
+          $userEmails[$metaRow->userid] = $user->email;
         }
 
         $start = $packageInfo->start;
@@ -263,6 +274,7 @@ class Deploy
           registration_start_date: $this->registration_start_date,
           registration_access: $this->registered_acl,
           event_capacity: 1,
+          notification_emails: $userEmails[$metaRow->userid],
         );
 
         if ($eventId == 0) {
