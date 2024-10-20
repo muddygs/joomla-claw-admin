@@ -2,17 +2,12 @@
 
 namespace ClawCorpLib\Lib;
 
-use ClawCorpLib\Enums\EbPublishedState;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use ClawCorpLib\Enums\EventTypes;
-use ClawCorpLib\Iterators\EventInfoArray;
 
 class EventInfo
 {
-  private static EventInfoArray $_EventList;
-  private static array $ActiveEventAliases = [];
-
   const startdayofweek = 1; // Monday
 
   public string $shiftPrefix = '';
