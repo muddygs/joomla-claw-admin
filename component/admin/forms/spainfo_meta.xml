@@ -10,19 +10,6 @@
   />
 
   <field
-    name="services"
-    type="list"
-    label="Services"
-    multiple="true"
-    required="true"
-    default="0">
-    <option value="">Select Service(s)</option>
-    <option value="therapeutic">Therapeutic</option>
-    <option value="sensual">Sensual</option>
-    <option value="tie">Tie Down</option>
-  </field>
-
-  <field
     name="eventId"
     type="text"
     label="Event ID:"
