@@ -125,10 +125,6 @@ class SkillModel extends AdminModel
       return false;
     }
 
-    $event = $form->getField('event')->value;
-    $eventAlias = !empty($event) ? $event : Aliases::current();
-    Helpers::sessionSet('eventAlias', $eventAlias);
-
     return $form;
   }
 
