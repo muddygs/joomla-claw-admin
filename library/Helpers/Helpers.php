@@ -275,7 +275,7 @@ class Helpers
    * @param string Default value if not already set
    * @return string|null Value of key (or null on error)
    */
-  static function sessionGet(string $key, string $default = ''): string|null
+  static function sessionGet(string $key, string $default = ''): ?string
   {
     /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
