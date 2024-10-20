@@ -1,21 +1,16 @@
 <?php
 
-$sessionTitles = [
-  'therapeutic' => 'Therapeutic',
-  'sensual' => 'Sensual',
-  'tie' => 'Tie Down',
-];
 $itemCount = 0;
 
 ?>
 <div class="container">
-  <table class="table table-dark table-striped">
+  <table class="table table-dark table-striped table-responsive">
     <thead>
       <tr>
         <th>Time</th>
         <th>Session Length (Minutes)</th>
-        <th>Deposit Required*</th>
-        <th>Services Selection</th>
+        <th>Non-Refundable Deposit</th>
+        <th>Therapist Selection(s)</th>
       </tr>
     </thead>
     <tbody>
@@ -33,12 +28,12 @@ $itemCount = 0;
           <td><?= $delta_time_minutes ?></td>
           <td>$<?= $packageInfo->fee ?></td>
           <td>
-            <?php foreach ($packageInfo->meta as $session):
-              $services = implode("<br/>", array_intersect_key($sessionTitles, array_flip($session->services)));
-              $eventId = $session->eventId;
+            <?php foreach ($packageInfo->meta as $meta):
+              $publicName = $publicNames[$meta->userid] ?? 'TBD';
+              $eventId = $meta->eventId;
               $itemCount++;
             ?>
-              <a href="/index.php?option=com_eventbooking&view=register&event_id=<?= $eventId ?>" role="button" class="mx-auto btn btn-danger mb-1"><?= $services ?></a>
+              <a href="/index.php?option=com_eventbooking&view=register&event_id=<?= $eventId ?>" role="button" class="mx-auto btn btn-danger mb-1"><?= $publicName ?></a>
 
             <?php endforeach ?>
           </td>
