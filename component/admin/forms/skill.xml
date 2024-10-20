@@ -31,21 +31,17 @@
   </field>
 
   <field name="time_slot"
-    type="sql"
+    type="SkillsTimeSlotList"
     label="Time Slot"
     required="false"
-    value_field="text"
-    query="SELECT value,text FROM #__claw_field_values WHERE `fieldname`='skill_time_slot' ORDER BY value"
     default="">
     <option value="">Select a time slot</option>
   </field>
 
   <field name="type"
-    type="sql"
+    type="SkillsClassTypeList"
     label="Class Type"
     required="false"
-    value_field="text"
-    query="SELECT value,text FROM #__claw_field_values WHERE `fieldname`='skill_class_type' ORDER BY value"
     default="">
     <option value="">Select a class type</option>
   </field>
@@ -67,24 +63,20 @@
   </field>
 
   <field name="track"
-    type="sql"
+    type="SkillsTrackList"
     label="Track"
     description="Class Track"
     multiple="false"
-    value_field="text"
-    query="SELECT value,text FROM #__claw_field_values WHERE `fieldname`='skill_track' ORDER BY value"
     default=""
     required="false">
     <option value="">None</option>
   </field>
 
   <field name="category"
-    type="sql"
+    type="SkillsCategoryList"
     label="Category"
     description="Class Category"
     multiple="false"
-    value_field="text"
-    query="SELECT value,text FROM #__claw_field_values WHERE `fieldname`='skill_category' ORDER BY value"
     default=""
     required="false">
     <option value="">TBD</option>
@@ -117,7 +109,7 @@
     type="radio"
     layout="joomla.form.field.radio.switcher"
     default="0"
-    >
+  >
     <option value="0">JNO</option>
     <option value="1">JYES</option>
   </field>
@@ -154,7 +146,7 @@
 
   <field name="length_info"
     type="text"
-    label="Requested length"
+    label="Presenter Requested length"
     required="true"
     pattern="\d{1,3}"
     default="0" />
