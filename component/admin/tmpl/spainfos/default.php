@@ -53,7 +53,9 @@ $view = "spainfos";
             <th scope="col">
               <?php echo HTMLHelper::_('searchtools.sort', 'Title', 'a.title', $listDirn, $listOrder); ?>
             </th>
-            <th scope="col">Start</th>
+            <th scope="col">
+              <?php echo HTMLHelper::_('searchtools.sort', 'Start', 'a.start', $listDirn, $listOrder); ?>
+            </th>
             <th scope="col">End</th>
             <th scope="col">ID</th>
           </tr>
