@@ -148,6 +148,25 @@
     />
 
     <field
+      name="public_name_field"
+      type="sql"
+      label="Public Name Field"
+      description="Custom User Field to use for Public Name"
+      query="
+                SELECT
+                    id AS value,
+                    title AS text
+                FROM
+                    #__fields
+                WHERE
+                    context = 'com_users.user'
+                ORDER BY
+                    title ASC
+            "
+      value_field="text"
+    />
+
+    <field
       name="sponsorship_registration_email"
       type="editor"
       label="Sponsorship Registration Email"
