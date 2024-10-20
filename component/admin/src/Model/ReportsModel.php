@@ -245,7 +245,10 @@ class ReportsModel extends BaseDatabaseModel
     foreach ($mealCategoryIds as $catId) {
       /** @var \ClawCorpLib\Lib\PackageInfo */
       foreach ($this->eventConfig->packageInfos as $packageInfo) {
-        if ($packageInfo->category != $catId) continue;
+        if (
+          $packageInfo->published != EbPublishedState::published
+          || $packageInfo->category != $catId
+        ) continue;
 
         $subcount = [];
 
