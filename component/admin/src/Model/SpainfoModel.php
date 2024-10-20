@@ -34,7 +34,7 @@ class SpainfoModel extends EventconfigModel
     $data['category'] = ClawEvents::getCategoryId('spa');
     $data['packageInfoType'] = PackageInfoTypes::spa->value;
     $data['eventPackageType'] = EventPackageTypes::spa->value;
-    $data['title'] = implode(' ', ['Spa Session', ucfirst($data['day']), Helpers::formatTime($data['start_time']), '(' . $data['length'] - 10 . ' minutes)']);
+    $data['title'] = implode(' ', ['Spa Session', ucfirst($data['day']), Helpers::formatTime($data['start_time']), '(' . $data['length'] . ' minutes)']);
     $data['alias'] ??= 'TBD';
 
     $result = parent::save($data);
@@ -44,11 +44,6 @@ class SpainfoModel extends EventconfigModel
   protected function loadFormData()
   {
     $data = parent::loadFormData();
-
-    // Will only be a property upon initial load
-    if (isset($data) && is_object($data) && property_exists($data, 'delta_time_minutes')) {
-      $data->length = $data->delta_time_minutes + 10;
-    }
 
     return $data;
   }
