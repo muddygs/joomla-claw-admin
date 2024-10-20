@@ -99,7 +99,7 @@ class EventconfigModel extends AdminModel
 
       case PackageInfoTypes::spa:
         $start = $data['day'] . ' ' . $data['start_time'];
-        $end = $data['day'] . ' ' . $data['start_time'] . ' +' . (int)$data['length'] - 10 . ' minutes';
+        $end = $data['day'] . ' ' . $data['start_time'] . ' +' . (int)$data['length'] . ' minutes';
 
         $data['start'] = $eventInfo->modify($start ?? '')->toSql();
         $data['end'] = $eventInfo->modify($end ?? '')->toSql();
@@ -183,8 +183,6 @@ class EventconfigModel extends AdminModel
         $data->day = strtolower($start->format('D'));
         $data->start_time = $start->format('H:i');
         $data->end_time = $end->format('H:i');
-
-        $data->delta_time_minutes = (int)round(($end->toUnix() - $start->toUnix()) / 60);
       }
     }
 
