@@ -6,10 +6,12 @@ function authnet_cleanup () {
 }
 
 function initialize_component () {
-  cd component && zip --quiet -r ../package/packages/com_claw.zip . && cd -
+  echo "Initializing Component"
+  cd component && zip --quiet -r ../package/packages/com_claw.zip . && cd - &>/dev/null
 }
 
 function prepare_media () {
+  echo "Preparing Media"
   # prepare media directory
   rm -rf media
   mkdir -p media/js
@@ -37,6 +39,7 @@ function prepare_media () {
 # svn because...legacy repository
 
 function retrieve_svn () {
+  echo "--- START SVN ---"
   pushd ~/code # symlink to local SVN repository
   svn up
   REV=`svn info . | grep 'Revision' | awk '{print $2}'`
@@ -48,17 +51,20 @@ function retrieve_svn () {
 
   cp ~/tmp/j4_claw_custom_code_current.tar.gz library/svn
 
-  cd library && /usr/bin/zip --quiet -r ../package/packages/lib_claw.zip . && cd -
+  cd library && /usr/bin/zip --quiet -r ../package/packages/lib_claw.zip . && cd - &>/dev/null
+  echo "--- END SVN ---"
 }
 
 function build_main_package () {
-  cd package && /usr/bin/zip --quiet -r ../pkg_claw.zip . && cd -
+  echo "Package Build"
+  cd package && /usr/bin/zip --quiet -r ../pkg_claw.zip . && cd - &>/dev/null
 }
 
 # Build modules separately
 # TODO: make loop
 
 function build_modules () {
+  echo "Module Build"
   local VMODSPONSORS=`xmllint --xpath '/extension/version/text()' modules/mod_claw_sponsors/mod_claw_sponsors.xml` 
   local VMODCART=`xmllint --xpath '/extension/version/text()' modules/mod_claw_cart/mod_claw_cart.xml` 
   local VMODVENDORS=`xmllint --xpath '/extension/version/text()' modules/mod_claw_vendors/mod_claw_vendors.xml` 
@@ -68,19 +74,23 @@ function build_modules () {
   local VMODSPASCHEDULE=`xmllint --xpath '/extension/version/text()' modules/mod_claw_spaschedule/mod_claw_spaschedule.xml` 
   local VMODSKILLSLIST=`xmllint --xpath '/extension/version/text()' modules/mod_claw_skillslist/mod_claw_skillslist.xml` 
 
-  cd modules/mod_claw_sponsors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_sponsors_$VMODSPONSORS.zip . && cd -
-  cd modules/mod_claw_cart && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_cart_$VMODCART.zip . && cd -
-  cd modules/mod_claw_vendors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_vendors_$VMODVENDORS.zip . && cd -
-  cd modules/mod_claw_regbuttons && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_regbuttons_$VMODREGBUTTONS.zip . && cd -
-  cd modules/mod_claw_tabferret && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_tabferret_$VMODTABFERRET.zip . && cd -
-  cd modules/mod_claw_schedule && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_schedule_$VMODSCHEDULE.zip . && cd -
-  cd modules/mod_claw_spaschedule && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_spachedule_$VMODSPASCHEDULE.zip . && cd -
-  cd modules/mod_claw_skillslist && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_skillslist_$VMODSKILLSLIST.zip . && cd -
+  cd modules/mod_claw_sponsors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_sponsors_$VMODSPONSORS.zip . && cd - &>/dev/null
+  cd modules/mod_claw_cart && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_cart_$VMODCART.zip . && cd - &>/dev/null
+  cd modules/mod_claw_vendors && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_vendors_$VMODVENDORS.zip . && cd - &>/dev/null
+  cd modules/mod_claw_regbuttons && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_regbuttons_$VMODREGBUTTONS.zip . && cd - &>/dev/null
+  cd modules/mod_claw_tabferret && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_tabferret_$VMODTABFERRET.zip . && cd - &>/dev/null
+  cd modules/mod_claw_schedule && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_schedule_$VMODSCHEDULE.zip . && cd - &>/dev/null
+  cd modules/mod_claw_spaschedule && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_spachedule_$VMODSPASCHEDULE.zip . && cd - &>/dev/null
+  cd modules/mod_claw_skillslist && /usr/bin/zip --quiet -r ../../package/packages/mod_claw_skillslist_$VMODSKILLSLIST.zip . && cd - &>/dev/null
+
+  ls -l package/packages/mod_claw_*
 }
 
 function build_packages () {
+  echo "Package Build"
   local VPLUGINTASK=`xmllint --xpath '/extension/version/text()' plugins/task/clawcorp/clawcorp.xml` 
-  cd plugins/task/clawcorp && /usr/bin/zip --quiet -r ../../../package/packages/plg_task_clawcorp_$VPLUGINTASK.zip . && cd -
+  cd plugins/task/clawcorp && /usr/bin/zip --quiet -r ../../../package/packages/plg_task_clawcorp_$VPLUGINTASK.zip . && cd - &>/dev/null
+  ls -l package/packages/plg_*
 }
 
 OUTPUT=~/tmp/git-$(date +%F)
