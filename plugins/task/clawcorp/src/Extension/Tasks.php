@@ -121,12 +121,12 @@ final class Tasks extends CMSPlugin implements SubscriberInterface
         $query->where('e.hidden != 1');
       } else {
         $query->where('tsum.mycount < e.event_capacity');
-        $query->where('e.hidden = 0');
+        $query->where('e.hidden != 0');
       }
 
       $this->db->setQuery($query);
 
-      $this->db->transactionStart();
+      $this->db->transactionStart(false);
       $changeShifts = $this->db->loadColumn();
       $this->db->transactionCommit();
 
@@ -144,7 +144,7 @@ final class Tasks extends CMSPlugin implements SubscriberInterface
         ->where($this->db->quoteName('id') . ' IN (' . $eventIds . ')');
 
       $this->db->setQuery($query);
-      $this->db->transactionStart();
+      $this->db->transactionStart(false);
       $this->db->execute();
       $this->db->transactionCommit();
     }
