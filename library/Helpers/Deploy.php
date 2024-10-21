@@ -231,10 +231,18 @@ class Deploy
 
     $userEmails = [];
 
+    // Load default email for EB from DB to merge with therapist email
+    $query = $this->db->getQuery(true);
+    $query->select('config_value')
+      ->from('#__eb_configs')
+      ->where($this->db->qn('config_key') . '=' . $this->db->q('notification_emails'));
+    $this->db->setQuery($query);
+    $defaultEmail = $this->db->loadResult();
+
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
       if ($packageInfo->published != EbPublishedState::published) continue;
-      // The $userId in meta points to a therapist - one event/therapist/time
+      // The $userid in meta points to a therapist - one event/therapist/time
       $index = 0;
 
       foreach ($packageInfo->meta as $metaKey => $metaRow) {
@@ -274,7 +282,7 @@ class Deploy
           registration_start_date: $this->registration_start_date,
           registration_access: $this->registered_acl,
           event_capacity: 1,
-          notification_emails: $userEmails[$metaRow->userid],
+          notification_emails: is_null($defaultEmail) ? $userEmails[$metaRow->userid] : implode(',', [$defaultEmail, $userEmails[$metaRow->userid]]),
         );
 
         if ($eventId == 0) {
