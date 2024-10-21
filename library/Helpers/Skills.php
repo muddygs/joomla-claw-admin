@@ -4,7 +4,6 @@ namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\EventInfo;
 use InvalidArgumentException;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
@@ -27,9 +26,7 @@ class Skills
   public function __construct(
     public DatabaseDriver $db,
     public readonly string $eventAlias = ''
-  )
-  {
-  }
+  ) {}
 
   public function GetPresentersList(bool $publishedOnly = false): array
   {
@@ -41,16 +38,16 @@ class Skills
       ->from($this->db->qn('#__claw_presenters'))
       ->order('name ASC');
 
-    if ( $publishedOnly ) {
+    if ($publishedOnly) {
       $query->where($this->db->qn('published') . ' = 1');
     } else {
       $query->where($this->db->qn('published') . ' IN (1,3)'); // published or new
     }
 
-    if ( $this->eventAlias != '' ) {
+    if ($this->eventAlias != '') {
       $eventAlias = $this->eventAlias;
       $query->where($this->db->qn('event') . ' = :event')
-      ->bind(':event', $eventAlias);
+        ->bind(':event', $eventAlias);
     }
 
     $this->db->setQuery($query);
@@ -69,13 +66,13 @@ class Skills
     $query->select('*')
       ->from($this->db->quoteName('#__claw_presenters'))
       ->where($this->db->qn('uid') . '= :uid')
-      ->where('('. $this->db->qn('archive_state') . ' = "" OR ' . $this->db->qn('archive_state') . ' IS NULL)')
+      ->where('(' . $this->db->qn('archive_state') . ' = "" OR ' . $this->db->qn('archive_state') . ' IS NULL)')
       ->bind(':uid', $pid);
 
-    if ( $this->eventAlias != '' ) {
+    if ($this->eventAlias != '') {
       $eventAlias = $this->eventAlias;
       $query->where($this->db->qn('event') . ' = :event')
-      ->bind(':event', $eventAlias);
+        ->bind(':event', $eventAlias);
     }
 
     $query->order('mtime');
@@ -94,15 +91,15 @@ class Skills
     $query = $this->db->getQuery(true);
     $query->select('*')
       ->from($this->db->quoteName('#__claw_skills'))
-      ->where('((JSON_VALID('.$this->db->qn('presenters').') AND JSON_CONTAINS(' . $this->db->qn('presenters') . ', :copresenters)) OR ' . $this->db->qn('owner') . ' = :uid)')
-      ->where('('.$this->db->qn('archive_state') . ' = "" OR ' . $this->db->qn('archive_state') . ' IS NULL)')
+      ->where('((JSON_VALID(' . $this->db->qn('presenters') . ') AND JSON_CONTAINS(' . $this->db->qn('presenters') . ', :copresenters)) OR ' . $this->db->qn('owner') . ' = :uid)')
+      ->where('(' . $this->db->qn('archive_state') . ' = "" OR ' . $this->db->qn('archive_state') . ' IS NULL)')
       ->bind(':uid', $pid)
       ->bind(':copresenters', $pid);
 
-    if ( $this->eventAlias != '' ) {
+    if ($this->eventAlias != '') {
       $eventAlias = $this->eventAlias;
       $query->where($this->db->qn('event') . ' = :event')
-      ->bind(':event', $eventAlias);
+        ->bind(':event', $eventAlias);
     }
 
     $query->order('mtime');
@@ -133,12 +130,12 @@ class Skills
     $query->select('*')
       ->from($this->db->qn('#__claw_skills'))
       ->where($this->db->qn('event') . ' = :event')->bind(':event', $eventAlias);
-    
-    if ( $publishedOnly ) {
+
+    if ($publishedOnly) {
       $query->where($this->db->qn('published') . '= 1');
-        // ->where($this->db->qn('day') . ' != "0000-00-00"')
-        // ->where($this->db->qn('time_slot') . ' IS NOT NULL')
-        // ->where($this->db->qn('time_slot') . ' != ""');
+      // ->where($this->db->qn('day') . ' != "0000-00-00"')
+      // ->where($this->db->qn('time_slot') . ' IS NOT NULL')
+      // ->where($this->db->qn('time_slot') . ' != ""');
     }
 
     $query->order('day ASC, time_slot ASC, title ASC');
@@ -179,14 +176,14 @@ class Skills
       ->where($this->db->qn('uid') . ' = :uid')->bind(':uid', $uid)
       ->where($this->db->qn('event') . ' = :event')->bind(':event', $eventAlias);
 
-    if ( $published ) {
+    if ($published) {
       $query->where($this->db->qn('published') . ' = 1');
     }
 
     $this->db->setQuery($query);
     $presenter = $this->db->loadObject();
 
-    if ( $presenter != null )
+    if ($presenter != null)
       $presenter->route = Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter->uid);
 
     return $presenter;
@@ -206,7 +203,7 @@ class Skills
     $this->db->setQuery($query);
     $class = $this->db->loadObject();
 
-    if ( null == $class ) return $class;
+    if (null == $class) return $class;
 
     if (empty($class->presenters)) {
       $presenterIds = [];
@@ -220,7 +217,7 @@ class Skills
     $class->location = is_null($location) ? 'TBD' : $location->value;
 
     // day
-    if ( $class->day == '0000-00-00' ) {
+    if ($class->day == '0000-00-00') {
       $class->day = 'TBA';
       $class->time = '';
       $class->length = 'TBA';
@@ -236,14 +233,14 @@ class Skills
     }
 
     $config = new Config($this->eventAlias);
-    if ( $class->category != 'None' ) $class->category = $config->getConfigText(ConfigFieldNames::SKILL_CATEGORY, $class->category);
+    if ($class->category != 'None') $class->category = $config->getConfigText(ConfigFieldNames::SKILL_CATEGORY, $class->category);
 
     // Get the presenters
     $class->presenters = [];
 
-    foreach ( $presenterIds AS $presenterId ) {
+    foreach ($presenterIds as $presenterId) {
       $presenter = $this->GetPresenter($presenterId);
-      if ( null == $presenter ) continue;
+      if (null == $presenter) continue;
       $class->presenters[] = $presenter;
     }
 
@@ -259,7 +256,7 @@ class Skills
 
     $results = [];
 
-    foreach ( $classes as $class ) {
+    foreach ($classes as $class) {
       // stime corresponds to the tabs, just to help people find their class in the list
       $results[] = (object)[
         'id' => $class->id,
@@ -275,16 +272,20 @@ class Skills
 
   public function presentersCSV(string $filename, bool $publishedOnly = true)
   {
-    if ( $this->eventAlias == '' ) {
+    if ($this->eventAlias == '') {
       // error message
       throw new GenericDataException('eventAlias must be specified', 500);
     }
 
+    // append image_preview to the presenter object
+    $config = new Config($this->eventAlias);
+    $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
+
     $query = $this->db->getQuery(true);
 
-    $columnNames = ['id', 'uid', 'name', 'bio', 'photo'];
+    $columnNames = ['id', 'uid', 'name', 'bio', 'image_preview'];
 
-    if ( !$publishedOnly )
+    if (!$publishedOnly)
       $columnNames = array_keys($this->db->getTableColumns('#__claw_presenters'));
 
     $eventAlias = $this->eventAlias;
@@ -294,7 +295,7 @@ class Skills
       ->bind(':event', $eventAlias)
       ->order('name ASC');
 
-    if ( $publishedOnly ) {
+    if ($publishedOnly) {
       $query->where($this->db->qn('published') . ' = 1');
     }
 
@@ -302,7 +303,7 @@ class Skills
     $presenters = $this->db->loadObjectList() ?? [];
 
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="'. $filename . '"');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
     ob_clean();
@@ -313,24 +314,35 @@ class Skills
     $fp = fopen('php://output', 'wb');
     fputcsv($fp, $columnNames);
 
-    foreach ( $presenters AS $p ) {
+    foreach ($presenters as $p) {
       $row = [];
-      foreach ( $columnNames AS $col ) {
-        switch ( $col ) {
+      foreach ($columnNames as $col) {
+        switch ($col) {
           case 'uid':
             $row[] = 'presenter_' . $p->$col;
             break;
-          case 'photo':
-            // Remove leading '/' from path
-            $link = Helpers::convertMediaManagerUrl(ltrim($p->$col, '/'));
-            $row[] = is_null($link) ? '' : $link;
+          case 'image':
+          case 'image_preview':
+            $cache = new DbBlob(
+              db: $this->db,
+              cacheDir: JPATH_ROOT . $path,
+              prefix: 'web_',
+              extension: 'jpg'
+            );
+            $filenames = $cache->toFile(
+              tableName: '#__claw_presenters',
+              rowIds: [$p->id],
+              key: 'image_preview',
+            );
+
+            $row[] = $filenames[$p->id] ? 'https://www.clawinfo.org/' . $filenames[$p->id] : '';
             break;
           case 'bio':
             // Convert to HTML
             $row[] = Helpers::cleanHtmlForCsv($p->$col);
             break;
           case 'published':
-            $row[] = match($p->$col) {
+            $row[] = match ($p->$col) {
               -2 => 'Trashed',
               0 => 'Unpublished',
               1 => 'Published',
@@ -354,7 +366,7 @@ class Skills
 
   public function classesCSV(string $filename, bool $publishedOnly = true)
   {
-    if ( $this->eventAlias == '' ) {
+    if ($this->eventAlias == '') {
       // error message
       throw new GenericDataException('eventAlias must be specified', 500);
     }
@@ -371,7 +383,7 @@ class Skills
     $surveyLink = '';
     $siteUrl = '';
 
-    if ( $seSurveyMenuId > 0 ) {
+    if ($seSurveyMenuId > 0) {
       $menu = $app->getMenu('site');
       $item = $menu->getItem($seSurveyMenuId);
 
@@ -397,7 +409,7 @@ class Skills
     $categories = $config->getConfigValuesText(ConfigFieldNames::SKILL_CATEGORY);
 
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="'. $filename . '"');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
     ob_clean();
@@ -408,35 +420,35 @@ class Skills
     $fp = fopen('php://output', 'wb');
     fputcsv($fp, $columnNames);
 
-    foreach ( $this->classCache AS $c) {
+    foreach ($this->classCache as $c) {
       $row = [];
-      foreach ( $columnNames AS $col ) {
-        switch ( $col ) {
+      foreach ($columnNames as $col) {
+        switch ($col) {
           case 'id':
-            $row[] = 'class_'.$c->$col;
+            $row[] = 'class_' . $c->$col;
             break;
           case 'start_time':
             $time = Helpers::formatTime(explode(':', $c->time_slot)[0]);
-            if ( $time == 'Midnight' ) $time = '12:00 AM';
-            if ( $time == 'Noon' ) $time = '12:00 PM';
+            if ($time == 'Midnight') $time = '12:00 AM';
+            if ($time == 'Noon') $time = '12:00 PM';
             $row[] = $time;
-          break;
+            break;
 
           case 'end_time':
             // take start time and add length
-            [ $time, $length ] = explode(':', $c->time_slot);
+            [$time, $length] = explode(':', $c->time_slot);
             $time = new \DateTime($c->day . ' ' . $time);
-            $time->modify('+ '.$length .' minutes');
+            $time->modify('+ ' . $length . ' minutes');
             $row[] = $time->format('g:i A');
-          break;
+            break;
 
           case 'owner':
-            if ( !$publishedOnly) {
+            if (!$publishedOnly) {
               $row[] = $this->presenterCache[$c->$col]->name;
             } else {
               $row[] = $c->$col;
             }
-          break;
+            break;
 
           case 'people':
             if (empty($c->presenters)) {
@@ -444,20 +456,20 @@ class Skills
             } else {
               // TODO: Fix decode
               $presenterIds = json_decode($c->presenters);
-              if ( is_null($presenterIds)) $presenterIds = []; 
+              if (is_null($presenterIds)) $presenterIds = [];
             }
             array_unshift($presenterIds, $c->owner);
 
             // Remove any unpublished presenter ids
-            $presenterIds = array_filter($presenterIds, function($id) {
+            $presenterIds = array_filter($presenterIds, function ($id) {
               return isset($this->presenterCache[$id]);
             });
 
             // Prepend "presenter_" to each id and join with commas
-            $row[] = implode(',', array_map(function($id) {
+            $row[] = implode(',', array_map(function ($id) {
               return 'presenter_' . $id;
             }, $presenterIds));
-          break;
+            break;
 
           case 'people_public_name':
             if (empty($c->presenters)) {
@@ -465,46 +477,46 @@ class Skills
             } else {
               // TODO: Fix decode
               $presenterIds = json_decode($c->presenters);
-              if ( is_null($presenterIds)) $presenterIds = []; 
+              if (is_null($presenterIds)) $presenterIds = [];
             }
             array_unshift($presenterIds, $c->owner);
 
             // Remove any unpublished presenter ids
-            $presenterIds = array_filter($presenterIds, function($id) {
+            $presenterIds = array_filter($presenterIds, function ($id) {
               return isset($this->presenterCache[$id]);
             });
 
-            $row[] = implode(',', array_map(function($id) {
+            $row[] = implode(',', array_map(function ($id) {
               return $this->presenterCache[$id]->name;
             }, $presenterIds));
-          break;
+            break;
 
           case 'location':
             $location = $locations->GetLocationById($c->$col)->value;
             $row[] = $location;
-          break;
+            break;
 
           case 'multitrack':
             // track is day converted to day of week
             $time = $c->day . ' ' . explode(':', $c->time_slot)[0];
             // Fri/Sat get AM/PM, Sun gets day of week
             $day = date('w', strtotime($time));
-            if ( $day == 5 || $day == 6 ) {
+            if ($day == 5 || $day == 6) {
               $row[] = date('l A', strtotime($time));
             } else {
               $row[] = date('l', strtotime($time));
             }
-          break;
+            break;
 
           case 'description':
             $survey = '';
 
-            if ( $surveyLink != '' && $publishedOnly ) {
+            if ($surveyLink != '' && $publishedOnly) {
               $newurl = $surveyLink . '?form[classTitleParam]=' . $c->id;
-              $oldurl = '/skills_survey_'.$c->id; 
-              $redirect = new Redirects($this->db, $oldurl, $newurl, 'survey_'.$c->id);
+              $oldurl = '/skills_survey_' . $c->id;
+              $redirect = new Redirects($this->db, $oldurl, $newurl, 'survey_' . $c->id);
               $redirectId = $redirect->insert();
-              if ( $redirectId ) $survey = 'Survey: ' . $oldurl . '<br/>';
+              if ($redirectId) $survey = 'Survey: ' . $oldurl . '<br/>';
               $description = $survey . 'Category: ' . $categories[$c->category] . '<br/>' . $c->$col;
             } else {
               $description = $c->$col;
@@ -513,10 +525,10 @@ class Skills
             // Convert category to text
             $description = Helpers::cleanHtmlForCsv($description);
             $row[] = $description;
-          break;
-            
+            break;
+
           case 'published':
-            $row[] = match($c->$col) {
+            $row[] = match ($c->$col) {
               -2 => 'Trashed',
               0 => 'Unpublished',
               1 => 'Published',
@@ -524,22 +536,21 @@ class Skills
               3 => 'New',
               default => 'Unknown',
             };
-          break;
-  
+            break;
+
           default:
             $row[] = $c->$col;
-          break;
+            break;
         }
       }
 
       fputcsv($fp, $row);
-
     }
   }
 
   public function zipPresenters(string $filename)
   {
-    if ( $this->eventAlias == '' ) {
+    if ($this->eventAlias == '') {
       // error message
       throw new GenericDataException('eventAlias must be specified', 500);
     }
@@ -563,7 +574,7 @@ class Skills
 
     // Create a unique folder name, e.g., using a timestamp or a unique ID
     $uniqueFolderName = 'presenters_' . uniqid();
-    $tempFolderPath = implode(DIRECTORY_SEPARATOR,[$tmpBasePath, $uniqueFolderName]);
+    $tempFolderPath = implode(DIRECTORY_SEPARATOR, [$tmpBasePath, $uniqueFolderName]);
     $zipFileName = implode(DIRECTORY_SEPARATOR, [$tmpBasePath, $filename]);
 
     // Check if the directory already exists just in case
@@ -574,17 +585,17 @@ class Skills
 
     $archiveFiles = [];
 
-    foreach ( $presenters AS $p ) {
-      if ( $p->photo !== '') {
+    foreach ($presenters as $p) {
+      if ($p->photo !== '') {
         if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $p->photo]))) {
           $name = strtolower(preg_replace('/[^a-zA-Z0-9]/', '_', $p->name));
 
           $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, 'images', 'skills', 'presenters', 'orig', basename($p->photo)]);
-          $tmp = implode(DIRECTORY_SEPARATOR, [$tempFolderPath, $name.'_'.$p->uid.'.jpg']);
+          $tmp = implode(DIRECTORY_SEPARATOR, [$tempFolderPath, $name . '_' . $p->uid . '.jpg']);
           $archiveFiles[basename($tmp)] = $tmp;
 
           // Copy the file to the temp folder
-          if ( !copy($orig, $tmp) ) {
+          if (!copy($orig, $tmp)) {
             // error message
             echo "<p>Unable to copy file for {$p->name}</p>";
           }
@@ -604,25 +615,25 @@ class Skills
         echo "Error creating zip archive: " . $e->getMessage();
         return;
     }
-    *****/
+     *****/
 
     /** PHP METHOD */
     $zip = new \ZipArchive();
-    if ( $zip->open($zipFileName, \ZipArchive::CREATE) !== TRUE ) {
+    if ($zip->open($zipFileName, \ZipArchive::CREATE) !== TRUE) {
       echo "Error creating zip archive";
       return;
     }
 
-    foreach ( $archiveFiles AS $name => $file ) {
+    foreach ($archiveFiles as $name => $file) {
       $zip->addFromString($name, \file_get_contents($file));
     }
 
     $zip->close();
 
     header('Content-Type: application/zip');
-    header('Content-Disposition: attachment; filename="'. $filename . '"');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
     header("Cache-Control: no-store");
-    header('Content-Length: '.filesize($zipFileName));
+    header('Content-Length: ' . filesize($zipFileName));
 
     /** WARNING: THESE BREAK OUR HOSTING COMPANY */
     // header('Content-Transfer-Encoding: binary'); <-- this is a mail transport header
