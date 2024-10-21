@@ -361,7 +361,7 @@ class EventConfig
       /** @var \ClawCorpLib\Lib\EventInfo */
       foreach ($eventInfos as $alias => $eventInfo) {
         if ($eventInfo->eventType != EventTypes::main) {
-          unset($eventList[$alias]);
+          $eventInfos->offsetUnset($alias);
         }
       }
     }
