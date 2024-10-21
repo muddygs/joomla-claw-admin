@@ -35,6 +35,12 @@ class EventInfos implements \IteratorAggregate, \Countable
     return count($this->eventInfoArray);
   }
 
+  public function offsetUnset($offset): void
+  {
+    unset($this->eventInfoArray[$offset]);
+  }
+
+
   #endregion
   #
   private static function loadAliases(bool $withUnpublished = false, bool $fromPlugin = false): array
