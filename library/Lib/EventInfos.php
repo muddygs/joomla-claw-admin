@@ -48,7 +48,7 @@ class EventInfos implements \IteratorAggregate, \Countable
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    if ($fromPlugin) $db->transactionStart();
+    $db->transactionStart(false);
 
     $query = $db->getQuery(true);
     $query->select(['alias'])
@@ -63,7 +63,7 @@ class EventInfos implements \IteratorAggregate, \Countable
     $aliases = $db->loadColumn();
 
     // $db->unlockTables();
-    if ($fromPlugin) $db->transactionCommit();
+    $db->transactionCommit();
 
     return $aliases;
   }
