@@ -27,7 +27,7 @@ final class Tasks extends CMSPlugin implements SubscriberInterface
   private DatabaseDriver $db;
   private string $eventAlias = '';
   private Date $now;
-  private EventInfoArray $eventInfos;
+  private EventInfos $eventInfos;
 
   /**
    * @var string[]
@@ -135,10 +135,12 @@ final class Tasks extends CMSPlugin implements SubscriberInterface
 
     if (count($changeShifts)) {
       $eventIds = join(',', $changeShifts);
+      $hidden = $hidemode ? '1' : '0';
 
       $query = $this->db->getQuery(true)
         ->update($this->db->quoteName('#__eb_events'))
-        ->set($this->db->quoteName('hidden') . ' = ' . $hidemode ? '1' : '0')
+        ->set(['hidden = :hidden'])
+        ->bind(':hidden', $hidden)
         ->where($this->db->quoteName('id') . ' IN (' . $eventIds . ')');
 
       $this->db->setQuery($query);
