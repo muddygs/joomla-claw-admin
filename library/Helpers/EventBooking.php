@@ -153,22 +153,21 @@ class EventBooking
       ->select('IFNULL(SUM(b.number_registrants), 0) AS total_registrants')
       ->from('#__eb_events AS a')
       ->leftJoin(
-        '#__eb_registrants AS b ON a.id = b.event_id'
+        '#__eb_registrants AS b ON a.id = b.event_id AND (b.published = 1 or b.published is null)'
       )
       ->whereIn('a.id', $eventIds)
       ->where('a.published = 1')
       ->where('a.registration_start_date < ' . $db->q($currentDate))
       ->where('a.event_end_date < ' . $db->q($eventInfo->end_date))
-      ->where('(b.published = 1 or b.published is null)')
       ->group('a.id');
-
-    //echo '<pre>' . $query->__toString() . '</pre>';
-
-    //dd($query);
 
     $db->setQuery($query);
 
+    #echo '<pre>' . (string)$db->replacePrefix($db->getQuery()) . '</pre>';
+    #echo '<pre>' . implode(',', $eventIds) . '</pre>';
+
     $result = $db->loadObjectList('id');
+    #dd($result);
 
     return $result;
   }
