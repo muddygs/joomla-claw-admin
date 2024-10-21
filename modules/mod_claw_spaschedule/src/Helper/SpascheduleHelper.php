@@ -20,8 +20,6 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\User\UserFactoryInterface;
 use Joomla\Component\Fields\Administrator\Helper\FieldsHelper;
 use Joomla\CMS\Factory;
-use Joomla\Component\Fields\Administrator\Model\FieldsModel;
-use Joomla\Component\Privacy\Administrator\Export\Field;
 
 \defined('_JEXEC') or die;
 
@@ -31,6 +29,7 @@ use Joomla\Component\Privacy\Administrator\Export\Field;
 class SpascheduleHelper implements DatabaseAwareInterface
 {
   use DatabaseAwareTrait;
+
   public \Joomla\CMS\User\UserFactoryInterface $userFactory;
   public int $publicNameFieldId = 0;
 
