@@ -2,9 +2,7 @@
 
 \defined('_JEXEC') or die;
 
-use ClawCorpLib\Enums\EventPackageTypes;
 use Joomla\CMS\Factory;
-use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\ClawEvents;
 
@@ -43,31 +41,26 @@ if ($ref != '') {
 <?php
 if (!is_null($this->mainEvent)):
 ?>
-  <h1>You are already registered</h1>
+  <h1 class="text-center">You are already registered</h1>
   <div class="d-grid gap-2 col-6 mx-auto mb-3">
     <a href="/planning/my-reg" role="button" class="btn btn-danger">View Registrations</a>
-    <a href="<?= EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::addons) ?>" role="button" class="btn btn-success">Get Addons</a>
+    <a href="<?= $this->registrationLinks['addons'] ?>" role="button" class="btn btn-success">Get Addons/Shifts</a>
   </div>
   <p>If you are trying to register another person, please SIGN OUT (under the Registration menu) and start again using that person's account.</p>
-  <?php
-  $groups = Helpers::getUserGroupsByName();
-  if (!array_key_exists('Super Users', $groups)) {
-    return;
-  }
+<?php
+  return;
 endif;
 
-if (!$this->onsiteActive) {
-  # no actions here yet
-} else {
-  ?>
+if ($this->onsiteActive):
+?>
   <h1>Already Registered?</h1>
   <div class="d-grid mb-3">
-    <a href="<?= EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::addons) ?>" class="btn btn-success btn-lg" role="button">
-      Click Here To Get Add Ons
+    <a href="<?= $this->registrationLinks['addons'] ?>" class="btn btn-success btn-lg" role="button">
+      Get Addons/Shifts
     </a>
   </div>
 <?php
-}
+endif;
 
 ?>
 <form action="/php/pages/registrationsurvey.php" method="post" name="Coupon Validator" id="registration-survey-coupon" class="row">
