@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @package     Joomla.Plugin
- * @subpackage  Task.DemoTasks
+ * @package     CLAW.Sponsors
+ * @subpackage  plg_task_clawcorp
  *
- * @copyright   (C) 2022 Open Source Matters, Inc. <https://www.joomla.org>
+ * @copyright   (C) 2024 C.L.A.W. Corp.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 

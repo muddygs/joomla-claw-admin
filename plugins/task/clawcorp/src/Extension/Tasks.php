@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     CLAW.Sponsors
+ * @subpackage  plg_task_clawcorp
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace Joomla\Plugin\Task\ClawCorp\Extension;
 
 use Joomla\CMS\Plugin\CMSPlugin;
@@ -11,7 +19,6 @@ use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseDriver;
 use Joomla\CMS\Date\Date;
 use ClawCorpLib\Lib\Authnetprofile;
-use ClawCorpLib\Iterators\EventInfoArray;
 
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfos;
