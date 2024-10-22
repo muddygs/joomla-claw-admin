@@ -120,23 +120,17 @@ class HtmlView extends BaseHtmlView
     }
 
     // Links available to templates
-    $this->registrationLinks = [];
-    $this->registrationLinks['attendee'] =
-      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::attendee);
-    $this->registrationLinks['vol2'] =
-      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::volunteer2);
-    $this->registrationLinks['vol3'] =
-      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::volunteer3);
-    $this->registrationLinks['vip'] =
-      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip);
-    $this->registrationLinks['vip-express'] =
-      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip2);
-    $this->registrationLinks['educator'] =
-      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::educator);
-    $this->registrationLinks['coordinator'] =
-      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::claw_staff);
-    $this->registrationLinks['board'] =
-      EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::claw_board);
+    $this->registrationLinks = [
+      'attendee' => EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::attendee),
+      'vol2' => EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::volunteer2),
+      'vol3' => EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::volunteer3),
+      'vip' => EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip),
+      'vip-express' => EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::vip2),
+      'educator' => EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::educator),
+      'coordinator' => EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::claw_staff),
+      'board' => EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::claw_board),
+      'addons' => EventBooking::buildRegistrationLink($this->eventAlias, EventPackageTypes::addons),
+    ];
 
     $this->setLayout($this->eventAlias);
     parent::display();
