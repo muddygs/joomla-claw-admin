@@ -1,4 +1,10 @@
-# Transition styling for carousel
+# About
+
+TabFerret (deal with the working title! LOL) wraps Joomla article/module display into a
+kiosk-like display.
+
+# Styling
+## Transition styling for carousel
 
 Per [Bootstrap v5.2 Carousel Documentation](https://getbootstrap.com/docs/5.2/components/carousel/#custom-transition):
 
@@ -12,7 +18,7 @@ Example
 
 Add to your favorite css file.
 
-# Accordion styling
+## Accordion styling
 
 ```
 .accordion-button:not(.collapsed) {
@@ -34,4 +40,8 @@ Add to your favorite css file.
 
 ```
 
-Probably other classes to adjust, but that was the baseline I needed. Adjust as you like and add to your favorite css file.
+Probably other classes to adjust, but that was the baseline needed. Adjust as you like and add to your favorite css file.
+
+# License
+
+GNU General Public License version 2 or later; see LICENSE.txt for com_claw package
