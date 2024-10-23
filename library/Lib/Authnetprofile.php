@@ -28,6 +28,8 @@ use ClawCorpLib\Lib\Registrant;
 
 class Authnetprofile
 {
+  public static array $actionLog = [];
+
   public function __construct(
     private registrant $_r,
     private bool $cron = false
@@ -417,32 +419,32 @@ class Authnetprofile
    * @param string $eventAlias 
    * @param int $maximum_records
    * @param bool $cron 
-   * @return int Count of records created
+   * @return array Log of creation actions
    * @throws RuntimeException 
    */
-  public static function create(string $eventAlias, int $maximum_records = 10, bool $cron = false): int
+  public static function create(string $eventAlias, int $maximum_records = 10, bool $cron = false): array
   {
+    self::$actionLog = [];
     set_time_limit(0);
 
     // Used for generic registrant access
-    $registrants = new \ClawCorpLib\Lib\Registrants('refunds');
-
+    $registrants = new Registrants('refunds');
     $eventConfig = new EventConfig($eventAlias, []);
 
     $count = 0;
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
-    foreach ($eventConfig->packageInfos as $event) {
-      if (!$event->authNetProfile || $event->published != EbPublishedState::published) continue;
+    foreach ($eventConfig->packageInfos as $packageInfo) {
+      if (!$packageInfo->authNetProfile || $packageInfo->published != EbPublishedState::published) continue;
       $description = '';
 
-      $recordsByEventId = $registrants->byEventId($event->eventId);
+      $recordsByEventId = $registrants->byEventId($packageInfo->eventId);
 
       /** @var \ClawCorpLib\Lib\Registrant $registrant */
       foreach ($recordsByEventId as $registrant) {
         $profile = new Authnetprofile($registrant, $cron);
         if (!$description) {
-          $description = $event->title;
+          $description = $packageInfo->title;
           $profile->profilelog([$description], 'h1');
         }
 
@@ -454,16 +456,24 @@ class Authnetprofile
       if ($count >= $maximum_records) break;
     }
 
-    return $count;
+    self::$actionLog[] = (sprintf('Profiles Created: %d ', $count));
+    return self::$actionLog;
   }
 
   private function profilelog(array $msg, string $tag = 'pre')
   {
     if (!count($msg)) return;
+    $output = implode(PHP_EOL, $msg) . PHP_EOL;
 
-    if (!$this->cron) echo '<' . $tag . '>';
-    echo implode(PHP_EOL, $msg) . PHP_EOL;
-    if (!$this->cron)  echo '</' . $tag . '>';
+    if (!$this->cron) {
+?>
+      <<?= $tag ?>>
+        <?= $output ?>
+      </<?= $tag ?>>
+<?php
+    } else {
+      self::$actionLog[] = $output;
+    }
   }
 
   // These sections are here in case we need to bulk cancel subscriptions again
