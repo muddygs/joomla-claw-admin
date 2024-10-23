@@ -168,11 +168,14 @@ final class Tasks extends CMSPlugin implements SubscriberInterface
   {
     /** @var \Joomla\Component\Scheduler\Administrator\Task\Task */
     $task    = $event->getArgument('subject');
+    $taskId = $task->get('id');
 
     $limit = (int) $event->getArgument('params')->limit ?? 20;
-    $count = Authnetprofile::create(eventAlias: $this->eventAlias, maximum_records: $limit, cron: true);
+    $logs = Authnetprofile::create(eventAlias: $this->eventAlias, maximum_records: $limit, cron: true);
 
-    $this->logTask(sprintf('Profiles Created: %d Task ID %d', $count, $task->get('id')));
+    foreach ($logs as $log) {
+      $this->logTask(sprintf('Task ID %d: %s', $taskId, $log));
+    }
 
     return Status::OK;
   }
