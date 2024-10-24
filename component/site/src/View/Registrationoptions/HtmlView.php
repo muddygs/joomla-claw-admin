@@ -272,7 +272,7 @@ class HtmlView extends BaseHtmlView
     if ($this->addons) return true;
 
     $acl = $this->identity->getAuthorisedViewLevels();
-    if (! in_array($this->targetPackage->group_id, $acl)) {
+    if (! in_array($this->targetPackage->acl_id, $acl)) {
       $this->app->enqueueMessage('You are not authorized to register for this event.', 'error');
       $this->app->redirect($this->registrationSurveyLink);
       return false;

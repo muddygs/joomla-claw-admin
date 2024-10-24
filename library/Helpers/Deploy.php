@@ -344,7 +344,7 @@ class Deploy
       $end = $endDate;
       $cutoff = $endDate;
 
-      $accessGroup = $packageInfo->group_id > 0 ? $packageInfo->group_id : $this->registered_acl;
+      $accessGroup = $packageInfo->acl_id > 0 ? $packageInfo->acl_id : $this->registered_acl;
       $reg_start_date = $this->registration_start_date;
 
       $price_text = '';
