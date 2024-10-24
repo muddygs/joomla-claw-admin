@@ -5,7 +5,6 @@ namespace ClawCorpLib\Helpers;
 use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Lib\Aliases;
 use DateTime;
-use Joomla\CMS\Access\Access;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Image\Image;
@@ -162,28 +161,23 @@ class Helpers
   }
 
   /**
-   * Provides an associative array, keyed by group title, of user groups by name.
-   * @return array Group list
+   * Given an ACL ID, return the array of associated group ids
+   * @return null|array Group id list
    */
-  public static function getUserViewLevelsByName(DatabaseDriver $db, int $userId = 0): array
+  public static function AclToGroups(int $aclId): ?array
   {
-    if ($userId == 0) {
-      $identity = Factory::getApplication()->getIdentity();
-      if (!$identity) return [];
-
-      $userId = $identity->id;
-    }
-
-    $views = Access::getAuthorisedViewLevels($userId);
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     $query = $db->getQuery(true);
-    $query->select($db->qn(['id', 'title']))
+    $query->select('rules')
       ->from($db->qn('#__viewlevels'))
-      ->where('id IN (' . implode(',', $query->bindArray($views)) . ')');
+      ->where('id = :aclid')
+      ->bind(':aclid', $aclId);
     $db->setQuery($query);
-    $avl  = $db->loadAssocList('title');
+    $rules = $db->loadResult();
 
-    return $avl;
+    return json_decode($rules);
   }
 
   /**
