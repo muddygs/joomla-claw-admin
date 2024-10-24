@@ -45,6 +45,8 @@ class PresenterModel extends AdminModel
    * @since  1.6
    */
   protected $text_prefix = 'COM_CLAW';
+  private ?array $aclGroupIds = [];
+  private int $publishedAcl = 0;
 
   public function delete(&$pks)
   {
@@ -106,6 +108,21 @@ class PresenterModel extends AdminModel
       }
     }
 
+    if ($data['event'] == $currentEventAlias && $app->isClient('administrator') && $data['uid'] != 0) {
+      $this->publishedAcl = $this->loadEducatorAclId($data['event']);
+
+      if (!$this->publishedAcl) {
+        $app->enqueueMessage('No registration ACL set in configuration.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+        return false;
+      }
+
+      $this->aclGroupIds = Helpers::AclToGroups($this->publishedAcl);
+      if (is_null($this->aclGroupIds) || count($this->aclGroupIds) != 1) {
+        $app->enqueueMessage('Package ACL must contain only one group', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+        return false;
+      }
+    }
+
     $result = parent::save($data);
 
     if ($result) {
@@ -117,20 +134,13 @@ class PresenterModel extends AdminModel
         $this->email(new: $new, data: $data);
       }
 
-      if ($data['event'] == $currentEventAlias && $app->isClient('administrator') && $data['uid'] != 0) {
-        $publishedAcl = $this->loadEducatorAclId($data['event']);
-
-        if (!$publishedAcl) {
-          $app->enqueueMessage('No approval group set in configuration.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-          return false;
-        }
-
+      if ($this->publishedAcl != 0 && $app->isClient('administrator')) {
         switch ($data['published']) {
           case (EbPublishedState::published->value):
-            $this->ensureAclMembership($data['uid'], $publishedAcl);
+            $this->ensureAclMembership($data['uid']);
             break;
           default:
-            $this->removeAclMembership($data['uid'], $publishedAcl);
+            $this->removeAclMembership($data['uid']);
             break;
         }
       }
@@ -206,12 +216,9 @@ class PresenterModel extends AdminModel
     return $db->loadResult() ?? false;
   }
 
-  public function migrateToCurrentEvent(Table $table, bool $copy = true)
+  public function migrateToCurrentEvent(Table $table)
   {
-    if ($copy) {
-      $table->id = 0;
-    }
-
+    $table->id = 0;
     $table->event = Aliases::current(true);
     $table->published = 0;
     $table->mtime = Helpers::mtime();
@@ -224,34 +231,31 @@ class PresenterModel extends AdminModel
   private function loadEducatorAclId(string $eventAlias): int
   {
     $eventConfig = new EventConfig($eventAlias);
+    /** @var \ClawCorpLib\Lib\PackageInfo */
     $package = $eventConfig->getMainEventByPackageType(EventPackageTypes::educator);
-    return $package->group_id; // the ACL id
+    return $package->acl_id; // the ACL id
   }
 
-  private function ensureAclMembership($uid, $targetAcl)
+  private function ensureAclMembership($uid)
   {
     $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
     $user = $userFactory->loadUserById($uid);
     $acl = $user->getAuthorisedViewLevels();
 
-    return;
-
-    if (!in_array($targetAcl, $acl)) {
-      $user->groups = array_merge($acl, [$targetAcl]);
+    if (!in_array($this->publishedAcl, $acl)) {
+      $user->groups = array_merge($user->groups, $this->aclGroupIds);
       $user->save(updateOnly: true);
     }
   }
 
-  private function removeAclMembership($uid, $targetAcl)
+  private function removeAclMembership($uid)
   {
     $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
     $user = $userFactory->loadUserById($uid);
-    $groups = $user->getAuthorisedViewLevels();
+    $acl = $user->getAuthorisedViewLevels();
 
-    return;
-
-    if (in_array($targetAcl, $groups)) {
-      $user->groups = array_diff($groups, [$targetAcl]);
+    if (in_array($this->publishedAcl, $acl)) {
+      $user->groups = array_diff($user->groups, $this->aclGroupIds);
       $user->save();
     }
   }
