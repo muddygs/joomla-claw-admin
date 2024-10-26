@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -14,27 +15,20 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
-use ClawCorp\Component\Claw\Administrator\Helper\LocationHelper;
 use ClawCorpLib\Lib\Aliases;
 
-/**
- * Methods to handle a list of records.
- *
- * @since  1.6
- */
 class LocationModel extends AdminModel
 {
-    /**
+  /**
    * The prefix to use with controller messages.
    *
    * @var    string
-   * @since  1.6
    */
   protected $text_prefix = 'COM_CLAW_LOCATION';
 
   public function save($data)
   {
-    if ( $data['event'] == 0 ) {
+    if ($data['event'] == 0) {
       $data['event'] = Aliases::current(true);
     }
 
@@ -48,8 +42,6 @@ class LocationModel extends AdminModel
    * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
    *
    * @return  Form|boolean  A Form object on success, false on failure
-   *
-   * @since   1.6
    */
   public function getForm($data = array(), $loadData = true)
   {
@@ -65,13 +57,11 @@ class LocationModel extends AdminModel
    * Method to get the data that should be injected in the form.
    *
    * @return  mixed  The data for the form.
-   *
-   * @since   1.6
    */
   protected function loadFormData()
   {
     // Check the session for previously entered form data.
-    /** @var $app AdministratorApplication */
+    /** @var \Joomla\CMS\Application\AdministratorApplication */
     $app = Factory::getApplication();
     $data = $app->getUserState('com_claw.edit.location.data', []);
 
@@ -82,28 +72,16 @@ class LocationModel extends AdminModel
     return $data;
   }
 
-  /**
-   * Method to get a table object, load it if necessary.
-   *
-   * @param   string  $name     The table name. Optional.
-   * @param   string  $prefix   The class prefix. Optional.
-   * @param   array   $options  Configuration array for model. Optional.
-   *
-   * @return  Table  A Table object
-   *
-   * @since   3.0
-   * @throws  \Exception
-   */
   public function getTable($name = '', $prefix = '', $options = array())
   {
     $name = 'Locations';
     $prefix = 'Table';
 
-    if ($table = $this->_createTable($name, $prefix, $options))
-    {
+    if ($table = $this->_createTable($name, $prefix, $options)) {
       return $table;
     }
 
     throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
   }
 }
+
