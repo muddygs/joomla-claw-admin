@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -15,11 +16,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\MVC\Controller\FormController;
 
 /**
- * Controller for a single event info record
+ * Controller for a single speed dating event info record
  *
- * @since  1.6
  */
-class SpeeddatinginfoController extends FormController
-{
-
-}
+class SpeeddatinginfoController extends FormController {}

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -19,6 +20,4 @@ use Joomla\CMS\MVC\Controller\FormController;
  *
  * @since  1.6
  */
-class VendorController extends FormController
-{
-}
+class VendorController extends FormController {}

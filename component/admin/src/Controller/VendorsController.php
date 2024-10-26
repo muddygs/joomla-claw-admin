@@ -50,8 +50,8 @@ class VendorsController extends AdminController
 
     if (!EventInfos::isEventAlias($event)) {
       $this->setRedirect(
-        'index.php?option=com_claw&view=speeddatinginfos',
-        'Event selection not valid for reordering.',
+        'index.php?option=com_claw&view=vendorinfos',
+        'Vendor selection not valid for reordering.',
         'error'
       );
       return false;

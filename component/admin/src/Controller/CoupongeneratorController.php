@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -37,7 +38,7 @@ data: array(9)
   addon-B: 22
   htmxChangedField: "jform[owner-fields][owner-fields0][owner_email]"
   controller: "coupongenerator"
-*/
+ */
 
 /*
  * @package ClawCorp\Component\Claw\Administrator\Controller
@@ -88,8 +89,8 @@ class CoupongeneratorController extends FormController
     $this->checkToken();
 
     // Handle dynamically created checkboxes
-    foreach ( $this->input->post->getArray() AS $key => $value ) {
-      if ( str_starts_with($key, 'addon-') && strlen($key) == 7 ) {
+    foreach (array_keys($this->input->post->getArray()) as $key) {
+      if (str_starts_with($key, 'addon-') && strlen($key) == 7) {
         $this->data[$key] = $this->input->getString($key, '');
       }
     }
@@ -107,11 +108,11 @@ class CoupongeneratorController extends FormController
     $this->checkToken();
 
     // Handle dynamically created checkboxes
-    foreach ( $this->input->post->getArray() AS $key => $value ) {
-     if ( str_starts_with($key, 'addon-') && strlen($key) == 7 ) {
-       $this->data[$key] = $this->input->getString($key, '');
-     }
-   }
+    foreach (array_keys($this->input->post->getArray()) as $key) {
+      if (str_starts_with($key, 'addon-') && strlen($key) == 7) {
+        $this->data[$key] = $this->input->getString($key, '');
+      }
+    }
 
     $this->data['emailOverride'] = $this->input->get('emailOverride', 0, 'int');
     // End checkboxes
@@ -149,5 +150,5 @@ class CoupongeneratorController extends FormController
     header('Content-Type: text/html');
     echo $status->error ? '<span class="fa fa-ban text-danger"></span>' : '<span class="fa fa-check"></span>';
   }
-
 }
+

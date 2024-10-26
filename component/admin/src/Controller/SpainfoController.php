@@ -13,17 +13,9 @@ namespace ClawCorp\Component\Claw\Administrator\Controller;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Traits\Controller;
-use Joomla\CMS\Application\CMSApplication;
-use Joomla\CMS\Form\FormFactoryInterface;
 use Joomla\CMS\MVC\Controller\FormController;
-use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\Input\Input;
 
 /**
  * Controller for a single spa event info record
  */
-class SpainfoController extends FormController
-{
-
-}
+class SpainfoController extends FormController {}
