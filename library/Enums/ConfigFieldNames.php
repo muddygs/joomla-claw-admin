@@ -12,7 +12,6 @@ enum ConfigFieldNames: int
   case SKILL_CLASS_TYPE = 9;
   case SKILL_TIME_SLOT = 10;
   case SKILL_TRACK = 11;
-  case SPA_SERVICES = 12;
 
   public function toString(): string
   {
@@ -25,7 +24,6 @@ enum ConfigFieldNames: int
       ConfigFieldNames::SKILL_CLASS_TYPE => 'skill_class_type',
       ConfigFieldNames::SKILL_TIME_SLOT => 'skill_time_slot',
       ConfigFieldNames::SKILL_TRACK => 'skill_track',
-      ConfigFieldNames::SPA_SERVICES => 'spa_services',
     };
   }
 
@@ -40,7 +38,6 @@ enum ConfigFieldNames: int
       'SKILL_CLASS_TYPE' => self::SKILL_CLASS_TYPE,
       'SKILL_TIME_SLOT' => self::SKILL_TIME_SLOT,
       'SKILL_TRACK' => self::SKILL_TRACK,
-      'SPA_SERVICES' => self::SPA_SERVICES,
       default => null,
     };
   }
