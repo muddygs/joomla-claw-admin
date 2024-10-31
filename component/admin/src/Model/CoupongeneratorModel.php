@@ -216,12 +216,24 @@ class CoupongeneratorModel extends FormModel
 
     $emailStatus = $this->emailStatus($input);
     $quantity = (int)$input['quantity'];
+    $emailError = '';
 
-    $emailError = $allowOverride ? '' : match (true) {
-      $quantity != 1 && sizeof($emailStatus->emails) > 1 => 'When specifying multiple emails, only quantity = 1 allowed.',
-      $emailStatus->error => $emailStatus->msg,
-      default => ''
-    };
+    // If overriding, we want all names set and quantity 1
+    // Permits entries with empty or invalid emails
+    if ($allowOverride) {
+      $names = array_filter($emailStatus->names);
+      if (count($emailStatus->names) != count($names)) {
+        $emailError = "When overriding emails, all names must be entered";
+      } elseif ($quantity != 1) {
+        $emailError = "When overriding emails, quantity must be 1";
+      }
+    } else {
+      $emailError = match (true) {
+        $quantity != 1 && count($emailStatus->emails) > 1 => 'When specifying multiple emails, only quantity = 1 allowed.',
+        $emailStatus->error => $emailStatus->msg,
+        default => ''
+      };
+    }
 
     if ($emailError) {
       $result->error = true;
@@ -301,6 +313,12 @@ class CoupongeneratorModel extends FormModel
    */
   public function emailStatus(array &$input): object
   {
+    // Check if we are overriding the email address (emailOverride only exists if the checkbox is checked)
+    $allowOverride = false;
+    if ($this->emailOverride() && ($input['emailOverride'] ?? 0) == 1) {
+      $allowOverride = true;
+    }
+
     $result = (object)[
       'error' => false,
       'msg' => '',
@@ -310,14 +328,14 @@ class CoupongeneratorModel extends FormModel
 
     if (!array_key_exists('owner-fields', $input)) {
       $result->error = true;
-      $result->msg = 'Malformed HTML.';
+      $result->msg = 'Malformed Request.';
 
       return $result;
     }
 
     $eventSelection = $input['event'] ?? '';
 
-    if (!in_array($eventSelection, EventConfig::getActiveEventAliases())) {
+    if (!in_array($eventSelection, EventConfig::getActiveEventAliases(mainOnly: true))) {
       $result->msg = 'Please select an event.';
       return $result;
     }
@@ -332,6 +350,7 @@ class CoupongeneratorModel extends FormModel
 
       if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $result->error = true;
+        $result->msg = 'Invalid email address: ' . $email;
         return $result;
       }
 
@@ -341,7 +360,7 @@ class CoupongeneratorModel extends FormModel
       foreach (array_keys($input['owner-fields']) as $key) {
         $email = trim($input['owner-fields'][$key]['owner_email']);
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (!$allowOverride && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
           $result->error = true;
           $result->msg = 'Invalid email address: ' . $email;
           return $result;
