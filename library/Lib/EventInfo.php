@@ -45,7 +45,7 @@ class EventInfo
     public readonly string $alias,
     public readonly bool $withUnpublished = false,
   ) {
-    if (!EventInfos::isEventAlias($this->alias)) {
+    if (!EventInfos::isEventAlias($this->alias, $this->withUnpublished)) {
       throw new \Exception(__FILE__ . ': Event alias not found or not active: ' . $alias);
     }
 

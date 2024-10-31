@@ -73,7 +73,7 @@ class EventInfos implements \IteratorAggregate, \Countable
     $aliases = self::loadAliases($this->withUnpublished, $this->fromPlugin);
 
     foreach ($aliases as $alias) {
-      $this->eventInfoArray[strtolower($alias)] = new EventInfo($alias);
+      $this->eventInfoArray[strtolower($alias)] = new EventInfo($alias, $this->withUnpublished);
     }
   }
 
@@ -99,9 +99,9 @@ class EventInfos implements \IteratorAggregate, \Countable
     return null;
   }
 
-  public static function isEventAlias(string $eventAlias): bool
+  public static function isEventAlias(string $eventAlias, bool $withUnpublished = false): bool
   {
-    $aliases = self::loadAliases();
+    $aliases = self::loadAliases($withUnpublished);
     return in_array(strtolower($eventAlias), $aliases);
   }
 }
