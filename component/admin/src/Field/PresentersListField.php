@@ -1,10 +1,17 @@
 <?php
 
+/**
+ * @package     ClawCorp
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorp\Component\Claw\Administrator\Field;
 
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Form\Field\ListField;
-use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Skills;
 
 // phpcs:disable PSR1.Files.SideEffects
@@ -13,8 +20,6 @@ use ClawCorpLib\Helpers\Skills;
 
 /**
  * Supports an HTML list of CLAW events; based on com_menus@4.2.7
- *
- * @since  3.8.0
  */
 class PresentersListField extends ListField
 {
@@ -22,7 +27,6 @@ class PresentersListField extends ListField
    * The form field type.
    *
    * @var    string
-   * @since  1.7.0
    */
   public $type = 'PresentersList';
 
@@ -33,8 +37,6 @@ class PresentersListField extends ListField
    * Use the multiple attribute to enable multiselect.
    *
    * @return  string  The field input markup.
-   *
-   * @since   3.7.0
    */
   protected function getInput()
   {
@@ -44,13 +46,13 @@ class PresentersListField extends ListField
     $eventAlias = Helpers::sessionGet('eventAlias');
     $skills = new Skills($this->getDatabase(), $eventAlias);
     $this->presenters = $skills->GetPresentersList();
-    
+
     $currentValue = $this->__get('value');
 
-    if ( $currentValue ) {
+    if ($currentValue) {
       $currentPresenters = is_array($currentValue) ? $currentValue : explode(',', $currentValue);
-      foreach ( $currentPresenters AS $currentPresenter ) {
-        if ( !array_key_exists($currentPresenter, $this->presenters) ) {
+      foreach ($currentPresenters as $currentPresenter) {
+        if (!array_key_exists($currentPresenter, $this->presenters)) {
           // Push this presenter into the list
           $presenter = $skills->GetPresenter($currentPresenter, false);
           if (!is_null($presenter)) {
@@ -75,8 +77,6 @@ class PresentersListField extends ListField
    * Method to get the field options.
    *
    * @return  array  The field option objects.
-   *
-   * @since   3.7.0
    */
   protected function getOptions()
   {

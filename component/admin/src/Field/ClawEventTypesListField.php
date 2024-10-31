@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     ClawCorp
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorp\Component\Claw\Administrator\Field;
 
 use ClawCorpLib\Enums\EventTypes;
@@ -11,71 +19,64 @@ use Joomla\CMS\Form\Field\ListField;
 
 /**
  * Supports an HTML list of CLAW events; based on com_menus@4.2.7
- *
- * @since  3.8.0
  */
 class ClawEventTypesListField extends ListField
 {
-    /**
-     * The form field type.
-     *
-     * @var    string
-     * @since  1.7.0
-     */
-    protected $type = 'ClawEventTypesList';
+  /**
+   * The form field type.
+   *
+   * @var    string
+   */
+  protected $type = 'ClawEventTypesList';
 
-    /**
-     * Method to get the field input markup for a generic list.
-     * Use the multiple attribute to enable multiselect.
-     *
-     * @return  string  The field input markup.
-     *
-     * @since   3.7.0
-     */
-    protected function getInput()
-    {
-        $data = $this->getLayoutData();
-        $currentValue = $this->__get('value');
+  /**
+   * Method to get the field input markup for a generic list.
+   * Use the multiple attribute to enable multiselect.
+   *
+   * @return  string  The field input markup.
+   */
+  protected function getInput()
+  {
+    $data = $this->getLayoutData();
+    $currentValue = $this->__get('value');
 
-        if ((int)$currentValue != 0) {
-            $this->__set('value', $currentValue);
-            $data['value'] = $currentValue;
-        }
-
-        $data['options'] = (array) $this->getOptions();
-
-        return $this->getRenderer($this->layout)->render($data);
+    if ((int)$currentValue != 0) {
+      $this->__set('value', $currentValue);
+      $data['value'] = $currentValue;
     }
 
-    /**
-     * Method to get the field options.
-     *
-     * @return  array  The field option objects.
-     *
-     * @since   3.7.0
-     */
-    protected function getOptions()
-    {
-        $options = parent::getOptions();
+    $data['options'] = (array) $this->getOptions();
 
-        $currentValue = $this->__get('value') ?? '';
+    return $this->getRenderer($this->layout)->render($data);
+  }
 
-        foreach (EventTypes::toOptions() as $key => $text) {
-            $options[] = (object)[
-                'value'    => $key,
-                'text'     => $text,
-                'disable'  => false,
-                'class'    => '',
-                'selected' => $key == $currentValue ? true : false,
-                'checked'  => $key == $currentValue ? true : false,
-                'onclick'  => '',
-                'onchange' => ''
-            ];
-        }
+  /**
+   * Method to get the field options.
+   *
+   * @return  array  The field option objects.
+   */
+  protected function getOptions()
+  {
+    $options = parent::getOptions();
 
-        // Because this is what ListField (parent) does; I do not know if necessary
-        reset($options);
+    $currentValue = $this->__get('value') ?? '';
 
-        return $options;
+    foreach (EventTypes::toOptions() as $key => $text) {
+      $options[] = (object)[
+        'value'    => $key,
+        'text'     => $text,
+        'disable'  => false,
+        'class'    => '',
+        'selected' => $key == $currentValue ? true : false,
+        'checked'  => $key == $currentValue ? true : false,
+        'onclick'  => '',
+        'onchange' => ''
+      ];
     }
+
+    // Because this is what ListField (parent) does; I do not know if necessary
+    reset($options);
+
+    return $options;
+  }
 }

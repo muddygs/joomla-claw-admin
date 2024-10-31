@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     ClawCorp
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorp\Component\Claw\Administrator\Field;
 
 use ClawCorpLib\Helpers\Helpers;
@@ -7,6 +15,7 @@ use Joomla\CMS\Form\Field\ListField;
 
 defined('_JEXEC') or die;
 
+// TODO: this needs to be replaced with config parameter(s) to select group by ID (old legacy code)
 class UsersByGroupField extends ListField
 {
   public $type = 'UsersByGroup';
@@ -89,19 +98,19 @@ class UsersByGroupField extends ListField
     foreach ($this->groupnames as $g) {
       $users = Helpers::getUsersByGroupName($this->getDatabase(), $g);
 
-      foreach ( $users AS $u ) {
-      $this->listItems[] = (object)[
-        'value'    => $u->user_id,
-        'text'     => $u->name,
-        'disable'  => false,
-        'class'    => '',
-        'selected' => $u->user_id == $currentValue ? true : false,
-        'checked'  => $u->user_id == $currentValue ? true : false,
-        'onclick'  => '',
-        'onchange' => ''
-      ];
+      foreach ($users as $u) {
+        $this->listItems[] = (object)[
+          'value'    => $u->user_id,
+          'text'     => $u->name,
+          'disable'  => false,
+          'class'    => '',
+          'selected' => $u->user_id == $currentValue ? true : false,
+          'checked'  => $u->user_id == $currentValue ? true : false,
+          'onclick'  => '',
+          'onchange' => ''
+        ];
+      }
     }
-  }
 
     return $this->listItems;
   }

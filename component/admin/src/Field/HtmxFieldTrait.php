@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     ClawCorp
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorp\Component\Claw\Administrator\Field;
 
 trait HtmxFieldTrait
@@ -54,13 +62,13 @@ hx_ws
 
   public function getHtmxClassProperties(bool $TranslateUnderscore = false): array
   {
-    if ( count($this->_hx_properties) ) {
+    if (count($this->_hx_properties)) {
       return $this->_hx_properties;
     }
 
     $this->_hx_properties = [];
     $classProperties = get_class_vars(__CLASS__);
-    foreach ($classProperties as $propertyName => $propertyValue) {
+    foreach (array_keys($classProperties) as $propertyName) {
       if (str_starts_with($propertyName, 'hx_')) {
         $this->_hx_properties[] = $TranslateUnderscore ? str_replace('_', '-', $propertyName) : $propertyName;
       }
@@ -70,7 +78,7 @@ hx_ws
 
   public function getHtmxClassValues(): array
   {
-    if ( count($this->_hx_values) ) return $this->_hx_values;
+    if (count($this->_hx_values)) return $this->_hx_values;
 
     $this->_hx_values = [];
     $classProperties = array_keys(get_class_vars(__CLASS__));
@@ -105,7 +113,7 @@ hx_ws
   {
     $p = $this->getHtmxClassProperties();
 
-    if ( in_array($name, $p) ) {
+    if (in_array($name, $p)) {
       $this->$name = (string) $value;
       return;
     }
@@ -131,7 +139,7 @@ hx_ws
     $data = parent::getLayoutData();
     $data['options'] = (array) $this->getOptions();
 
-    switch($this->type) {
+    switch ($this->type) {
       case 'HtmxList':
         // $data['options'] = (array) $this->getOptions();
         break;
@@ -161,4 +169,3 @@ hx_ws
   }
 }
 
-?>
