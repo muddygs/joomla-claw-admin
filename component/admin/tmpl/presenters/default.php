@@ -29,9 +29,6 @@ $user = $app->getIdentity();
 
 ?>
 <div class="container">
-  <div id="subhead" class="subhead noshadow mb-3">
-    <?php echo $this->toolbar->render(); ?>
-  </div>
   <form action="<?php echo Route::_('index.php?option=com_claw&view=presenters'); ?>" method="post" name="adminForm" id="adminForm">
     <?php echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
 
@@ -52,10 +49,10 @@ $user = $app->getIdentity();
             <th scope="col">Image</th>
             <th scope="col">Classes</th>
             <th scope="col">
-              <?php echo HTMLHelper::_('searchtools.sort', 'Modification', 'a.mtime', $listDirn, $listOrder); ?>  
+              <?php echo HTMLHelper::_('searchtools.sort', 'Modification', 'a.mtime', $listDirn, $listOrder); ?>
             </th>
             <th scope="col">
-              <?php echo HTMLHelper::_('searchtools.sort', 'Submission', 'a.submission_date', $listDirn, $listOrder); ?>  
+              <?php echo HTMLHelper::_('searchtools.sort', 'Submission', 'a.submission_date', $listDirn, $listOrder); ?>
             </th>
             <th scope="col">ID</th>
           </tr>
@@ -81,7 +78,7 @@ $user = $app->getIdentity();
               </td>
 
               <td>
-                <a href="<?php echo Route::_('index.php?option=com_claw&task=presenter.edit&id=' . $item->id); ?>" title="Edit Presenter (UID=<?= $item->uid?>)">
+                <a href="<?php echo Route::_('index.php?option=com_claw&task=presenter.edit&id=' . $item->id); ?>" title="Edit Presenter (UID=<?= $item->uid ?>)">
                   <?php echo $item->name ?>
                 </a>
               </td>
@@ -92,24 +89,24 @@ $user = $app->getIdentity();
 
               <td>
                 <?php
-                  if ( $item->image_preview ?? '' !== '') {
-                      ?>
-                      <img src="/<?= $item->image_preview ?>" style="max-height:80px; width:auto;" />
-                      <?php
-                    } else {
-                      echo 'No image';
-                  }
+                if ($item->image_preview ?? '' !== '') {
+                ?>
+                  <img src="/<?= $item->image_preview ?>" style="max-height:80px; width:auto;" />
+                <?php
+                } else {
+                  echo 'No image';
+                }
                 ?>
               </td>
 
               <td>
-                <?=$item->classes?>
+                <?= $item->classes ?>
               </td>
 
               <td>
                 <?php echo $item->mtime ?>
               </td>
-              
+
               <td>
                 <?php echo $item->submission_date ?>
               </td>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -83,15 +84,14 @@ class HtmlView extends BaseHtmlView
     $this->filterForm    = $this->get('FilterForm');
     $this->activeFilters = $this->get('ActiveFilters');
 
-    foreach ( $this->items AS $item )
-    {
+    foreach ($this->items as $item) {
       // TODO: This should use the filter event alias, not the current alias
       $skills = new Skills($this->getModel()->db, Aliases::current());
       $classes = $skills->GetPresenterClasses($item->uid);
 
-      $classesLink = array_map(function($class) {
+      $classesLink = array_map(function ($class) {
         $url = Route::_("index.php?option=com_claw&view=skill&layout=edit&id={$class->id}");
-        $link = '<a href="'.$url.'"> '.$class->title.'</a>';
+        $link = '<a href="' . $url . '"> ' . $class->title . '</a>';
         return $link;
       }, $classes);
 
@@ -115,18 +115,14 @@ class HtmlView extends BaseHtmlView
 
     ToolbarHelper::title('CLAW Presenters');
 
-    // TODO: This is the "new" way to do toolbars, but there are some formatting
-    // issues that need to be resolved.
+    //$toolbar = Factory::getContainer()->get(ToolbarFactoryInterface::class)->createToolbar('toolbar');
+    // TODO: When the backend is updated, we'll update.
+    // See: https://manual.joomla.org/docs/general-concepts/dependency-injection/di-issues#toolbargetinstance
 
+    /** @var \Joomla\CMS\Toolbar\Toolbar $toolbar */
+    $toolbar = Toolbar::getInstance('toolbar');
 
-    // Get the toolbar object instance
-    /** @var Toolbar $toolbar */
-    $toolbar = Factory::getContainer()->get(ToolbarFactoryInterface::class)->createToolbar('toolbar');
-
-
-    // TODO: Need both?
-    if ($user->authorise('core.admin', 'com_claw') || $user->authorise('claw.skills', 'com_claw'))
-    {
+    if ($user->authorise('core.admin', 'com_claw') || $user->authorise('claw.skills', 'com_claw')) {
       $toolbar->addNew('presenter.add');
 
       $toolbar->delete('presenters.delete')

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -85,7 +86,7 @@ class HtmlView extends BaseHtmlView
       throw new GenericDataException(implode("\n", $errors), 500);
     }
 
-    $this->toolbar = $this->addToolbar();
+    $this->addToolbar();
 
     parent::display($tpl);
   }
@@ -97,16 +98,13 @@ class HtmlView extends BaseHtmlView
 
     ToolbarHelper::title('CLAW Package Infos');
 
-    // TODO: This is the "new" way to do toolbars, but there are some formatting
-    // issues that need to be resolved.
+    // TODO: When the backend is updated, we'll update.
+    // See: https://manual.joomla.org/docs/general-concepts/dependency-injection/di-issues#toolbargetinstance
 
+    /** @var \Joomla\CMS\Toolbar\Toolbar $toolbar */
+    $toolbar = Toolbar::getInstance('toolbar');
 
-    // Get the toolbar object instance
-    /** @var Toolbar $toolbar */
-    $toolbar = Factory::getContainer()->get(ToolbarFactoryInterface::class)->createToolbar('toolbar');
-
-    if ( $user->authorise('core.admin', 'com_claw') )
-    {
+    if ($user->authorise('core.admin', 'com_claw')) {
       $toolbar->addNew('packageinfo.add');
 
       $toolbar->delete('packageinfos.delete')
@@ -114,7 +112,7 @@ class HtmlView extends BaseHtmlView
         ->message('Confirm delete selected?')
         ->listCheck(true);
 
-      $toolbar->basicButton('process','Deploy Events','packageinfos.process')
+      $toolbar->basicButton('process', 'Deploy Events', 'packageinfos.process')
         ->icon('fas fa-calendar')
         ->buttonClass('btn')
         ->listCheck(false);

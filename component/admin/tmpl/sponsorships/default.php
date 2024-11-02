@@ -31,9 +31,6 @@ $view = "sponsorships";
 
 ?>
 <div class="container">
-  <div id="subhead" class="subhead noshadow mb-3">
-    <?php echo $this->toolbar->render(); ?>
-  </div>
   <form action="<?php echo Route::_('index.php?option=com_claw&view=' . $view); ?>" method="post" name="adminForm" id="adminForm">
     <?php echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
 
@@ -80,18 +77,18 @@ $view = "sponsorships";
               </td>
 
               <td>
-                <?= PackageInfoTypes::from($item->packageInfoType)->toString()?>
+                <?= PackageInfoTypes::from($item->packageInfoType)->toString() ?>
               </td>
               <td>
                 <?php
-                  if ( $item->eventId != 0 ): ?>
-                    <a href="<?php echo Route::_('index.php?option=com_eventbooking&view=event&id=' . $item->eventId); ?>" title="Edit in Event Booking" target="_blank">
-                      <?= $item->alias. ' (' . $item->eventId . ')' ?>
-                    </a>
-                  <?php
-                  else:
-                    echo $item->alias;
-                  endif;
+                if ($item->eventId != 0): ?>
+                  <a href="<?php echo Route::_('index.php?option=com_eventbooking&view=event&id=' . $item->eventId); ?>" title="Edit in Event Booking" target="_blank">
+                    <?= $item->alias . ' (' . $item->eventId . ')' ?>
+                  </a>
+                <?php
+                else:
+                  echo $item->alias;
+                endif;
                 ?>
               </td>
 
@@ -103,14 +100,11 @@ $view = "sponsorships";
 
               <td>
                 <?php
-                  if ( $item->fee == 0 )
-                  {
-                    echo "Free";
-                  }
-                  else
-                  {
-                    echo "$" . number_format($item->fee, 2);
-                  }
+                if ($item->fee == 0) {
+                  echo "Free";
+                } else {
+                  echo "$" . number_format($item->fee, 2);
+                }
                 ?>
               </td>
 

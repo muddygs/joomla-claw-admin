@@ -31,10 +31,7 @@ $view = "eventinfos";
 
 ?>
 <div class="container">
-  <div id="subhead" class="subhead noshadow mb-3">
-    <?php echo $this->toolbar->render(); ?>
-  </div>
-  <form action="<?php echo Route::_('index.php?option=com_claw&view='.$view); ?>" method="post" name="adminForm" id="adminForm">
+  <form action="<?php echo Route::_('index.php?option=com_claw&view=' . $view); ?>" method="post" name="adminForm" id="adminForm">
     <?php echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
 
     <div class="table-responsive">

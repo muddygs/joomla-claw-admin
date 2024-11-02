@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -85,7 +86,7 @@ class HtmlView extends BaseHtmlView
       throw new GenericDataException(implode("\n", $errors), 500);
     }
 
-    $this->toolbar = $this->addToolbar();
+    $this->addToolbar();
 
     parent::display($tpl);
   }
@@ -97,27 +98,23 @@ class HtmlView extends BaseHtmlView
 
     ToolbarHelper::title('CLAW Event Infos');
 
-    // TODO: This is the "new" way to do toolbars, but there are some formatting
-    // issues that need to be resolved.
+    // TODO: When the backend is updated, we'll update.
+    // See: https://manual.joomla.org/docs/general-concepts/dependency-injection/di-issues#toolbargetinstance
 
+    /** @var \Joomla\CMS\Toolbar\Toolbar $toolbar */
+    $toolbar = Toolbar::getInstance('toolbar');
 
-    // Get the toolbar object instance
-    /** @var Toolbar $toolbar */
-    $toolbar = Factory::getContainer()->get(ToolbarFactoryInterface::class)->createToolbar('toolbar');
-
-
-    // TODO: Need both?
     if ($user->authorise('core.admin', 'com_claw')) {
       $toolbar->addNew('eventinfo.add');
 
       $toolbar->delete('eventinfos.delete')
-      ->text('Delete')
-      ->message('Confirm delete selected?')
-      ->listCheck(true);
+        ->text('Delete')
+        ->message('Confirm delete selected?')
+        ->listCheck(true);
 
       $toolbar->save2copy('eventinfos.save2copy')
-      ->text('Duplicate')
-      ->listCheck(true);
+        ->text('Duplicate')
+        ->listCheck(true);
     }
 
     return $toolbar;

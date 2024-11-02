@@ -31,9 +31,6 @@ $view = "speeddatinginfos";
 
 ?>
 <div class="container">
-  <div id="subhead" class="subhead noshadow mb-3">
-    <?php echo $this->toolbar->render(); ?>
-  </div>
   <form action="<?php echo Route::_('index.php?option=com_claw&view=' . $view); ?>" method="post" name="adminForm" id="adminForm">
     <?php echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
 
@@ -81,20 +78,20 @@ $view = "speeddatinginfos";
               </td>
 
               <td>
-                <?= PackageInfoTypes::from($item->packageInfoType)->toString()?>
+                <?= PackageInfoTypes::from($item->packageInfoType)->toString() ?>
               </td>
               <td>
                 <?php
-                  if ( $item->eventId != 0 ): ?>
-                    <a href="<?php echo Route::_('index.php?option=com_eventbooking&view=event&id=' . $item->eventId); ?>" title="Edit in Event Booking" target="_blank">
-                      <?= $item->role . ' (' . $item->eventId . ')' ?>
-                    </a>
-                  <?php
-                  elseif ( $item->packageInfoType == PackageInfoTypes::coupononly->value ):
-                    echo 'N/A';
-                  else:
-                    echo $item->alias;
-                  endif;
+                if ($item->eventId != 0): ?>
+                  <a href="<?php echo Route::_('index.php?option=com_eventbooking&view=event&id=' . $item->eventId); ?>" title="Edit in Event Booking" target="_blank">
+                    <?= $item->role . ' (' . $item->eventId . ')' ?>
+                  </a>
+                <?php
+                elseif ($item->packageInfoType == PackageInfoTypes::coupononly->value):
+                  echo 'N/A';
+                else:
+                  echo $item->alias;
+                endif;
                 ?>
               </td>
 
@@ -106,15 +103,15 @@ $view = "speeddatinginfos";
 
               <td>
                 <?php
-                  $start = new DateTime($item->start);
-                  echo $start->format('D g:i A');
+                $start = new DateTime($item->start);
+                echo $start->format('D g:i A');
                 ?>
               </td>
 
               <td>
-              <?php
-                  $end = new DateTime($item->end);
-                  echo $end->format('D g:i A');
+                <?php
+                $end = new DateTime($item->end);
+                echo $end->format('D g:i A');
                 ?>
               </td>
 
