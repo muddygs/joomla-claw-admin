@@ -86,7 +86,7 @@ class HtmlView extends BaseHtmlView
       throw new GenericDataException(implode("\n", $errors), 500);
     }
 
-    $this->toolbar = $this->addToolbar();
+    $this->addToolbar();
 
     parent::display($tpl);
   }
@@ -98,16 +98,19 @@ class HtmlView extends BaseHtmlView
 
     ToolbarHelper::title('CLAW Spa Events');
 
-    // TODO: This is the "new" way to do toolbars, but there are some formatting
-    // issues that need to be resolved.
+    // TODO: When the backend is updated, we'll update.
+    // See: https://manual.joomla.org/docs/general-concepts/dependency-injection/di-issues#toolbargetinstance
 
-
-    // Get the toolbar object instance
-    /** @var Toolbar $toolbar */
-    $toolbar = Factory::getContainer()->get(ToolbarFactoryInterface::class)->createToolbar('toolbar');
+    /** @var \Joomla\CMS\Toolbar\Toolbar $toolbar */
+    $toolbar = Toolbar::getInstance('toolbar');
 
     if ($user->authorise('core.admin', 'com_claw')) {
       $toolbar->addNew('spainfo.add');
+
+      $toolbar->save2copy('spainfos.duplicate')
+        ->icon('fas fa-copy')
+        ->buttonClass('btn')
+        ->listCheck(true);
 
       $toolbar->delete('spainfos.delete')
         ->text('Delete')

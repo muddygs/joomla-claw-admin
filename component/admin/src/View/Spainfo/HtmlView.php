@@ -15,8 +15,8 @@ defined('_JEXEC') or die;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
+use ClawCorpLib\Lib\Aliases;
 
 class HtmlView extends BaseHtmlView
 {
@@ -46,7 +46,6 @@ class HtmlView extends BaseHtmlView
    * @return  void
    *
    * @throws \Exception
-   * @since   1.6
    */
   protected function addToolbar()
   {
@@ -56,22 +55,25 @@ class HtmlView extends BaseHtmlView
 
     $isNew      = ($this->item->id == 0);
 
-    $toolbar = Toolbar::getInstance();
-
     ToolbarHelper::title(
       'CLAW Spa Event ' . ($isNew ? 'Add' : 'Edit')
     );
 
+    // If not checked out, can save the item.
     if ($user->authorise('admin.core', 'com_claw')) {
-      if ($isNew) {
-        $toolbar->apply('spainfo.save');
-      } else {
-        $toolbar->apply('spainfo.apply');
-      }
+      ToolbarHelper::apply('spainfo.apply');
+      ToolbarHelper::save('spainfo.save');
 
-      $toolbar->save('spainfo.save');
+      // If the form event is not current, allow copying to current
+      if ($this->item->eventAlias == Aliases::current() && $this->item->id) {
+        ToolbarHelper::save2copy('spainfo.save2copy', 'Save a copy');
+      }
     }
 
-    $toolbar->cancel('spainfo.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');
+    if ($isNew) {
+      ToolbarHelper::cancel('spainfo.cancel');
+    } else {
+      ToolbarHelper::cancel('spainfo.cancel', 'JTOOLBAR_CLOSE');
+    }
   }
 }

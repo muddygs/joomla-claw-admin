@@ -62,4 +62,38 @@ class SpainfosController extends AdminController
     $log = $deploy->deploy();
     echo $log;
   }
+
+  public function duplicate()
+  {
+    // Check for request forgeries.
+    $this->checkToken();
+
+    $ids = (array) $this->input->post->get('cid', [], 'int');
+
+    // Remove zero values resulting from input filter
+    $ids = array_filter($ids);
+    $key = $this->table->getKeyName();
+
+    foreach ($ids as $id) {
+      $isValid = $this->table->load([$key => $id]);
+
+      if ($isValid !== true) {
+        $this->setRedirect(
+          'index.php?option=com_claw&view=spainfos',
+          'Error duplicating all records',
+          'error'
+        );
+        return false;
+      }
+
+      $this->table->$key = 0;
+
+      $this->table->store();
+    }
+
+    $this->setRedirect(
+      'index.php?option=com_claw&view=spainfos',
+      count($ids) . ' records added',
+    );
+  }
 }
