@@ -1,8 +1,14 @@
 <?php
 
-namespace ClawCorpLib\Traits;
+/**
+ * @package     ClawCorpLib
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
-use Joomla\CMS\Language\Text;
+namespace ClawCorpLib\Traits;
 
 trait Controller
 {
@@ -39,7 +45,7 @@ trait Controller
     // form Model(s), with the (s) is the only difference between list and edit views.
     $name = $this->name;
 
-    if ( str_ends_with($name, 's') ) {
+    if (str_ends_with($name, 's')) {
       $name = substr($name, 0, -1);
     }
 

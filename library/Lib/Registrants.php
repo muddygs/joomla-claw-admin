@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     ClawCorpLib
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Enums\EbPublishedState;
@@ -37,15 +45,15 @@ class Registrants
 
     $clawEventAlias = ClawEvents::eventIdtoAlias($eventId);
 
-    if ( $clawEventAlias === false ) {
+    if ($clawEventAlias === false) {
       die("Event from Event ID cannot be determined");
     }
 
-    foreach ( $userIds as $uid ) {
+    foreach ($userIds as $uid) {
       $r = new Registrant($clawEventAlias, $uid, [$eventId], true);
       $r->loadCurrentEvents();
 
-      if ( count($r->records()) > 0) $results[] = $r;
+      if (count($r->records()) > 0) $results[] = $r;
     }
 
     return $results;
@@ -77,7 +85,7 @@ class Registrants
 
     $q = $db->getQuery(true);
 
-    $q->select($db->qn(['user_id','event_id']))
+    $q->select($db->qn(['user_id', 'event_id']))
       ->from($db->qn('#__eb_registrants'))
       ->where($db->qn('ts_modified') . " > ( NOW() - INTERVAL $days_back DAY ) ")
       ->where($db->qn('user_id') . ' != 0')
@@ -88,12 +96,12 @@ class Registrants
     $rows = $db->loadObjectList();
 
     $mergeFields = ['Z_REFUND_TRANSACTION', 'Z_REFUND_DATE', 'Z_REFUND_AMOUNT'];
-    
+
     foreach ($rows as $row) {
       $r = new registrant($eventAlias, $row->user_id, [$row->event_id], true);
       $r->loadCurrentEvents();
 
-      if ( $r->count > 0) {
+      if ($r->count > 0) {
         $r->mergeFieldValues($mergeFields);
         $results[] = $r;
       }
@@ -102,3 +110,4 @@ class Registrants
     return $results;
   }
 }
+

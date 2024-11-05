@@ -1,4 +1,13 @@
 <?php
+
+/**
+ * @package     ClawCorpLib
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorpLib\Lib;
 
 use \Joomla\CMS\Factory;
@@ -28,7 +37,7 @@ class Coupons
    * @param string $note Always provide a note
    * @param string $tracker (optional) is appended to the note in JSON format (separated by :) for advanced queries
    */
-  public function __construct(float $discount, string $prefix, string $note, string $tracker = '' )
+  public function __construct(float $discount, string $prefix, string $note, string $tracker = '')
   {
     $db = Factory::getContainer()->get('DatabaseDriver');
 
@@ -37,30 +46,26 @@ class Coupons
     $this->discount = $discount;
     $this->note = preg_replace("/[^A-Za-z0-9_]/", '', $note);
 
-    if ( strlen(trim($note)) == 0)
-    {
+    if (strlen(trim($note)) == 0) {
       die('A note is required for coupon generation.');
     }
 
     $tracker = trim($tracker);
 
     // If the tracker is an email address, is there an account associated with that email?
-    if ( filter_var($tracker, FILTER_VALIDATE_EMAIL) )
-    {
+    if (filter_var($tracker, FILTER_VALIDATE_EMAIL)) {
       $query = $db->getQuery(true)
-          ->select($db->quoteName('id'))
-          ->from($db->quoteName('#__users'))
-          ->where($db->quoteName('email') . ' = ' . $db->quote($tracker));
+        ->select($db->quoteName('id'))
+        ->from($db->quoteName('#__users'))
+        ->where($db->quoteName('email') . ' = ' . $db->quote($tracker));
       $db->setQuery($query);
-      
-      if ($id = $db->loadResult())
-      {
+
+      if ($id = $db->loadResult()) {
         $this->userId = $id;
       }
     }
-    
-    if ( strlen($tracker) > 0 ) 
-    {
+
+    if (strlen($tracker) > 0) {
       $this->note .= ':' . $tracker;
     }
 
@@ -93,7 +98,7 @@ class Coupons
     $this->clawCouponAssignment = $assignment;
   }
 
-  public function setNote( string $note ): void
+  public function setNote(string $note): void
   {
     $this->note = $note;
   }
@@ -111,14 +116,16 @@ class Coupons
   {
     $newcode = $this->getCoupon();
 
-    if ( $this->clawCouponAssignment == EbCouponAssignments::selected_events &&
-      count($this->couponEventsIds) == 0 ) {
+    if (
+      $this->clawCouponAssignment == EbCouponAssignments::selected_events &&
+      count($this->couponEventsIds) == 0
+    ) {
       die('Cannot create per-event coupon without event assignment(s).');
     }
 
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
-    
+
     $insert = (object)[
       'id' => '0',
       'access' => $this->access,
@@ -144,9 +151,9 @@ class Coupons
 
     $result = $db->insertObject('#__eb_coupons', $insert, 'id');
 
-    if ( $result ) {
-      if ( $this->clawCouponAssignment == EbCouponAssignments::selected_events ) {
-        foreach ( $this->couponEventsIds as $e ) {
+    if ($result) {
+      if ($this->clawCouponAssignment == EbCouponAssignments::selected_events) {
+        foreach ($this->couponEventsIds as $e) {
           $couponEvent = (object)[
             'coupon_id' => $insert->id,
             'event_id' => $e
@@ -180,7 +187,7 @@ class Coupons
         $code .= chr($c + 65);
       }
 
-      $newcode = $this->prefix.'-'.substr($code, 0, 4) . '-' . substr($code, 4, 4);
+      $newcode = $this->prefix . '-' . substr($code, 0, 4) . '-' . substr($code, 4, 4);
       if ($this->verifyUniqueCoupon($newcode))
         break;
     }
@@ -198,8 +205,8 @@ class Coupons
 
     $query = $db->getQuery(true);
     $query->select($db->quoteName('code'))
-        ->from($db->quoteName('#__eb_coupons'))
-        ->where($db->quoteName('code') . ' = ' . $db->quote($coupon));
+      ->from($db->quoteName('#__eb_coupons'))
+      ->where($db->quoteName('code') . ' = ' . $db->quote($coupon));
     $db->setQuery($query);
     $rows = $db->loadResult();
 

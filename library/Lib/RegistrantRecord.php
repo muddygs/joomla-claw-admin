@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     ClawCorpLib
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Enums\EventPackageTypes;
@@ -47,7 +55,7 @@ class RegistrantRecordRegistrant
   public string $transaction_id = '';
   public string $deposit_payment_method = '';
   public string $deposit_payment_transaction_id = '';
-  public string $registration_code = ''; 
+  public string $registration_code = '';
   public string $badgeId = '';
 }
 
@@ -67,18 +75,19 @@ class RegistrantRecord
 
     $this->event->clawEventAlias = $clawEventAlias;
 
-    foreach (array_keys(get_class_vars('ClawCorpLib\Lib\RegistrantRecordEvent')) AS $k) {
-      if ( property_exists($r, $k) ) {
+    foreach (array_keys(get_class_vars('ClawCorpLib\Lib\RegistrantRecordEvent')) as $k) {
+      if (property_exists($r, $k)) {
         $this->event->$k = $r->$k;
       }
     }
 
     $this->category->category_id = $r->category_id;
 
-    foreach (array_keys(get_class_vars('ClawCorpLib\Lib\RegistrantRecordRegistrant')) AS $k) {
-      if ( property_exists($r, $k) && $r->$k !== null ) {
+    foreach (array_keys(get_class_vars('ClawCorpLib\Lib\RegistrantRecordRegistrant')) as $k) {
+      if (property_exists($r, $k) && $r->$k !== null) {
         $this->registrant->$k = $r->$k;
       }
     }
   }
 }
+

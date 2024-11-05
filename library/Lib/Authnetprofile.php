@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     ClawCorp
+ * @package     ClawCorpLib
  * @subpackage  com_claw
  *
  * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.

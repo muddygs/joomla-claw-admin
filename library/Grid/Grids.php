@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     ClawCorpLib
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorpLib\Grid;
 
 // This class enforces data format for received form data
@@ -192,7 +200,7 @@ class Grids
 
     $shift = $this->db->loadObject();
 
-    if ( is_null($shift)) {
+    if (is_null($shift)) {
       throw new \Exception("Shift ID $shift_id not found");
     }
 

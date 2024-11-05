@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     ClawCorpLib
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorpLib\Lib;
 
 use Joomla\CMS\Factory;
@@ -59,7 +67,7 @@ class ClawEvents
   public static function getCategoryAlias(int $categoryId): bool|string
   {
     if (self::$categoryIds == null) self::cacheCategoryAliases();
-    
+
     return array_search($categoryId, self::$categoryIds);
   }
 
@@ -156,7 +164,7 @@ class ClawEvents
     $db->setQuery($query);
     $result = $db->loadResult();
 
-    if ( null == $result ) {
+    if (null == $result) {
       Ebmgmt::rebuildEventIdMapping();
     } else {
       return $result;
@@ -199,7 +207,7 @@ class ClawEvents
       ->where('published=1')
       ->order('id');
     $db->setQuery($query);
-    self::$categoryIds = $db->loadAssocList('alias','id');
+    self::$categoryIds = $db->loadAssocList('alias', 'id');
 
     if (self::$categoryIds == null) {
       throw new UnexpectedValueException(__FILE__ . ': Category alias db error.');

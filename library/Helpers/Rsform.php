@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     ClawCorpLib
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorpLib\Helpers;
 
 use Joomla\Database\DatabaseDriver;
@@ -11,13 +19,11 @@ class Rsform
   public function __construct(
     public DatabaseDriver $db,
     public readonly string $formAlias
-  )
-  {
+  ) {
     $this->formId = $this->getFormId($db, $formAlias);
 
-    if ( $this->formId == null )
-    {
-      throw new \Exception("Unknown form alias: ".$formAlias);
+    if ($this->formId == null) {
+      throw new \Exception("Unknown form alias: " . $formAlias);
     }
   }
 

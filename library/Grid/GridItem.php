@@ -1,8 +1,14 @@
 <?php
 
-namespace ClawCorpLib\Grid;
+/**
+ * @package     ClawCorpLib
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
-use Joomla\Database\DatabaseDriver;
+namespace ClawCorpLib\Grid;
 
 \defined('_JEXEC') or die;
 
@@ -27,14 +33,5 @@ class GridItem
     public string $day,
     public int $needed,
     public int $event_id
-  ) {
-  }
-
-  public function store(DatabaseDriver $db)
-  {
-    // Load the shift row to update
-
-    // Update specific day values (quantity, eventbooking event id)
-
-  }
+  ) {}
 }

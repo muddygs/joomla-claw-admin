@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     ClawCorpLib
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Helpers\Helpers;
@@ -19,8 +27,7 @@ class Ebregistrant
     public int $eventId,
     public int $uid,
     public array $field_values = []
-  )
-  {
+  ) {
     $this->db = Factory::getContainer()->get('DatabaseDriver');
 
     $this->setDefaults();
@@ -32,15 +39,15 @@ class Ebregistrant
   {
     $query = $this->db->getQuery(true);
     $query
-        ->select('*')
-        ->from('#__eb_registrants')
-        ->where($this->db->quoteName('id') . ' = ' . $this->db->quote($registrantId));
+      ->select('*')
+      ->from('#__eb_registrants')
+      ->where($this->db->quoteName('id') . ' = ' . $this->db->quote($registrantId));
     $this->db->setQuery($query);
     $registrant = $this->db->loadAssoc();
 
-    $coreFields = ['first_name','last_name','address','address2','city','zip','country','state','phone','email'];
+    $coreFields = ['first_name', 'last_name', 'address', 'address2', 'city', 'zip', 'country', 'state', 'phone', 'email'];
 
-    foreach ( $coreFields as $field ) {
+    foreach ($coreFields as $field) {
       $this->set($field, $registrant[$field]);
     }
   }
@@ -60,9 +67,9 @@ class Ebregistrant
     $columns = array_keys($this->defaults);
     $values = array_values($this->defaults);
     $query
-        ->insert($this->db->quoteName('#__eb_registrants'))
-        ->columns($this->db->quoteName($columns))
-        ->values(implode(',', $values));
+      ->insert($this->db->quoteName('#__eb_registrants'))
+      ->columns($this->db->quoteName($columns))
+      ->values(implode(',', $values));
     $this->db->setQuery($query);
     $this->db->execute();
     $registrantId = $this->db->insertid();
@@ -78,9 +85,8 @@ class Ebregistrant
    */
   public function set(string $key, $value, bool $quoted = true): void
   {
-    if ( !array_key_exists($key, $this->defaults))
-    {
-      die('Unknown column name: '.$key);
+    if (!array_key_exists($key, $this->defaults)) {
+      die('Unknown column name: ' . $key);
     }
 
     $this->defaults[$key] = $quoted ? $this->db->quote($value) : $value;
@@ -93,9 +99,8 @@ class Ebregistrant
    */
   public function get(string $key): string
   {
-    if ( !array_key_exists($key, $this->defaults))
-    {
-      die('Unknown column name: '.$key);
+    if (!array_key_exists($key, $this->defaults)) {
+      die('Unknown column name: ' . $key);
     }
 
     return $this->defaults[$key];
@@ -167,7 +172,7 @@ class Ebregistrant
       'payment_processing_fee' => '0.000000',
       'payment_status' => '1',
       'phone' => "''",
-      'process_deposit_payment' => '0', 
+      'process_deposit_payment' => '0',
       'published' => '1',
       'refunded' => '0',
       'register_date' => $this->db->q(Helpers::mtime()),
@@ -195,39 +200,41 @@ class Ebregistrant
     sort($defaultKeys);
     sort($this->ebRegistrantsColumns);
 
-    if ( $defaultKeys != $this->ebRegistrantsColumns ) {
-    ?>
+    if ($defaultKeys != $this->ebRegistrantsColumns) {
+?>
       <table>
         <tr>
-          <td style="vertical-align:top;"><pre><?php print_r($defaultKeys) ?></pre></td>
-          <td style="vertical-align:top;"><pre><?php print_r($this->ebRegistrantsColumns) ?></pre></td>
+          <td style="vertical-align:top;">
+            <pre><?php print_r($defaultKeys) ?></pre>
+          </td>
+          <td style="vertical-align:top;">
+            <pre><?php print_r($this->ebRegistrantsColumns) ?></pre>
+          </td>
         </tr>
       </table>
-    <?php
+<?php
       die('Database schema out of sync with default event column values.');
     }
   }
 
   private function getUniqueCodeForRegistrationRecord(string $fieldName = 'registration_code', int $length = 32): string
   {
-    while (true)
-		{
-			$uniqueCode = UserHelper::genRandomPassword($length);
+    while (true) {
+      $uniqueCode = UserHelper::genRandomPassword($length);
 
       $query = $this->db->getQuery(true);
 
-			$query->clear()
-				->select('COUNT(*)')
-				->from('#__eb_registrants')
-				->where($this->db->quoteName($fieldName) . ' = ' . $this->db->quote($uniqueCode));
-			$this->db->setQuery($query);
-			$total = $this->db->loadResult();
+      $query->clear()
+        ->select('COUNT(*)')
+        ->from('#__eb_registrants')
+        ->where($this->db->quoteName($fieldName) . ' = ' . $this->db->quote($uniqueCode));
+      $this->db->setQuery($query);
+      $total = $this->db->loadResult();
 
-			if (!$total)
-			{
-				break;
-			}
-		}
+      if (!$total) {
+        break;
+      }
+    }
 
     return $this->db->q($uniqueCode);
   }

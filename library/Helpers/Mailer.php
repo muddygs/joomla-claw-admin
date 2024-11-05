@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     ClawCorpLib
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorpLib\Helpers;
 
 use Joomla\CMS\Factory;
@@ -17,10 +25,8 @@ final class Mailer
     public array $cc = [],
     public array $bcc = [],
     public string $replyTo = '',
-  )
-  {
-  }
-  
+  ) {}
+
   public function send(): bool
   {
     $mailer = Factory::getMailer();
@@ -43,7 +49,7 @@ final class Mailer
            $encoding = 'base64',
            $type = 'application/octet-stream',
            $disposition = 'attachment' */
-        
+
         $path = implode(DIRECTORY_SEPARATOR, [
           JPATH_ROOT,
           $attachment,
@@ -51,18 +57,18 @@ final class Mailer
 
         $filename = basename($attachment);
 
-        if ( file_exists($path)) $mailer->addAttachment($path, $filename, 'base64', 'application/octet-stream', 'attachment');
+        if (file_exists($path)) $mailer->addAttachment($path, $filename, 'base64', 'application/octet-stream', 'attachment');
       }
     }
 
     if (!empty($this->cc)) {
-        $mailer->addCC($this->cc);
+      $mailer->addCC($this->cc);
     }
     if (!empty($this->bcc)) {
-        $mailer->addBCC($this->bcc);
+      $mailer->addBCC($this->bcc);
     }
     if (!empty($this->replyTo)) {
-        $mailer->addReplyTo($this->replyTo);
+      $mailer->addReplyTo($this->replyTo);
     }
 
     try {
@@ -82,7 +88,7 @@ final class Mailer
   {
     $table = '<table width="100%" cellpadding="10" border="1" style="border:1px solid #333">';
     foreach ($data as $key => $value) {
-      if ( in_array($key, $exclusions) ) continue;
+      if (in_array($key, $exclusions)) continue;
 
       // Format the $key a bit
       $key = ucwords(str_replace('_', ' ', $key));

@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     ClawCorpLib
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorpLib\Helpers;
 
 use Joomla\CMS\Factory;
@@ -70,7 +78,7 @@ class Redirects
 
     $query->delete($this->db->qn('#__redirect_links'))
       ->where($conditions, 'OR');
-    
+
     $this->db->setQuery($query);
     $this->db->execute();
 

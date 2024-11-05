@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @package     ClawCorpLib
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Lib\EventConfig;
@@ -48,9 +56,9 @@ class Volunteers
       $pattern = '/-(\d+)-/';
 
       if (preg_match($pattern, substr($row->alias, strlen($eventConfig->eventInfo->shiftPrefix)), $matches)) {
-          $sid = $matches[1];
+        $sid = $matches[1];
       } else {
-          continue;
+        continue;
       }
 
       if (!array_key_exists($sid, $option)) {
