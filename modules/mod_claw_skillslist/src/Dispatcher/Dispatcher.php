@@ -23,23 +23,23 @@ use Joomla\CMS\Helper\HelperFactoryAwareTrait;
  */
 class Dispatcher extends AbstractModuleDispatcher implements HelperFactoryAwareInterface
 {
-    use HelperFactoryAwareTrait;
+  use HelperFactoryAwareTrait;
 
-    /**
-     * Returns the layout data.
-     *
-     * @return  array
-     *
-     * @since   4.4.0
-     */
-    protected function getLayoutData(): array
-    {
-        $data = parent::getLayoutData();
-        $data = array_merge(
-            $data,
-            $this->getHelperFactory()->getHelper('SkillslistHelper')->GetClassListToday($data['params'], $data['app'])
-        );
+  /**
+   * Returns the layout data.
+   *
+   * @return  array
+   *
+   * @since   4.4.0
+   */
+  protected function getLayoutData(): array
+  {
+    $data = parent::getLayoutData();
+    $data = array_merge(
+      $data,
+      $this->getHelperFactory()->getHelper('SkillslistHelper')->GetClassListToday($data['params'], $data['app'])
+    );
 
-        return $data;
-    }
+    return $data;
+  }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     CLAW.Sponsors
+ * @package     ClawCorp.Module.Sponsors
  * @subpackage  mod_claw_sponsors
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.

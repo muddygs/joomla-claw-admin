@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @package     ClawCorp.Module.Schedule
- * @subpackage  mod_claw_schedule
+ * @package     ClawCorp.Module.Spaschedule
+ * @subpackage  mod_claw_spaschedule
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt

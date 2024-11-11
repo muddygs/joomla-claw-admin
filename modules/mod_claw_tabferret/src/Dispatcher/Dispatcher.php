@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     ClawCorp.Module.ClawTabferret
+ * @package     ClawCorp.Module.Tabferret
  * @subpackage  mod_claw_tabferret
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.
@@ -23,26 +23,26 @@ use Joomla\CMS\Helper\HelperFactoryAwareTrait;
  */
 class Dispatcher extends AbstractModuleDispatcher implements HelperFactoryAwareInterface
 {
-    use HelperFactoryAwareTrait;
+  use HelperFactoryAwareTrait;
 
-    /**
-     * Returns the layout data.
-     *
-     * @return  array
-     *
-     * @since   4.4.0
-     */
-    protected function getLayoutData(): array
-    {
-        $data = parent::getLayoutData();
+  /**
+   * Returns the layout data.
+   *
+   * @return  array
+   *
+   * @since   4.4.0
+   */
+  protected function getLayoutData(): array
+  {
+    $data = parent::getLayoutData();
 
-        [$tabTitles, $tabData, $tabActive, $config] = $this->getHelperFactory()->getHelper('ClawTabferretHelper')->getTabData($data['params'], $data['app']);
+    [$tabTitles, $tabData, $tabActive, $config] = $this->getHelperFactory()->getHelper('ClawTabferretHelper')->getTabData($data['params'], $data['app']);
 
-        $data['tabs'] = $tabTitles;
-        $data['tabContents'] = $tabData;
-        $data['tabActive'] = $tabActive;
-        $data['config'] = $config;
+    $data['tabs'] = $tabTitles;
+    $data['tabContents'] = $tabData;
+    $data['tabActive'] = $tabActive;
+    $data['config'] = $config;
 
-        return $data;
-    }
+    return $data;
+  }
 }

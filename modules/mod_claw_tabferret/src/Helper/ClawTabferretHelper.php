@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     Joomla.Site
+ * @package     ClawCorp.Module.Tabferret
  * @subpackage  mod_claw_tabferret
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.
@@ -27,7 +27,7 @@ defined('_JEXEC') or die;
 class ClawTabferretHelper
 {
   // TODO: private int $uid (or similar to meet module permissions)
-  
+
   /**
    * Retrieve the tab name and tab content, regardless of the actual display mechanism. Tabs/accordions
    * will use the tab name, but carousels will use only the tab content.
@@ -44,13 +44,13 @@ class ClawTabferretHelper
     $tabContents = [];
 
     foreach ($tabFields as $tabField) {
-      if ( !$tabField->tab_enabled ) continue;
+      if (!$tabField->tab_enabled) continue;
 
       switch ($tabField->tab_type) {
         case 'article':
           $articleId = $tabField->tab_article;
           $table = $this->loadContentById($articleId);
-          if ( is_null($table) ) continue 2;
+          if (is_null($table)) continue 2;
 
           // TODO: Handle readmore?
           if (property_exists($table, 'introtext')) {
@@ -61,13 +61,13 @@ class ClawTabferretHelper
         case 'module':
           $moduleId = $tabField->tab_module;
           $module = $this->loadModuleById($moduleId);
-          if ( empty($module) ) continue 2;
+          if (empty($module)) continue 2;
           $tabs[] = $tabField->tab_title;
           $tabContents[] = $module;
           break;
       }
 
-      if ( null === $tabActive && $tabField->tab_isdefault ) $tabActive = count($tabs) - 1;
+      if (null === $tabActive && $tabField->tab_isdefault) $tabActive = count($tabs) - 1;
     }
 
     $carouselInterval = $params->get('carousel_interval', 5);
@@ -78,7 +78,7 @@ class ClawTabferretHelper
       'refresh' => $carouselRefresh
     ];
 
-    if ( null == $tabActive ) $tabActive = 0;
+    if (null == $tabActive) $tabActive = 0;
 
     return [
       $tabs,
@@ -101,10 +101,10 @@ class ClawTabferretHelper
     $mvcFactory = $component->getMVCFactory();
     $table = $mvcFactory->createTable('Article', 'Content', []);
 
-    if ( is_null($table) ) return null;
+    if (is_null($table)) return null;
     $table->load($id);
 
-    if ( $table->state != 1 ) return null;
+    if ($table->state != 1) return null;
 
     // Use global configuration time zone to filter articles based on publication dates
     $config = $app->getConfig();
@@ -115,7 +115,7 @@ class ClawTabferretHelper
     $publishDown = $table->publish_down;
     $now = Factory::getDate('now', $timeZoneObject);
 
-    if ( ($publishUp && $publishUp > $now) || ($publishDown && $publishDown < $now) ) return null;
+    if (($publishUp && $publishUp > $now) || ($publishDown && $publishDown < $now)) return null;
 
     // TODO: Check permissions
 

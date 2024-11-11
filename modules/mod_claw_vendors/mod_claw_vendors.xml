@@ -3,21 +3,21 @@
   method="upgrade">
 
   <name>CLAW Vendors Display</name>
-  <creationDate>2024-03-03</creationDate>
+  <creationDate>2024-10-07</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>4.3.1</version>
+  <version>4.3.2</version>
   <description>Displays vendor logos</description>
 
   <namespace path="src">ClawCorp\Module\Vendors</namespace>
 
-	<files>
-		<folder module="mod_claw_vendors">services</folder>
-		<folder>tmpl</folder>
-		<folder>src</folder>
-	</files>
+  <files>
+    <folder module="mod_claw_vendors">services</folder>
+    <folder>tmpl</folder>
+    <folder>src</folder>
+  </files>
 
   <config>
     <fields name="params">

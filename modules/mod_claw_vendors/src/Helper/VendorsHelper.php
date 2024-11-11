@@ -1,9 +1,10 @@
 <?php
+
 /**
- * @package     CLAW.Sponsors
- * @subpackage  mod_claw_sponsors
+ * @package     ClawCorp.Module.Vendors
+ * @subpackage  mod_claw_vendors
  *
- * @copyright   (C) 2023 C.L.A.W. Corp.
+ * @copyright   (C) 2024 C.L.A.W. Corp.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -15,7 +16,6 @@ namespace ClawCorp\Module\Vendors\Site\Helper;
 
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Factory;
-use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\Registry\Registry;
 
 /**
@@ -47,4 +47,3 @@ class VendorsHelper
     return $db->loadObjectList();
   }
 }
-

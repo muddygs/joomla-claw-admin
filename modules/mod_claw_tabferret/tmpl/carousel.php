@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     Joomla.Site
+ * @package     ClawCorp.Module.Tabferret
  * @subpackage  mod_claw_tabferret
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.

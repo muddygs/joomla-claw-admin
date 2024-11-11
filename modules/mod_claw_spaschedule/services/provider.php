@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     CLAW.Schedule
+ * @package     ClawCorp.Module.Spaschedule
  * @subpackage  mod_claw_spaschedule
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.
@@ -17,7 +17,7 @@ use Joomla\DI\Container;
 use Joomla\DI\ServiceProviderInterface;
 
 /**
- * The tab ferret module service provider.
+ * The spa schedule module service provider.
  *
  * @since  4.4.0
  */

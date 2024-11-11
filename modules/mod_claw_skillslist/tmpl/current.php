@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     CLAW.Schedule
+ * @package     ClawCorp.Module.Skillslist
  * @subpackage  mod_claw_skillslist
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.

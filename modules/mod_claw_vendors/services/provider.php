@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     CLAW.Vendors
+ * @package     ClawCorp.Module.Vendors
  * @subpackage  mod_claw_vendors
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.
@@ -21,21 +21,21 @@ use Joomla\DI\ServiceProviderInterface;
  *
  * @since  4.4.0
  */
-return new class () implements ServiceProviderInterface {
-    /**
-     * Registers the service provider with a DI container.
-     *
-     * @param   Container  $container  The DI container.
-     *
-     * @return  void
-     *
-     * @since   4.4.0
-     */
-    public function register(Container $container): void
-    {
-        $container->registerServiceProvider(new ModuleDispatcherFactory('\\ClawCorp\\Module\\Vendors'));
-        $container->registerServiceProvider(new HelperFactory('\\ClawCorp\\Module\\Vendors\\Site\\Helper'));
+return new class() implements ServiceProviderInterface {
+  /**
+   * Registers the service provider with a DI container.
+   *
+   * @param   Container  $container  The DI container.
+   *
+   * @return  void
+   *
+   * @since   4.4.0
+   */
+  public function register(Container $container): void
+  {
+    $container->registerServiceProvider(new ModuleDispatcherFactory('\\ClawCorp\\Module\\Vendors'));
+    $container->registerServiceProvider(new HelperFactory('\\ClawCorp\\Module\\Vendors\\Site\\Helper'));
 
-        $container->registerServiceProvider(new Module());
-    }
+    $container->registerServiceProvider(new Module());
+  }
 };

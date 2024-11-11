@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     CLAW.RegButtons
+ * @package     ClawCorp.Module.RegButtons
  * @subpackage  mod_claw_regbuttons
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.
@@ -20,19 +20,19 @@ use Joomla\DI\ServiceProviderInterface;
  *
  * @since  4.4.0
  */
-return new class () implements ServiceProviderInterface {
-    /**
-     * Registers the service provider with a DI container.
-     *
-     * @param   Container  $container  The DI container.
-     *
-     * @return  void
-     *
-     * @since   4.4.0
-     */
-    public function register(Container $container): void
-    {
-        $container->registerServiceProvider(new ModuleDispatcherFactory('\\ClawCorp\\Module\\RegButtons'));
-        $container->registerServiceProvider(new Module());
-    }
+return new class() implements ServiceProviderInterface {
+  /**
+   * Registers the service provider with a DI container.
+   *
+   * @param   Container  $container  The DI container.
+   *
+   * @return  void
+   *
+   * @since   4.4.0
+   */
+  public function register(Container $container): void
+  {
+    $container->registerServiceProvider(new ModuleDispatcherFactory('\\ClawCorp\\Module\\RegButtons'));
+    $container->registerServiceProvider(new Module());
+  }
 };

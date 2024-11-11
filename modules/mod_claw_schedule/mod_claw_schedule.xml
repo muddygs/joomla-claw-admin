@@ -3,32 +3,32 @@
   method="upgrade">
 
   <name>CLAW Schedule Display</name>
-  <creationDate>2024-02-26</creationDate>
+  <creationDate>2024-10-07</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>4.3.0</version>
+  <version>4.3.1</version>
   <description>Displays event schedule</description>
 
   <namespace path="src">ClawCorp\Module\Schedule</namespace>
 
-	<files>
-		<folder module="mod_claw_schedule">services</folder>
-		<folder>tmpl</folder>
-		<folder>src</folder>
-	</files>
+  <files>
+    <folder module="mod_claw_schedule">services</folder>
+    <folder>tmpl</folder>
+    <folder>src</folder>
+  </files>
 
   <config>
     <fields name="params">
       <fieldset name="module" label="Options">
         <field
-					name="layout"
-					type="modulelayout"
-					label="JFIELD_ALT_LAYOUT_LABEL"
-					class="form-select"
-					validate="moduleLayout"
-				/>
+          name="layout"
+          type="modulelayout"
+          label="JFIELD_ALT_LAYOUT_LABEL"
+          class="form-select"
+          validate="moduleLayout"
+        />
       </fieldset>
     </fields>
   </config>

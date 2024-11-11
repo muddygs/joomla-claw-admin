@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     CLAW.Schedule
+ * @package     ClawCorp.Module.Skillslist
  * @subpackage  mod_claw_skillslist
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.
@@ -36,9 +36,9 @@ class SkillslistHelper implements DatabaseAwareInterface
     $startDate = new Date('now', $eventInfo->timezone);
 
     $eventStartDate = new Date($eventInfo->start_date, $eventInfo->timezone);
-    
+
     // Check event start date. If it's in the future, use that as basis instead
-    if ( $startDate < $eventStartDate ) {
+    if ($startDate < $eventStartDate) {
       $startDate = $eventStartDate;
       $startDate->modify('Friday');
     }
@@ -67,11 +67,10 @@ class SkillslistHelper implements DatabaseAwareInterface
 
     $result = [
       'classes' => $classes,
-      'locations' => $locations->getLocationsList(), 
+      'locations' => $locations->getLocationsList(),
       'timestamp' => $startDate->toUnix(),
     ];
 
     return $result;
   }
 }
-

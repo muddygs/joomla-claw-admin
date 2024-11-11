@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     CLAW.Schedule
+ * @package     ClawCorp.Module.Spaschedule
  * @subpackage  mod_claw_spaschedule
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.

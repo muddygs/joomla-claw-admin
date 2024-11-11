@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     CLAW.TabFerret
+ * @package     ClawCorp.Module.Sponsors
  * @subpackage  mod_claw_sponsors
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.
@@ -21,21 +21,21 @@ use Joomla\DI\ServiceProviderInterface;
  *
  * @since  4.4.0
  */
-return new class () implements ServiceProviderInterface {
-    /**
-     * Registers the service provider with a DI container.
-     *
-     * @param   Container  $container  The DI container.
-     *
-     * @return  void
-     *
-     * @since   4.4.0
-     */
-    public function register(Container $container): void
-    {
-        $container->registerServiceProvider(new ModuleDispatcherFactory('\\ClawCorp\\Module\\Sponsors'));
-        $container->registerServiceProvider(new HelperFactory('\\ClawCorp\\Module\\Sponsors\\Site\\Helper'));
+return new class() implements ServiceProviderInterface {
+  /**
+   * Registers the service provider with a DI container.
+   *
+   * @param   Container  $container  The DI container.
+   *
+   * @return  void
+   *
+   * @since   4.4.0
+   */
+  public function register(Container $container): void
+  {
+    $container->registerServiceProvider(new ModuleDispatcherFactory('\\ClawCorp\\Module\\Sponsors'));
+    $container->registerServiceProvider(new HelperFactory('\\ClawCorp\\Module\\Sponsors\\Site\\Helper'));
 
-        $container->registerServiceProvider(new Module());
-    }
+    $container->registerServiceProvider(new Module());
+  }
 };

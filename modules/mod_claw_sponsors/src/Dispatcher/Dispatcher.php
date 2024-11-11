@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @package     ClawCorp.Module.ClawTabferret
- * @subpackage  mod_claw_tabferret
+ * @package     ClawCorp.Module.Sponsors
+ * @subpackage  mod_claw_sponsors
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt

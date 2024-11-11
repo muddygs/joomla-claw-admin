@@ -4,14 +4,14 @@
   method="upgrade">
 
   <name>CLAW Tab Ferret</name>
-  <creationDate>2024-04-09</creationDate>
+  <creationDate>2024-10-07</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>4.3.2</version>
+  <version>4.3.3</version>
   <description>Displays articles and modules using Bootstrap methods</description>
-	<namespace path="src">ClawCorp\Module\ClawTabferret</namespace>
+  <namespace path="src">ClawCorp\Module\ClawTabferret</namespace>
 
   <files>
     <folder module="mod_claw_tabferret">services</folder>
@@ -23,12 +23,12 @@
     <fields name="params">
       <fieldset name="basic">
         <field
-					name="layout"
-					type="modulelayout"
-					label="JFIELD_ALT_LAYOUT_LABEL"
-					class="form-select"
-					validate="moduleLayout"
-				/>
+          name="layout"
+          type="modulelayout"
+          label="JFIELD_ALT_LAYOUT_LABEL"
+          class="form-select"
+          validate="moduleLayout"
+        />
 
         <field name="carousel_interval"
           type="text"
@@ -130,7 +130,7 @@
 
           </form>
         </field>
-        </fieldset>
-      </fields>
-    </config>
-  </extension>
+      </fieldset>
+    </fields>
+  </config>
+</extension>

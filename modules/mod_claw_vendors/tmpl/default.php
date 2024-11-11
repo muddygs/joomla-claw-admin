@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     ClawCorp.Site
+ * @package     ClawCorp.Module.Vendors
  * @subpackage  mod_claw_vendors
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.

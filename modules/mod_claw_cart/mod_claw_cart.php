@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @package     CLAW.Sponsors
+ * @package     ClawCorp.Module.Cart
  * @subpackage  mod_claw_cart
  *
- * @copyright   (C) 2023 C.L.A.W. Corp.
+ * @copyright   (C) 2024 C.L.A.W. Corp.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
