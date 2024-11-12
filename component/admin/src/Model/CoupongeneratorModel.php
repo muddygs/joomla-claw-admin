@@ -14,6 +14,7 @@ defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\EbCouponAssignments;
 use ClawCorpLib\Enums\EbCouponTypes;
+use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Coupons;
@@ -115,9 +116,11 @@ class CoupongeneratorModel extends FormModel
       $c = $event->couponKey;
 
       if (count(array_intersect($groups, $event->couponAccessGroups)) > 0) {
-        if ($event->couponValue < 1) continue;
-
-        if ($event->packageInfoType == PackageInfoTypes::addon) {
+        if (
+          $event->couponValue >= 1 &&
+          $event->packageInfoType == PackageInfoTypes::addon &&
+          $event->published == EbPublishedState::published && !empty($event->couponKey)
+        ) {
           $description = $event->title . ' (' . $c . ') - $' . $event->couponValue;
 
           $addons[$event->id] = (object)[
