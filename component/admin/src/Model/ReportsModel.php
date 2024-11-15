@@ -40,7 +40,6 @@ class ReportsModel extends BaseDatabaseModel
   public function __construct($config = array())
   {
     parent::__construct($config);
-
     $this->eventConfig = new EventConfig(Aliases::current(true), []);
   }
 

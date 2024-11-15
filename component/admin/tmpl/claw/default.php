@@ -13,6 +13,7 @@
 
 use ClawCorpLib\Helpers\Bootstrap;
 use Joomla\CMS\Router\Route;
+use Joomla\CMS\HTML\HTMLHelper;
 
 $tags = [
   ['<h4 class="fw-bold mb-0">', '</h4>'],
@@ -51,17 +52,23 @@ $shifts = Route::_('index.php?option=com_claw&view=shifts');
   </summary>
   <?php
   $content = [
-    'stopwatch' => ['Speed Dating', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=speeddating&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
-    'globe' => ['Volunteer Overview', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=volunteer_overview&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
-    'list' => ['Volunteer Detail', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=volunteer_detail&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
-    'tshirt' => ['Shirts', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=shirts&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
-    'utensils' => ['Meals', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=meals&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
-    'paint-brush' => ['Art Show', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_artshow&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
-    'spa' => ['Spa', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=spa&format=raw" role="button" class="btn btn-danger" target="_blank">Launch</a>'],
+    'stopwatch' => ['Speed Dating', '<button class="btn btn-danger" value="speeddating" name="layout">Launch</button>'],
+    'globe' => ['Volunteer Overview', '<button class="btn btn-danger" value="volunteer_overview" name="layout">Launch</button>'],
+    'list' => ['Volunteer Detail', '<button class="btn btn-danger" value="volunteer_detail" name="layout">Launch</button>'],
+    'tshirt' => ['Shirts', '<button class="btn btn-danger" value="shirts" name="layout">Launch</button>'],
+    'utensils' => ['Meals', '<button class="btn btn-danger" value="meals" name="layout">Launch</button>'],
+    'paint-brush' => ['Artshow', '<button class="btn btn-danger" value="csv_artshow" name="layout">Launch</button>'],
+    'spa' => ['Spa', '<button class="btn btn-danger" value="spa" name="layout">Launch</button>'],
   ];
 
-  Bootstrap::writeGrid($content, $tags, false);
   ?>
+  <form action="<?= Route::_('index.php?option=com_claw&view=reports&format=raw') ?>" target="_blank" method="post" name="adminForm" id="reports-form" class="form-validate">
+    <?php
+    echo $this->form->renderField('report_event');
+    Bootstrap::writeGrid($content, $tags, false);
+    ?>
+    <?= HTMLHelper::_('form.token'); ?>
+  </form>
 </details>
 
 <details>

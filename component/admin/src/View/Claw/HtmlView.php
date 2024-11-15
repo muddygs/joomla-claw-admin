@@ -18,6 +18,7 @@ class HtmlView extends BaseHtmlView
 {
   function display($tpl = null)
   {
+    $this->form  = $this->get('Form');
     parent::display($tpl);
   }
 }

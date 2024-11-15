@@ -20,13 +20,17 @@ class RawView extends BaseHtmlView
   public function display($tpl = null)
   {
     $this->state = $this->get('State');
+    $input = Factory::getApplication()->getInput();
+    $layout = $input->get('layout');
+
+    if (!is_null($layout)) {
+      $this->setLayout($layout);
+    }
 
     /** @var \ClawCorp\Component\Claw\Administrator\Model\ReportsModel */
     $this->model = $this->getModel('Reports');
 
     $this->db = Factory::getContainer()->get('DatabaseDriver');
-
-    $layout = $this->getLayout();
 
     switch ($layout) {
       case 'speeddating':
@@ -46,7 +50,6 @@ class RawView extends BaseHtmlView
         break;
       case 'csv_presenters':
       case 'csv_classes':
-        $input = Factory::getApplication()->getInput();
         $this->publishedOnly = $input->getBool('published_only', true);
         break;
       case 'csv_artshow':
@@ -55,6 +58,8 @@ class RawView extends BaseHtmlView
       case 'spa':
         $this->items = $this->model->getSpaSchedule();
       default:
+        // default layout indicates unknown report type
+        $this->setLayout('default');
         break;
     }
 

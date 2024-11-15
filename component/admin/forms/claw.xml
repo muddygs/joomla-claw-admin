@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
+  <field
+    name="report_event"
+    type="ClawEventsList"
+    label="Reporting Event"
+    required="true"
+  />
+</form>
+
