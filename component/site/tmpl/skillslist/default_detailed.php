@@ -2,7 +2,6 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Router\Route;
-use ClawCorpLib\Helpers\Locations;
 use Joomla\CMS\HTML\HTMLHelper;
 
 $tabInfo = $this->list->tabs->{$this->tabId};
@@ -70,7 +69,7 @@ foreach ($tabInfo['ids'] as $classId) {
 
   $survey = '<i class="fa fa-comments fa-2x text-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Surveys are not open"></i>';
 
-  if ($this->list->survey != '' && $this->enable_surveys ) {
+  if ($this->list->survey != '' && $this->enable_surveys) {
     $link = $this->list->survey . '&form[classTitleParam]=' . $class->id;
     $survey = '<a href="' . $link . '" style="color:#ffae00"><i class="fa fa-comments fa-2x"></i></a>';
   }
