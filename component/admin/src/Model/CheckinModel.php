@@ -12,7 +12,6 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
 /**
@@ -20,6 +19,5 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
  *
  * @since  1.6
  */
-class CheckinModel extends BaseDatabaseModel
-{
-}
+class CheckinModel extends BaseDatabaseModel {}
+
