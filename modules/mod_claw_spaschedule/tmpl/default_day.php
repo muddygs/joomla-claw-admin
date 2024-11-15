@@ -18,6 +18,7 @@ $itemCount = 0;
         <th>Time</th>
         <th>Session Length (Minutes)</th>
         <th>Non-Refundable Deposit</th>
+        <th>Due At Time of Service</th>
         <th>Therapist Selection(s)</th>
       </tr>
     </thead>
@@ -35,13 +36,14 @@ $itemCount = 0;
           <td><?= $packageInfo->start->format('g:iA') ?></td>
           <td><?= $delta_time_minutes ?></td>
           <td>$<?= $packageInfo->fee ?></td>
+          <td>$90</td>
           <td>
             <?php foreach ($packageInfo->meta as $meta):
               $publicName = $publicNames[$meta->userid] ?? 'TBD';
               $eventId = $meta->eventId;
               $itemCount++;
             ?>
-              <a href="/index.php?option=com_eventbooking&view=register&event_id=<?= $eventId ?>" role="button" class="mx-auto btn btn-danger mb-1"><?= $publicName ?></a>
+              <a href="/index.php?option=com_eventbooking&view=register&event_id=<?= $eventId ?>" role="button" class="mx-auto btn btn-danger mb-1"><?= $publicName ?></a>
 
             <?php endforeach ?>
           </td>
