@@ -68,6 +68,7 @@ class RegistrationsurveyModel extends BaseModel
           PackageInfoTypes::daypass,
           PackageInfoTypes::addon,
           PackageInfoTypes::passes,
+          PackageInfoTypes::passes_other,
           PackageInfoTypes::coupononly,
         ]
       );
