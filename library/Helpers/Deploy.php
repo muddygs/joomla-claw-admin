@@ -390,6 +390,7 @@ class Deploy
           break;
 
         case PackageInfoTypes::passes:
+        case PackageInfoTypes::passes_other:
           $start = $packageInfo->start;
           $end = $packageInfo->end;
           $cutoff = null;
