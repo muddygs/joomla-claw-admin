@@ -35,19 +35,16 @@ enum ConfigFieldNames: int
     };
   }
 
-  public static function fromString(string $str): ?ConfigFieldNames
+  public static function fromName(string $str): ?ConfigFieldNames
   {
-    return match (strtoupper($str)) {
-      'CONFIG_DEBUG_EMAIL' => self::CONFIG_DEBUG_EMAIL,
-      'CONFIG_IMAGES' => self::CONFIG_IMAGES,
-      'CONFIG_OVERLAP_CATEGORY' => self::CONFIG_OVERLAP_CATEGORY,
-      'CONFIG_URLPREFIX' => self::CONFIG_URLPREFIX,
-      'SKILL_CATEGORY' => self::SKILL_CATEGORY,
-      'SKILL_CLASS_TYPE' => self::SKILL_CLASS_TYPE,
-      'SKILL_TIME_SLOT' => self::SKILL_TIME_SLOT,
-      'SKILL_TRACK' => self::SKILL_TRACK,
-      default => null,
-    };
+    $str = strtoupper($str);
+    foreach (self::cases() as $case) {
+      if ($str === strtoupper($case->name)) {
+        return $case;
+      }
+    }
+
+    return null;
   }
 
   public static function toOptions(): array
