@@ -39,13 +39,4 @@ enum EventTypes: int
 
     return $result;
   }
-
-  public static function FindValue(int $key): EventTypes
-  {
-    foreach (EventTypes::cases() as $c) {
-      if ($c->value == $key) return $c;
-    }
-
-    throw (new \Exception("Invalid EventTypes value: $key"));
-  }
 }
