@@ -29,6 +29,9 @@ class EventInfo
   public bool $active;
   public EventTypes $eventType;
   public bool $onsiteActive;
+  public bool $dayPassesActive;
+  public bool $passesActive;
+  public bool $passesOtherActive;
   public bool $badgePrintingOverride;
   public int $termsArticleId;
 
@@ -69,8 +72,15 @@ class EventInfo
     $this->prefix = strtoupper($info->prefix);
     $this->cancelBy = Factory::getDate($info->cancelBy, $this->timezone);
     $this->active = $info->active ?? false;
-    $this->eventType = EventTypes::FindValue($info->eventType);
+    try {
+      $this->eventType = EventTypes::from($info->eventType);
+    } catch (\ValueError) {
+      throw (new \Exception("Invalid EventTypes value: {$info->eventType}"));
+    }
     $this->onsiteActive = $info->onsiteActive ?? false;
+    $this->dayPassesActive = $info->dayPassesActive ?? false;
+    $this->passesActive = $info->passesActive ?? false;
+    $this->passesOtherActive = $info->passesOtherActive ?? false;
     $this->badgePrintingOverride = $info->badge_printing_override ?? true;
     $this->termsArticleId = $info->termsArticleId;
 
