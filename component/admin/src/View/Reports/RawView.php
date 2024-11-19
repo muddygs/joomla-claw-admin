@@ -58,8 +58,6 @@ class RawView extends BaseHtmlView
       case 'spa':
         $this->items = $this->model->getSpaSchedule();
       default:
-        // default layout indicates unknown report type
-        $this->setLayout('default');
         break;
     }
 
