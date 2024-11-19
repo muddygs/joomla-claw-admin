@@ -14,6 +14,7 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\User\UserFactory;
+use Joomla\CMS\Factory;
 
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
@@ -40,7 +41,14 @@ class ReportsModel extends BaseDatabaseModel
   public function __construct($config = array())
   {
     parent::__construct($config);
-    $this->eventConfig = new EventConfig(Aliases::current(true), []);
+    $input = Factory::getApplication()->getInput();
+    $reportEvent = $input->getArray([
+      'jform' => [
+        'report_event' => 'string',
+      ]
+    ]);
+    $eventAlias = $reportEvent['jform']['report_event'] ?: Aliases::current(true);
+    $this->eventConfig = new EventConfig($eventAlias, []);
   }
 
   public function getSpeedDatingItems(): array
@@ -49,10 +57,10 @@ class ReportsModel extends BaseDatabaseModel
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->eventConfig->packageInfos as $packageInfo) {
-
       if (
         $packageInfo->packageInfoType != PackageInfoTypes::speeddating
         || $packageInfo->published != EbPublishedState::published
+        || $packageInfo->eventId < 1
       ) continue;
 
       foreach ($packageInfo->meta as $meta) {
@@ -93,6 +101,7 @@ class ReportsModel extends BaseDatabaseModel
       if (
         $event->packageInfoType != PackageInfoTypes::main
         || $event->published != EbPublishedState::published
+        || $event->eventId < 1
       ) continue;
 
       $records = Registrants::byEventId($event->eventId);
@@ -162,7 +171,7 @@ class ReportsModel extends BaseDatabaseModel
     $items = [];
     $userFactory = new UserFactory($this->getDatabase());
 
-    $shifts = Volunteers::getShiftEventDetails(Aliases::current(true));
+    $shifts = Volunteers::getShiftEventDetails($this->eventConfig->alias);
 
     $coordinators = [];
 
@@ -222,7 +231,11 @@ class ReportsModel extends BaseDatabaseModel
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->eventConfig->packageInfos as $packageInfo) {
-      if ($packageInfo->eventPackageType == EventPackageTypes::dinner) {
+      if (
+        $packageInfo->eventPackageType == EventPackageTypes::dinner
+        && $packageInfo->published == EbPublishedState::published
+        && $packageInfo->eventId > 0
+      ) {
         $catId = $packageInfo->category;
         $dinnerCustomField = $this->findListCustomField($catId);
 
@@ -247,6 +260,7 @@ class ReportsModel extends BaseDatabaseModel
         if (
           $packageInfo->published != EbPublishedState::published
           || $packageInfo->category != $catId
+          || $packageInfo->eventId < 1
         ) continue;
 
         $subcount = [];
@@ -363,6 +377,7 @@ class ReportsModel extends BaseDatabaseModel
       if (
         $packageInfo->packageInfoType != PackageInfoTypes::spa
         || $packageInfo->published != EbPublishedState::published
+        || $packageInfo->eventId < 1
       ) continue;
 
       foreach ($packageInfo->meta as $meta) {
