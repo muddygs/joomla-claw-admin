@@ -15,8 +15,9 @@ use ClawCorpLib\Lib\Aliases;
 use InvalidArgumentException;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Filesystem\File;
-use Joomla\CMS\Filesystem\Folder;
+use Joomla\Filesystem\File;
+use Joomla\Filesystem\Folder;
+use Joomla\Filesystem\Path;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
@@ -564,7 +565,7 @@ class Skills
     }
 
     $query = $this->db->getQuery(true);
-    $columnNames = ['id', 'uid', 'name', 'bio', 'photo'];
+    $columnNames = ['id', 'name'];
 
     $eventAlias = $this->eventAlias;
     $query->select($this->db->qn($columnNames))
@@ -575,7 +576,7 @@ class Skills
       ->order('name ASC');
 
     $this->db->setQuery($query);
-    $presenters = $this->db->loadObjectList() ?? [];
+    $presenterRowIds = $this->db->loadObjectList('id');
 
     // Define the base tmp path
     $tmpBasePath = Factory::getApplication()->get('tmp_path');
@@ -586,30 +587,21 @@ class Skills
     $zipFileName = implode(DIRECTORY_SEPARATOR, [$tmpBasePath, $filename]);
 
     // Check if the directory already exists just in case
-    if (!Folder::exists($tempFolderPath)) {
-      // Create the directory
+    if (!is_dir(Path::clean($tempFolderPath))) {
       Folder::create($tempFolderPath);
     }
 
-    $archiveFiles = [];
-
-    foreach ($presenters as $p) {
-      if ($p->photo !== '') {
-        if (is_file(implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $p->photo]))) {
-          $name = strtolower(preg_replace('/[^a-zA-Z0-9]/', '_', $p->name));
-
-          $orig = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, 'images', 'skills', 'presenters', 'orig', basename($p->photo)]);
-          $tmp = implode(DIRECTORY_SEPARATOR, [$tempFolderPath, $name . '_' . $p->uid . '.jpg']);
-          $archiveFiles[basename($tmp)] = $tmp;
-
-          // Copy the file to the temp folder
-          if (!copy($orig, $tmp)) {
-            // error message
-            echo "<p>Unable to copy file for {$p->name}</p>";
-          }
-        }
-      }
-    }
+    $cache = new DbBlob(
+      db: $this->db,
+      cacheDir: $tempFolderPath,
+      prefix: 'orig_',
+      extension: 'jpg'
+    );
+    $archiveFiles = $cache->toFile(
+      tableName: '#__claw_presenters',
+      rowIds: array_keys($presenterRowIds),
+      key: 'image',
+    );
 
     /**** JOOMLA METHOD FAILS
     $archive = new Archive(['tmp_path' => $tmpBasePath]);
@@ -632,8 +624,10 @@ class Skills
       return;
     }
 
-    foreach ($archiveFiles as $name => $file) {
-      $zip->addFromString($name, \file_get_contents($file));
+    foreach ($archiveFiles as $id => $file) {
+      $name = $presenterRowIds[$id]->name . '-' . $id . '.jpg';
+      $src = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $file]);
+      $zip->addFromString($name, \file_get_contents($src));
     }
 
     $zip->close();
