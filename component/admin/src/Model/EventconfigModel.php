@@ -73,6 +73,7 @@ class EventconfigModel extends AdminModel
       case PackageInfoTypes::addon:
       case PackageInfoTypes::daypass:
       case PackageInfoTypes::passes:
+      case PackageInfoTypes::passes_other:
         $start = $data['day'] . ' ' . $data['start_time'];
         $end = $data['day'] . ' ' . $data['end_time'];
 
@@ -172,6 +173,7 @@ class EventconfigModel extends AdminModel
         PackageInfoTypes::daypass->value,
         PackageInfoTypes::speeddating->value,
         PackageInfoTypes::passes->value,
+        PackageInfoTypes::passes_other->value,
         PackageInfoTypes::spa->value,
       ];
 
