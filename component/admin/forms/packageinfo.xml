@@ -190,7 +190,7 @@
     description="Select day"
     multiple="false"
     default="0"
-    showon="packageInfoType:2,6,8"
+    showon="packageInfoType:2,6,8,11"
   >
   </field>
 
@@ -203,7 +203,7 @@
     min="00:00"
     max="23:59"
     default="00:00"
-    showon="packageInfoType:2,6,8"
+    showon="packageInfoType:2,6,8,11"
   />
 
   <field
@@ -215,7 +215,7 @@
     min="00:00"
     max="23:59"
     default="00:00"
-    showon="packageInfoType:2,6,8"
+    showon="packageInfoType:2,6,8,11"
   />
 
   <field
