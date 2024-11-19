@@ -21,6 +21,7 @@ enum PackageInfoTypes: int
   case daypass = 6;
   case coupononly = 7;
   case passes = 8;
+  case passes_other = 11;
   case equipment = 9;
   case spa = 10;
 
@@ -36,6 +37,7 @@ enum PackageInfoTypes: int
       PackageInfoTypes::daypass => 'Day Pass',
       PackageInfoTypes::coupononly => 'Coupon Only',
       PackageInfoTypes::passes => 'Passes',
+      PackageInfoTypes::passes_other => 'Passes (Other)',
       PackageInfoTypes::equipment => 'Equipment Rental',
       PackageInfoTypes::spa => 'Spa Session',
     };
