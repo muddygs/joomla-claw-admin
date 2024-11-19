@@ -53,12 +53,12 @@ HTML;
 
     $this->options_link = EventBooking::getRegistrationLink();
 
-    /** @var Joomla\CMS\Application\SiteApplication */
+    /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
 
     if ($app->getIdentity() == null || $app->getIdentity()->id == 0) {
       $app->enqueueMessage('You must be signed in to use this resource. Please use the Registration menu.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      $app->redirect('https://www.clawinfo.org/', 'You must be signed in to use this resource. Please use the Registration menu.', 'error');
+      $app->redirect('https://www.clawinfo.org/', 401);
     }
 
     $packageEventId = 0;
