@@ -41,6 +41,7 @@ enum EventPackageTypes: int
   case day_pass_sat = 16;
   case day_pass_sun = 17;
   case pass = 18;
+  case pass_other = 34;
   case vip = 20;
   case spa = 33;
 
@@ -152,5 +153,17 @@ enum EventPackageTypes: int
     asort($result);
 
     return $result;
+  }
+
+  public static function fromName(string $str): ?EventPackageTypes
+  {
+    $str = strtoupper($str);
+    foreach (self::cases() as $case) {
+      if ($str === strtoupper($case->name)) {
+        return $case;
+      }
+    }
+
+    return null;
   }
 }
