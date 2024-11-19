@@ -34,6 +34,42 @@
   </field>
 
   <field
+    name="dayPassesActive"
+    type="radio"
+    label="Display Day Passes:"
+    required="true"
+    default="0"
+    class="btn-group btn-group-yesno"
+  >
+    <option value="1">JYES</option>
+    <option value="0">JNO</option>
+  </field>
+
+  <field
+    name="passesActive"
+    type="radio"
+    label="Display Passes:"
+    required="true"
+    default="0"
+    class="btn-group btn-group-yesno"
+  >
+    <option value="1">JYES</option>
+    <option value="0">JNO</option>
+  </field>
+
+  <field
+    name="passesOtherActive"
+    type="radio"
+    label="Display Passes (Other):"
+    required="true"
+    default="0"
+    class="btn-group btn-group-yesno"
+  >
+    <option value="1">JYES</option>
+    <option value="0">JNO</option>
+  </field>
+
+  <field
     name="badge_printing_override"
     type="radio"
     label="Badge Printing Override:"
@@ -85,6 +121,7 @@
     name="cancelBy"
     type="calendar"
     label="Default Cancel By:"
+    description="Should match your T&amp;C article dates"
     required="false"
     filter="string"
   />

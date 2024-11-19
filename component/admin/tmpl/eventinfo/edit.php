@@ -28,8 +28,14 @@ $view = 'eventinfo';
   <h1>Basic Information</h1>
   <div>
     <div class="row">
+      <div class="col">
+        <?= $this->form->renderField('active'); ?>
+      </div>
+    </div>
+    <div class="row">
       <div class="col-lg-6">
         <?= $this->form->renderField('alias'); ?>
+        <?= $this->form->renderField('prefix'); ?>
       </div>
       <div class="col-lg-6">
         <?= $this->form->renderField('description'); ?>
@@ -43,24 +49,13 @@ $view = 'eventinfo';
         &nbsp;
       </div>
       <div class="col-lg-2">
-        <?= $this->form->renderField('active'); ?>
-      </div>
-      <div class="col-lg-2">
         <?= $this->form->renderField('onsiteActive'); ?>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-lg-6">
-        <?= $this->form->renderField('prefix'); ?>
-      </div>
-      <div class="col-lg-2">
-        &nbsp;
-      </div>
-      <div class="col-lg-2">
         <?= $this->form->renderField('badge_printing_override'); ?>
       </div>
       <div class="col-lg-2">
-        &nbsp;
+        <?= $this->form->renderField('dayPassesActive'); ?>
+        <?= $this->form->renderField('passesActive'); ?>
+        <?= $this->form->renderField('passesOtherActive'); ?>
       </div>
     </div>
 
