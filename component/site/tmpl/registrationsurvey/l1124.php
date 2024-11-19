@@ -21,11 +21,24 @@ if (is_null($this->mainEvent)):
   $html[] = $this->loadTemplate('volunteer');
   $html[] = $this->loadTemplate('vip');
 
-  if ($this->onsiteActive) {
+  if ($this->dayPassesActive) {
     $tabs[] = 'Day Passes';
     $html[] = $this->loadTemplate('daypasses');
+  }
+
+
+  if ($this->passesActive || $this->passesOtherActive) {
     $tabs[] = 'Passes';
-    $html[] = $this->loadTemplate('passes');
+    $html[] = '';
+    $k = array_key_last($html);
+
+    if ($this->passesActive) {
+      $html[$k] .= $this->loadTemplate('passes');
+    }
+
+    if ($this->passesOtherActive) {
+      $html[$k] .= $this->loadTemplate('passesother');
+    }
   }
 
   $tabs[] = 'Other';

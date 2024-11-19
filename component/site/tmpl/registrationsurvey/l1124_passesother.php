@@ -11,18 +11,18 @@ $now = date('Y-m-d H:i:s');
 
 <div class="row border border-3 border-info">
   <div class="col">
-    <h1 class="text-center">Night passes valid after 7PM. Registrant must wear Night Pass wristband for event access. Night passes do not include any BDSM Parties.</h1>
+    <h1 class="text-center">Off-site Party Passes</h1>
   </div>
 </div>
 
-<div class="mt-2 d-grid col-6 mx-auto gap-2 mb-2">
+<div class="mt-2 d-grid col-6 mx-auto gap-2">
 
   <?php
   /** @var \ClawCorpLib\Lib\PackageInfo */
   foreach ($this->eventConfig->packageInfos as $packageInfo) {
+    if ($now > $packageInfo->end) continue;
     if (
-      $now > $packageInfo->end
-      || $packageInfo->packageInfoType != PackageInfoTypes::passes
+      $packageInfo->packageInfoType != PackageInfoTypes::passes_other
       || $packageInfo->published != EbPublishedState::published
     ) continue;
 
@@ -32,7 +32,7 @@ $now = date('Y-m-d H:i:s');
     $title = $packageInfo->title . ' (' . $price . ')';
 
   ?>
-    <a role="button" href="<?= $linkFull ?>" class="btn btn-success btn-lg"><?= $title ?></a>
+    <a role="button" href="<?= $linkFull ?>" class="btn btn-danger btn-lg"><?= $title ?></a>
   <?php
   }
   ?>

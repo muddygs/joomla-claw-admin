@@ -60,11 +60,11 @@ endif;
 $content = [
   'battery-full' => [
     'Volunteer',
-    '$1<br><a href="' . $this->registrationLinks['vol3'] . '" role="button" class="btn btn-danger">Volunteer for 3 Shifts</a>'
+    '$1<br><a href="' . $this->registrationLinks['volunteer3'] . '" role="button" class="btn btn-danger">Volunteer for 3 Shifts</a>'
   ],
   #'battery-half' => [
   #'Volunteer',
-  #'$89<br><a href="' . $this->registrationLinks['vol2'] . '" role="button" class="btn btn-danger">Volunteer for 2 Shifts</a>'
+  #'$89<br><a href="' . $this->registrationLinks['volunteer2'] . '" role="button" class="btn btn-danger">Volunteer for 2 Shifts</a>'
   #],
   'user-tag' => [
     'Recruited Volunteer',

@@ -16,11 +16,11 @@ $content = [
   ],
   'users-cog' => [
     'Coordinator Registration',
-    'Pre-approved coordinators only.<br><a href="' . $this->registrationLinks['coordinator'] . '" role="button" class="btn btn-danger">Start Registration</a>'
+    'Pre-approved coordinators only.<br><a href="' . $this->registrationLinks['claw_staff'] . '" role="button" class="btn btn-danger">Start Registration</a>'
   ],
   'hands-helping' => [
     'Board Members Registration',
-    'Pre-approved board members only.<br><a href="' . $this->registrationLinks['board'] . '" role="button" class="btn btn-danger">Start Registration</a>'
+    'Pre-approved board members only.<br><a href="' . $this->registrationLinks['claw_board'] . '" role="button" class="btn btn-danger">Start Registration</a>'
   ],
 ];
 
