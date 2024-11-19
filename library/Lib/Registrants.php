@@ -50,6 +50,8 @@ class Registrants
     }
 
     foreach ($userIds as $uid) {
+      if ( $uid == 0 ) continue;
+
       $r = new Registrant($clawEventAlias, $uid, [$eventId], true);
       $r->loadCurrentEvents();
 
