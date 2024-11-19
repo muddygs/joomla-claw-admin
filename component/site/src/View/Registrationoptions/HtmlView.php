@@ -55,26 +55,14 @@ class HtmlView extends BaseHtmlView
 
   public function __construct($config = [])
   {
-    parent::__construct($config);
-
     /** @var \Joomla\CMS\Application\SiteApplication */
     $this->app = Factory::getApplication();
-    $this->identity = $this->app->getIdentity();
 
-    if (!$this->isAuthenticated()) die('Redirect error in Registration Options');
+    parent::__construct($config);
 
     $input = $this->app->getInput();
     $this->eventAlias = $input->get('event', '');
     $this->action = $input->get('action', 0);
-
-    $activeEvents = EventConfig::getActiveEventAliases(mainOnly: true);
-    if (!in_array($this->eventAlias, $activeEvents)) {
-      $this->eventAlias = Aliases::current(true);
-    }
-    $this->eventConfig = new EventConfig($this->eventAlias);
-
-    $this->resetSession();
-    $this->registrationSurveyLink = Helpers::sessionGet('registrationSurveyLink', '/');
 
     $this->eventPackageType = EventPackageTypes::tryFrom($this->action);
 
@@ -84,7 +72,43 @@ class HtmlView extends BaseHtmlView
       return;
     }
 
+    $activeEvents = EventConfig::getActiveEventAliases(mainOnly: true);
+    if (!in_array($this->eventAlias, $activeEvents)) {
+      $this->eventAlias = Aliases::current(true);
+    }
+    $this->eventConfig = new EventConfig($this->eventAlias);
     $this->targetPackage = $this->eventConfig->getPackageInfo($this->eventPackageType);
+
+    //
+    // Redirect to public events (no authentication required)
+    //
+    $public_acl = Config::getGlobalConfig('packageinfo_public_acl', 0);
+    if ($this->targetPackage->acl_id == $public_acl) {
+      if (
+        $this->targetPackage->published != EbPublishedState::published
+        || $this->targetPackage->eventId == 0
+      ) {
+        parent::display('blocked');
+        return;
+      }
+
+      // Clear cart prior to individual event registration
+      $cart = new \EventbookingHelperCart();
+      $cart->reset();
+
+      $url    = 'index.php?option=com_eventbooking&view=register&event_id=' . $this->targetPackage->eventId;
+      $this->app->redirect($url);
+      return true;
+    }
+
+    $this->identity = $this->app->getIdentity();
+
+    if (!$this->isAuthenticated()) die('Redirect error in Registration Options');
+
+
+    $this->resetSession();
+    $this->registrationSurveyLink = Helpers::sessionGet('registrationSurveyLink', '/');
+
 
     $registrant = new Registrant($this->eventAlias, $this->identity->id);
     $this->mainEvent = $registrant->getMainEvent();
