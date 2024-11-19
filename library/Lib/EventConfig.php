@@ -37,7 +37,8 @@ class EventConfig
     PackageInfoTypes::main,
     PackageInfoTypes::daypass,
     PackageInfoTypes::addon,
-    PackageInfoTypes::passes
+    PackageInfoTypes::passes,
+    PackageInfoTypes::passes_other,
   ];
 
   /**
