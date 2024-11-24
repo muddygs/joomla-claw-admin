@@ -33,9 +33,9 @@ class EventInfoArray implements \IteratorAggregate, \ArrayAccess, \Countable
     return $this->eventInfos[$index] ?? null;
   }
 
-  public function set(int|string $index, EventInfoArray $sponsors): void
+  public function set(int|string $index, EventInfo $eventInfo): void
   {
-    $this->eventInfos[$index] = $sponsors;
+    $this->eventInfos[$index] = $eventInfo;
   }
 
   public function offsetExists($offset): bool
