@@ -25,6 +25,9 @@ use ClawCorpLib\Lib\Ebfield;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\Registrants;
 use ClawCorpLib\Helpers\EventBooking;
+use ClawCorpLib\Helpers\Helpers;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\User\UserFactoryInterface;
 
 /**
  * Methods to handle a list of records.
@@ -445,6 +448,14 @@ class ReportsModel extends BaseDatabaseModel
      * ]
      */
 
+    $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
+    $params = ComponentHelper::getParams('com_claw');
+    $publicNameFieldId = $params->get('public_name_field', 0);
+
+    if (0 == $publicNameFieldId) {
+      die('Public Field Name Not Defined In Configuration.');
+    }
+
     $items = [];
 
     // Find full events and remove from $packageInfos
@@ -455,7 +466,6 @@ class ReportsModel extends BaseDatabaseModel
       if (
         $packageInfo->packageInfoType != PackageInfoTypes::spa
         || $packageInfo->published != EbPublishedState::published
-        || $packageInfo->eventId < 1
       ) continue;
 
       foreach ($packageInfo->meta as $meta) {
@@ -464,6 +474,7 @@ class ReportsModel extends BaseDatabaseModel
     }
 
     $capacityInfo = EventBooking::getEventsCapacityInfo($this->eventConfig->eventInfo, $eventIds);
+    $therapists = [];
 
     // Remove item from meta if missing or at capacity
 
@@ -475,8 +486,8 @@ class ReportsModel extends BaseDatabaseModel
       ) continue;
 
       $startDay = $packageInfo->start->format('D');
-      $startTime = $packageInfo->start->format('M:i A');
-      $endTime = $packageInfo->end->format('M:i A');
+      $startTime = $packageInfo->start->format('h:i A');
+      $endTime = $packageInfo->end->format('h:i A');
 
       if (!array_key_exists($startDay, $items))
         $items[$startDay] = [];
@@ -486,7 +497,17 @@ class ReportsModel extends BaseDatabaseModel
 
         if (!array_key_exists($meta->userid, $items[$startDay])) {
           $items[$startDay][$meta->userid] = [];
+          if (!array_key_exists($meta->userid, $therapists)) {
+            $therapists[$meta->userid] = Helpers::getUserField($meta->userid, $publicNameFieldId) ?? $meta->userid . ' (public name not set)';
+          }
         }
+
+        $session = [
+          'start_time' => $startTime,
+          'end_time' => $endTime,
+          'deposit' => $packageInfo->fee,
+          'registrant' => [],
+        ];
 
         if ($capacityInfo[$meta->eventId]->total_registrants > 0) {
           /** @var \ClawCorpLib\Lib\Registrant */
@@ -494,21 +515,19 @@ class ReportsModel extends BaseDatabaseModel
           /** @var \ClawCorpLib\Lib\RegistrantRecord */
           $record = $registrant->records(true)[0];
 
-          $session = [
-            'start_time' => $startTime,
-            'end_time' => $endTime,
-            'deposit' => $packageInfo->fee,
-            'services' => implode(',', $meta->services),
-            'registrant' => [
-              'name' => $record->registrant->first_name . ' ' . $record->registrant->last_name,
-              'email' => $record->registrant->email,
-            ]
+          $session['registrant'] = [
+            'name' => $record->registrant->first_name,
+            'email' => $record->registrant->email,
           ];
-
-          $items[$startDay][$meta->userid][] = $session;
         }
+
+        $items[$startDay][$meta->userid][] = $session;
       }
     }
+
+    $days = array_keys($items);
+    $items['days'] = $days;
+    $items['therapists'] = $therapists;
 
     return $items;
   }
