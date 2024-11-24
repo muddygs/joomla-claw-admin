@@ -16,10 +16,13 @@ use DateTime;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Image\Image;
+use Joomla\CMS\Mail\MailerFactoryInterface;
 use Joomla\CMS\User\UserHelper;
 use Joomla\Database\DatabaseDriver;
 use LogicException;
 use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\UserFactoryInterface;
+use Joomla\Component\Fields\Administrator\Helper\FieldsHelper;
 use RuntimeException;
 
 // TODO: Separate and put in appropriate classes or merge into main code
@@ -253,6 +256,24 @@ class Helpers
 
     return ($id == null) ? 0 : intval($id);
   }
+
+  public static function getUserField(int $userId, int $fieldId): ?string
+  {
+    $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
+    $user = $userFactory->loadUserById($userId);
+    if (is_null($user)) return null;
+
+    $result = null;
+
+    $fields = FieldsHelper::getFields('com_users.user', ['id' => $userId], true);
+    foreach ($fields as $field) {
+      if ($field->id == $fieldId) {
+        if (!empty($field->value)) $result = $field->value;
+      }
+    }
+
+    return $result;
+  }
   #endregion User Helpers
 
   #region Session
@@ -295,7 +316,7 @@ class Helpers
    */
   public static function sendErrorNotification(string $path, $data)
   {
-    $mailer = Factory::getMailer();
+    $mailer = Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
 
     $config = new Config(Aliases::current(true));
     $email = $config->getConfigText(ConfigFieldNames::CONFIG_DEBUG_EMAIL, 'email');
@@ -304,8 +325,8 @@ class Helpers
     $mailer->addRecipient($email);
 
     $body = 'PATH: ' . $path . "\n";
-    $body .= "DATA FOLLOWS:\n";
-    //$body .= print_r($data, true);
+    $body .= "DATA FOLLOWS (may be truncated):\n";
+    $body .= print_r(substr($data, 0, 2048), true);
     $mailer->setBody($body);
 
     $mailer->Send();
