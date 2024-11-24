@@ -18,6 +18,7 @@ use Joomla\CMS\Uri\Uri;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Lib\PackageInfo;
 
 class EventBooking
 {
@@ -45,6 +46,12 @@ class EventBooking
       $route .= '&referrer=' . $referrer;
     }
 
+    return $route;
+  }
+
+  public static function buildIndividualLink(PackageInfo $packageInfo): string
+  {
+    $route = '/index.php?option=com_eventbooking&view=register&event_id=' . $packageInfo->eventId;
     return $route;
   }
 

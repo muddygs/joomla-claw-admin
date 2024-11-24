@@ -28,7 +28,7 @@ $now = date('Y-m-d H:i:s');
       || $packageInfo->published != EbPublishedState::published
     ) continue;
 
-    $linkFull = EventBooking::buildRegistrationLink($this->eventConfig->alias, $packageInfo->eventPackageType);
+    $linkFull = EventBooking::buildIndividualLink($packageInfo);
 
     $price = '$' . number_format($packageInfo->fee);
     $title = $packageInfo->title . ' (' . $price . ')';

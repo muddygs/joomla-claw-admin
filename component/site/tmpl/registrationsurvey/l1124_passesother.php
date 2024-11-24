@@ -3,6 +3,7 @@
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\EventBooking;
+use Joomla\CMS\HTML\HTMLHelper;
 
 date_default_timezone_set($this->eventConfig->eventInfo->timezone);
 $now = date('Y-m-d H:i:s');
@@ -26,7 +27,7 @@ $now = date('Y-m-d H:i:s');
       || $packageInfo->published != EbPublishedState::published
     ) continue;
 
-    $linkFull = EventBooking::buildRegistrationLink($this->eventConfig->alias, $packageInfo->eventPackageType);
+    $linkFull = EventBooking::buildIndividualLink($packageInfo);
 
     $price = '$' . number_format($packageInfo->fee);
     $title = $packageInfo->title . ' (' . $price . ')';
