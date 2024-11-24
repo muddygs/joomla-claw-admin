@@ -1,83 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Use addfieldprefix to set the namespace of the field, similar to model -->
 <form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
-	<fields name="filter">
-		<field
-			name="search"
-			type="text"
-			inputmode="search"
-			label="Search"
-			description="Title search"
-			hint="JSEARCH_FILTER"
-		/>
+  <fields name="filter">
+    <field
+      name="search"
+      type="text"
+      inputmode="search"
+      label="Search"
+      description="Title search"
+      hint="JSEARCH_FILTER"
+    />
 
-		<field
-		  name="presenter"
-			type="PresentersList"
-			label="Presenter Filter"
-			onchange="this.form.submit();"
-		>
-			<option value="">Select Presenter</option>
-		</field>
+    <field
+      name="presenter"
+      type="PresentersList"
+      label="Presenter Filter"
+      onchange="this.form.submit();"
+    >
+      <option value="">Select Presenter</option>
+    </field>
 
-		<field
-		  name="day"
-			type="ClawDaysList"
-			label="Day Filter"
-			dayfilter="FRI,SAT,SUN"
-			onchange="this.form.submit();"
-		>
-			<option value="">Select Day</option>
-		</field>
+    <field
+      name="day"
+      type="ClawDaysList"
+      label="Day Filter"
+      dayfilter="FRI,SAT,SUN"
+      onchange="this.form.submit();"
+    >
+      <option value="">Select Day</option>
+    </field>
 
-		<field name="type"
-			type="sql"
-			label="Class Type"
-			required="false"
-			value_field="text"
-			query="SELECT value,text FROM #__claw_field_values WHERE `fieldname`='skill_class_type' ORDER BY value"
-			default=""
-			onchange="this.form.submit();"
-		>
-			<option value="">Select Type</option>
-		</field>
+    <field name="type"
+      type="SkillsClassTypeList"
+      label="Class Type"
+      required="false"
+      default=""
+      onchange="this.form.submit();"
+    >
+      <option value="">Select Type</option>
+    </field>
 
-		<field
-		  name="event"
-			type="ClawEventsList"
-			label="Event Filter"
-			onchange="this.form.submit();"
-		/>
-	</fields>
+    <field
+      name="event"
+      type="ClawEventsList"
+      label="Event Filter"
+      onchange="this.form.submit();"
+    />
+  </fields>
 
-	<fields name="list">
+  <fields name="list">
 
-		<field
-			name="fullordering"
-			type="list"
-			label="JGLOBAL_SORT_BY"
-			default="a.title ASC"
-			onchange="this.form.submit();"
-			>
-			<option value="">JGLOBAL_SORT_BY</option>
-			<option value="a.title ASC">Title Ascending</option>
-			<option value="a.title DESC">Title Descending</option>
-			<option value="a.time_slot ASC">Time Ascending</option>
-			<option value="a.time_slot DESC">Time Descending</option>
-			<option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
-			<option value="a.id DESC">JGRID_HEADING_ID_DESC</option>
-			<option value="a.mtime ASC">Modification Ascending</option>
-			<option value="a.mtime DESC">Modification Descending</option>
-			<option value="a.submission_date ASC">Submission Ascending</option>
-			<option value="a.submission_date DESC">Submission Descending</option>
-		</field>
+    <field
+      name="fullordering"
+      type="list"
+      label="JGLOBAL_SORT_BY"
+      default="a.title ASC"
+      onchange="this.form.submit();"
+    >
+      <option value="">JGLOBAL_SORT_BY</option>
+      <option value="a.title ASC">Title Ascending</option>
+      <option value="a.title DESC">Title Descending</option>
+      <option value="a.time_slot ASC">Time Ascending</option>
+      <option value="a.time_slot DESC">Time Descending</option>
+      <option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
+      <option value="a.id DESC">JGRID_HEADING_ID_DESC</option>
+      <option value="a.mtime ASC">Modification Ascending</option>
+      <option value="a.mtime DESC">Modification Descending</option>
+      <option value="a.submission_date ASC">Submission Ascending</option>
+      <option value="a.submission_date DESC">Submission Descending</option>
+    </field>
 
-		<field
-			name="limit"
-			type="limitbox"
-			label="JGLOBAL_LIST_LIMIT"
-			default="25"
-			onchange="this.form.submit();"
-		/>
-	</fields>
+    <field
+      name="limit"
+      type="limitbox"
+      label="JGLOBAL_LIST_LIMIT"
+      default="25"
+      onchange="this.form.submit();"
+    />
+  </fields>
 </form>
