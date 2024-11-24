@@ -12,7 +12,7 @@ if ($this->onsiteActive):
       <li>All on-site volunteer shifts are assigned at the Volunteer Assignments Desk</li>
     </ul>
     <div class="d-grid gap-2">
-      <a href="<?= $this->registrationLinks['vol3'] ?>" class="btn btn-danger btn-lg" role="button">
+      <a href="<?= $this->registrationLinks['volunteer3'] ?>" class="btn btn-danger btn-lg" role="button">
         Click To Register As A Volunteer (3 Shifts)
       </a>
     </div>
