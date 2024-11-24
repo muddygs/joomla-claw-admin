@@ -16,6 +16,7 @@ use Joomla\Database\DatabaseAwareTrait;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\EventBooking;
+use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\User\UserFactoryInterface;
 use Joomla\Component\Fields\Administrator\Helper\FieldsHelper;
@@ -105,17 +106,6 @@ class SpascheduleHelper implements DatabaseAwareInterface
     $user = $this->userFactory->loadUserById($userId);
     if (is_null($user)) return null;
 
-    $result = htmlspecialchars($user->name);
-
-    if ($this->publicNameFieldId != 0) {
-      $fields = FieldsHelper::getFields('com_users.user', ['id' => $user->id], true);
-      foreach ($fields as $field) {
-        if ($field->id == $this->publicNameFieldId) {
-          if (!empty($field->value)) $result = $field->value;
-        }
-      }
-    }
-
-    return $result;
+    return Helpers::getUserField($userId, $this->publicNameFieldId) ?? htmlspecialchars($user->name);
   }
 }
