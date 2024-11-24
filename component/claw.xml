@@ -3,12 +3,12 @@
   method="upgrade">
 
   <name>CLAW</name>
-  <creationDate>2024-NOV-19</creationDate>
+  <creationDate>2024-NOV-24</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>25.0.10</version>
+  <version>25.0.11</version>
   <description>CLAW Data Administration</description>
 
   <namespace path="src">ClawCorp\Component\Claw</namespace>
