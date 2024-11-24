@@ -20,7 +20,6 @@ use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\Rsform;
-use ClawCorpLib\Helpers\Volunteers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Ebfield;
 use ClawCorpLib\Lib\EventConfig;
@@ -60,7 +59,6 @@ class ReportsModel extends BaseDatabaseModel
       if (
         $packageInfo->packageInfoType != PackageInfoTypes::speeddating
         || $packageInfo->published != EbPublishedState::published
-        || $packageInfo->eventId < 1
       ) continue;
 
       foreach ($packageInfo->meta as $meta) {
