@@ -67,8 +67,16 @@ $isCurrent = $this->bio->event == $this->currentEventInfo->alias;
 if ($isCurrent) {
   $event = $this->currentEventInfo->description . ' <span class="badge bg-danger">Current</span>';
 } else {
-  $eventInfo = new EventInfo($this->bio->event);
-  $event = $eventInfo->description;
+  $event = '';
+  $eventInfo = null;
+
+  try {
+    $eventInfo = new EventInfo(alias: $this->bio->event, withUnpublished: true);
+    $event = $eventInfo->description;
+  } catch (\Exception) {
+    $event = '&lt;Unknown Event&gt;';
+  }
+
   $event .= ' <span class="badge bg-info">Not Current</span>';
 }
 

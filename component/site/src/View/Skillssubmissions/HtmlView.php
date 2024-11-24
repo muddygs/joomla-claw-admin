@@ -141,12 +141,16 @@ class HtmlView extends BaseHtmlView
   {
     $classes = [];
 
-    $eventInfos = new EventInfos();
+    $eventInfos = new EventInfos(withUnpublished: true);
     /** @var \ClawCorpLib\Lib\EventInfo */
     foreach ($eventInfos as $eventInfo) {
       // Skip newer events
-      if ($eventInfo->end_date > $this->currentEventInfo->end_date) continue;
-      if ($eventInfo->eventType != EventTypes::main) continue;
+      if (
+        $eventInfo->end_date > $this->currentEventInfo->end_date
+        || $eventInfo->eventType != EventTypes::main
+      ) {
+        continue;
+      }
 
       $eventClasses = $this->model->GetPresenterClasses($eventInfo);
       if (!is_null($classes)) {

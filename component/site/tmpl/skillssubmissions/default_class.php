@@ -34,7 +34,7 @@ if ($this->canSubmit) {
 HTML;
 }
 
-$eventInfo = new EventInfo($this->row->event);
+$eventInfo = new EventInfo(alias: $this->row->event, withUnpublished: true);
 
 ?>
 <tr>

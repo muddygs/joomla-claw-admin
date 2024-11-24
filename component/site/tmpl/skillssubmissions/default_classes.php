@@ -14,7 +14,6 @@ use Joomla\CMS\Router\Route;
 
 $skillRoute = Route::_('index.php?option=com_claw&view=skillsubmission');
 
-
 ?>
 <?php if (!$this->canSubmit) : ?>
   <h3 class="text-warning text-center border border-danger p-3">
