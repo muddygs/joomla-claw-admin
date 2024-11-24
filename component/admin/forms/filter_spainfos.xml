@@ -24,6 +24,7 @@
       onchange="this.form.submit();"
     >
       <option value="">Select Day</option>
+      <option value="Thu">Thu</option>
       <option value="Fri">Fri</option>
       <option value="Sat">Sat</option>
       <option value="Sun">Sun</option>
