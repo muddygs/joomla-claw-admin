@@ -149,6 +149,7 @@ class Ebregistrant
       'first_sms_reminder_sent' => '0',
       'formatted_invoice_number' => "''",
       'group_id' => '0',
+      'icpr_notified' => '0',
       'id' => '0',
       'invoice_number' => "''",
       'invoice_year' => '0',
