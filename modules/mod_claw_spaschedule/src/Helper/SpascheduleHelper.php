@@ -17,9 +17,9 @@ use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\Registrants;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\User\UserFactoryInterface;
-use Joomla\Component\Fields\Administrator\Helper\FieldsHelper;
 use Joomla\CMS\Factory;
 
 \defined('_JEXEC') or die;
@@ -33,6 +33,7 @@ class SpascheduleHelper implements DatabaseAwareInterface
 
   public \Joomla\CMS\User\UserFactoryInterface $userFactory;
   public int $publicNameFieldId = 0;
+  public int $userId = 0;
 
   public function __construct()
   {
@@ -40,10 +41,15 @@ class SpascheduleHelper implements DatabaseAwareInterface
 
     $params = ComponentHelper::getParams('com_claw');
     $this->publicNameFieldId = $params->get('public_name_field', 0);
+
+    // If someone is signed in, it might be a therapist...collect bookings if it is
+    // Only displayed for that particular therapist as a way to get at bookings
+    $this->userId = Factory::getApplication()->getIdentity()->id;
   }
 
   public function loadSchedule(): array
   {
+
     $alias = Aliases::current(true);
 
     $eventConfig = new EventConfig($alias, [PackageInfoTypes::spa]);
@@ -51,10 +57,6 @@ class SpascheduleHelper implements DatabaseAwareInterface
     // Find full events and remove from $packageInfos
     $eventIds = [];
     $publicNames = [];
-
-    /*
-     * {"meta0":{"userid":"123","services":["therapeutic","sensual"],"eventId":188},"meta1":{"userid":"124","services":["sensual","tie"],"eventId":189}}
-     */
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($eventConfig->packageInfos as $packageInfo) {
@@ -66,6 +68,7 @@ class SpascheduleHelper implements DatabaseAwareInterface
     $capacityInfo = EventBooking::getEventsCapacityInfo($eventConfig->eventInfo, $eventIds);
 
     $days = [];
+    $bookings = [];
 
     // Remove item from meta if missing or at capacity
 
@@ -81,6 +84,24 @@ class SpascheduleHelper implements DatabaseAwareInterface
           !array_key_exists($meta->eventId, $capacityInfo) ||
           $capacityInfo[$meta->eventId]->total_registrants >= $capacityInfo[$meta->eventId]->event_capacity
         ) {
+          if ($this->userId != 0 && $meta->userid == $this->userId) {
+            $registrants = Registrants::byEventId($meta->eventId);
+            if (count($registrants)) {
+
+              /** @var \ClawCorpLib\Lib\Registrant **/
+              $r = $registrants[0];
+              $records = $r->records(true);
+              reset($records);
+              /** @var \ClawCorpLib\Lib\RegistrantRecord **/
+              $record = current($records);
+
+              $bookings[$meta->eventId] = [
+                'title' => $packageInfo->title,
+                'fname' => $record->registrant->first_name,
+                'email' => $record->registrant->email,
+              ];
+            }
+          }
           unset($packageInfo->meta->$key);
         }
       }
@@ -98,7 +119,9 @@ class SpascheduleHelper implements DatabaseAwareInterface
       }
     }
 
-    return [$eventConfig, $publicNames, $days];
+    //var_dump($publicNames);
+    //dd($bookings);
+    return [$eventConfig, $publicNames, $days, $bookings];
   }
 
   public function getPublicName($userId): ?string

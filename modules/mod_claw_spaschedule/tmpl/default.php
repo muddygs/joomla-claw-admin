@@ -36,3 +36,10 @@ if (count($tabs)) {
   No sessions available for reservation.
 <?php
 }
+
+if (count($bookings)) {
+  $path = ModuleHelper::getLayoutPath('mod_claw_spaschedule', 'default_bookings');
+  ob_start();
+  include $path;
+  echo ob_get_clean();
+}
