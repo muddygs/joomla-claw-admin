@@ -43,12 +43,24 @@ CREATE TABLE IF NOT EXISTS `#__claw_shifts`(
   `description` VARCHAR(255) NOT NULL,
   `event` TEXT DEFAULT NULL,
   `shift_area` TEXT DEFAULT NULL,
-  `grid` TEXT DEFAULT NULL,
   `requirements` VARCHAR(255) NOT NULL,
   `coordinators` TEXT NULL,
   `published` TINYINT(4) NOT NULL DEFAULT '1',
   `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `#__claw_shift_times`(
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `sid` INT(11) NOT NULL COMMENT 'id from #__claw_shifts',
+  `time` TIME NOT NULL,
+  `length` FLOAT(4,2) NOT NULL,
+  `weight` INT(4) NOT NULL DEFAULT 0,
+  `needed` longTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Volunteers Needed' CHECK (json_valid(`needed`)),
+  `event_ids` longTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]' COMMENT 'JSON Event IDs' CHECK (json_valid(`event_ids`)),
+  `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`),
+  KEY `IDX_claw_shift_times_sid` (`sid`)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__claw_schedule` (
@@ -75,6 +87,7 @@ CREATE TABLE IF NOT EXISTS `#__claw_schedule` (
 
 CREATE TABLE IF NOT EXISTS `#__claw_presenters` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `ownership` TINYINT(4) NOT NULL DEFAULT 1,
   `uid` INT(11) NOT NULL,
   `published` TINYINT(4) DEFAULT NULL,
   `name` VARCHAR(255) DEFAULT NULL,
