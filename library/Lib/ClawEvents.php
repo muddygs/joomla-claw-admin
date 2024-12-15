@@ -107,7 +107,7 @@ class ClawEvents
       ->from($db->qn('#__eb_categories'))
       ->where($db->qn('id') . ' IN (' . implode(',', (array)($db->q($categoryIds))) . ')');
     $db->setQuery($query);
-    $rows = $db->loadObjectList('alias');
+    $rows = $db->loadObjectList('id');
 
     return $rows;
   }
