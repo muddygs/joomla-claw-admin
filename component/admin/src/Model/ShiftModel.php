@@ -12,17 +12,17 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Grid\GridShift;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\User\UserHelper;
 
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Lib\EventInfo;
 
 /**
- * Methods to handle a list of records.
- *
- * @since  1.6
+ * Methods to handle edit of a Shift record
  */
 class ShiftModel extends AdminModel
 {
@@ -30,7 +30,6 @@ class ShiftModel extends AdminModel
    * The prefix to use with controller messages.
    *
    * @var    string
-   * @since  1.6
    */
   protected $text_prefix = 'COM_CLAW';
 
@@ -38,10 +37,13 @@ class ShiftModel extends AdminModel
   {
     $data['mtime'] = Helpers::mtime();
 
-    foreach ( $data['grid'] AS $k => $g ) {
-      if ( $g['grid_id'] == '' ) $data['grid'][$k]['grid_id'] = UserHelper::genRandomPassword();
-    }
-    return parent::save($data);
+    $result = parent::save($data);
+
+    if (!$result) return $result;
+
+    GridShift::saveGridTimeArray($data, 'grid');
+
+    return true;
   }
 
   public function validate($form, $data, $group = null)
@@ -56,8 +58,6 @@ class ShiftModel extends AdminModel
    * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
    *
    * @return  Form|boolean  A Form object on success, false on failure
-   *
-   * @since   1.6
    */
   public function getForm($data = array(), $loadData = true)
   {
@@ -75,8 +75,6 @@ class ShiftModel extends AdminModel
    * Method to get the data that should be injected in the form.
    *
    * @return  mixed  The data for the form.
-   *
-   * @since   1.6
    */
   protected function loadFormData()
   {
@@ -86,6 +84,13 @@ class ShiftModel extends AdminModel
 
     if (empty($data)) {
       $data = $this->getItem();
+    }
+
+    if (is_object($data) && !is_null($data->id) && $data->id > 0) {
+      $eventInfo = new EventInfo($data->event, true);
+      $gridShift = new GridShift($data->id, $eventInfo);
+      $times = $gridShift->timesToFormArray();
+      $data->grid = $times;
     }
 
     return $data;
@@ -100,7 +105,6 @@ class ShiftModel extends AdminModel
    *
    * @return  Table  A Table object
    *
-   * @since   3.0
    * @throws  \Exception
    */
   public function getTable($name = 'Shifts', $prefix = 'Table', $options = array())
