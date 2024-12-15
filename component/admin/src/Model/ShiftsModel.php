@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -27,9 +28,9 @@ class ShiftsModel extends ListModel
     'published',
     'title',
     'coordinators',
-    'shift_area',
+    'category',
     'event',
-  ];	
+  ];
 
   /**
    * Constructor.
@@ -43,11 +44,10 @@ class ShiftsModel extends ListModel
   {
     if (empty($config['filter_fields'])) {
       $config['filter_fields'] = [];
-      
-      foreach( $this->list_fields AS $f )
-      {
+
+      foreach ($this->list_fields as $f) {
         $config['filter_fields'][] = $f;
-        $config['filter_fields'][] = 'a.'.$f;
+        $config['filter_fields'][] = 'a.' . $f;
       }
     }
 
@@ -109,7 +109,7 @@ class ShiftsModel extends ListModel
     $id .= ':' . $this->getState('filter.state');
 
     $id .= ':' . $this->getState('filter.event');
-    $id .= ':' . $this->getState('filter.shift_area');
+    $id .= ':' . $this->getState('filter.category');
 
     return parent::getStoreId($id);
   }
@@ -130,7 +130,10 @@ class ShiftsModel extends ListModel
     // Select the required fields from the table.
     $query->select(
       $this->getState(
-        'list.select', array_map( function($a) use($db) { return $db->quoteName('a.'.$a); }, $this->list_fields)
+        'list.select',
+        array_map(function ($a) use ($db) {
+          return $db->quoteName('a.' . $a);
+        }, $this->list_fields)
       )
     )
       ->from($db->quoteName('#__claw_shifts', 'a'));
@@ -148,11 +151,11 @@ class ShiftsModel extends ListModel
     if ($event != 'all') {
       $query->where('a.event = :event')->bind(':event', $event);
 
-      $shiftArea = $this->getState('filter.shift_area');
+      $shiftArea = $this->getState('filter.category');
 
       if ($shiftArea != '') {
-        $query->where('a.shift_area = :area')
-        ->bind(':area', $shiftArea);
+        $query->where('a.category = :area')
+          ->bind(':area', $shiftArea);
       }
     }
 
