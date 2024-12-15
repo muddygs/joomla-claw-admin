@@ -38,27 +38,24 @@ class HtmlView extends BaseHtmlView
       throw new GenericDataException(implode("\n", $errors), 500);
     }
 
-    $eventAlias = $this->form->getField('event')->value ?? Aliases::current(true);
+    $eventAlias = $this->form->getField('event')->value;
+    if (empty($eventAlias)) $eventAlias = Aliases::current(true);
 
     try {
       $eventInfo = new EventInfo($eventAlias);
     } catch (\Exception) {
-      Factory::getApplication()->enqueueMessage('Invalid event alias.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      Factory::getApplication()->enqueueMessage('Invalid event alias:' . $eventAlias, \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       return false;
     }
 
-
     /** @var \Joomla\CMS\Form\Field\ListField */
-    $parentField = $this->form->getField('shift_area');
+    $parentField = $this->form->getField('category');
 
-    // TODO: replace shift_area column with category_id column (also Grids.php, ShiftsModel.php)
     $shiftCategoryIds = [...$eventInfo->eb_cat_shifts, ...$eventInfo->eb_cat_supershifts];
     $shiftRawCategories = ClawEvents::getRawCategories($shiftCategoryIds);
 
-    foreach ($shiftRawCategories as $alias => $row) {
-      // remove 'shifts-' prefix
-      $k = substr($alias, 7);
-      $parentField->addOption(htmlentities($row->name), ['value' => $k]);
+    foreach ($shiftRawCategories as $row) {
+      $parentField->addOption(htmlentities($row->name), ['value' => $row->id]);
     }
 
     $this->addToolbar();

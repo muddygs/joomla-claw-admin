@@ -96,16 +96,13 @@ class HtmlView extends BaseHtmlView
 
 
     /** @var \Joomla\CMS\Form\Field\ListField */
-    $parentField = $this->filterForm->getField('shift_area', 'filter');
+    $parentField = $this->filterForm->getField('category', 'filter');
 
-    // TODO: replace shift_area column with category_id column (also Grids.php, ShiftsModel.php, shift view)
     $shiftCategoryIds = [...$eventInfo->eb_cat_shifts, ...$eventInfo->eb_cat_supershifts];
-    $shiftRawCategories = ClawEvents::getRawCategories($shiftCategoryIds);
+    $this->shiftCategories = ClawEvents::getRawCategories($shiftCategoryIds);
 
-    foreach ($shiftRawCategories as $alias => $row) {
-      // remove 'shifts-' prefix
-      $k = substr($alias, 7);
-      $parentField->addOption(htmlentities($row->name), ['value' => $k]);
+    foreach ($this->shiftCategories as $row) {
+      $parentField->addOption(htmlentities($row->name), ['value' => $row->id]);
     }
 
     // $state = $model->getState('filter.shift_area');
