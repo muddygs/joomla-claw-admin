@@ -39,8 +39,8 @@ else:
   ?>
   <div class="row row-cols-1 row-cols-sm-2 g-2 px-4 py-2">
     <?php
-    foreach ($categoryInfo as $alias => $info):
-      $url = $this->shiftsBaseUrl . $alias;
+    foreach ($categoryInfo as $info):
+      $url = $this->shiftsBaseUrl . $info->$alias;
       $name = $info->name;
       $description = $info->meta_description;
     ?>
