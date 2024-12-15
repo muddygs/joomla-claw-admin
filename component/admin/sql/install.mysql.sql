@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `#__claw_shifts`(
   `title` VARCHAR(255) NOT NULL,
   `description` VARCHAR(255) NOT NULL,
   `event` TEXT DEFAULT NULL,
-  `shift_area` TEXT DEFAULT NULL,
+  `category` INT(11) DEFAULT NULL,
   `requirements` VARCHAR(255) NOT NULL,
   `coordinators` TEXT NULL,
   `published` TINYINT(4) NOT NULL DEFAULT '1',

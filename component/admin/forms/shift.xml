@@ -33,12 +33,12 @@
   />
 
   <field
-    name="shift_area"
+    name="category"
     type="list"
     label="Shift Area"
     required="true"
     default="">
-      <option value="">Select Shift Area</option>
+    <option value="">Select Shift Area</option>
   </field>
 
   <field
@@ -68,7 +68,7 @@
     min="1"
     required="true"
     formsource="/administrator/components/com_claw/forms/shiftgridrow.xml"
-    layout="shiftgridrow"
+    layout="joomla.form.field.subform.repeatable"
   >
 
   </field>
@@ -80,7 +80,7 @@
     class="form-select-color-state"
     default="1"
     validate="options"
-    >
+  >
     <option value="1">JPUBLISHED</option>
     <option value="0">JUNPUBLISHED</option>
     <option value="2">JARCHIVED</option>

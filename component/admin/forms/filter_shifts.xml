@@ -17,13 +17,13 @@
     />
 
     <field
-      name="shift_area"
+      name="category"
       type="list"
       label="Shift Area"
       required="false"
       onchange="this.form.submit();"
       default="">
-        <option value="">Select Shift Area</option>
+      <option value="">Select Shift Area</option>
     </field>
 
   </fields>
