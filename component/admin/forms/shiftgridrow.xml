@@ -23,9 +23,22 @@
     required="true"
     size="2"
     col="2"
+    default="4"
   />
   <field
-    name="tuepri"
+    name="weight"
+    type="number"
+    label="Weight"
+    description="Shift Weight (default is 1)"
+    min="0"
+    max="12"
+    required="true"
+    size="2"
+    col="2"
+    default="1"
+  />
+  <field
+    name="tue"
     type="number"
     label="Tue"
     min="0"
@@ -36,7 +49,7 @@
     col="1"
   />
   <field
-    name="wedpri"
+    name="wed"
     type="number"
     label="Wed"
     min="0"
@@ -47,7 +60,7 @@
     col="1"
   />
   <field
-    name="thupri"
+    name="thu"
     type="number"
     label="Thu"
     min="0"
@@ -58,7 +71,7 @@
     col="1"
   />
   <field
-    name="fripri"
+    name="fri"
     type="number"
     label="Fri"
     min="0"
@@ -69,7 +82,7 @@
     col="1"
   />
   <field
-    name="satpri"
+    name="sat"
     type="number"
     label="Sat"
     min="0"
@@ -80,7 +93,7 @@
     col="1"
   />
   <field
-    name="sunpri"
+    name="sun"
     type="number"
     label="Sun"
     min="0"
@@ -91,7 +104,7 @@
     col="1"
   />
   <field
-    name="monpri"
+    name="mon"
     type="number"
     label="Mon"
     min="0"
@@ -102,13 +115,13 @@
     col="1"
   />
 
-  <field name="tuepri_eventid" type="hidden" default="0" />
-  <field name="wedpri_eventid" type="hidden" default="0" />
-  <field name="thupri_eventid" type="hidden" default="0" />
-  <field name="fripri_eventid" type="hidden" default="0" />
-  <field name="satpri_eventid" type="hidden" default="0" />
-  <field name="sunpri_eventid" type="hidden" default="0" />
-  <field name="monpri_eventid" type="hidden" default="0" />
+  <field name="tue_eventid" type="hidden" default="0" />
+  <field name="wed_eventid" type="hidden" default="0" />
+  <field name="thu_eventid" type="hidden" default="0" />
+  <field name="fri_eventid" type="hidden" default="0" />
+  <field name="sat_eventid" type="hidden" default="0" />
+  <field name="sun_eventid" type="hidden" default="0" />
+  <field name="mon_eventid" type="hidden" default="0" />
   <field name="grid_id" type="hidden" default="" />
 
 </form>
