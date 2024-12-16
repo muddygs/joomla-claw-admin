@@ -25,6 +25,7 @@ class Ebmgmt
   /** @var \Joomla\Database\DatabaseDriver */
   private $db;
 
+  #TODO: pass in EventInfo instead of an alias string
   function __construct(
     public string $eventAlias,
     public int $mainCategoryId,
