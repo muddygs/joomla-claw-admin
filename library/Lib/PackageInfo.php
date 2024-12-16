@@ -117,7 +117,7 @@ class PackageInfo
     if ($result == null) return;
 
     $this->id = $result->id;
-    $this->published = EbPublishedState::from($result->published);
+    $this->published = EbPublishedState::tryFrom($result->published) ?? EbPublishedState::any;
     $this->title = $result->title ?? '';
     $this->description = $result->description ?? '';
     $this->eventPackageType = EventPackageTypes::FindValue($result->eventPackageType);
@@ -145,14 +145,6 @@ class PackageInfo
   public function save(): bool
   {
     $data = $this->toSqlObject();
-
-    if ($this->id == 0) {
-      $this->db->insertObject('#__claw_packages', $data);
-      $this->id = $this->db->insertid();
-    } else {
-      $this->db->updateObject('#__claw_packages', $data, 'id');
-    }
-
-    return true;
+    return $this->db->updateObject('#__claw_packages', $data, 'id');
   }
 }
