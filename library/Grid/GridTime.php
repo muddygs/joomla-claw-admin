@@ -106,11 +106,11 @@ class GridTime
     }
 
     $this->sid = $o->sid;
-    $this->time = $o->time->toSql();
+    $this->time = new Date($o->time);
     $this->length = $o->length;
     $this->weight = $o->weight;
-    $this->needed = json_decode($o->needed) ?? [];
-    $this->eventIds = json_decode($o->event_ids) ?? [];
+    $this->needed = (array)json_decode($o->needed) ?? [];
+    $this->eventIds = (array)json_decode($o->event_ids) ?? [];
 
     self::keysValidation();
   }
