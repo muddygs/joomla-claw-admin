@@ -11,6 +11,7 @@
 namespace ClawCorpLib\Grid;
 
 use ClawCorpLib\Enums\EbPublishedState;
+use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Iterators\GridTimeArray;
 use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Date\Date;
@@ -28,13 +29,12 @@ class GridShift
   public string $title = '';
   public string $description = '';
   public string $event = '';
-  public string $shift_area = '';
+  public int $category = 0;
   public string $requirements = '';
   public array $coordinators = []; // json storage
   public ?Date $mtime;
 
-  public GridTimeArray $times;
-
+  private GridTimeArray $times;
   private DatabaseDriver $db;
 
   public function __construct(
@@ -58,7 +58,7 @@ class GridShift
     $result->event = $this->event;
     $result->title = $this->title;
     $result->description = $this->description;
-    $result->shift_area = $this->shift_area;
+    $result->category = $this->category;
     $result->requirements = $this->requirements;
     $result->coordinators = json_encode($this->coordinators);
     $result->published = $this->published->value;
@@ -81,7 +81,7 @@ class GridShift
 
     $this->title = $result->title;
     $this->description = $result->description;
-    $this->shift_area = $result->shift_area;
+    $this->category = $result->category;
     $this->requirements = $result->requirements;
     $this->coordinators = json_decode($result->coordinators) ?? [];
     $this->published = EbPublishedState::tryFrom($result->published) ?? EbPublishedState::any;
@@ -90,7 +90,7 @@ class GridShift
     $query = $this->db->getQuery(true);
     $query->select('id')
       ->from(self::SHIFTS_TIMES_TABLE)
-      ->where('sid = :id')
+      ->where('sid = :sid')
       ->bind(':sid', $this->id);
     $this->db->setQuery($query);
     $ids = $this->db->loadColumn();
@@ -101,15 +101,103 @@ class GridShift
       // Auto load from id
       $gridTime = new GridTime(
         id: $id,
+        sid: $this->id,
       );
 
       $this->times[$id] = $gridTime;
     }
   }
 
-  public function appendGridTime(GridTime $gridTime)
+  public function getTimes(): GridTimeArray
   {
-    $this->times[] = $gridTime;
+    return $this->times;
+  }
+
+  public function timesToFormArray(): array
+  {
+    $times = [];
+
+    /** @var \ClawCorpLib\Grid\GridTime */
+    foreach ($this->times as $time) {
+      $object = new \stdClass();
+      $object->time = $time->time->format('H:i');
+      $object->length = $time->length;
+      $object->weight = $time->weight;
+      $object->grid_id = $time->id;
+
+      $needs = $time->getNeeds();
+      $eventIds = $time->getEventIds();
+
+      foreach ($time->getKeys() as $key) {
+        $object->$key = $needs[$key];
+        $eventIdKey = "{$key}_eventid";
+        $object->$eventIdKey = $eventIds[$key];
+      }
+
+      $times[$time->id] = $object;
+    }
+
+    return $times;
+  }
+
+  public static function saveGridTimeArray(array $formData, string $key)
+  {
+    $keys = Helpers::getDays();
+
+    if ($formData['id'] < 1) {
+      throw new \InvalidArgumentException("Shift must be save prior to parsing times");
+    }
+
+    if (!array_key_exists($key, $formData)) {
+      throw new \InvalidArgumentException("$key does not exist in form data");
+    }
+
+    $sid = $formData['id'];
+    $eventInfo = new EventInfo($formData['event']);
+    $gridShift = new GridShift($sid, $eventInfo);
+    $currentTimeIds = array_flip($gridShift->times->keys());
+
+    $gridTimeArray = new GridTimeArray();
+
+    foreach ($formData[$key] as $data) {
+      if (empty($data['grid_id'])) $data['grid_id'] = 0;
+
+      // TODO: something need to be fixed regarding changes on deployed events
+      $gridTime = new GridTime($data['grid_id'], $sid, $data['length'], new Date($data['time']), $data['weight']);
+      $gridTime->weight = $data['weight'];
+      $gridTime->time = new Date($data['time']);
+      $gridTime->length = $data['length'];
+
+      foreach ($keys as $key) {
+        $gridTime->setNeed($key, $data[$key]);
+        $gridTime->setEventId($key, $data[$key . '_eventid']);
+      }
+
+      $gridTimeArray[] = $gridTime;
+      unset($currentTimeIds[$data['grid_id']]);
+    }
+
+    // Anything left gets deleted
+    foreach (array_keys($currentTimeIds) as $sid) {
+      $gridShift->deleteTime($sid);
+    }
+
+    foreach ($gridTimeArray as $time) {
+      $time->save();
+    }
+  }
+
+  private function deleteTime(int $sid): bool
+  {
+    #TODO: validate existing events aren't being used
+
+    $query = $this->db->getQuery(true);
+    $query->delete(self::SHIFTS_TIMES_TABLE)
+      ->where('id = :id')
+      ->bind(':id', $sid);
+
+    $this->db->setQuery($query);
+    return $this->db->execute();
   }
 
   public function save(): int
