@@ -252,8 +252,9 @@ class Registrant
   function mergeFieldValues(array $fieldNames): void
   {
     if (count($this->_records) < 1) {
-      if (!$this->enablePastEvents) die('Cannot merge until records loaded.');
-      return;
+      if (!$this->enablePastEvents) {
+        throw(new \Exception('Cannot merge until records loaded.'));
+      }
     }
 
     if (!count($fieldNames)) return;
