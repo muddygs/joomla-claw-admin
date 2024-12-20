@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS `#__claw_shifts`(
   `category` INT(11) DEFAULT NULL,
   `requirements` VARCHAR(255) NOT NULL,
   `coordinators` TEXT NULL,
+  `notifications` TINYINT(4) NOT NULL DEFAULT '0',
   `published` TINYINT(4) NOT NULL DEFAULT '1',
   `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`)
