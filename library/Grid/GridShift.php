@@ -26,6 +26,7 @@ class GridShift
   const SHIFTS_TIMES_TABLE = '#__claw_shift_times';
 
   public EbPublishedState $published = EbPublishedState::any;
+  public bool $enableNotifications = false;
   public string $title = '';
   public string $description = '';
   public string $event = '';
@@ -61,6 +62,7 @@ class GridShift
     $result->category = $this->category;
     $result->requirements = $this->requirements;
     $result->coordinators = json_encode($this->coordinators);
+    $result->notifications = (int)$this->enableNotifications;
     $result->published = $this->published->value;
     $result->mtime = $this->mtime->toSql();
 
@@ -84,6 +86,7 @@ class GridShift
     $this->category = $result->category;
     $this->requirements = $result->requirements;
     $this->coordinators = json_decode($result->coordinators) ?? [];
+    $this->enableNotifications = boolval($result->notifications);
     $this->published = EbPublishedState::tryFrom($result->published) ?? EbPublishedState::any;
     $this->mtime = new Date($result->mtime);
 
