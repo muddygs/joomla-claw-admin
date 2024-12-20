@@ -42,6 +42,13 @@
   </field>
 
   <field
+    name="notifications"
+    type="checkbox"
+    label="Enable Notifications"
+    value="1"
+  />
+
+  <field
     name="requirements"
     type="text"
     label="Shift Requirements/Restrictions"

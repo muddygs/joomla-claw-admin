@@ -33,6 +33,7 @@ $view = 'shift';
       <?= $this->form->renderField('category') ?>
       <?= $this->form->renderField('requirements') ?>
       <?= $this->form->renderField('coordinators') ?>
+      <?= $this->form->renderField('notifications') ?>
       <?= $this->form->renderField('grid') ?>
       <?= $this->form->renderField('id') ?>
     </div>
