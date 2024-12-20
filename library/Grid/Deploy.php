@@ -35,6 +35,13 @@ class Deploy
   private int $location;
   public array $log = [];
 
+  /**
+   * Wrapper class for deploying Shifts and their Grids
+   *
+   * @param EventInfo $EventInfo
+   * @param bool $repair Set to true to repair values in deployed events (@see
+\ClawCorp\Component\Claw\Administrator\Controller\ShiftsController)
+   */
   public function __construct(
     private EventInfo $eventInfo,
     private bool $repair = false
@@ -48,6 +55,9 @@ class Deploy
     $this->location = $this->eventInfo->ebLocationId;
   }
 
+  /**
+   * Method to execute shift deployment to Event Booking
+   */
   public function createEvents()
   {
     date_default_timezone_set($this->eventInfo->timezone);
@@ -192,23 +202,6 @@ class Deploy
     ]));
   }
 
-  private function getWeightPrefix(int $weight): string
-  {
-    return match ($weight) {
-      1 => '&#10102;',
-      2 => '&#10103;',
-      3 => '&#10104;',
-      4 => '&#10105;',
-      5 => '&#10106;',
-      6 => '&#10107;',
-      7 => '&#10108;',
-      8 => '&#10109;',
-      9 => '&#10110;',
-      10 => '&#10111;',
-      default => 'X',
-    };
-  }
-
   /**
    * Reverses encoding from createAlias
    * @param string $shiftAlias Encoded shift alias
@@ -230,5 +223,26 @@ class Deploy
       'weight' => $parts[4],
       'key' => $parts[5],
     ];
+  }
+
+  /**
+   * Return an HTML entity of inverse circle number (1-10) to indicate weight
+   * in event title
+   */
+  private function getWeightPrefix(int $weight): string
+  {
+    return match ($weight) {
+      1 => '&#10102;',
+      2 => '&#10103;',
+      3 => '&#10104;',
+      4 => '&#10105;',
+      5 => '&#10106;',
+      6 => '&#10107;',
+      7 => '&#10108;',
+      8 => '&#10109;',
+      9 => '&#10110;',
+      10 => '&#10111;',
+      default => 'X',
+    };
   }
 }
