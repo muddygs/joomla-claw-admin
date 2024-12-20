@@ -37,6 +37,7 @@ class Deploy
   private DatabaseDriver $db;
   private EventInfo $eventInfo;
   private Date $registration_start_date;
+  public array $log = [];
 
   public function __construct(
     public string $eventAlias,
@@ -238,6 +239,16 @@ class Deploy
     $packageInfos = $eventConfig->packageInfos;
 
     $userEmails = [];
+    // If a public name is not set for a therapist, we will abort until the admin
+    // fixes
+    $publicNames = [];
+
+    $params = ComponentHelper::getParams('com_claw');
+    $publicNameFieldId = $params->get('public_name_field', 0);
+
+    if (0 == $publicNameFieldId) {
+      throw new \Exception('Public name field not set in global configuration');
+    }
 
     // Load default email for EB from DB to merge with therapist email
     $query = $this->db->getQuery(true);
@@ -246,6 +257,9 @@ class Deploy
       ->where($this->db->qn('config_key') . '=' . $this->db->q('notification_emails'));
     $this->db->setQuery($query);
     $defaultEmail = $this->db->loadResult();
+
+    // end time can deal with the cutoff individually
+    $cutoff = $this->eventInfo->modify('next Monday midnight');
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($packageInfos as $packageInfo) {
@@ -265,20 +279,29 @@ class Deploy
         if (!array_key_exists($metaRow->userid, $userEmails)) {
           $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
           $user = $userFactory->loadUserById($metaRow->userid);
+          if (is_null($user)) {
+            throw new \Exception('Spa therapist user id invalid:' . $metaRow->userid);
+          }
+
+          $publicName = Helpers::getUserField($metaRow->userid, $publicNameFieldId);
+          if (is_null($publicName)) {
+            throw new \Exception('User missing public name in user configuration: ' . $metaRow->userid);
+          }
+
           $userEmails[$metaRow->userid] = $user->email;
+          $publicNames[$metaRow->userid] = $publicName;
         }
 
         $start = $packageInfo->start;
         $end = $packageInfo->end;
         $cancel_before_date = $start;
-        $cutoff = $start;
 
         $alias = strtolower(preg_replace('/[^\S]+/', '_', implode('-', [$eventInfo->prefix, 'spa', $packageInfo->title, $index++])));
 
         $eventId = $this->Insert(
           mainCategoryId: $packageInfo->category,
           itemAlias: $alias,
-          title: $eventInfo->prefix . ' ' . $packageInfo->title,
+          title: $eventInfo->prefix . ' ' . $packageInfo->title . '(' . $publicNames[$metaRow->userid] . ')',
           description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
           article_id: $eventInfo->termsArticleId,
           cancel_before_date: $cancel_before_date,
