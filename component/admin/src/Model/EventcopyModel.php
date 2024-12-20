@@ -12,6 +12,7 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Grid\GridTime;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Factory;
@@ -29,9 +30,8 @@ class EventcopyModel extends FormModel
    * The prefix to use with controller messages.
    *
    * @var    string
-   * @since  1.6
    */
-  protected $text_prefix = 'COM_CLAW_EVENTCOPY';
+  protected $text_prefix = 'COM_CLAW';
 
   /**
    * Method to get the record form.
@@ -40,8 +40,6 @@ class EventcopyModel extends FormModel
    * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
    *
    * @return  Form|boolean  A Form object on success, false on failure
-   *
-   * @since   1.6
    */
   public function getForm($data = [], $loadData = false)
   {
@@ -97,14 +95,15 @@ class EventcopyModel extends FormModel
 
     foreach ($tables as $table) {
       $results[$table] = '';
+      $eventColumn = $table == '#__claw_packages' ? 'eventAlias' : 'event';
+
       // Delete existing
       // $query = $db->getQuery(true);
       // $query->delete($db->quoteName($table))
-      //   ->where($db->quoteName('event') . ' = ' . $db->quote($to));
+      //   ->where($db->quoteName($eventColumn) . ' = ' . $db->quote($to));
       // $db->setQuery($query);
       // $db->execute();
       //
-      $eventColumn = $table == '#__claw_packages' ? 'eventAlias' : 'event';
 
       // Copy from older event
       $query = $db->getQuery(true);
@@ -116,6 +115,7 @@ class EventcopyModel extends FormModel
 
       foreach ($rows as $row) {
         $row->$eventColumn = $to;
+        $oldId = $row->id;
         $row->id = null;
 
         switch ($table) {
@@ -142,25 +142,46 @@ class EventcopyModel extends FormModel
 
             // TODO: Handle false here!
             $row->eventId = 0;
-            $row->alias = 'Assigned during publication';
+            $row->alias = 'Assigned when deployed';
             $row->meta = '[]';
-            break;
-
-          case '#__claw_shifts':
-            $row->grid = $this->resetGrid($row->grid);
             break;
         }
 
         $row->mtime = Helpers::mtime();
 
-        $db->insertObject($table, $row);
-        #$results[$table] .= print_r($row, true);
+        $db->insertObject($table, $row, 'id');
+
+        if ('#__claw_shifts' == $table) {
+          $this->migrateShiftTimes($oldId, $row->id);
+        }
       }
 
       $results[$table] .= "$table: " . count($rows) . ' rows copied';
     }
 
     return implode("<br/>", $results);
+  }
+
+  private function migrateShiftTimes(int $oldSid, int $sid)
+  {
+    $db = $this->getDatabase();
+
+    // Copy from older event
+    $query = $db->getQuery(true);
+    $query->select('id')
+      ->from($db->quoteName('#__claw_shift_times'))
+      ->where($db->quoteName('sid') . ' = ' . $db->quote($oldSid));
+    $db->setQuery($query);
+    $ids = $db->loadColumn();
+
+    foreach ($ids as $id) {
+      $gridTime = new GridTime($id, $oldSid);
+      $gridTime->id = 0;
+      $gridTime->sid = $sid;
+      $keys = $gridTime->getKeys();
+      $gridTime->setEventIds(...array_fill(0, count($keys), 0));
+      $gridTime->save();
+    }
   }
 
   private function translateDate(Date $srcBase, Date $srcOffset, Date $dstBase): Date|bool
@@ -180,20 +201,5 @@ class EventcopyModel extends FormModel
     $result = clone $newtime;
 
     return $result;
-  }
-
-  private function resetGrid(string $grid): string
-  {
-    $grid = json_decode($grid);
-
-    foreach ($grid as $k => $v) {
-      foreach (array_keys(get_object_vars($v)) as $kk) {
-        if (str_contains($kk, 'eventid') !== false) {
-          $grid->$k->$kk = 0;
-        }
-      }
-    }
-
-    return json_encode($grid);
   }
 }
