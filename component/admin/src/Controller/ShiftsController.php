@@ -13,14 +13,15 @@ namespace ClawCorp\Component\Claw\Administrator\Controller;
 
 \defined('_JEXEC') or die;
 
-use ClawCorpLib\Grid\Grids;
-use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\MVC\Controller\AdminController;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Form\FormFactoryInterface;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
 use ClawCorpLib\Traits\Controller;
+use ClawCorpLib\Grid\Deploy;
+use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\EventInfo;
 
 /**
  * Shifts list controller class.
@@ -45,20 +46,33 @@ class ShiftsController extends AdminController
   {
     $filter = $this->app->getInput()->get('filter', '', 'string');
 
-    $event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
+    $eventAlias = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
+    $eventInfo = new EventInfo($eventAlias);
 
-    $grid = new Grids($event);
+    $grid = new Deploy($eventInfo);
     $grid->createEvents();
+    self::displayLogs($grid->log);
   }
 
   public function repair()
   {
     $filter = $this->app->getInput()->get('filter', '', 'string');
 
-    $event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
+    $eventAlias = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
+    $eventInfo = new EventInfo($eventAlias);
 
-    $grid = new Grids($event, true); // true sets repair mode
+    $grid = new Deploy($eventInfo, true); // true sets repair mode
     $grid->createEvents();
+  }
+
+  private function displayLogs(&$logs)
+  {
+    /** @var \ClawCorp\Component\Claw\Administrator\View\Shifts\DeployLog */
+    $view = $this->getView('Shifts', 'DeployLog');
+    $view->setModel($this->model, true);
+    $view->logs = $logs;
+
+    $view->display();
   }
 
   // TODO: Implement this method
