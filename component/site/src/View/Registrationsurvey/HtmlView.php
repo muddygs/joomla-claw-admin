@@ -108,7 +108,7 @@ class HtmlView extends BaseHtmlView
 
     if ($this->onsiteActive) {
       if ($this->app->getIdentity()->id != 0) $this->app->logout();
-      $coupon = new Coupon('', 0);
+      $coupon = new Coupon();
       $this->autoCoupon = $coupon;
     } else {
       if (!$this->uid) {
@@ -125,6 +125,7 @@ class HtmlView extends BaseHtmlView
     }
 
     // Links available to templates
+    // TODO: use the enums for these
     $types = [
       'attendee',
       'volunteer2',
@@ -156,7 +157,7 @@ class HtmlView extends BaseHtmlView
       return $this->getAssignedCoupon($this->uid, $eventIds);
     }
 
-    return new Coupon('', 0);
+    return new Coupon();
   }
 
   /**
@@ -167,9 +168,9 @@ class HtmlView extends BaseHtmlView
    */
   private function getAssignedCoupon(int $uid, array $eventIds): Coupon
   {
-    if (0 == $uid || count($eventIds) == 0) return null;
+    if (0 == $uid || count($eventIds) == 0) return new Coupon();
 
-    $db = Factory::getDbo();
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     $events = join(',', $eventIds);
 
@@ -183,7 +184,7 @@ class HtmlView extends BaseHtmlView
     $db->setQuery($query);
     $result = $db->loadObject();
 
-    if ($result == null) return new Coupon('', 0);
+    if ($result == null) return new Coupon();
 
     return new Coupon($result->code, $result->event_id);
   }
