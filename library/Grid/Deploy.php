@@ -21,7 +21,7 @@ use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Enums\EbPublishedState;
 use Joomla\CMS\Factory;
 
-\defined('_JEXEC') or die;
+\defined('JPATH_PLATFORM') or die;
 
 class Deploy
 {
@@ -122,8 +122,10 @@ class Deploy
       $key
     );
 
-    $title = implode(' ', [$this->eventInfo->prefix, $title, "($stitle-$etitle)"]);
-    $stars = self::getWeightPrefix($gridTime->weight);
+    $weight = $gridTime->weight > 1 ? " [x{$gridTime->weight}]" : '';
+
+    $title = implode(' ', [$this->eventInfo->prefix, $title . $weight, "($stitle-$etitle)"]);
+    //$stars = self::getWeightPrefix($gridTime->weight);
 
     $description = implode('<br/>', [$shift->description, $shift->requirements]);
 
@@ -131,7 +133,7 @@ class Deploy
       eventAlias: $this->eventInfo->alias,
       mainCategoryId: $shift->category,
       itemAlias: $alias,
-      title: $stars . $title,
+      title: $title,
       description: $description
     );
 
@@ -146,6 +148,10 @@ class Deploy
     $insert->set('cut_off_date', $this->cut_off_date);
     $insert->set('enable_cancel_registration', 0);
 
+    if ($shift->enableNotifications) {
+      $this->configureNotifications($insert, $s);
+    }
+
     if ($this->repair && $eventid != 0) {
       $insert->update('id', $eventid);
     } else {
@@ -155,6 +161,22 @@ class Deploy
     }
 
     return [$eventid, $title, $stitle, $etitle, $need, $gridTime->weight];
+  }
+
+  private function configureNotifications(Ebmgmt $insert)
+  {
+    // Timetables for notification
+    //
+    // Two weeks before overall event
+    // One week before overall event
+    // Two hours before shift
+
+    $insert->set("send_first_reminder", 14);
+    $insert->set("first_reminder_frequency", 'd');
+    $insert->set("send_second_reminder", 7);
+    $insert->set("second_reminder_frequency", 'd');
+    $insert->set("send_third_reminder", 2);
+    $insert->set("third_reminder_frequency", 'h');
   }
 
   private function populateShifts(): void
