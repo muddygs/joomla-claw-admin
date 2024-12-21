@@ -10,12 +10,12 @@
 
 namespace ClawCorpLib\Grid;
 
-\defined('_JEXEC') or die;
-
 use Joomla\CMS\Date\Date;
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseDriver;
+
+\defined('JPATH_PLATFORM') or die;
 
 class GridTime
 {
@@ -101,7 +101,7 @@ class GridTime
     $this->db->setQuery($query);
     $o = $this->db->loadObject();
 
-    if ($o->sid != $this->sid) {
+    if ($this->sid != 0 && $o->sid != $this->sid) {
       throw new \InvalidArgumentException("Shift ID mismatch $o->sid != $this->sid");
     }
 
@@ -186,7 +186,7 @@ class GridTime
   }
 
   /**
-   * Set all event ids from an array
+   * Set all event ids from an array, allows 0 for unconfigured event
    * @param int[] $eventIds
    * @throws \TypeError|\LengthException|\InvalidArgumentException
    */
@@ -200,16 +200,32 @@ class GridTime
     reset($this->keys);
     $key = current($this->keys);
 
+    # TODO: when not 0, validate it's a valid event id in #__eb_events
     foreach ($eventIds as $eventId) {
-      if ($eventId > 0) {
-        $tmp_eventids[$key] = $eventId;
-        $key = next($this->keys);
-      } else {
-        throw (new \InvalidArgumentException('Event ID value must be at least 1.'));
-      }
+      $tmp_eventids[$key] = $eventId;
+      $key = next($this->keys);
     }
 
     $this->eventIds = $tmp_eventids;
+  }
+
+  public static function byEventId(int $eventId): ?GridTime
+  {
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
+    $query = $db->getQuery(true);
+
+    $query->select('id')
+      ->from(GridShift::SHIFTS_TIMES_TABLE)
+      ->where('JSON_SEARCH(`event_ids`, \'one\', ' . $db->q($eventId) . ') IS NOT NULL');
+    $db->setQuery($query);
+    $gridTimeId = $db->loadResult();
+
+    if (!is_null($gridTimeId)) {
+      return new GridTime($gridTimeId);
+    }
+
+    return null;
   }
 
   public function save(): int
