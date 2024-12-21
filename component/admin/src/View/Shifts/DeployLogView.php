@@ -40,7 +40,7 @@ class DeployLogView extends BaseHtmlView
       <tbody>
         <?php
         foreach ($this->logs as $row):
-          echo '<td>' . implode('</td><td>', $row) . '</td>';
+          echo '<tr><td>' . implode('</td><td>', $row) . '</td></tr>';
         endforeach;
         ?>
       </tbody>
