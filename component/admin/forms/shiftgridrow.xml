@@ -16,7 +16,7 @@
     name="length"
     type="number"
     label="Hours"
-    description="Length in hours"
+    description="Length in hours (must be in quarter-hour increments)"
     min="0"
     max="12"
     step=".25"
@@ -25,18 +25,21 @@
     col="2"
     default="4"
   />
+
   <field
     name="weight"
-    type="number"
+    type="list"
     label="Weight"
     description="Shift Weight (default is 1)"
-    min="0"
-    max="12"
     required="true"
-    size="2"
-    col="2"
     default="1"
-  />
+    validate="options"
+  >
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+  </field>
+
   <field
     name="tue"
     type="number"
