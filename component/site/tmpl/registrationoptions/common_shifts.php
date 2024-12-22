@@ -27,6 +27,20 @@ else:
       <li>Allow time between shifts for break and travel</li>
       <li>CLAW reserves the right to change your shifts (with sufficient notification)</li>
     </ul>
+
+    <div class="row">
+      <div class="col-md-3 d-flex justify-content-center align-items-center">
+        <span class=" fs-4 badge rounded-pill text-bg-info">NEW<br />Shift Weights</span>
+      </div>
+      <div class="col-md-9">
+        Most shifts have a &quot;weight&quot;
+        of 1. Shifts with weight of 2 or 3 will show a [x2] or [x3] in the titles, respectively. They are
+        also highlighted in the shift listing. If you are registering for a "Volunteer 3", your weights
+        must total to at least 3. Example, you can select one regular shift and one [x2] shift and satisfy your
+        shift selection requirement.
+      </div>
+
+    </div>
   </div>
   <?php
 
@@ -40,7 +54,7 @@ else:
   <div class="row row-cols-1 row-cols-sm-2 g-2 px-4 py-2">
     <?php
     foreach ($categoryInfo as $info):
-      $url = $this->shiftsBaseUrl . $info->$alias;
+      $url = $this->shiftsBaseUrl . $info->alias;
       $name = $info->name;
       $description = $info->meta_description;
     ?>
