@@ -236,36 +236,41 @@ class ReportsModel extends BaseDatabaseModel
 
     $eventConfig = new EventConfig($clawEventAlias);
 
-    $shiftEvents = $eventConfig->getEventsByCategoryId(
-      array_merge($eventConfig->eventInfo->eb_cat_shifts, $eventConfig->eventInfo->eb_cat_supershifts)
-    );
+    $shiftCategoryIds = array_merge($eventConfig->eventInfo->eb_cat_shifts, $eventConfig->eventInfo->eb_cat_supershifts);
 
-    $eventIds = array_column($shiftEvents, 'id');
+    if (sizeof($shiftCategoryIds) == 0) return [];
 
-    if (sizeof($eventIds) == 0) return [];
-
-    $e = implode(',', $eventIds);
+    $e = implode(',', $shiftCategoryIds);
+    $aliasPrefix = $this->eventConfig->eventInfo->shiftPrefix;
 
     $option = [];
 
     $query = $db->getQuery(true);
-    $query->select($db->qn(['id', 'title', 'alias', 'event_capacity', 'event_date', 'event_end_date', 'published']))
+    $query->select($db->qn([
+      'id',
+      'title',
+      'alias',
+      'event_capacity',
+      'event_date',
+      'event_end_date',
+      'main_category_id',
+      'published'
+    ]))
       ->select('( SELECT count(*) FROM #__eb_registrants r WHERE r.event_id = e.id AND r.published = 1 ) AS memberCount')
       ->from($db->qn('#__eb_events', 'e'))
-      ->where($db->qn('id') . ' IN (' . $e . ')')
+      ->where($db->qn('main_category_id') . ' IN (' . $e . ')')
+      ->where($db->qn('alias') . " LIKE '{$aliasPrefix}%'")
       ->order($db->qn('title'));
 
     $db->setQuery($query);
     $rows = $db->loadObjectList();
 
     foreach ($rows as $row) {
-      if (!str_starts_with($row->alias, $eventConfig->eventInfo->shiftPrefix)) continue;
-
-      $pattern = '/-(\d+)-/';
-
-      if (preg_match($pattern, substr($row->alias, strlen($eventConfig->eventInfo->shiftPrefix)), $matches)) {
-        $sid = $matches[1];
-      } else {
+      try {
+        $aliasInfo = \ClawCorpLib\Grid\Deploy::parseAlias($this->eventConfig->eventInfo, $row->alias);
+        $sid = $aliasInfo->sid;
+      } catch (\Exception $e) {
+        dd($e);
         continue;
       }
 
