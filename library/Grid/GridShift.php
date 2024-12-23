@@ -18,7 +18,7 @@ use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseDriver;
 
-\defined('_JEXEC') or die;
+\defined('JPATH_PLATFORM') or die;
 
 class GridShift
 {
@@ -94,7 +94,8 @@ class GridShift
     $query->select('id')
       ->from(self::SHIFTS_TIMES_TABLE)
       ->where('sid = :sid')
-      ->bind(':sid', $this->id);
+      ->bind(':sid', $this->id)
+      ->order(['time', 'length', 'weight']);
     $this->db->setQuery($query);
     $ids = $this->db->loadColumn();
 
@@ -119,6 +120,7 @@ class GridShift
   public function timesToFormArray(): array
   {
     $times = [];
+    $timeKeys = GridTime::getKeys();
 
     /** @var \ClawCorpLib\Grid\GridTime */
     foreach ($this->times as $time) {
@@ -131,7 +133,7 @@ class GridShift
       $needs = $time->getNeeds();
       $eventIds = $time->getEventIds();
 
-      foreach ($time->getKeys() as $key) {
+      foreach ($timeKeys as $key) {
         $object->$key = $needs[$key];
         $eventIdKey = "{$key}_eventid";
         $object->$eventIdKey = $eventIds[$key];
@@ -141,6 +143,86 @@ class GridShift
     }
 
     return $times;
+  }
+
+  public static function validateGrid(array $formData, string $key): bool
+  {
+    // TODO: if it's a new entry, some of the validations are still needed
+    if (0 == $formData['id']) return true;
+
+    if (!array_key_exists($key, $formData)) {
+      throw new \InvalidArgumentException("$key does not exist in form data");
+    }
+
+    // We need to load the grid in the database for comparison
+    $sid = $formData['id'];
+    $eventInfo = new EventInfo($formData['event']);
+    $gridShift = new GridShift($sid, $eventInfo);
+    $times = $gridShift->getTimes();
+    $timeKeys = GridTime::getKeys();
+
+    // for a given start time/length, only one times is permitted to include
+    $usageTracking = [];
+
+    // unset entries as we find them
+    $unprocessedRows = array_flip($times->keys());
+
+    foreach ($formData[$key] as $input) {
+      // grid_id is `id` from #__claw_shift_times
+      $grid_id = $input['grid_id'];
+      $grid_time = substr($input['time'], 0, 5); // assume H:i format
+
+      // usage track init
+      if (!array_key_exists($grid_time, $usageTracking)) {
+        $usageTracking[$grid_time] = array_fill_keys($timeKeys, 0);
+      }
+
+      // merge usage or fail if slot is already used
+      foreach ($timeKeys as $tk) {
+        if (!empty($input[$tk]) && !empty($usageTracking[$grid_time][$tk])) {
+          return false;
+        }
+        $usageTracking[$input['time']][$tk] = $input[$tk];
+      }
+
+      // New entries cannot be compared
+      if (empty($grid_id)) continue;
+      //
+
+
+
+
+      // TODO: not that I do this anywhere, but this is assuming single editor
+      unset($unprocessedRows[$grid_id]);
+
+      if (!$times->offsetExists($grid_id)) {
+        die("Conflict between form and database ids");
+      }
+
+      $time = $times[$grid_id];
+      $eventIds = $time->getEventIds();
+      $needed = $time->getNeeds();
+
+      foreach ($timeKeys as $day) {
+        // Not deployed? Skip because changes don't matter
+        if (0 == $eventIds[$day]) continue;
+
+        // Need decrease is permitted if registrants <= new value
+        if ($input[$day] < $needed[$day]) {
+          // TODO: check registrant count, for now: we error
+          return false;
+        }
+      }
+    }
+
+    // Handle any rows disappearing
+    // TODO: For now, delete permitted so long as all eventids are 0 
+    foreach (array_keys($unprocessedRows) as $id) {
+      $eventIds = array_filter($times[$id]->getEventIds());
+      if (count($eventIds)) return false;
+    }
+
+    return true;
   }
 
   public static function saveGridTimeArray(array $formData, string $key)
