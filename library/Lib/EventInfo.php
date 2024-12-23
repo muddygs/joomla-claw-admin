@@ -101,7 +101,7 @@ class EventInfo
     // this allows refund and virtualclaw to exist in their odd separate way
 
     if (EventTypes::main == $this->eventType) {
-      $this->shiftPrefix = strtolower($this->prefix) . '-shift-';
+      $this->shiftPrefix = strtolower($this->prefix) . '-shift';
 
       if ($this->start_date->dayofweek != EventInfo::startdayofweek) {
         var_dump($this);
