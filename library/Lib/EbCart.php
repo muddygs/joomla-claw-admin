@@ -13,6 +13,7 @@ namespace ClawCorpLib\Lib;
 use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Enums\EbRecordIndexType;
 use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Grid\Deploy;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Lib\ClawEvents;
@@ -22,7 +23,7 @@ use Joomla\CMS\Language\Text;
 
 \defined('_JEXEC') or die;
 
-/** @package ClawCorpLib\Lib 
+/*
  * $submit - overrides default submit button with error message(s)
  * $show_error (repeated top and bottom of form)
  * $show_warning
@@ -31,8 +32,12 @@ use Joomla\CMS\Language\Text;
  * $non_invoice_event
  * $invoice_event
  */
+
+/** @package ClawCorpLib\Lib */
 class EbCart
 {
+  // Status properties used in customized Event Booking scripts
+  // @see: components/com_eventbooking/themes/default/register/cart.php
   public string $submit = '';
   public bool $show_error = false;
   public bool $show_warning = false;
@@ -76,16 +81,26 @@ HTML;
     $registrantData->loadCurrentEvents(EbRecordIndexType::eventid);
     $records = $registrantData->records();
 
-    $shiftPrefix = $eventConfig->eventInfo->shiftPrefix;
-    $shiftCategoryIds = array_merge($eventConfig->eventInfo->eb_cat_shifts, $eventConfig->eventInfo->eb_cat_supershifts);
+    $shiftCategoryIds = [...$eventConfig->eventInfo->eb_cat_shifts, ...$eventConfig->eventInfo->eb_cat_supershifts];
     $invoiceCategories = $eventConfig->eventInfo->eb_cat_invoicables;
     $mainRequiredEventIds = $eventConfig->getMainRequiredEventIds();
 
-    /** @var ClawCorpLib\Lib\RegistrantRecord */
+    /** @var \ClawCorpLib\Lib\RegistrantRecord */
     foreach ($records as $r) {
-      if (substr_compare($r->event->alias, $shiftPrefix, 0, strlen($shiftPrefix)) === 0) {
-        // TODO: For onsite, we don't count -- later we block any shifts in the cart
-        if (!$onsiteActive) $shift_count++;
+      if (in_array($r->category->category_id, $shiftCategoryIds)) {
+        $weight = 1;
+        // INFO: For onsite, we don't count -- later we block any shifts in the cart
+        if (!$onsiteActive) {
+          try {
+            $aliasInfo = Deploy::parseAlias($eventConfig->eventInfo, $r->event->alias);
+            $weight = $aliasInfo->weight;
+          } catch (\InvalidArgumentException) {
+            // If parsing fails, just use default and carry on
+          } finally {
+            $shift_count += $weight;
+          }
+        }
+
         continue;
       }
 
@@ -150,9 +165,17 @@ HTML;
       // }
 
       if (in_array($item->main_category_id, $shiftCategoryIds)) {
-        $shift_count++;
+        $weight = 1;
+        try {
+          $aliasInfo = Deploy::parseAlias($eventConfig->eventInfo, $item->alias);
+          $weight = $aliasInfo->weight;
+        } catch (\InvalidArgumentException) {
+          // If parsing fails, just use default and carry on
+        } finally {
+          $shift_count += $weight;
+        }
+
         $this->non_invoice_event = true;
-        continue;
       }
     } // End cart items loop
 
