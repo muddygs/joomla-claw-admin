@@ -43,7 +43,7 @@ class HtmlView extends BaseHtmlView
     $this->params = $menu->getParams();
 
     $db = Factory::getContainer()->get('DatabaseDriver');
-    $eventAlias =  $this->params->get('ScheduleEvent') ?? Aliases::current(true);
+    $eventAlias =  $this->params->get('ScheduleEvent') ?: Aliases::current(true);
 
     $config = new Config($eventAlias);
     $this->adsdir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'ads');
