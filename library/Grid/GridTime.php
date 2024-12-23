@@ -33,7 +33,7 @@ class GridTime
     public ?Date $time = null,
     public int $weight = 1,
   ) {
-    $this->keys = Helpers::getDays();
+    $this->keys = self::getKeys();
     $this->db = Factory::getContainer()->get('DatabaseDriver');
 
     if ($this->id) {
@@ -62,9 +62,9 @@ class GridTime
     }
   }
 
-  public function getKeys()
+  public static function getKeys()
   {
-    return $this->keys;
+    return Helpers::getDays();
   }
 
   private function haveSameKeys(array $array1, array $array2): bool
