@@ -216,7 +216,7 @@ class Deploy
   {
     return strtolower(implode('-', [
       $prefix,
-      preg_replace('/[^A-Za-z0-9]+/', '_', $title),
+      preg_replace('/[^A-Za-z0-9]+/', '', $title),
       $sid,
       $tid,
       $weight,
@@ -230,20 +230,27 @@ class Deploy
    *
    * @return object Alias components (@see \ClawCorpLib\Grid\Deploy::createAlias)
    */
-  public static function parseAlias(string $shiftAlias): object
+  public static function parseAlias(EventInfo $eventInfo, string $shiftAlias): object
   {
+    // Remove prefix
+    if (str_starts_with($shiftAlias, $eventInfo->shiftPrefix . '-')) {
+      $shiftAlias = substr($shiftAlias, strlen($eventInfo->shiftPrefix) + 1);
+    } else {
+      throw new \InvalidArgumentException('A shift alias must start with the event shift prefix');
+    }
+
     $parts = explode('-', $shiftAlias);
-    if (count($parts) != 6) {
-      throw new \InvalidArgumentException('A shift alias must have 6 components');
+    if (count($parts) != 5) {
+      throw new \InvalidArgumentException('A shift alias must have 6 components with prefix');
     }
 
     return (object)[
-      'prefix' => $parts[0],
-      'title' => $parts[1],
-      'sid' => $parts[2],
-      'tid' => $parts[3],
-      'weight' => $parts[4],
-      'key' => $parts[5],
+      'prefix' => $eventInfo->shiftPrefix,
+      'title' => $parts[0],
+      'sid' => $parts[1],
+      'tid' => $parts[2],
+      'weight' => $parts[3],
+      'key' => $parts[4],
     ];
   }
 
