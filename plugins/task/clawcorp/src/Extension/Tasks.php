@@ -113,7 +113,7 @@ final class Tasks extends CMSPlugin implements SubscriberInterface
     foreach ($this->eventInfos as $eventInfo) {
       if ($eventInfo->alias != $this->eventAlias) continue;
 
-      $prefix = $eventInfo->shiftPrefix;
+      $prefix = $eventInfo->shiftPrefix . '-';
 
       $query = $this->db->getQuery(true)
         ->select(['e.id'])
