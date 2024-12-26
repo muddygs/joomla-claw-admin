@@ -15,6 +15,7 @@ defined('_JEXEC') or die;
 use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Enums\SkillOwnership;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\DbBlob;
 use Joomla\CMS\Factory;
@@ -26,24 +27,17 @@ use ClawCorpLib\Helpers\Mailer;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\EventConfig;
+use ClawCorpLib\Skills\Presenter;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Table\Table;
 use Joomla\CMS\User\UserFactoryInterface;
 use Joomla\Database\DatabaseInterface;
 
 /**
- * Methods to handle a list of records.
- *
- * @since  1.6
+ * Methods to edit a single record
  */
 class PresenterModel extends AdminModel
 {
-  /**
-   * The prefix to use with controller messages.
-   *
-   * @var    string
-   * @since  1.6
-   */
   protected $text_prefix = 'COM_CLAW';
   private ?array $aclGroupIds = [];
   private int $publishedAcl = 0;
@@ -55,9 +49,10 @@ class PresenterModel extends AdminModel
 
   public function validate($form, $data, $group = null)
   {
-    // Handle readonly account data 
-    if (array_key_exists('uid_readonly_uid', $data) && $data['uid_readonly_uid'] != 0) {
-      $data['uid'] = $data['uid_readonly_uid'];
+    if ($data['ownership'] == SkillOwnership::user->value && empty($data['uid'])) {
+      $app = Factory::getApplication();
+      $app->enqueueMessage('Record ownership not set', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
     }
 
     return parent::validate($form, $data, $group);
@@ -78,11 +73,10 @@ class PresenterModel extends AdminModel
 
     $new = false;
 
-    // New record handling
-    if ($data['id'] == 0) {
-      $data['submission_date'] = date("Y-m-d");
 
-      if ($this->checkExists($data['uid'], $data['event'])) {
+    // New record handling
+    if (0 == $data['id']) {
+      if ($data['ownership'] == SkillOwnership::user->value && $this->checkExists($data['id'], $data['event'])) {
         $app->enqueueMessage(
           'Record for this presenter already exists for this event.',
           \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR
@@ -90,6 +84,7 @@ class PresenterModel extends AdminModel
         return false;
       }
 
+      $data['submission_date'] = date("Y-m-d");
       $new = true;
     }
 
@@ -97,9 +92,7 @@ class PresenterModel extends AdminModel
     if (array_key_exists('arrival', $data)) $data['arrival'] = implode(',', $data['arrival']);
     if (array_key_exists('phone_info', $data)) $data['phone_info'] = implode(',', $data['phone_info']);
 
-    $input = $app->input;
-
-    $success = $this->handlePhotoUpload($input, $data);
+    $success = $this->handlePhotoUpload($app->input, $data);
 
     if (!$success) {
       $image_preview = Helpers::sessionGet('image_preview'); // from site model
@@ -108,18 +101,29 @@ class PresenterModel extends AdminModel
       }
     }
 
-    if ($data['event'] == $currentEventAlias && $app->isClient('administrator') && $data['uid'] != 0) {
-      $this->publishedAcl = $this->loadEducatorAclId($data['event']);
+    if (!array_key_exists('ownership', $data)) {
+      $data['ownership'] = 1;
+    }
 
-      if (!$this->publishedAcl) {
-        $app->enqueueMessage('No registration ACL set in configuration.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-        return false;
-      }
+    // Need to set to something that's valid, so let's use the admin's uid
+    // TODO: there is a potential problem where a record is switched from user
+    // TODO: ownership to admin, is already published, and the ACL record permits registration
+    if (SkillOwnership::admin->value == $data['ownership'] && empty($data['uid'])) {
+      $data['uid'] = 0;
+    } else {
+      if ($data['event'] == $currentEventAlias && $app->isClient('administrator') && $data['uid'] > 0) {
+        $this->publishedAcl = $this->loadEducatorAclId($data['event']);
 
-      $this->aclGroupIds = Helpers::AclToGroups($this->publishedAcl);
-      if (is_null($this->aclGroupIds) || count($this->aclGroupIds) != 1) {
-        $app->enqueueMessage('Package ACL must contain only one group', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-        return false;
+        if (!$this->publishedAcl) {
+          $app->enqueueMessage('No registration ACL set in configuration.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+          return false;
+        }
+
+        $this->aclGroupIds = Helpers::AclToGroups($this->publishedAcl);
+        if (is_null($this->aclGroupIds) || count($this->aclGroupIds) != 1) {
+          $app->enqueueMessage('Package ACL must contain only one group: ' . $this->publishedAcl, \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+          return false;
+        }
       }
     }
 
@@ -201,8 +205,15 @@ class PresenterModel extends AdminModel
     }
   }
 
-  private function checkExists($uid, $event): bool
+  /**
+   * Check if a user ID exists in an existing presenter record
+   **/
+  private function checkExists($id, $event): bool
   {
+    // Load presenter by id
+    $presenter = new Presenter($id);
+    $uid = $presenter->uid;
+
     $db = $this->getDatabase();
     $query = $db->getQuery(true);
     $query->select($db->quoteName('id'))
@@ -267,8 +278,6 @@ class PresenterModel extends AdminModel
    * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
    *
    * @return  Form|boolean  A Form object on success, false on failure
-   *
-   * @since   1.6
    */
   public function getForm($data = array(), $loadData = true)
   {
@@ -286,8 +295,6 @@ class PresenterModel extends AdminModel
    * Method to get the data that should be injected in the form.
    *
    * @return  mixed  The data for the form.
-   *
-   * @since   1.6
    */
   protected function loadFormData()
   {
@@ -298,11 +305,6 @@ class PresenterModel extends AdminModel
 
     if (empty($data)) {
       $data = $this->getItem();
-    } else {
-      // Handle readonly account data 
-      if (!array_key_exists('uid', $data) && $data['uid_readonly_uid'] ?? 0 != 0) {
-        $data['uid'] = $data['uid_readonly_uid'];
-      }
     }
 
     return $data;
@@ -346,7 +348,7 @@ class PresenterModel extends AdminModel
     $alias = Aliases::current();
     $info = new EventInfo($alias);
     $config = new Config($alias);
-    $presentersDir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
+    $presentersDir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters', '/images/skills/presenters');
     $data['event'] = $info->description;
 
     $itemIds = [$data['id']];

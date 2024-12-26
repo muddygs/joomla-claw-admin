@@ -16,14 +16,13 @@ use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\DbBlob;
 use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Skills\Presenter;
 use DateTimeZone;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\ListModel;
 
 /**
  * Methods to handle a list of records.
- *
- * @since  1.6
  */
 class PresentersModel extends ListModel
 {
@@ -32,6 +31,7 @@ class PresentersModel extends ListModel
   private array $list_fields = [
     'id',
     'published',
+    'ownership',
     'uid',
     'name',
     'legal_name',
@@ -45,12 +45,7 @@ class PresentersModel extends ListModel
   ];
 
   /**
-   * Constructor.
-   *
    * @param   array  $config  An optional associative array of configuration settings.
-   *
-   * @see     \JController
-   * @since   1.6
    */
   public function __construct($config = array())
   {
@@ -68,22 +63,6 @@ class PresentersModel extends ListModel
     $this->db = $this->getDatabase();
   }
 
-  /**
-   * Method to auto-populate the model state.
-   *
-   * This method should only be called once per instantiation and is designed
-   * to be called on the first call to the getState() method unless the model
-   * configuration flag to ignore the request is set.
-   *
-   * Note. Calling getState in this method will result in recursion.
-   *
-   * @param   string  $ordering   An optional ordering field.
-   * @param   string  $direction  An optional direction (asc|desc).
-   *
-   * @return  void
-   *
-   * @since   3.0.1
-   */
   protected function populateState($ordering = 'name', $direction = 'ASC')
   {
     $app = Factory::getApplication();
@@ -102,19 +81,6 @@ class PresentersModel extends ListModel
     parent::populateState($ordering, $direction);
   }
 
-  /**
-   * Method to get a store id based on model configuration state.
-   *
-   * This is necessary because the model is used by the component and
-   * different modules that might need different sets of data or different
-   * ordering requirements.
-   *
-   * @param   string  $id  A prefix for the store id.
-   *
-   * @return  string  A store id.
-   *
-   * @since   1.6
-   */
   protected function getStoreId($id = '')
   {
     // Compile the store id.
@@ -125,13 +91,6 @@ class PresentersModel extends ListModel
     return parent::getStoreId($id);
   }
 
-  /**
-   * Get the master query for retrieving a list of Presenters.
-   *
-   * @return  \Joomla\Database\DatabaseQuery
-   *
-   * @since   1.6
-   */
   protected function getListQuery()
   {
     // Create a new query object.
@@ -147,7 +106,7 @@ class PresentersModel extends ListModel
         }, $this->list_fields)
       )
     )
-      ->from($db->quoteName('#__claw_presenters', 'a'));
+      ->from($db->quoteName(Presenter::PRESENTERS_TABLE, 'a'));
 
     // Filter by search in title.
     $search = $this->getState('filter.search');
@@ -176,7 +135,7 @@ class PresentersModel extends ListModel
     $items = parent::getItems();
 
     $config = new Config($this->getState('filter.event', Aliases::current(true)));
-    $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
+    $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters', '/images/skills/presenters');
 
     $itemIds = array_column($items, 'id');
     $itemMinAges = array_map(function ($item) {
@@ -192,7 +151,7 @@ class PresentersModel extends ListModel
     );
 
     $filenames = $cache->toFile(
-      tableName: '#__claw_presenters',
+      tableName: Presenter::PRESENTERS_TABLE,
       rowIds: $itemIds,
       key: 'image_preview',
       minAges: $itemMinAges
@@ -213,4 +172,3 @@ class PresentersModel extends ListModel
     return $items;
   }
 }
-

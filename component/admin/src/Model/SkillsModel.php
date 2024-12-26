@@ -1,9 +1,10 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -11,6 +12,7 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\SkillPublishedState;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\CMS\Component\ComponentHelper;
@@ -19,13 +21,12 @@ use Joomla\Database\ParameterType;
 
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Helpers\Locations;
+use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Skills\Presenters;
 
 /**
  * Methods to handle a list of records.
- *
- * @since  1.6
  */
 class SkillsModel extends ListModel
 {
@@ -39,34 +40,32 @@ class SkillsModel extends ListModel
     'location',
     'track',
     'type',
-    'owner',
-    'presenters',
+    'presenter_id',
+    'other_presenter_ids',
     'mtime',
     'submission_date'
-  ];	
+  ];
 
   /**
    * Constructor.
    *
    * @param   array  $config  An optional associative array of configuration settings.
-   *
    */
   public function __construct($config = [])
   {
     if (empty($config['filter_fields'])) {
       $config['filter_fields'] = [];
-      
-      foreach( $this->list_fields AS $f )
-      {
+
+      foreach ($this->list_fields as $f) {
         $config['filter_fields'][] = $f;
-        $config['filter_fields'][] = 'a.'.$f;
+        $config['filter_fields'][] = 'a.' . $f;
       }
     }
 
     parent::__construct($config);
   }
 
-  
+
 
   /**
    * Method to auto-populate the model state.
@@ -81,8 +80,6 @@ class SkillsModel extends ListModel
    * @param   string  $direction  An optional direction (asc|desc).
    *
    * @return  void
-   *
-   * @since   3.0.1
    */
   protected function populateState($ordering = 'a.title', $direction = 'ASC')
   {
@@ -116,8 +113,6 @@ class SkillsModel extends ListModel
    * @param   string  $id  A prefix for the store id.
    *
    * @return  string  A store id.
-   *
-   * @since   1.6
    */
   protected function getStoreId($id = '')
   {
@@ -146,81 +141,68 @@ class SkillsModel extends ListModel
     $l = new Locations($event);
     $locations = $l->GetLocationsList();
 
-    $skills = new Skills($this->getDatabase(), $event);
-    $presenters = $skills->GetPresentersList();
+    $eventInfo = new EventInfo($event, true);
+    $presenters = Presenters::get($eventInfo);
 
-    $new = ' <span class="badge rounded-pill bg-warning">New</span>';
-    $unpublished = ' <span class="badge rounded-pill bg-danger">Unpublished</span>';
+    $newPill = ' <span class="badge rounded-pill bg-warning">New</span>';
+    $unpublishedPill = ' <span class="badge rounded-pill bg-danger">Unpublished</span>';
 
-    foreach ( $items AS $item ) {
+    foreach ($items as $item) {
       $item->day_text = '<i class="fa fa-question"></i>';
-      if ( isset($item->day) && $item->day != '0000-00-00' ) {
+      if (isset($item->day) && $item->day != '0000-00-00') {
         $datetime = date_create($item->day);
-        if ( $datetime !== false ) {
+        if ($datetime !== false) {
           $item->day_text = date_format($datetime, 'D');
         }
 
-        if ( isset($item->time_slot) && $item->time_slot ) {
+        if (isset($item->time_slot) && $item->time_slot) {
           $time = explode(':', $item->time_slot)[0];
           $datetime = date_create($time);
-          $item->day_text .= ' '.date_format($datetime, 'h:i A');
+          $item->day_text .= ' ' . date_format($datetime, 'h:i A');
         }
       } else {
         $item->day_text = '<i class="fa fa-question"></i>';
       }
 
-      if ( 3 == $item->published) {
-        $item->title = $item->title. $new;
+      if (SkillPublishedState::new == $item->published) {
+        $item->title .= $newPill;
       }
 
       $item->presenter_names = [];
-
-      if ( array_key_exists($item->owner, $presenters)) {
-        $presenterRoute = Route::_('index.php?option=com_claw&view=presenter&layout=edit&id='.$presenters[$item->owner]->id);
-        $item->presenter_names[] = '<a href="'. $presenterRoute. '">'.$presenters[$item->owner]->name.'</a>';
-        if ( $presenters[$item->owner]->published == 3 ) {
-          $item->presenter_names[count($item->presenter_names)-1] .= $new;
-        }
-
-        if ( $item->presenters != '' ) {
-          $json = json_decode($item->presenters);
-
-          if ( is_null($presenters)) {
-            $json = explode(',', $item->presenters);
-          }
-
-          foreach ( $json AS $p ) {
-            if ( array_key_exists($p, $presenters)) {
-              $item->presenter_names[] = '<i>'.$presenters[$p]->name.'</i>';
-              if ( $presenters[$item->owner]->published == 3 ) {
-                $item->presenter_names[count($item->presenter_names)-1] .= $new;
-              }
-      
-            } else {
-              $item->presenter_names[] = '<span class="text-danger">ERROR: Deleted co-presenter</span>';
-              break;
-            }
-          }
-        }
-      } else {
-        // Do we have the owner record still but is unpublished?
-        $presenter = $skills->GetPresenter($item->owner, false);
-        if (!is_null($presenter)) {
-          $p = (object)[
-            'id' => $presenter->id,
-            'uid' => $item->owner,
-            'name' => $presenter->name,
-            'published' => $presenter->published
-          ];
-  
-          $item->presenter_names[] = '<a href="'. Route::_('index.php?option=com_claw&view=presenter&layout=edit&id='.$p->id). '">'.$p->name.$unpublished.'</a>';
-        } else {
-          $item->presenter_names[] = '<span class="text-danger">ERROR: Deleted presenter</span>';
-        }
+      $presenter = null;
+      if ($presenters->offsetExists($item->presenter_id)) {
+        $presenter = $presenters[$item->presenter_id];
       }
 
-      if ( !count($item->presenter_names)) {
-        $item->presenter_names[] = '<span class="text-danger">ERROR: No presenter</span>';
+      if (is_null($presenter)) {
+        $item->presenter_names = ['<span class="text-danger">ERROR: Deleted or missing presenter</span>'];
+        continue;
+      }
+
+      $presenterRoute = Route::_('index.php?option=com_claw&view=presenter&layout=edit&id=' . $item->presenter_id);
+      $item->presenter_names[] = '<a href="' . $presenterRoute . '">' . $presenter->name . '</a>';
+      if ($presenter->published == SkillPublishedState::new) {
+        $item->presenter_names[count($item->presenter_names) - 1] .= $newPill;
+      }
+      if ($presenter->published == SkillPublishedState::unpublished) {
+        $item->presenter_names[count($item->presenter_names) - 1] .= $unpublishedPill;
+      }
+
+      $otherPresenterIds = json_decode($item->other_presenter_ids);
+
+      if (!is_null($otherPresenterIds)) {
+        foreach ($otherPresenterIds as $p) {
+          if ($presenters->offsetExists($p)) {
+            $item->presenter_names[] = '<i>' . $presenters[$p]->name . '</i>';
+            if ($presenters[$p]->published == SkillPublishedState::new) {
+              $item->presenter_names[count($item->presenter_names) - 1] .= $newPill;
+            } else if ($presenters[$p]->published == SkillPublishedState::unpublished) {
+              $item->presenter_names[count($item->presenter_names) - 1] .= $unpublishedPill;
+            }
+          } else {
+            $item->presenter_names[] = '<span class="text-danger">ERROR: Deleted co-presenter</span>';
+          }
+        }
       }
 
       $item->location_text = array_key_exists($item->location, $locations) ? $locations[$item->location]->value : '<i class="fa fa-question"></i>';
@@ -232,7 +214,6 @@ class SkillsModel extends ListModel
    * Get the master query for retrieving a list of Skills (classes).
    *
    * @return  \Joomla\Database\QueryInterface
-   *
    */
   protected function getListQuery()
   {
@@ -246,48 +227,50 @@ class SkillsModel extends ListModel
     // Select the required fields from the table.
     $query->select(
       $this->getState(
-        'list.select', array_map( function($a) use($db) { return $db->quoteName('a.'.$a); }, $this->list_fields)
+        'list.select',
+        array_map(function ($a) use ($db) {
+          return $db->quoteName('a.' . $a);
+        }, $this->list_fields)
       )
     )
       ->from($db->quoteName('#__claw_skills', 'a'));
 
     // Filter by search in title.
     $search = $this->getState('filter.search');
-    
-    if (!empty($search))
-    {
+
+    if (!empty($search)) {
       $search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
-      $query->where( 'a.title LIKE ' . $search );
+      $query->where('a.title LIKE ' . $search);
     }
-    
+
     $event = $this->getState('filter.event', Aliases::current());
     $day = $this->getState('filter.day');
     $presenter = $this->getState('filter.presenter');
     $type = $this->getState('filter.type');
 
     Helpers::sessionSet('eventAlias', $event);
-    
-    if ( $event != 'all' ) {
+
+    if ($event != 'all') {
       $query->where('a.event = :event')->bind(':event', $event);
     }
-    
-    if ( $day ) {
-      date_default_timezone_set('etc/UTC');
-      $dayInt = date('w', strtotime($day)); 
 
-      if ( $dayInt !== false ) {
+    if ($day) {
+      date_default_timezone_set('etc/UTC');
+      $dayInt = date('w', strtotime($day));
+
+      if ($dayInt !== false) {
         $dayInt++; // PHP to MariaDB conversion
         $query->where('DAYOFWEEK(a.day) = :dayint');
         $query->bind(':dayint', $dayInt, ParameterType::INTEGER);
       }
     }
 
-    if ( $presenter ) {
-      $query->where('a.owner = :presenter');
+    if ($presenter) {
+      $query->where('a.presenter_id = :presenter');
       $query->bind(':presenter', $presenter);
     }
 
-    if ( $type ) {
+    if ($type) {
       $query->where('a.type = :type');
       $query->bind(':type', $type);
     }

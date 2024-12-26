@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -19,15 +19,14 @@ use Joomla\CMS\Language\Text;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Locations;
 use ClawCorpLib\Helpers\Mailer;
-use ClawCorpLib\Helpers\Skills;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Skills\Presenters;
 use Joomla\CMS\Component\ComponentHelper;
 
 /**
  * Methods to handle processing a skill submission
  *
- * @since  1.6
  */
 class SkillModel extends AdminModel
 {
@@ -35,27 +34,22 @@ class SkillModel extends AdminModel
    * The prefix to use with controller messages.
    *
    * @var    string
-   * @since  1.6
    */
   protected $text_prefix = 'COM_CLAW_SKILL';
 
   public function validate($form, $data, $group = null)
   {
-    $skills = new Skills($this->getDatabase(), $data['event']);
-    $presenters = $skills->GetPresentersList(true);
+    $eventInfo = new EventInfo($data['event']);
+    $presenters = Presenters::get($eventInfo, publishedOnly: true);
 
     $okToPublish = true;
     if (1 == $data['published']) {
-      if (!array_key_exists($data['owner'], $presenters)) {
-        $okToPublish = false;
-      }
+      $okToPublish = $presenters->offsetExists($data['presenter_id']);
 
-      if (array_key_exists('presenters', $data)) {
-        foreach ($data['presenters'] as $copresenter) {
-          if (!array_key_exists($copresenter, $presenters)) {
-            $okToPublish = false;
-            break;
-          }
+      if ($okToPublish && array_key_exists('other_presenter_ids', $data)) {
+        foreach ($data['other_presenter_ids'] as $copresenter) {
+          $okToPublish = $presenters->offsetExists($copresenter);
+          if (!$okToPublish) break;
         }
       }
     }
@@ -92,7 +86,7 @@ class SkillModel extends AdminModel
     }
 
     // $data['presenters'] = implode(',', $data['presenters'] ?? []);
-    $data['presenters'] = json_encode($data['presenters'] ?? []);
+    $data['other_presenter_ids'] = json_encode($data['other_presenter_ids'] ?? []);
 
     if (!isset($data['location']) || !$data['location']) {
       $data['location'] = Locations::$blankLocation;
