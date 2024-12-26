@@ -65,6 +65,7 @@ class HtmlView extends BaseHtmlView
     $this->action = $input->get('action', 0);
 
     $this->eventPackageType = EventPackageTypes::tryFrom($this->action);
+    $this->registrationSurveyLink = Helpers::sessionGet('registrationSurveyLink', '/');
 
     if (is_null($this->eventPackageType) || $this->eventPackageType == EventPackageTypes::none) {
       $this->app->enqueueMessage('Invalid registration action requested.', 'error');
@@ -78,6 +79,12 @@ class HtmlView extends BaseHtmlView
     }
     $this->eventConfig = new EventConfig($this->eventAlias);
     $this->targetPackage = $this->eventConfig->getPackageInfo($this->eventPackageType);
+
+    if (empty($this->targetPackage->eventId)) {
+      $this->app->enqueueMessage('This event has not been configured! Please contact <a href="/help">Guest Services</a>', 'error');
+      $this->app->redirect($this->registrationSurveyLink);
+      return;
+    }
 
     //
     // Redirect to public events (no authentication required)
@@ -107,7 +114,6 @@ class HtmlView extends BaseHtmlView
 
 
     $this->resetSession();
-    $this->registrationSurveyLink = Helpers::sessionGet('registrationSurveyLink', '/');
 
 
     $registrant = new Registrant($this->eventAlias, $this->identity->id);
@@ -128,7 +134,7 @@ class HtmlView extends BaseHtmlView
     $this->mealCategoryIds = $this->getMealCategoryIds();
 
     $config = new Config($this->eventAlias);
-    $this->shiftsBaseUrl = $config->getConfigText(ConfigFieldNames::CONFIG_URLPREFIX, 'shifts');
+    $this->shiftsBaseUrl = $config->getConfigText(ConfigFieldNames::CONFIG_URLPREFIX, 'shifts', '/claw-all-events/shifts/');
 
     $this->coupon = Helpers::sessionGet('clawcoupon');
   }
