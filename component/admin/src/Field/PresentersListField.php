@@ -12,7 +12,9 @@ namespace ClawCorp\Component\Claw\Administrator\Field;
 
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Form\Field\ListField;
-use ClawCorpLib\Helpers\Skills;
+use ClawCorpLib\Iterators\PresenterArray;
+use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Skills\Presenters;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -30,7 +32,13 @@ class PresentersListField extends ListField
    */
   public $type = 'PresentersList';
 
-  private array $presenters = [];
+  private PresenterArray $presenters;
+
+  public function __construct($form = null)
+  {
+    parent::__construct($form);
+    $this->presenters = new PresenterArray();
+  }
 
   /**
    * Method to get the field input markup for a generic list.
@@ -42,32 +50,37 @@ class PresentersListField extends ListField
   {
     $data = $this->getLayoutData();
 
+    $eventAlias = Helpers::sessionGet('eventAlias');
+    $eventInfo = new EventInfo($eventAlias);
+    $this->presenters = Presenters::get(eventInfo: $eventInfo, order: 'name');
+
+    /*************
     // Get the list of presenters
     $eventAlias = Helpers::sessionGet('eventAlias');
-    $skills = new Skills($this->getDatabase(), $eventAlias);
-    $this->presenters = $skills->GetPresentersList();
+    $eventInfo = new EventInfo($eventAlias);
+    $this->presenters = Presenters::get($eventInfo, 'name');
 
     $currentValue = $this->__get('value');
 
     if ($currentValue) {
       $currentPresenters = is_array($currentValue) ? $currentValue : explode(',', $currentValue);
       foreach ($currentPresenters as $currentPresenter) {
-        if (!array_key_exists($currentPresenter, $this->presenters)) {
+        if ($this->presenters->offsetExists($currentPresenter)) {
           // Push this presenter into the list
-          $presenter = $skills->GetPresenter($currentPresenter, false);
-          if (!is_null($presenter)) {
-            $p = (object)[
-              'id' => $presenter->id,
-              'uid' => $currentPresenter,
-              'name' => $presenter->name,
-              'published' => $presenter->published
-            ];
+          $presenter = $this->presenters[$currentPresenter];
+          $p = (object)[
+            'id' => $presenter->id,
+            'pid' => $currentPresenter,
+            'name' => $presenter->name,
+            'published' => $presenter->published
+          ];
+          dd($p);
 
-            $this->presenters[$currentPresenter] = $p;
-          }
+          #$this->presenters[$currentPresenter] = $p;
         }
       }
     }
+     ***************/
 
     $data['options'] = (array) $this->getOptions();
     return $this->getRenderer($this->layout)->render($data);
@@ -86,12 +99,12 @@ class PresentersListField extends ListField
 
     foreach ($this->presenters as $p) {
       $tmp = [
-        'value'    => $p->uid,
+        'value'    => $p->id,
         'text'     => $p->name,
         'disable'  => false,
         'class'    => '',
-        'selected' => in_array($p->uid, $value),
-        'checked'  => in_array($p->uid, $value),
+        'selected' => in_array($p->id, $value),
+        'checked'  => in_array($p->id, $value),
         'onclick'  => '',
         'onchange' => ''
       ];
