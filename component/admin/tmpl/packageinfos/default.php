@@ -90,7 +90,7 @@ $view = "packageinfos";
                 elseif ($item->packageInfoType == PackageInfoTypes::coupononly->value):
                   echo 'N/A';
                 else:
-                  echo $item->alias;
+                  echo '&nbsp;';
                 endif;
                 ?>
               </td>
