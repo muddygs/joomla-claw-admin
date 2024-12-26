@@ -319,7 +319,9 @@ class Helpers
     $mailer = Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
 
     $config = new Config(Aliases::current(true));
-    $email = $config->getConfigText(ConfigFieldNames::CONFIG_DEBUG_EMAIL, 'email');
+    $email = $config->getConfigText(ConfigFieldNames::CONFIG_DEBUG_EMAIL, 'email', '');
+    if (empty($email)) return;
+
     $mailer->setSender([$email, 'CLAW']);
     $mailer->setSubject('Some Error Has Occurred');
     $mailer->addRecipient($email);
