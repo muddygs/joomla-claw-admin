@@ -46,7 +46,7 @@ class HtmlView extends BaseHtmlView
     $eventAlias =  $this->params->get('ScheduleEvent') ?: Aliases::current(true);
 
     $config = new Config($eventAlias);
-    $this->adsdir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'ads');
+    $this->adsdir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'ads', ' /images/0_static_graphics/ads');
 
     $l = new Locations($eventAlias);
     $this->locations = $l->GetLocationsList();
