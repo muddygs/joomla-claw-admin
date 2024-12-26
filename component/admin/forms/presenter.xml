@@ -61,7 +61,7 @@
     name="phone_info"
     type="checkboxes"
     label="Phone Info:"
-    >
+  >
     <option value="Cell">This is a cell phone number</option>
     <option value="SMS">It is OK to SMS (text) this number</option>
   </field>
@@ -75,7 +75,7 @@
     filter="string"
   />
 
-  <field 
+  <field
     name="bio"
     type="editor"
     label="Biography"
@@ -104,7 +104,7 @@
     name="arrival"
     type="checkboxes"
     label="Availability"
-    >
+  >
     <option value="Any">Any (Fri-Sun)</option>
     <option value="Fri">Friday</option>
     <option value="Sat">Saturday</option>
@@ -137,25 +137,26 @@
   />
 
   <field
+    name="ownership"
+    type="radio"
+    label="Biography Ownership:"
+    description="If set to admin, you will need to issue a coupon for registration."
+    required="true"
+    default="1"
+    class="btn-group btn-group-yesno"
+  >
+    <option value="1">By User</option>
+    <option value="0">By Admin</option>
+  </field>
+
+  <field
     name="uid"
     type="user"
-    label="Account (read only):"
-    required="true"
+    label="User Ownership:"
+    required="false"
     readonly="false"
     filter="uint"
-  />
-  
-  <field
-    name="uid_readonly_name"
-    label="Account (read only):"
-    type="text"
-    readonly="true"
-    default="0"
-  />
-  <field
-    name="uid_readonly_uid"
-    type="hidden"
-    default="0"
+    showon="ownership:1"
   />
 
   <field
@@ -183,7 +184,7 @@
     class="form-select-color-state"
     default="1"
     validate="options"
-    >
+  >
     <option value="1">JPUBLISHED</option>
     <option value="0">JUNPUBLISHED</option>
     <option value="2">JARCHIVED</option>

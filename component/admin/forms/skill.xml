@@ -46,7 +46,20 @@
     <option value="">Select a class type</option>
   </field>
 
-  <field name="owner"
+  <field
+    name="ownership"
+    type="radio"
+    label="Class Ownership:"
+    description="If set to admin, the primary presenter will not be able edit this record"
+    required="true"
+    default="1"
+    class="btn-group btn-group-yesno"
+  >
+    <option value="1">By User</option>
+    <option value="0">By Admin</option>
+  </field>
+
+  <field name="presenter_id"
     type="PresentersList"
     label="Primary Presenter"
     multiple="false"
@@ -54,7 +67,7 @@
     required="true">
   </field>
 
-  <field name="presenters"
+  <field name="other_presenter_ids"
     type="PresentersList"
     label="Co-Presenter(s)"
     multiple="true"
