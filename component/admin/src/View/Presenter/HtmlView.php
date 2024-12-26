@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -19,7 +20,6 @@ use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\ToolbarHelper;
-use Joomla\CMS\User\User;
 
 class HtmlView extends BaseHtmlView
 {
@@ -106,18 +106,18 @@ class HtmlView extends BaseHtmlView
       throw new GenericDataException(implode("\n", $errors), 500);
     }
 
-    $config = new Config($this->item->event ?? Aliases::current(true));
-    $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
+    $config = new Config($this->item->event ?: Aliases::current(true));
+    $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters', '/images/skills/presenters');
 
     // Make sure images are in the cache directory for display
     $cache = new DbBlob(
-      db: $this->getModel('Presenter')->getDatabase(), 
-      cacheDir: JPATH_ROOT . $path, 
+      db: $this->getModel('Presenter')->getDatabase(),
+      cacheDir: JPATH_ROOT . $path,
       prefix: 'web_',
     );
 
     $filenames = $cache->toFile(
-      tableName: '#__claw_presenters', 
+      tableName: '#__claw_presenters',
       rowIds: [$this->item->id],
       key: 'image_preview',
     );
@@ -126,38 +126,23 @@ class HtmlView extends BaseHtmlView
 
     $cache = new DbBlob(
       db: $this->getModel('Presenter')->getDatabase(),
-      cacheDir: JPATH_ROOT . $path, 
+      cacheDir: JPATH_ROOT . $path,
       prefix: 'orig_',
     );
 
     $filenames = $cache->toFile(
-      tableName: '#__claw_presenters', 
+      tableName: '#__claw_presenters',
       rowIds: [$this->item->id],
       key: 'image',
     );
 
     $this->item->image = $filenames[$this->item->id] ?? '';
-    
-    // If user is already defined, it cannot be changed
-    $field = $this->form->getField('uid');
-    $this->form->uid = 0;
-    
-    if ( $field->value ) {
-      $this->form->uid = $field->value;
-      $user = new User($this->form->uid);
-      $name = $user->name;
-      
-      $field = $this->form->getField('uid_readonly_name');
-      $this->form->setFieldAttribute($field->getAttribute('name'), 'default', $name);
-      $field = $this->form->getField('uid_readonly_uid');
-      $this->form->setFieldAttribute($field->getAttribute('name'), 'default', $this->form->uid);
-    }
-    
+
     $this->addToolbar();
     parent::display($tpl);
   }
 
-    /**
+  /**
    * Add the page title and toolbar.
    *
    * @return  void
@@ -178,14 +163,14 @@ class HtmlView extends BaseHtmlView
     );
 
     // If not checked out, can save the item.
-    if ( $user->authorise('claw.skills', 'com_claw') ) {
-        ToolbarHelper::apply('presenter.apply');
-        ToolbarHelper::save('presenter.save');
+    if ($user->authorise('claw.skills', 'com_claw')) {
+      ToolbarHelper::apply('presenter.apply');
+      ToolbarHelper::save('presenter.save');
 
-        // If the form event is not current, allow copying to current
-        if ( $this->item->event != Aliases::current() && $this->item->id) {
-          ToolbarHelper::save2copy('presenter.save2copy', 'Copy to current');
-        }
+      // If the form event is not current, allow copying to current
+      if ($this->item->event != Aliases::current() && $this->item->id) {
+        ToolbarHelper::save2copy('presenter.save2copy', 'Copy to current');
+      }
     }
 
     if ($isNew) {
@@ -196,5 +181,4 @@ class HtmlView extends BaseHtmlView
 
     ToolbarHelper::divider();
   }
-
 }

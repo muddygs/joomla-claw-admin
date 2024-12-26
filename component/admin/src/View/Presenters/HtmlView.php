@@ -12,15 +12,15 @@ namespace ClawCorp\Component\Claw\Administrator\View\Presenters;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Helpers\Skills;
+use ClawCorpLib\Skills\Skills;
 use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
-use Joomla\CMS\Toolbar\ToolbarFactoryInterface;
 
 class HtmlView extends BaseHtmlView
 {
@@ -84,16 +84,17 @@ class HtmlView extends BaseHtmlView
     $this->filterForm    = $this->get('FilterForm');
     $this->activeFilters = $this->get('ActiveFilters');
 
-    foreach ($this->items as $item) {
-      // TODO: This should use the filter event alias, not the current alias
-      $skills = new Skills($this->getModel()->db, Aliases::current());
-      $classes = $skills->GetPresenterClasses($item->uid);
+    $event = $this->state->get('filter.event', Aliases::current(true));
+    $eventInfo = new EventInfo($event, true);
 
-      $classesLink = array_map(function ($class) {
-        $url = Route::_("index.php?option=com_claw&view=skill&layout=edit&id={$class->id}");
-        $link = '<a href="' . $url . '"> ' . $class->title . '</a>';
+    foreach ($this->items as $item) {
+      $skills = Skills::getByPresenterId($eventInfo, $item->id);
+
+      $classesLink = array_map(function ($id) use ($skills) {
+        $url = Route::_("index.php?option=com_claw&view=skill&layout=edit&id={$skills[$id]->id}");
+        $link = '<a href="' . $url . '"> ' . $skills[$id]->title . '</a>';
         return $link;
-      }, $classes);
+      }, $skills->keys());
 
       $item->classes = implode('<br/>', $classesLink);
     }
