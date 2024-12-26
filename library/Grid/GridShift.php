@@ -77,6 +77,7 @@ class GridShift
       ->where('id = :id')
       ->bind(':id', $this->id);
     $this->db->setQuery($query);
+
     if (is_null($result = $this->db->loadObject())) {
       throw new \InvalidArgumentException('Shift ID does not exist');
     }

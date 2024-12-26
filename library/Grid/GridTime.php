@@ -99,7 +99,9 @@ class GridTime
       ->where('id = :id')
       ->bind(':id', $this->id);
     $this->db->setQuery($query);
-    $o = $this->db->loadObject();
+    if (is_null($o = $this->db->loadObject())) {
+      throw new \InvalidArgumentException("Invalid GridTime ID: $this->id");
+    }
 
     if ($this->sid != 0 && $o->sid != $this->sid) {
       throw new \InvalidArgumentException("Shift ID mismatch $o->sid != $this->sid");
