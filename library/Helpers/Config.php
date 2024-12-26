@@ -30,9 +30,10 @@ class Config
    * Returns config value
    * @param ConfigFieldNames $section Section name
    * @param string $key Key name
+   * @param string $default Default value
    * @return string Value or null if not found 
    */
-  public function getConfigText(ConfigFieldNames $section, string $key): ?string
+  public function getConfigText(ConfigFieldNames $section, string $key, string $default): string
   {
     $query = $this->buildGetQuery($section, $key);
     $this->db->setQuery($query);
@@ -42,7 +43,7 @@ class Config
       return $row->text;
     }
 
-    return null;
+    return $default;
   }
 
   /**
