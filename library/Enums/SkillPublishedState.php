@@ -12,6 +12,7 @@ namespace ClawCorpLib\Enums;
 
 enum SkillPublishedState: int
 {
+  case any = -1;
   case unpublished = 0;
   case published = 1;
   case new = 3;

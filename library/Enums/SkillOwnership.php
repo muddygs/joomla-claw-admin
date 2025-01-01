@@ -12,6 +12,7 @@ namespace ClawCorpLib\Enums;
 
 enum SkillOwnership: int
 {
+  case any = -1;
   case admin = 0;
   case user = 1;
 }
