@@ -10,19 +10,19 @@ Each event consists of hundreds of registration events (many are volunteers "shi
 However, this component architecture may be useful in other ways. Rather than managing articles for hundred of events, our site pivots around database entries for schedule, presenters, class listings, and volunteer management (we generally have several hundred per event).
 
 ---
-## Current status
+## Current status (2025-JAN-01)
 
-We have thousands of lines of PHP targeting Joomla 3 that will be freshly organized following the J4 MVC model. Our current database engine is using the [Fabrik](https://fabrikar.com/) UI, [which may or may not support J4](https://github.com/joomlahenk/fabrik/wiki/Tester-Instructions), but the decision was made that reliance upon Fabrik is not in the best interest of a fully-dedicated solution. This code base replaces the parts we are using within Fabrik with a J4-specific UI, which is primarily for data entry. All display templates are already separated from Fabrik.
+Migration testing on Joomla 5 will begin this month.
 
-* _Important:_ Current code partially implements access controls; these are being added slowly
 * Build needs to be improved; current process is a bash script to assemble the zip files for installation
 * No translations; uncertain if this wll be done since everything for our purposes is in English
-* None of the front-end display templates have been made into modules
+
+### History
+
+We had thousands of lines of PHP targeting Joomla 3 that were migrated to the J4 MVC model. We had been using [Fabrik](https://fabrikar.com/) UI, but we were not confident a Joomla 4/5 version would even happen (it did!), but the decision was made that reliance upon Fabrik is not in the best interest of a fully-dedicated solution. This code base replaces the parts we were using within Fabrik with a J4-specific UI, which is primarily for data entry.
 
 ---
-## Component Menu Description
-
-While probably not in final form, these are functional:
+## Major Component Menu Description
 
 | Menu Item | About |
 | --------- | ----- |
@@ -45,31 +45,27 @@ Information used during development as guides to understanding Joomla 4 Content 
 * [Joomla](https://www.joomla.org/)
 
    Main Joomla site
+
 * [Joomla Developer Network](https://developer.joomla.org/)
 
    Main Joomla Dev site
 
-* [MVC Anatomy: Getting Started](https://docs.joomla.org/Special:MyLanguage/J4.x:MVC_Anatomy:_Getting_Started)
+* [Joomla! Programmers Documentation](https://manual.joomla.org/docs)
 
-   Okay starting point for MVC, but at the time I started, this was an incomplete guide
+   Core description of use the Joomla APIs
 
-* [Advanced form guide](https://docs.joomla.org/Advanced_form_guide)
-
-   I still haven't entirely understood this, but it is important to shift grid implementation, eventually
-
-* [Standard form field types](https://docs.joomla.org/Standard_form_field_types)
-* [Manifest files](https://docs.joomla.org/Manifest_files)
-* [Using own library in your extensions](https://docs.joomla.org/Using_own_library_in_your_extensions/en)
-
-   Old CMS 3, ended up utilizing bootstrap method in `provider.php`. I'm now using the PSR-4 methodology/autoloader.
+   * [Standard form field types](https://manual.joomla.org/docs/general-concepts/forms-fields/)
+   * [Manifest files](https://manual.joomla.org/docs/building-extensions/install-update/installation/manifest/)
 
 ### Example repositories and development resources
 
 * [Joomla Code](https://joomla-code.com/)
 
+May be outdated
+
 * [astrid/j4examplecode](https://codeberg.org/astrid/j4examplecode/src/branch/t42)
 
-   **Note**: View by specific tag
+   **Note**: View by specific tag; hasn't been updated in a while
 * [Astrid Gunther](https://blog.astrid-guenther.de/)
 
 * [ceford/j4xdemos-com-countrybase](https://github.com/ceford/j4xdemos-com-countrybase)
