@@ -97,7 +97,6 @@ CREATE TABLE IF NOT EXISTS `#__claw_presenters` (
   `social_media` VARCHAR(255) DEFAULT NULL,
   `email` VARCHAR(255) DEFAULT NULL,
   `phone` VARCHAR(30) DEFAULT NULL,
-  `phone_info` VARCHAR(255) DEFAULT NULL,
   `arrival` VARCHAR(255) DEFAULT NULL,
   `copresenter` boolean DEFAULT 0,
   `copresenting` VARCHAR(255) DEFAULT NULL,
