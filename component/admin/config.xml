@@ -98,16 +98,16 @@
       name="se_email_presenter_intro"
       type="editor"
       label="Presenter Email Common Intro"
-      description="Opening text to be included in presenter submission emails"
+      description="Heading message for presenter submission emails"
       width="100%"
       filter="safehtml"
     />
 
     <field
-      name="se_email_bio_intro"
+      name="se_email_skill_intro"
       type="editor"
       label="Class Email Common Intro"
-      description="Opening text to be included in class submission emails"
+      description="Heading message for class submission emails"
       width="100%"
       filter="safehtml"
     />
