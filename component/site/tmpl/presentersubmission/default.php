@@ -71,7 +71,7 @@ if (!$userState->submissionsOpen) {
     </div>
     <div class="col-12 col-md-6">
       <?php
-      if (!is_null($userState->presenter->image_preview)):
+      if (!is_null($userState->presenter) && !is_null($userState->presenter->image_preview)):
       ?>
         <p class="form-label"><strong>Current Image Preview</strong></p>
         <img src="data:image/jpeg;base64,<?= base64_encode($userState->presenter->image_preview) ?>" />

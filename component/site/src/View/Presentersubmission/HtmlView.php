@@ -73,7 +73,7 @@ class HtmlView extends BaseHtmlView
       $app->redirect($route);
     }
 
-    if (!$userState->isBioCurrent()) {
+    if (!is_null($userState->presenter) && !$userState->isBioCurrent()) {
       $app->enqueueMessage('Editing of old biographies is not permitted. Please resubmit to the current event.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       $route = Route::_('/index.php?option=com_claw&view=skillssubmissions');
       $app->redirect($route);
@@ -88,7 +88,7 @@ class HtmlView extends BaseHtmlView
     }
 
     // In read-only mode? New bios accepted, but current ones are locked
-    if (!$canSubmit && $userState->presenter->id > 0) {
+    if (!$canSubmit && !is_null($userState->presenter)) {
       $fieldSet = $this->form->getFieldset('userinput');
       foreach ($fieldSet as $field) {
         $this->form->setFieldAttribute($field->getAttribute('name'), 'readonly', 'true');
@@ -98,7 +98,7 @@ class HtmlView extends BaseHtmlView
     # used in controller for validating image upload requirement during save task
     Helpers::sessionSet('has_image', false);
 
-    if (!is_null($userState->presenter && !is_null($userState->presenter->image_preview))) {
+    if (!is_null($userState->presenter) && !is_null($userState->presenter->image_preview)) {
       Helpers::sessionSet('has_image', true);
     }
 
