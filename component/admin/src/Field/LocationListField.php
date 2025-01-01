@@ -34,7 +34,7 @@ class LocationListField extends ListField
 
     $currentValue = $this->__get('value');
     if ($currentValue === '' || $currentValue === 0) {
-      $data['value'] = Locations::$blankLocation;
+      $data['value'] = Locations::BLANK_LOCATION;
     }
 
     return $this->getRenderer($this->layout)->render($data);
