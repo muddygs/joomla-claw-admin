@@ -12,6 +12,7 @@ namespace ClawCorp\Component\Claw\Administrator\View\Presenters;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\SkillPublishedState;
 use ClawCorpLib\Skills\Skills;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
@@ -91,8 +92,10 @@ class HtmlView extends BaseHtmlView
       $skills = Skills::getByPresenterId($eventInfo, $item->id);
 
       $classesLink = array_map(function ($id) use ($skills) {
+        $badge = SkillPublishedState::new == $skills[$id]->published ?
+          ' <span class="badge rounded-pill bg-warning">New</span>' : '';
         $url = Route::_("index.php?option=com_claw&view=skill&layout=edit&id={$skills[$id]->id}");
-        $link = '<a href="' . $url . '"> ' . $skills[$id]->title . '</a>';
+        $link = '<a href="' . $url . '"> ' . $skills[$id]->title . $badge . '</a>';
         return $link;
       }, $skills->keys());
 
