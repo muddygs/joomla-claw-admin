@@ -37,7 +37,7 @@ if (!$canSubmit) :
 <?php
 else :
 ?>
-  <h1 class="text-center w-100 border border-info p-3">You are submitting for <?= $this->eventInfo->description ?>.</h1>
+  <h1 class="text-center w-100 border border-info p-3" style="color:#ffae00">You are submitting for <?= $this->eventInfo->description ?>.</h1>
 <?php
 endif;
 ?>
