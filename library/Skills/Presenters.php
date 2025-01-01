@@ -60,4 +60,25 @@ final class Presenters
 
     return $presenters;
   }
+
+  /**
+   * Get the list of presenters for a single Skill class
+   * @
+   */
+  public static function bySkill(Skill $skill): PresenterArray
+  {
+    $presenters = new PresenterArray();
+
+    $presentedIds = [$skill->presenter_id, ...$skill->other_presenter_ids];
+
+    foreach ($presentedIds as $pid) {
+      $presenter = new Presenter(
+        id: $pid,
+      );
+
+      $presenters[$pid] = $presenter;
+    }
+
+    return $presenters;
+  }
 }

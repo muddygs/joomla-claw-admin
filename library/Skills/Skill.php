@@ -15,6 +15,10 @@ use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseDriver;
 use ClawCorpLib\Enums\SkillOwnership;
 use ClawCorpLib\Enums\SkillPublishedState;
+use ClawCorpLib\Helpers\Locations;
+use ClawCorpLib\Helpers\Mailer;
+use ClawCorpLib\Lib\EventInfo;
+use Joomla\CMS\Component\ComponentHelper;
 
 \defined('JPATH_PLATFORM') or die;
 
@@ -24,7 +28,7 @@ final class Skill
 
   private DatabaseDriver $db;
 
-  public Date $day;
+  public ?Date $day;
   public Date $mtime;
   public Date $submission_date;
   public SkillOwnership $ownership;
@@ -54,12 +58,25 @@ final class Skill
     $this->db = Factory::getContainer()->get('DatabaseDriver');
 
     if ($id < 0) {
-      throw new \InvalidArgumentException("Presenter ID must be 0 (for new) or a valid database row id.");
+      throw new \InvalidArgumentException("Skill ID must be 0 (for new) or a valid database row id.");
     }
 
     if ($this->id) {
       self::fromSqlRow();
+    } else {
+      $this->submission_date = new Date();
+      $this->archive_state = '';
     }
+  }
+
+  public static function get(int $id): Skill
+  {
+    return new Skill($id);
+  }
+
+  public function toSimpleObject(): object
+  {
+    return $this->toSqlObject();
   }
 
   private function fromSqlRow()
@@ -74,7 +91,7 @@ final class Skill
       throw new \InvalidArgumentException("Invalid Presenter ID: $this->id");
     }
 
-    $this->day = new Date($o->day);
+    $this->day = str_starts_with($this->db->getNullDate(), $o->day) ? null : new Date($o->day);
     $this->mtime = new Date($o->mtime);
     $this->submission_date = new Date($o->submission_date);
     $this->ownership = SkillOwnership::tryFrom($o->ownership) ?? SkillOwnership::admin;
@@ -82,7 +99,7 @@ final class Skill
     $this->other_presenter_ids = json_decode($o->other_presenter_ids) ?? [];
     $this->av = $o->av;
     $this->length_info = $o->length_info;
-    $this->location = $o->location;
+    $this->location = $o->location ?? 0;
     $this->presenter_id = $o->presenter_id;
     $this->archive_state = $o->archive_state ?? '';
     $this->audience = $o->audience ?? '';
@@ -93,20 +110,21 @@ final class Skill
     $this->equipment_info = $o->equipment_info;
     $this->event = $o->event;
     $this->requirements_info = $o->requirements_info;
-    $this->time_slot = $o->time_slot;
+    $this->time_slot = $o->time_slot ?? '';
     $this->title = $o->title;
-    $this->track = $o->track;
-    $this->type = $o->type;
+    $this->track = $o->track ?? '';
+    $this->type = $o->type ?? '';
   }
 
   private function toSqlObject(): object
   {
     $o = new \stdClass();
 
-    $o->day = $this->day->toSql();
-    $o->mtime = $this->mtime->toSql();
+    $o->id = $this->id;
+    $o->day = is_null($this->day) ? $this->db->getNullDate() : $this->day->toSql();
+    $o->mtime = (new Date())->toSql();
     $o->submission_date = $this->submission_date->toSql();
-    $o->ownership = $o->ownership->value;
+    $o->ownership = $this->ownership->value;
     $o->published = $this->published->value;
     $o->other_presenter_ids = $this->other_presenter_ids;
     $o->av = $this->av;
@@ -128,6 +146,92 @@ final class Skill
     $o->type = $this->type;
 
     return $o;
+  }
+
+  /**
+   * Given the ID of a record, attempt to copy it to the current
+   * event while setting the old record to archived.
+   * @param EventInfo $eventInfo Event to copy to
+   */
+  public function migrate(EventInfo $eventInfo, Presenter $presenter): Skill
+  {
+    if ($this->event == $eventInfo->alias) {
+      throw new \Exception('Class description cannot be copied to the same event.');
+    }
+
+    # Too lazy to create a deep copy method
+    $newSkill = Skill::get($this->id);
+
+    $success = true;
+
+    $newSkill->id = 0;
+    $newSkill->event = $eventInfo->alias;
+    $newSkill->published = SkillPublishedState::new;
+    $newSkill->submission_date = new Date();
+    $newSkill->archive_state = '';
+    $newSkill->comments = '';
+    $newSkill->day = null;
+    $newSkill->ownership = SkillOwnership::user;
+    $newSkill->presenter_id = $presenter->id;
+    $newSkill->other_presenter_ids = [];
+    $newSkill->location = Locations::BLANK_LOCATION;
+
+    try {
+      $newId = $newSkill->save();
+    } catch (\Exception) {
+      throw new \Exception('Class copy failed.');
+    }
+
+    if ($success) {
+      $this->archive_state = $newId;
+      try {
+        $this->save();
+      } catch (\Exception) {
+        throw new \Exception('Class copy was successful, but the old class could not be archived.');
+      }
+    }
+
+    return $newSkill;
+  }
+
+  public function emailResults(EventInfo $eventInfo, Presenter $presenter, bool $new = false)
+  {
+    $params = ComponentHelper::getParams('com_claw');
+    $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
+    $notificationMessage = $params->get('se_email_skill_intro', '');
+    if ($notificationMessage == '') {
+      $notificationMessage = <<< HTML
+      <h1>CLAW Skills &amp; Education Class Submission Record</h1>
+      <p>Thank you for your interest in presenting at the CLAW/Leather Thanksgiving Skills and Education Program.</p>
+      <p>Your class submission has been received and will be reviewed by the CLAW Education Committee. You will be notified of the status of your application by email.</p>
+      <p>If you have any questions, please contact us at <a href="mailto:[email]">CLAW S&amp;E Program Manager</a>.</p>
+HTML;
+    }
+
+    $notificationMessage = str_replace('[email]', $notificationEmail, $notificationMessage);
+
+    $subject = $new ? '[New] ' : '[Updated] ';
+    $subject .= $eventInfo->description . ' Class Submission - ';
+    $subject .= $presenter->name;
+
+    $m = new Mailer(
+      tomail: [$presenter->email],
+      toname: [$presenter->name],
+      bcc: [$notificationEmail],
+      fromname: 'CLAW Skills and Education',
+      frommail: $notificationEmail,
+      subject: $subject,
+    );
+
+    $m->appendToMessage($notificationEmail);
+    $m->appendToMessage('<p>Class Submission Details:</p>');
+
+    $m->appendToMessage($m->arrayToTable(
+      (array)$this->toSimpleObject(),
+      ['id', 'uid', 'published', 'location', 'mtime', 'day', 'presenter_id', 'ownership', 'other_presenter_ids', 'archive_state', 'audience', 'category', 'event']
+    ));
+
+    $m->send();
   }
 
   public function save(): int
