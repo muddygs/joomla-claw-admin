@@ -13,6 +13,7 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Enums\SkillPublishedState;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\DbBlob;
 use ClawCorpLib\Lib\Aliases;
@@ -158,7 +159,7 @@ class PresentersModel extends ListModel
     );
 
     foreach ($items as $item) {
-      if (3 == $item->published) {
+      if (SkillPublishedState::new->value == $item->published) {
         $item->name .= ' <span class="badge rounded-pill bg-warning">New</span>';
       }
 
