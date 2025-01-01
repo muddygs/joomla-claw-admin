@@ -17,6 +17,7 @@ use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Image\Image;
 use Joomla\CMS\Mail\MailerFactoryInterface;
+use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\User\UserHelper;
 use Joomla\Database\DatabaseDriver;
 use LogicException;
@@ -83,20 +84,6 @@ class Helpers
     return $seconds;
   }
 
-  public static function dateToDay(string $date): string
-  {
-    $d = Factory::getDate($date);
-    return $d->format('D');
-  }
-
-  public static function dateToDayNum(string $date): int
-  {
-    $d = Factory::getDate($date);
-    $n = $d->format('w');
-    if ($n < 2) $n += 7;
-    return $n;
-  }
-
   /**
    * Converts hh:mm:ss to hh:mm XM, 00:00 -> Midnight, 12:00 -> Noon
    * @param string Time string (hh:mm:ss)
@@ -153,6 +140,18 @@ class Helpers
   #endregion Date/Time functions
 
   #region User Helpers
+  public static function isUserInGroup(int $gid): bool
+  {
+    if (0 == $gid) return false;
+
+    /** @var \Joomla\CMS\Application\SiteApplication */
+    $app = Factory::getApplication();
+    $user = $app->getIdentity();
+    $groups = $user->getAuthorisedGroups();
+
+    return in_array($gid, $groups);
+  }
+
   public static function getUsersByGroupName(DatabaseDriver $db, string $groupname): array
   {
     $groupId = Helpers::getGroupId($groupname);
@@ -280,9 +279,9 @@ class Helpers
   /**
    * Sets a CLAW-specific Joomla session variable.
    * @param string $key Key to variable
-   * @param string $value Key's value
+   * @param string|int|bool $value Key's value
    */
-  static function sessionSet(string $key, string $value): void
+  static function sessionSet(string $key, string|int|bool $value): void
   {
     /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
@@ -295,10 +294,11 @@ class Helpers
   /**
    * Gets a CLAW-specific Joomla session variable
    * @param string Key to the variable
-   * @param string Default value if not already set
-   * @return string|null Value of key (or null on error)
+   * @param string|int|bool Default value if not already set
+   * @return string|int|bool Value of key (or null on error)
+   * @throws GenericDataException When session is not active
    */
-  static function sessionGet(string $key, string $default = ''): ?string
+  static function sessionGet(string $key, string|int|bool $default = ''): string|int|bool
   {
     /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
@@ -307,7 +307,8 @@ class Helpers
       return $session->get('com_claw.' . $key, $default);
     }
 
-    return null;
+    // I'm not a teapot!
+    throw new GenericDataException('Null session not permitted.', 418);
   }
   #endregion Session
 
@@ -406,7 +407,7 @@ class Helpers
         $dest = preg_replace('/\.[a-zA-Z0-9]{3,4}$/', '.jpg', $dest);
 
         $image->toFile($dest, IMAGETYPE_JPEG, ['quality' => $quality]);
-      } catch (LogicException $ex) {
+      } catch (LogicException) {
         return false;
       }
 
