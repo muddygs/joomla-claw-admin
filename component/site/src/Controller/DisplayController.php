@@ -20,7 +20,6 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormFactoryInterface;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\CMS\Router\Route;
 use Joomla\Input\Input;
 use Joomla\Input\Json;
 
@@ -50,35 +49,6 @@ class DisplayController extends BaseController
     if ($this->input == null) {
       $this->input = $this->app->input;
     }
-  }
-
-  public function copyskill()
-  {
-    $id = $this->input->get('id');
-    /** @var \ClawCorp\Component\Claw\Site\Model\SkillsubmissionModel */
-    $siteModel = $this->getModel('Skillsubmission', 'Site');
-    [$status, $data] = $siteModel->duplicate($id);
-
-    // Email via admin model
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\SkillModel */
-    $adminModel = $this->getModel('Skill', 'Administrator');
-    if ($status) $adminModel->email(true, $data);
-
-    $skillRoute = Route::_('index.php?option=com_claw&view=skillssubmissions');
-    $this->setRedirect($skillRoute);
-
-    return true;
-  }
-
-
-  public function copybio()
-  {
-    $id = $this->input->get('id');
-    /** @var \ClawCorp\Component\Claw\Site\Model\PresentersubmissionModel */
-    $siteModel = $this->getModel('Presentersubmission', 'Site');
-    $siteModel->duplicate($id);
-
-    return true;
   }
 
   /**
@@ -125,7 +95,7 @@ class DisplayController extends BaseController
   {
     $this->checkToken();
 
-    $url = Helpers::sessionGet('jwt_url', '');
+    $url = Helpers::sessionGet('jwt_url');
 
     /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
     $siteModel = $this->getModel('Checkin');

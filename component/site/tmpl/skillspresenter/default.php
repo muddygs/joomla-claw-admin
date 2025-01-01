@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -8,11 +9,13 @@
  */
 
 defined('_JEXEC') or die;
+/** @var \ClawCorpLib\Skills\Presenter */
+$presenter = $this->presenter;
 
 // Validate photo file exists
 $photo = '';
-if ($this->presenter->image_preview ) {
-  $photo = '<img src="/' . $this->presenter->image_preview. '" class="img-fluid rounded mx-auto"/>';
+if ($presenter->image_preview) {
+  $photo = '<img src="/' . $presenter->image_preview . '" class="img-fluid rounded mx-auto"/>';
 }
 
 ?>
@@ -20,39 +23,39 @@ if ($this->presenter->image_preview ) {
 <div class="container">
 
   <?php
-    if (!$photo) :
+  if (!$photo) :
   ?>
-      <div class="row">
-        <div class="col">
-          <h2 style="text-align:center;">Skills & Education Presenter</h2>
-          <hr>
-        </div>
+    <div class="row">
+      <div class="col">
+        <h2 style="text-align:center;">Skills & Education Presenter</h2>
+        <hr>
       </div>
-      <div class="row">
-        <div class="col">
-          <h2><?= $this->presenter->name ?></h2>
-          <?= $this->presenter->bio ?>
-        </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <h2><?= $presenter->name ?></h2>
+        <?= $presenter->bio ?>
       </div>
-    <?php
-    else :
-    ?>
-      <div class="row">
-        <div class="col">
-          <h2 style="text-align:center;">Skills & Education Presenter</h2>
-          <hr>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-12 col-lg-3"><?= $photo ?></div>
-        <div class="w-100 d-lg-none"></div>
-        <div class="col-md-12 col-lg-9">
-          <h2><?= $this->presenter->name ?></h2>
-          <?= $this->presenter->bio ?>
-        </div>
-      </div>
+    </div>
   <?php
-    endif;
+  else :
+  ?>
+    <div class="row">
+      <div class="col">
+        <h2 style="text-align:center;">Skills & Education Presenter</h2>
+        <hr>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12 col-lg-3"><?= $photo ?></div>
+      <div class="w-100 d-lg-none"></div>
+      <div class="col-md-12 col-lg-9">
+        <h2><?= $presenter->name ?></h2>
+        <?= $presenter->bio ?>
+      </div>
+    </div>
+  <?php
+  endif;
   ?>
   <div class="row mt-3">
     <div class="col">

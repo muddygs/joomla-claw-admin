@@ -329,13 +329,13 @@ class HtmlView extends BaseHtmlView
     ];
 
     if (!in_array($this->eventPackageType, $metaPackages)) {
-      Helpers::sessionSet('autocart', '0');
+      Helpers::sessionSet('autocart', false);
       return;
     }
 
-    $autocart = Helpers::sessionGet('autocart', '0');
+    $autocart = Helpers::sessionGet('autocart', false);
 
-    if (0 != $autocart) return;
+    if (!$autocart) return;
 
     $cart = new \EventbookingHelperCart();
     $cart->reset();
@@ -350,7 +350,7 @@ class HtmlView extends BaseHtmlView
 
     // In case they want to come back
     Helpers::sessionSet('eventAction', $this->eventPackageType->value);
-    Helpers::sessionSet('autocart', '1');
+    Helpers::sessionSet('autocart', true);
 
     $this->app->redirect('/index.php?option=com_eventbooking&view=cart');
     return;

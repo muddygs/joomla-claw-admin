@@ -10,40 +10,45 @@
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\SkillPublishedState;
 use Joomla\CMS\Router\Route;
 use ClawCorpLib\Lib\EventInfo;
 
-$button = '';
+/** @var \ClawCorpLib\Skills\Skill */
+$class = $this->row;
 
-$published = match ($this->row->published) {
-  0 => 'Unpublished',
-  1 => 'Published',
+$published = match ($class->published) {
+  SkillPublishedState::published => 'Published',
   default => 'Pending Review'
 };
 
-if ($this->canSubmit) {
+$buttonRoute = '#';
+$msg = '';
+
+if ($this->userState->submissionsOpen) {
   if ($this->row->event == $this->currentEventInfo->alias) {
     $buttonRoute = Route::_('index.php?option=com_claw&view=skillsubmission&id=' . $this->row->id);
     $msg = 'View/Edit Class';
   } else {
-    $buttonRoute = Route::_('index.php?option=com_claw&task=copyskill&id=' . $this->row->id);
+    $buttonRoute = Route::_('index.php?option=com_claw&task=skillsubmission.copyskill&id=' . $this->row->id);
     $msg = 'Resubmit for ' . $this->currentEventInfo->description;
   }
-
-  $button = <<< HTML
-HTML;
 }
 
-$eventInfo = new EventInfo(alias: $this->row->event, withUnpublished: true);
+$eventInfo = new EventInfo(alias: $class->event, withUnpublished: true);
 
 ?>
 <tr>
   <td><?= $eventInfo->description ?></td>
-  <td><?= $this->row->title ?></td>
+  <td><?= $class->title ?></td>
   <td><?= $published ?></td>
   <td>
-    <a name="edit-class" id="edit-class-{$this->row->id}" class="btn btn-danger" href="<?= $buttonRoute ?>" role="button">
-      <?= $msg ?>
-    </a>
+    <?php if ('' == $msg): ?>
+      &nbsp;
+    <?php else: ?>
+      <a name="edit-class" id="edit-class-{$class->id}" class="btn btn-danger" href="<?= $buttonRoute ?>" role="button">
+        <?= $msg ?>
+      </a>
+    <?php endif; ?>
   </td>
 </tr>

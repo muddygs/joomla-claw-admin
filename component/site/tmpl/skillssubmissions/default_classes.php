@@ -13,14 +13,16 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Router\Route;
 
 $skillRoute = Route::_('index.php?option=com_claw&view=skillsubmission');
+/** @var \ClawCorpLIb\Skills\UserState */
+$userState = $this->userState;
 
 ?>
-<?php if (!$this->canSubmit) : ?>
+<?php if (!$userState->submissionsOpen) : ?>
   <h3 class="text-warning text-center border border-danger p-3">
     Class submissions are currently closed.
   </h3>
   <?php else :
-  if ($this->bioIsCurrent) : ?>
+  if ($userState->isBioCurrent()): ?>
     <h3 class="text-warning text-center border border-info p-3">
       Class submissions are open for <?= $this->currentEventInfo->description ?>. You may add and edit your class submissions.
     </h3>
@@ -42,7 +44,8 @@ $skillRoute = Route::_('index.php?option=com_claw&view=skillsubmission');
     <tbody>
       <?php
 
-      foreach ($this->classes as $class) {
+      /** @var \ClawCorpLib\Skills\Skill */
+      foreach ($userState->skills as $class) {
         $this->row = $class;
         echo $this->loadTemplate('class');
       }
@@ -52,7 +55,7 @@ $skillRoute = Route::_('index.php?option=com_claw&view=skillsubmission');
 </div>
 
 <?php
-if ($this->canSubmit && $this->bioIsCurrent):
+if ($userState->submissionsOpen && $userState->isBioCurrent()):
 ?>
   <a name="add-class" id="add-class" class="btn btn-danger" href="<?= $skillRoute ?>&id=0" role="button">Add Class</a>
 <?php

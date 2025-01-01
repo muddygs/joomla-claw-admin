@@ -12,10 +12,7 @@ namespace ClawCorp\Component\Claw\Site\View\Skillssubmissions;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Enums\EventTypes;
-use ClawCorpLib\Helpers\Config;
-use ClawCorpLib\Helpers\DbBlob;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
@@ -23,6 +20,11 @@ use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\EventInfos;
 use ClawCorp\Component\Claw\Site\Model\SkillssubmissionsModel;
+use ClawCorpLib\Enums\SkillOwnership;
+use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Skills\Presenter;
+use ClawCorpLib\Skills\Skills;
+use ClawCorpLib\Skills\UserState;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
@@ -54,11 +56,34 @@ class HtmlView extends BaseHtmlView
 
     /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
-    $this->params = $params = $app->getParams();
-    $group = $params->get('se_group', '');
-    $groups = $app->getIdentity()->getAuthorisedGroups();
+    $this->params = $app->getParams();
+    $uid = $app->getIdentity()->id;
 
-    if ($group == 0 || !in_array($group, $groups)) {
+    $currentToken = Helpers::sessionGet('skill_submission_state', '');
+    $this->userState = new UserState($uid, $currentToken);
+
+    $this->bio = $this->findNewestBio($uid);
+
+    if (!is_null($this->bio)) {
+      $this->bio->loadImageBlobs();
+      $this->userState->setPresenter($this->bio);
+    }
+
+    $this->classes = Skills::getByUid($uid);
+
+    /** @var \ClawCorpLib\Skills\Skill */
+    foreach ($this->classes as $class) {
+      $this->userState->addSkill($class);
+    }
+
+    // bio and classes
+    $this->userState->submissionsOpen = $this->params->get('se_submissions_open', 0) != 0;
+    // bio only
+    $this->userState->submissionsBioOnly = $this->params->get('se_submissions_bioonly', 0) != 0;
+
+
+    // So while the userState is newly created, we now use the permissions Check
+    if (!$this->userState->isValid()) {
       $app->enqueueMessage('You do not have permission to access this resource. Please sign in.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
 
       // Redirect to login
@@ -68,39 +93,8 @@ class HtmlView extends BaseHtmlView
       $app->redirect($url);
     }
 
-    $bioCandidate = $this->findNewestBio();
-    $this->bio = (object)[];
-
-    if (!is_null($bioCandidate)) {
-      $this->bio = $bioCandidate;
-
-      // append image_preview to the presenter object
-      $config = new Config($this->currentEventInfo->alias);
-      $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
-
-      $itemIds = [$this->bio->id];
-      $itemMinAges = [new \DateTime($this->bio->mtime, new \DateTimeZone('UTC'))];
-
-      // Insert property for cached presenter preview image
-      $cache = new DbBlob(
-        db: $this->model->getDatabase(),
-        cacheDir: JPATH_ROOT . $path,
-        prefix: 'web_',
-        extension: 'jpg'
-      );
-
-      $filenames = $cache->toFile(
-        tableName: '#__claw_presenters',
-        rowIds: $itemIds,
-        key: 'image_preview',
-        minAges: $itemMinAges
-      );
-
-      $this->bio->image_preview = $filenames[$this->bio->id] ?? '';
-      $this->bioIsCurrent = $this->bio->event == $this->currentEventInfo->alias;
-    }
-
-    $this->classes = $this->findUnarchivedClasses();
+    Helpers::sessionSet('skill_submission_state', $this->userState->getToken());
+    Helpers::sessionSet($this->userState->getToken(), serialize($this->userState));
 
     // Check for errors.
     $errors = $this->get('Errors');
@@ -108,14 +102,12 @@ class HtmlView extends BaseHtmlView
       throw new GenericDataException(implode("\n", $errors), 500);
     }
 
-    $this->canSubmit = $this->params->get('se_submissions_open', 0) != 0;
-    $this->canAddBioOnly = $this->params->get('se_submissions_bioonly', 0) != 0;
-
     parent::display($tpl);
   }
 
-  private function findNewestBio(): ?object
+  private function findNewestBio(int $uid): ?Presenter
   {
+    // ordered by date DESC, so first hit is newest
     $eventInfos = new EventInfos(withUnpublished: true);
 
     /** @var \ClawCorpLib\Lib\EventInfo */
@@ -124,40 +116,14 @@ class HtmlView extends BaseHtmlView
       if ($eventInfo->end_date > $this->currentEventInfo->end_date) continue;
       if ($eventInfo->eventType != EventTypes::main) continue;
 
-      $bio = $this->model->GetPresenterBio($eventInfo);
-      if (!is_null($bio)) {
-        return $bio;
+      $presenter = Presenter::getByUid($eventInfo, $uid, SkillOwnership::user);
+
+      if (!is_null($presenter)) {
+        return $presenter;
         break;
       }
     }
 
     return null;
-  }
-
-  /**
-   * @return array Array of class objects 
-   */
-  private function findUnarchivedClasses(): array
-  {
-    $classes = [];
-
-    $eventInfos = new EventInfos(withUnpublished: true);
-    /** @var \ClawCorpLib\Lib\EventInfo */
-    foreach ($eventInfos as $eventInfo) {
-      // Skip newer events
-      if (
-        $eventInfo->end_date > $this->currentEventInfo->end_date
-        || $eventInfo->eventType != EventTypes::main
-      ) {
-        continue;
-      }
-
-      $eventClasses = $this->model->GetPresenterClasses($eventInfo);
-      if (!is_null($classes)) {
-        $classes = array_merge($classes, $eventClasses);
-      }
-    }
-
-    return $classes;
   }
 }

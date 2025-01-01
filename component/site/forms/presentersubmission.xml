@@ -29,12 +29,6 @@
     />
 
     <field
-      name="event"
-      type="hidden"
-      default=""
-    />
-
-    <field
       name="social_media"
       type="text"
       label="Social Media Tags"
@@ -54,15 +48,6 @@
     />
 
     <field
-      name="phone_info"
-      type="checkboxes"
-      label="Phone Info"
-      >
-      <option value="Cell">This is a cell phone number</option>
-      <option value="SMS">It is OK to SMS (text) this number</option>
-    </field>
-
-    <field 
       name="bio"
       type="textarea"
       label="Biography (1000 character limit)"
@@ -85,7 +70,7 @@
       type="checkboxes"
       label="Availability (Pick best options for you)"
       default="Any"
-      >
+    >
       <option value="Any">Any (Fri-Sun)</option>
       <option value="Fri">Friday</option>
       <option value="Sat">Saturday</option>

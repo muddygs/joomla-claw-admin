@@ -12,12 +12,15 @@ namespace ClawCorp\Component\Claw\Site\View\Skillsclass;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Helpers\Locations;
+use ClawCorpLib\Skills\Presenters;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
-use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Uri\Uri;
+use ClawCorpLib\Skills\Skill;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
@@ -32,13 +35,14 @@ class HtmlView extends BaseHtmlView
   public function display($tpl = null)
   {
     $this->state = $this->get('State');
+    $input = Factory::getApplication()->getInput();
 
     /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
 
-    $viewMenuId = (int)Helpers::sessionGet('skillslist.menuid');
+    $viewMenuId = Helpers::sessionGet('skillslist.menuid', 0);
 
-    if ( 0 == $viewMenuId ) {
+    if (0 == $viewMenuId) {
       $app->enqueueMessage('Class listing must be reloaded. Reselect the menu item to continue.', 'info');
       $app->redirect(Route::_('/'));
     }
@@ -48,23 +52,29 @@ class HtmlView extends BaseHtmlView
     $menu = $app->getMenu()->getActive();
 
     $this->params = $menu->getParams();
-    
-    $uri = Uri::getInstance();
-    $params = $uri->getQuery(true);
-    $cid = $params['id'] ?? 0;
 
-    /** @var \ClawCorp\Component\Claw\Site\Model\SkillsclassModel */
-    $model = $this->getModel();
-    $this->class = $model->GetClass($cid, $this->params->get('event_alias', Aliases::current()));
+    $cid = $input->get('id', 0);
 
-    if ( is_null($this->class)) {
+    try {
+      $this->class = new Skill($cid);
+    } catch (\Exception) {
       $app->enqueueMessage('Class not found.', 'error');
       $app->redirect(Route::_('index.php?option=com_claw&view=skillslist'));
     }
 
+    // Now load the presenters
+    $this->presenters = Presenters::bySkill($this->class);
+
     $this->urlTab = $app->input->get('tab', 'overview', 'string');
     // Class detail should always come from class list
     $this->backLink = Route::_('index.php?option=com_claw&view=skillslist&tab=' . $this->urlTab);
+
+    $config = new Config($this->class->event);
+    $this->time_slots = $config->getConfigValuesText(ConfigFieldNames::SKILL_TIME_SLOT);
+    $locations = new Locations($this->class->event);
+    $this->location = $locations->GetLocationById($this->class->location)->value;
+
+    $this->category = $config->getConfigText(ConfigFieldNames::SKILL_CATEGORY, $this->class->category, '');
 
     parent::display($tpl);
   }

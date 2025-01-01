@@ -22,15 +22,19 @@ $wa->useScript('keepalive')
 
 $view = 'presentersubmission';
 
+/** @var \ClawCorpLib\Skills\UserState */
+$userState = $this->userState;
+$submit = $userState->submissionsOpen || ($userState->submissionsBioOnly && is_null($userState->presenter));
+
 $this->document->setTitle("Biography Submission");
+?>
+<h1>Biography Submission</h1>
+<?php
 
-$header = $this->params->get('BioHeader') ?? '';
-echo $header;
-
-if (!$this->canEditBio) {
-  if ($this->item->id != 0) {
+if (!$userState->submissionsOpen) {
+  if (!is_null($userState->presenter)) {
     echo "<h1>Submissions are currently closed. You may view only your biography.</h1>";
-  } elseif ($this->canAddOnlyBio) {
+  } elseif ($userState->submissionsBioOnly) {
     echo "<h1>You may add your bio, but after submission, no further edits are permitted.</h1>";
   } else {
     echo "<h1>Submissions are currently closed.</h1>";
@@ -38,8 +42,8 @@ if (!$this->canEditBio) {
 }
 ?>
 
-<?php if ($this->canEditBio || ($this->canAddOnlyBio && 0 == $this->item->id)) : ?>
-  <form action="<?php echo Route::_('index.php?option=com_claw&view=' . $view . '&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="<?= $view ?>" id="<?= $view ?>-form" class="form-validate" enctype="multipart/form-data">
+<?php if ($submit): ?>
+  <form action="<?= Route::_('index.php?option=com_claw&view=' . $view . '&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="<?= $view ?>" id="<?= $view ?>-form" class="form-validate" enctype="multipart/form-data">
   <?php endif; ?>
 
   <div class="row form-vertical mb-3">
@@ -67,12 +71,10 @@ if (!$this->canEditBio) {
     </div>
     <div class="col-12 col-md-6">
       <?php
-      if ($this->image_preview_path):
-        $s = '/'.$this->image_preview_path;
-        $ts = time();
+      if (!is_null($userState->presenter->image_preview)):
       ?>
         <p class="form-label"><strong>Current Image Preview</strong></p>
-        <img src="<?= $s ?>?ts=<?= $ts ?>" />
+        <img src="data:image/jpeg;base64,<?= base64_encode($userState->presenter->image_preview) ?>" />
       <?php
       endif;
       ?>
@@ -88,19 +90,17 @@ if (!$this->canEditBio) {
     <?php echo $this->form->renderField('comments'); ?>
   </div>
 
-  <?php if ($this->canEditBio || ($this->canAddOnlyBio && 0 == $this->item->id)) : ?>
+  <?php if ($submit): ?>
     <button type="button" class="btn btn-primary"
       onclick="Joomla.submitbutton('<?php echo $view ?>.submit')">
       Submit for <?php echo $this->eventInfo->description ?>
     </button>
-    <?php echo $this->form->renderField('event'); ?>
-    <input type="hidden" name="idx" value="<?php echo $this->item->id ?>" />
     <input type="hidden" name="task" value="" />
     <?php echo HTMLHelper::_('form.token'); ?>
   <?php endif; ?>
 
   <a href="/index.php?option=com_claw&view=skillssubmissions" role="button" class="btn btn-success">Back</a>
 
-  <?php if ($this->canEditBio || ($this->canAddOnlyBio && 0 == $this->item->id)) : ?>
+  <?php if ($submit) : ?>
   </form>
 <?php endif;

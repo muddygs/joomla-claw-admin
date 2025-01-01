@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -15,24 +15,17 @@ defined('_JEXEC') or die;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Helpers\Locations;
-use ClawCorpLib\Helpers\Skills;
-use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Factory;
-use Joomla\Database\Exception\DatabaseNotFoundException;
+use Joomla\CMS\Router\Route;
 
 /**
  * Get a single presenter submission from an authenticated user
  */
 class SkillsubmissionModel extends AdminModel
 {
-  public $db;
-
   public function __construct()
   {
     parent::__construct();
-    $this->db = $this->getDatabase();
     Helpers::sessionSet('skills.submission.tab', 'Classes');
   }
 
@@ -55,86 +48,33 @@ class SkillsubmissionModel extends AdminModel
     return $form;
   }
 
-  /**
-   * Given the ID of a record, attempt to copy it to the current
-   * event while setting the old record to achived.
-   * @param int $id 
-   * @return array [ status, data ]
-   * @throws DatabaseNotFoundException 
-   */
-  public function duplicate(int $id): array
+  protected function loadFormData()
   {
     /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
-    $db = $this->getDatabase();
-    $uid = $app->getIdentity()->id;
-    $email = $app->getIdentity()->email;
-
-    $query = $db->getQuery(true);
-    $query->select('*')
-      ->from('#__claw_skills')
-      ->where('id = :id')
-      ->bind(':id', $id);
-    $db->setQuery($query);
-    $record = $db->loadObject();
-
-    // Is this user the owner of the record?
-    if ($record == null || $record->owner != $uid) {
-      $app->enqueueMessage('Permission denied.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      return [false, []];
-    }
-
-    $success = false;
-
-    if ($record->event != Aliases::current()) {
-      $record->id = 0;
-      $record->event = Aliases::current();
-      $record->published = 3;
-      $record->day = $db->getNullDate();
-      $record->submission_date = date("Y-m-d");
-      $record->presenters = '';
-      $record->location = Locations::$blankLocation;
-      $record->handout_id = 0;
-      $record->archive_state = '';
-      $record->mtime = Helpers::mtime();
-
-      $db->insertObject('#__claw_skills', $record, 'id');
-
-      // Set the old record to archived with reference to new ID
-      $query = $db->getQuery(true);
-      $query->update('#__claw_skills')
-        ->set('archive_state = :idx')
-        ->where('id = :id')
-        ->bind(':id', $id)
-        ->bind(':idx', $record->id);
-      $db->setQuery($query);
-      $db->execute();
-
-      $success = true;
-    }
-
-    if ($success) {
-      $app->enqueueMessage('Class copied successfully.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_INFO);
-    } else {
-      $app->enqueueMessage('Class copy failed.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-    }
-
-    $record->email = $email;
-
-    // Need name from bio
-    $skills = new Skills($db, Aliases::current(true));
-    $bio = $skills->GetPresenterBios($record->owner);
-    $record->name = is_null($bio) ? '' : $bio[0]->name;
-
-    return [$success, (array)$record];
-  }
-
-  protected function loadFormData()
-  {
     $mergeData = null;
     $submittedFormData = Helpers::sessionGet('formdata');
     if ($submittedFormData) {
       $mergeData = json_decode($submittedFormData, true);
+    }
+
+    $token = Helpers::sessionGet('skill_submission_state', '');
+
+    if (!$token) {
+      $app->enqueueMessage('You do not have permission to access this resource.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      $route = Route::_('/');
+      $app->redirect($route);
+    }
+
+    /** @var \ClawCorpLib\Skills\UserState */
+    $userState = unserialize(Helpers::sessionGet($token));
+    $requestedId = $this->getState($this->getName() . '.id');
+
+    // The View will validated if the record is editable / add allowed
+    if ($requestedId && !array_key_exists($requestedId, $userState->skills)) {
+      $app->enqueueMessage('You do not have permission to access this resource.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      $route = Route::_('/');
+      $app->redirect($route);
     }
 
     $data = $this->getItem();
@@ -145,11 +85,7 @@ class SkillsubmissionModel extends AdminModel
       }
     }
 
-    if ($data->photo) {
-      Helpers::sessionSet('photo', $data->photo);
-    }
-
-    $data->length = $data->length_info ?? 60;
+    $data->length_info = $data->length_info ?? 60;
 
     return $data;
   }
@@ -164,10 +100,5 @@ class SkillsubmissionModel extends AdminModel
     }
 
     throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
-  }
-
-  public function GetEventInfo(): \ClawCorpLib\Lib\EventInfo
-  {
-    return new EventInfo(Aliases::current());
   }
 }

@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -16,35 +16,67 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Skills\UserState;
+use Joomla\CMS\Router\Route;
 
 /** @package ClawCorp\Component\Claw\View\Skillsubmission */
 class HtmlView extends BaseHtmlView
 {
   public function display($tpl = null)
   {
-    // Check that user is in the submission group
-    /** @var \Joomla\CMS\Application\SiteApplication */
-    $app = Factory::getApplication();
-    $groups = $app->getIdentity()->getAuthorisedGroups();
-    $uid = $app->getIdentity()->id;
-
     $this->state = $this->get('State');
     $this->form  = $this->get('Form');
     $this->item  = $this->get('Item');
 
-    // Validate ownership of the record
-    if (property_exists($this->item, 'id')) {
-      if ($this->item->id > 0) {
-        if ($this->item->owner != $uid) {
-          throw new GenericDataException('You do not have permission to edit this record.', 403);
-        }
-      }
+    if ($this->item === false) {
+      throw new GenericDataException('Item not found', 404);
     }
 
-    // Put the record id in the session
-    Helpers::sessionSet('recordid', $this->item->id ?? 0);
+    /** @var \Joomla\CMS\Application\SiteApplication */
+    $app = Factory::getApplication();
+
+    $currentToken = Helpers::sessionGet('skill_submission_state', '');
+    $permission = false;
+
+    try {
+      $userState = UserState::get($currentToken);
+      $permission = true;
+    } catch (\Exception) {
+      $permission = false;
+    }
+
+    if (!$permission || !$userState->isValid()) {
+      throw new GenericDataException('You do not have permission to edit this record.', 403);
+    }
+
+    $canSubmit = $userState->submissionsOpen;
+
+    if (!$canSubmit) {
+      $app->enqueueMessage('Submissions are closed.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      $route = Route::_('/index.php?option=com_claw&view=skillssubmissions');
+      $app->redirect($route);
+    }
+
+    if (!$userState->isBioCurrent()) {
+      $app->enqueueMessage('Editing of classes is not permitted. Please resubmit your biography to the current event.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      $route = Route::_('/index.php?option=com_claw&view=skillssubmissions');
+      $app->redirect($route);
+    }
+
+    $requestedId = $this->item->id ?? 0;
+
+    if ($requestedId) {
+      if (!array_key_exists($requestedId, $userState->skills)) {
+        throw new GenericDataException('You do not have permission to edit this record.', 403);
+      }
+
+      if ($userState->skills[$requestedId]->event != $userState->event) {
+        $app->enqueueMessage('Please resubmit this class to the current event.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+        $route = Route::_('/index.php?option=com_claw&view=skillssubmissions');
+        $app->redirect($route);
+      }
+    }
 
     // Check for errors.
     $errors = $this->get('Errors');
@@ -52,40 +84,10 @@ class HtmlView extends BaseHtmlView
       throw new GenericDataException(implode("\n", $errors), 500);
     }
 
-    $params = $this->params = $this->state->get('params');
-    $temp = clone ($params);
-
-    // Check that user is in the submission group
-    /** @var \Joomla\CMS\Application\SiteApplication */
-    $app = Factory::getApplication();
-    $groups = $app->getIdentity()->getAuthorisedGroups();
-
-    $controllerMenuId = (int)Helpers::sessionGet('menuid');
-    $menu = $app->getMenu()->getActive();
-    if ($controllerMenuId != $menu->id) {
-      $sitemenu = $app->getMenu();
-      $sitemenu->setActive($controllerMenuId);
-      $menu = $app->getMenu()->getActive();
-    }
-    $paramsMenu = $menu->getParams();
-    $temp->merge($paramsMenu);
-
-    $this->params = $temp;
-
-    if ($this->params->get('se_group', 0) == 0 || !in_array($this->params->get('se_group'), $groups)) {
-      $app->enqueueMessage('You do not have permission to access this resource. Please sign in.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-
-      // Redirect to login
-      $return = \Joomla\CMS\Uri\Uri::getInstance()->toString();
-      $url    = 'index.php?option=com_users&view=login';
-      $url   .= '&return='.base64_encode($return);
-      $app->redirect($url);  
-    }
-
-    // Read-only is handled in the template by omitting the form and submit button
-    
     // Event Naming
-    $this->eventInfo = new EventInfo(Aliases::current(true));
+    $this->eventInfo = new EventInfo($userState->event);
+    $this->userState = $userState;
+    $this->canSubmit = $canSubmit;
 
     parent::display($tpl);
   }

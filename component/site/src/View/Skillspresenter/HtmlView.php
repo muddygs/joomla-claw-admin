@@ -19,12 +19,15 @@ use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Skills\Presenter;
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Uri\Uri;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
 {
+  public ?Presenter $presenter;
+
+
   /**
    * Execute and display a single presenter listing.
    *
@@ -35,13 +38,14 @@ class HtmlView extends BaseHtmlView
   public function display($tpl = null)
   {
     $this->state = $this->get('State');
+    $input = Factory::getApplication()->getInput();
 
     /** @var Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
 
-    $viewMenuId = (int)Helpers::sessionGet('skillslist.menuid');
+    $viewMenuId = Helpers::sessionGet('skillslist.menuid', 0);
 
-    if ( 0 == $viewMenuId ) {
+    if (0 == $viewMenuId) {
       $app->enqueueMessage('Class listing must be reloaded. Reselect the menu item to continue.', 'info');
       $app->redirect(Route::_('/'));
     }
@@ -51,26 +55,26 @@ class HtmlView extends BaseHtmlView
     $menu = $app->getMenu()->getActive();
 
     $this->params = $menu->getParams();
-    
-    $uri = Uri::getInstance();
-    $params = $uri->getQuery(true);
-    $this->pid = $params['id'] ?? 0;
-    $this->cid = $params['cid'] ?? 0;
-    $this->urlTab = $params['tab'] ?? 'overview';
+
+    $this->pid = $input->get('id', 0);
+    $this->cid = $input->get('cid', 0);
+    $this->urlTab = $input->get('tab', 'overview');
     $eventAlias = $this->params->get('event_alias', Aliases::current(true));
 
     /** @var \ClawCorp\Component\Claw\Site\Model\SkillsPresenterModel */
     $model = $this->getModel();
-    $this->presenter = $model->GetPresenter($this->pid, $eventAlias);
+    $this->presenter = new Presenter($this->pid);
 
-    if ( is_null($this->presenter)) {
-      $app->enqueueMessage('Presenter not found.', 'error');
+    if (is_null($this->presenter)) {
+      $app->enqueueMessage('Presenter not found or is under admin control.', 'error');
       $app->redirect(Route::_('index.php?option=com_claw&view=skillslist'));
     }
 
+    $this->presenter->loadImageBlobs();
+
     // append image_preview to the presenter object
     $config = new Config($eventAlias);
-    $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
+    $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters', '/images/skills/presenters');
 
     $itemIds = [$this->presenter->id];
     $itemMinAges = [new \DateTime($this->presenter->mtime, new \DateTimeZone('UTC'))];
@@ -78,28 +82,28 @@ class HtmlView extends BaseHtmlView
     // Insert property for cached presenter preview image
     $cache = new DbBlob(
       db: $model->getDatabase(),
-      cacheDir: JPATH_ROOT . $path, 
+      cacheDir: JPATH_ROOT . $path,
       prefix: 'web_',
       extension: 'jpg'
     );
 
     $filenames = $cache->toFile(
-      tableName: '#__claw_presenters', 
-      rowIds: $itemIds, 
+      tableName: Presenter::PRESENTERS_TABLE,
+      rowIds: $itemIds,
       key: 'image_preview',
       minAges: $itemMinAges
     );
 
     $this->presenter->image_preview = $filenames[$this->presenter->id] ?? '';
 
-    if ( $this->cid ) {
+    if ($this->cid) {
       // Route back to class
       $this->backLink = Route::_('index.php?option=com_claw&view=skillsclass&id=' . $this->cid) . '&tab=' . $this->urlTab;
     } else {
       // Route back to list
       $this->backLink = Route::_('index.php?option=com_claw&view=skillslist&tab=' . $this->urlTab);
     }
-    
+
     parent::display($tpl);
   }
 }

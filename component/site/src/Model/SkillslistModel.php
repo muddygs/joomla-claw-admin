@@ -13,15 +13,17 @@ namespace ClawCorp\Component\Claw\Site\Model;
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
-use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Enums\SkillPublishedState;
 
 use ClawCorpLib\Helpers\Config;
-use ClawCorpLib\Helpers\Skills;
+use ClawCorpLib\Iterators\PresenterArray;
+use ClawCorpLib\Iterators\SkillArray;
 use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Skills\Presenters;
+use ClawCorpLib\Skills\Skills;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Router\Route;
-use Joomla\Database\DatabaseDriver;
 
 
 /**
@@ -29,10 +31,8 @@ use Joomla\Database\DatabaseDriver;
  */
 class SkillslistModel extends BaseDatabaseModel
 {
-  private DatabaseDriver $db;
-  private Skills $skills;
-  private array $presenters;
-  private array $classes;
+  private SkillArray $skills;
+  private PresenterArray $presenters;
   private string $eventAlias;
 
   private $tab_items;
@@ -51,9 +51,9 @@ class SkillslistModel extends BaseDatabaseModel
   public function GetConsolidatedList(string $eventAlias, string $listType): object
   {
     $this->eventAlias = $eventAlias;
-    $this->skills = new Skills($this->db, $eventAlias);
-    $this->presenters = $this->skills->GetPresentersList(true);
-    $this->classes = $this->skills->GetClassList();
+    $eventInfo = new EventInfo($eventAlias);
+    $this->presenters = Presenters::get($eventInfo, true);
+    $this->skills = Skills::get($eventInfo, SkillPublishedState::published);
 
     $simpleList = $listType === 'simple';
 
@@ -63,18 +63,12 @@ class SkillslistModel extends BaseDatabaseModel
 
     $this->populateTabItems($simpleList);
 
-
-    // Sort tab items day-time-title-id
-    foreach ($this->tab_items as $tab => $junk) {
-      if ($tab === 'overview') continue;
-
-      ksort($this->tab_items->$tab['ids']);
-    }
-
     $this->setSurveyLink();
 
+    // $this->list
     return (object) [
-      'items' => $this->classes, // All classes
+      'skillArray' => $this->skills,
+      'presenterArray' => $this->presenters,
       'tabs' => $this->tab_items, // Organized by tab
       'categories' => $this->classCategories, // Categories used by overview listing
       'types' => $this->classTypes, // Class types of presentations
@@ -82,96 +76,62 @@ class SkillslistModel extends BaseDatabaseModel
     ];
   }
 
-  private function consolidatePresenters(object $class)
+  private function populateTabItems(bool $simpleList)
   {
-    // Pull in all presenters for this class
-    $class->presenter_info = [];
-
-    // Add class owner
-    $class->presenter_info[] = [
-      'uid' => $class->owner,
-      'name' => $this->presenters[$class->owner]->name,
-    ];
-
-    // Add co-presenters
-    $copresenters = json_decode($class->presenters);
-
-    if ($copresenters !== null) {
-      foreach ($copresenters as $copresenter) {
-        if (array_key_exists($copresenter, $this->presenters)) {
-          $class->presenter_info[] = [
-            'uid' => $copresenter,
-            'name' => $this->presenters[$copresenter]->name,
-          ];
+    /** @var \ClawCorpLib\Skills\Skill */
+    foreach ($this->skills as $skill) {
+      if ($simpleList || (!$simpleList && is_null($skill->day))) {
+        if (array_key_exists($skill->category, $this->tab_items->overview['category'])) {
+          $this->tab_items->overview['category'][$skill->category]['ids'][] = $skill->id;
         }
+        continue;
       }
-    }
-  }
 
-  private function populateTabItems(bool $simpleList) {
-    foreach ($this->classes as $class) {
-      if ($class->published != 1) continue;
+      $dayNum = $skill->day->format('w');
+      if ($dayNum < 2) $dayNum += 7;
 
-      $titleKey = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $class->title));
+      $time = $skill->time_slot;
 
-      // Collect presenter info for this class
-      if ( !$simpleList && $class->day == '0000-00-00' ) continue;
+      // Example value: 0900:060 (start time : length)
+      $startTime = intval(explode(':', $time, 2)[0]);
 
-      $this->consolidatePresenters($class);
-
-      // Simple list can be display without days/times
-      if ( $simpleList && $class->day == '0000-00-00' ) {
-        $tab = 'overview';
-        $day = 'z';
-        $time = '0000';
-        $class->day_text = 'TBA';
-      } else {
-        // These should all be defined per validation on a published skills class
-        $day = Helpers::dateToDayNum($class->day);
-        $class->day_text = Helpers::dateToDay($class->day);
-        $time = $class->time_slot;
-
-        // Example value: 0900:060 (start time : length)
-        list($startTime,$length) = explode(':', $time, 2);
-
-        switch ($day) {
-          case 5:
-            $tab = 'fri';
-            $tab .= ($startTime < 1200) ? 'am' : 'pm';
-            break;
-          case 6:
-            $tab = 'sat';
-            $tab .= ($startTime < 1200) ? 'am' : 'pm';
-            break;
-          case 7:
-            $tab = 'sun';
-            break;
-        }
+      switch ($dayNum) {
+        case 5:
+          $tab = 'fri';
+          $tab .= ($startTime < 1200) ? 'am' : 'pm';
+          break;
+        case 6:
+          $tab = 'sat';
+          $tab .= ($startTime < 1200) ? 'am' : 'pm';
+          break;
+        case 7:
+          $tab = 'sun';
+          break;
       }
-      
-      // TODO: SQL has been updated so data is already ordered - this can be simplified
-      $ordering = implode('-', [$day, $time, $length, $titleKey, $class->id]);
-      $this->tab_items->$tab['ids'][$ordering] = $class->id;
+
+      $this->tab_items->$tab['ids'][] = $skill->id;
 
       // Overview view gets all items indexed by category
-      $ordering = implode('-', [$titleKey, $class->id]);
-      if (array_key_exists($class->category, $this->tab_items->overview['category'])) {
-        $this->tab_items->overview['category'][$class->category]['ids'][$ordering] = $class->id;
+      if (array_key_exists($skill->category, $this->tab_items->overview['category'])) {
+        $this->tab_items->overview['category'][$skill->category]['ids'][] = $skill->id;
       }
     }
   }
 
-  private function initClassCategories() {
+  private function initClassCategories()
+  {
     $config = new Config($this->eventAlias);
     $this->classCategories = $config->getConfigValuesText(ConfigFieldNames::SKILL_CATEGORY);
   }
 
-  private function initClassTypes() {
+  private function initClassTypes()
+  {
     $config = new Config($this->eventAlias);
     $this->classTypes = $config->getConfigValuesText(ConfigFieldNames::SKILL_CLASS_TYPE);
   }
 
-  private function initTabItems() {
+  private function initTabItems()
+  {
     // Prepare data for views
     $this->tab_items = (object)[];
 
@@ -195,10 +155,10 @@ class SkillslistModel extends BaseDatabaseModel
         'ids' => [],
       ];
     }
-
   }
 
-  private function setSurveyLink() {
+  private function setSurveyLink()
+  {
     // Is the event onsite active true?
     $eventInfo = new EventInfo($this->eventAlias);
 

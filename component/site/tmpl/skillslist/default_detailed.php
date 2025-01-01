@@ -14,7 +14,8 @@ if (!count($tabInfo['ids'])) {
 $prevTimeSlot = '';
 
 foreach ($tabInfo['ids'] as $classId) {
-  $class = $this->list->items[$classId];
+  /** @var \ClawCorpLib\Skills\Skill */
+  $class = $this->list->skillArray[$classId];
 
   if (array_key_exists($class->time_slot, $this->time_slots)) {
     $timeSlot = $this->time_slots[$class->time_slot];
@@ -28,10 +29,10 @@ foreach ($tabInfo['ids'] as $classId) {
   $presenter_urls = [];
   $owner = true;
 
-  foreach ($class->presenter_info as $presenter) {
+  foreach ([$class->presenter_id, ...$class->other_presenter_ids] as $presenter) {
     $link = HTMLHelper::link(
-      Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter['uid']) . '&tab=' . $this->tabId,
-      $presenter['name'],
+      Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter) . '&tab=' . $this->tabId,
+      $this->list->presenterArray[$presenter]->name,
       $owner ? ['class' => 'fs-5'] : ['class' => 'fw-light']
     );
 
@@ -57,7 +58,7 @@ foreach ($tabInfo['ids'] as $classId) {
 
 ?>
     <h2 class="text-center"><?= $timeSlot ?></h2>
-    <div class="container skills">
+    <div class="skills">
       <div class="row row-striped">
         <div class="col-8 col-lg-5 pt-0 pb-0 pt-lg-2 pb-lg-2 mt-2 mt-lg-1 mb-2 mb-lg-1 font-weight-bold tight">Title</div>
         <div class="col-4 col-lg-3 pt-0 pb-0 pt-lg-2 pb-lg-2 mt-2 mt-lg-1 mb-2 mb-lg-1 font-weight-bold tight">Room</div>

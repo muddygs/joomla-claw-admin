@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -18,6 +18,8 @@ use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Skills\UserState;
+use Joomla\CMS\Router\Route;
 
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
@@ -35,12 +37,6 @@ class HtmlView extends BaseHtmlView
 
   public function display($tpl = null)
   {
-    // Check that user is in the submission group
-    /** @var \Joomla\CMS\Application\SiteApplication */
-    $app = Factory::getApplication();
-    $groups = $app->getIdentity()->getAuthorisedGroups();
-    $uid = $app->getIdentity()->id;
-
     $this->state = $this->get('State');
     $this->form  = $this->get('Form');
     /** @var \Joomla\CMS\Object\CMSObject */
@@ -50,14 +46,40 @@ class HtmlView extends BaseHtmlView
       throw new GenericDataException('Item not found', 404);
     }
 
-    // Validate ownership of the record
-    if (property_exists($this->item, 'id')) {
-      if ($this->item->id > 0) {
-        if ($this->item->uid != $uid) {
-          throw new GenericDataException('You do not have permission to edit this record.', 403);
-        }
-      }
+    /** @var \Joomla\CMS\Application\SiteApplication */
+    $app = Factory::getApplication();
+
+    $currentToken = Helpers::sessionGet('skill_submission_state', '');
+    $permission = false;
+
+    try {
+      $userState = UserState::get($currentToken);
+      $permission = true;
+    } catch (\Exception) {
+      $permission = false;
     }
+
+    if (!$permission || !$userState->isValid()) {
+      $app->enqueueMessage('You do not have permission to access this resource.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      $route = Route::_('/');
+      $app->redirect($route);
+    }
+
+    $canSubmit = $userState->submissionsOpen || $userState->submissionsBioOnly;
+
+    if (!$canSubmit) {
+      $app->enqueueMessage('Submissions are closed.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      $route = Route::_('/');
+      $app->redirect($route);
+    }
+
+    if (!$userState->isBioCurrent()) {
+      $app->enqueueMessage('Editing of old biographies is not permitted. Please resubmit to the current event.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      $route = Route::_('/index.php?option=com_claw&view=skillssubmissions');
+      $app->redirect($route);
+    }
+
+    // Validation of ownership of the record performed in the model
 
     // Check for errors.
     $errors = $this->get('Errors');
@@ -65,47 +87,22 @@ class HtmlView extends BaseHtmlView
       throw new GenericDataException(implode("\n", $errors), 500);
     }
 
-    $params = $this->params = $this->state->get('params');
-    $temp = clone ($params);
-
-    $controllerMenuId = (int)Helpers::sessionGet('menuid');
-    $menu = $app->getMenu()->getActive();
-    if ($controllerMenuId != $menu->id) {
-      $sitemenu = $app->getMenu();
-      $sitemenu->setActive($controllerMenuId);
-      $menu = $app->getMenu()->getActive();
-    }
-    $paramsMenu = $menu->getParams();
-    $temp->merge($paramsMenu);
-
-    $this->params = $temp;
-
-    if ($this->params->get('se_group', 0) == 0 || !in_array($this->params->get('se_group'), $groups)) {
-      $app->enqueueMessage('You do not have permission to access this resource.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      $app->redirect('/');
-    }
-
-    $this->canEditBio = $this->params->get('se_submissions_open') != 0;
-    $this->canAddOnlyBio = $this->params->get('se_submissions_bioonly') != 0;
-
     // In read-only mode? New bios accepted, but current ones are locked
-
-    if (!$this->canEditBio && $this->item->id > 0) {
+    if (!$canSubmit && $userState->presenter->id > 0) {
       $fieldSet = $this->form->getFieldset('userinput');
       foreach ($fieldSet as $field) {
         $this->form->setFieldAttribute($field->getAttribute('name'), 'readonly', 'true');
       }
     }
 
-    # used in controller for managing data update during save task
-    Helpers::sessionSet('image_preview', '');
-    $this->image_preview_path = null;
+    # used in controller for validating image upload requirement during save task
+    Helpers::sessionSet('has_image', false);
 
-    if ($this->item->id) {
-      $this->image_preview_path = $this->getModel()->getPresenterImagePath($this->item->id, $this->item->event);
-      Helpers::sessionSet('image_preview', $this->image_preview_path);
+    if (!is_null($userState->presenter && !is_null($userState->presenter->image_preview))) {
+      Helpers::sessionSet('has_image', true);
     }
 
+    $this->userState = $userState;
     parent::display($tpl);
   }
 

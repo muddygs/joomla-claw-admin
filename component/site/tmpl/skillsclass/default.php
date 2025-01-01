@@ -11,6 +11,9 @@
 
 defined('_JEXEC') or die;
 
+/** @var \ClawCorpLib\Skills\Skill */
+$class = $this->class;
+
 ?>
 
 <div class="container">
@@ -20,34 +23,37 @@ defined('_JEXEC') or die;
     </div>
     <div class="col-12 col-lg-10">
       <div class="row">
-        <h2 class="text-center"><?= $this->class->title ?></h2>
+        <h2 class="text-center"><?= $class->title ?></h2>
         <hr />
       </div>
       <div class="row">
         <div class="col text-center">
           <h3>
-            <?php if ($this->class->day != 'TBA'): ?>
-              <?= $this->class->day ?> <?= $this->class->time ?> (<?= $this->class->length ?> minutes)
+            <?php if (!is_null($class->day)):
+              $time_slot = array_key_exists($class->time_slot, $this->time_slots) ? $this->time_slots[$class->time_slot] : 'TBA';
+
+            ?>
+              <?= $class->day->format('D') ?> <?= $time_slot ?>
             <?php endif ?>
           </h3>
         </div>
-        <div class="col-12 text-center">Room: <?= $this->class->location ?></div>
-        <div class="col-12 p-1 m-2 text-center">Topic area: <?= $this->class->category ?></div>
+        <div class="col-12 text-center">Room: <?= $this->location ?></div>
+        <div class="col-12 p-1 m-2 text-center">Topic area: <?= $this->category ?></div>
       </div>
       <div class="row border border-warning p-2">
-        <?= $this->class->description ?>
+        <?= $class->description ?>
       </div>
       <hr />
       <div class="row">
         <div class="col">
           <h2 class="mt-1 mb-2">
-            <?= count($this->class->presenters) > 1 ? 'Presenters' : 'Presenter' ?>
+            <?= count($class->other_presenter_ids) > 1 ? 'Presenters' : 'Presenter' ?>
           </h2>
           <?php
-          foreach ($this->class->presenters as $presenter) {
+          foreach ($this->presenters->keys() as $pid) {
           ?>
-            <a href="<?= $presenter->route . '&cid=' . $this->class->id . '&tab=' . $this->urlTab ?>">
-              <button type="button" class="btn btn-outline-light m-2"><?= $presenter->name ?>&nbsp;<i class="fa fa-chevron-right"></i></button>
+            <a href="<?= $this->presenters[$pid]->viewRoute() . '&cid=' . $class->id . '&tab=' . $this->urlTab ?>">
+              <button type="button" class="btn btn-outline-light m-2"><?= $this->presenters[$pid]->name ?>&nbsp;<i class="fa fa-chevron-right"></i></button>
             </a>
           <?php
           }
