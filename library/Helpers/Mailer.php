@@ -92,6 +92,9 @@ final class Mailer
 
       // Format the $key a bit
       $key = ucwords(str_replace('_', ' ', $key));
+      if (gettype($value) == 'array') {
+        $value = implode(',', $value);
+      }
 
       $table .= '<tr>';
       $table .= '<td style="vertical-align:top;"><b>' . $key . '</b></td>';
