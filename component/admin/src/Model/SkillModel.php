@@ -12,17 +12,18 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\SkillOwnership;
+use ClawCorpLib\Enums\SkillPublishedState;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Locations;
-use ClawCorpLib\Helpers\Mailer;
-use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Skills\Presenter;
 use ClawCorpLib\Skills\Presenters;
-use Joomla\CMS\Component\ComponentHelper;
+use ClawCorpLib\Skills\Skill;
 
 /**
  * Methods to handle processing a skill submission
@@ -35,15 +36,15 @@ class SkillModel extends AdminModel
    *
    * @var    string
    */
-  protected $text_prefix = 'COM_CLAW_SKILL';
+  protected $text_prefix = 'COM_CLAW';
 
   public function validate($form, $data, $group = null)
   {
     $eventInfo = new EventInfo($data['event']);
-    $presenters = Presenters::get($eventInfo, publishedOnly: true);
+    $presenters = Presenters::get(eventInfo: $eventInfo, publishedOnly: true);
 
     $okToPublish = true;
-    if (1 == $data['published']) {
+    if (SkillPublishedState::published->value == $data['published']) {
       $okToPublish = $presenters->offsetExists($data['presenter_id']);
 
       if ($okToPublish && array_key_exists('other_presenter_ids', $data)) {
@@ -67,37 +68,74 @@ class SkillModel extends AdminModel
   {
     $app = Factory::getApplication();
 
-    $data['mtime'] = Helpers::mtime();
+    if ($app->isClient('administrator')) {
+      $requestedId = $data['id'];
+    } else {
+      $requestedId = $this->getState($this->getName() . '.id');
+
+    }
+
+    if ($requestedId) {
+      $skill = new Skill($requestedId);
+    } else {
+      $skill = new Skill(0);
+    }
 
     try {
-      $info = new EventInfo($data['event']);
+      $eventInfo = new EventInfo($data['event']);
     } catch (\Exception) {
       $app->enqueueMessage('Invalid event alias.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       return false;
     }
 
     if (array_key_exists('day', $data) && in_array($data['day'], Helpers::getDays())) {
-      $day = $info->modify($data['day'] ?? '');
+      $day = $eventInfo->modify($data['day'] ?? '');
       if ($day !== false) {
-        $data['day'] = $day->toSql();
+        $data['day'] = $day;
       }
     } else {
-      $data['day'] = $this->getDatabase()->getNullDate();
+      $data['day'] = null;
     }
-
-    // $data['presenters'] = implode(',', $data['presenters'] ?? []);
-    $data['other_presenter_ids'] = json_encode($data['other_presenter_ids'] ?? []);
 
     if (!isset($data['location']) || !$data['location']) {
-      $data['location'] = Locations::$blankLocation;
+      $data['location'] = Locations::BLANK_LOCATION;
     }
 
-    // If we're coming from the front end controller, email will be defined
-    if ($app->isClient('site') && array_key_exists('email', $data)) {
-      $this->email(new: $data['id'] == 0, data: $data);
+    $skill->day = $data['day'];
+    $skill->ownership = SkillOwnership::tryFrom($data['ownership']) ?? SkillOwnership::user;
+    $skill->published = SkillPublishedState::tryFrom($data['published']) ?? SkillPublishedState::new;
+    $skill->other_presenter_ids = $data['other_presenter_ids'] ?? [];
+    $skill->av = $data['av'] ?? 0;
+    $skill->length_info = $data['length_info'] ?? 60;
+    $skill->location = $data['location'] ?? Locations::BLANK_LOCATION;
+    $skill->presenter_id = $data['presenter_id'];
+    $skill->audience = $data['audience'] ?? '';
+    $skill->category = $data['category'] ?? '';
+    $skill->comments = $data['comments'] ?? '';
+    $skill->copresenter_info = $data['copresenter_info'] ?? '';
+    $skill->description = $data['description'] ?? '';
+    $skill->equipment_info = $data['equipment_info'] ?? '';
+    $skill->event = $data['event'];
+    $skill->requirements_info = $data['requirements_info'] ?? '';
+    $skill->time_slot = $data['time_slot'] ?? '';
+    $skill->title = $data['title'];
+    $skill->track = $data['track'] ?? '';
+    $skill->type = $data['type'] ?? '';
+
+    try {
+      $skill->save();
+      $this->setState($this->getName() . '.id', $skill->id);
+
+      if ($app->isClient('site')) {
+        $presenter = new Presenter($skill->presenter_id);
+        $skill->emailResults($eventInfo, $presenter, $requestedId == 0);
+      }
+    } catch (\Exception $e) {
+      $app->enqueueMessage($e->getMessage(), \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
+      return false;
     }
 
-    return parent::save($data);
+    return true;
   }
 
   /**
@@ -107,8 +145,6 @@ class SkillModel extends AdminModel
    * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
    *
    * @return  Form|boolean  A Form object on success, false on failure
-   *
-   * @since   1.6
    */
   public function getForm($data = [], $loadData = true)
   {
@@ -126,8 +162,6 @@ class SkillModel extends AdminModel
    * Method to get the data that should be injected in the form.
    *
    * @return  mixed  The data for the form.
-   *
-   * @since   1.6
    */
   protected function loadFormData()
   {
@@ -151,9 +185,6 @@ class SkillModel extends AdminModel
    * @param   array   $options  Configuration array for model. Optional.
    *
    * @return  Table  A Table object
-   *
-   * @since   3.0
-   * @throws  \Exception
    */
   public function getTable($name = '', $prefix = '', $options = array())
   {
@@ -165,50 +196,5 @@ class SkillModel extends AdminModel
     }
 
     throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
-  }
-
-  public function email(bool $new, array $data)
-  {
-    $params = ComponentHelper::getParams('com_claw');
-    $notificationEmail = $params->get('se_notification_email', 'education@clawinfo.org');
-
-    $alias = Aliases::current();
-
-    try {
-      $info = new EventInfo($alias);
-    } catch (\Exception) {
-      Factory::getApplication()->enqueueMessage('Email failure due to invalid event alias.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      return false;
-    }
-
-    $data['event'] = $info->description;
-
-    $subject = $new ? '[New] ' : '[Updated] ';
-    $subject .= $info->description . ' Class Submission - ';
-    $subject .= $data['name'];
-
-    $m = new Mailer(
-      tomail: [$data['email']],
-      toname: [$data['name']],
-      bcc: [$notificationEmail],
-      fromname: 'CLAW Skills and Education',
-      frommail: $notificationEmail,
-      subject: $subject,
-    );
-
-    // TODO: Use global config for this
-    // TODO: Substitute the notification email
-
-    $m->appendToMessage(
-      '<p>Thank you for your interest in presenting at the CLAW/Leather Getaway Skills and Education Program.</p>' .
-        '<p>Your class submission has been received and will be reviewed by the CLAW Education Committee.  You will be notified of the status of your application by email.</p>' .
-        '<p>If you have any questions, please contact us at <a href="mailto:' . $notificationEmail . '">CLAW S&E Program Manager</a>.</p>'
-    );
-
-    $m->appendToMessage('<p>Class Submission Details:</p>');
-
-    $m->appendToMessage($m->arrayToTable($data, ['id', 'uid', 'published', 'location', 'mtime', 'day', 'presenters', 'owner']));
-
-    $m->send();
   }
 }

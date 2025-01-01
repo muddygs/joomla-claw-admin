@@ -133,6 +133,7 @@ class SkillsModel extends ListModel
     return parent::getTable($type, $prefix, $config);
   }
 
+  # TODO: much of the jiggering here should be put into the view
   public function getItems()
   {
     $items = parent::getItems();
@@ -164,7 +165,7 @@ class SkillsModel extends ListModel
         $item->day_text = '<i class="fa fa-question"></i>';
       }
 
-      if (SkillPublishedState::new == $item->published) {
+      if (SkillPublishedState::new->value == $item->published) {
         $item->title .= $newPill;
       }
 
@@ -176,6 +177,7 @@ class SkillsModel extends ListModel
 
       if (is_null($presenter)) {
         $item->presenter_names = ['<span class="text-danger">ERROR: Deleted or missing presenter</span>'];
+        $item->location_text = '<i class="fa fa-question"></i>';
         continue;
       }
 
