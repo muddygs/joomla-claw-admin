@@ -14,9 +14,9 @@ use Joomla\CMS\Factory;
 
 class Locations
 {
-  private static array $cache = [];
+  const BLANK_LOCATION = -1;
 
-  public static int $blankLocation = -1;
+  private static array $cache = [];
 
   public function __construct(
     public readonly string $eventAlias
@@ -45,9 +45,8 @@ class Locations
 
   public function GetLocationById(int $id): ?object
   {
-    if ($id == Locations::$blankLocation) return (object)['value' => ''];
+    if ($id == Locations::BLANK_LOCATION) return (object)['value' => ''];
     if (!count(Locations::$cache)) $this->GetLocationsList();
     return array_key_exists($id, Locations::$cache[$this->eventAlias]) ? Locations::$cache[$this->eventAlias][$id] : null;
   }
 }
-
