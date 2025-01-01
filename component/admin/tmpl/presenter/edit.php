@@ -66,7 +66,7 @@ $view = 'presenter';
         <?php echo $this->form->renderField('phone'); ?>
       </div>
       <div class="col-6">
-        <?php echo $this->form->renderField('phone_info'); ?>
+        <?php echo $this->form->renderField('arrival'); ?>
       </div>
     </div>
     <div class="row">
@@ -95,7 +95,6 @@ $view = 'presenter';
     <?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'special', 'Special'); ?>
     <div class="row">
       <?php echo $this->form->renderField('social_media'); ?>
-      <?php echo $this->form->renderField('arrival'); ?>
       <?php echo $this->form->renderField('comments'); ?>
     </div>
 
