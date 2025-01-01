@@ -58,15 +58,6 @@
   />
 
   <field
-    name="phone_info"
-    type="checkboxes"
-    label="Phone Info:"
-  >
-    <option value="Cell">This is a cell phone number</option>
-    <option value="SMS">It is OK to SMS (text) this number</option>
-  </field>
-
-  <field
     name="email"
     type="text"
     label="Email:"
