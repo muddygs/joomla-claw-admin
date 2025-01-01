@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -12,19 +13,9 @@ namespace ClawCorp\Component\Claw\Site\Model;
 defined('_JEXEC') or die;
 
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use ClawCorpLib\Helpers\Skills;
 
 /**
  * Methods to handle public class listing.
  */
-class SkillsClassModel extends BaseDatabaseModel
-{
-  public function GetClass(int $cid, string $event): ?object
-  {
-    $db = $this->getDatabase();
-    $skills = new Skills($db, $event);
-    $class = $skills->GetClass($cid);
+class SkillsClassModel extends BaseDatabaseModel {}
 
-    return $class;
-  }
-}
