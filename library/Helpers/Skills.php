@@ -11,249 +11,32 @@
 namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Enums\SkillOwnership;
+use ClawCorpLib\Enums\SkillPublishedState;
 use ClawCorpLib\Lib\Aliases;
-use InvalidArgumentException;
+use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Skills\Presenters;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\Filesystem\File;
 use Joomla\Filesystem\Folder;
 use Joomla\Filesystem\Path;
 use Joomla\CMS\MVC\View\GenericDataException;
-use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseDriver;
-use Joomla\Database\Exception\UnsupportedAdapterException;
-use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
-use RuntimeException;
 
 class Skills
 {
   private array $presenterCache = [];
   private array $classCache = [];
+  private EventInfo $eventInfo;
 
   // constructor
   public function __construct(
     public DatabaseDriver $db,
     public readonly string $eventAlias = ''
-  ) {}
-
-  public function GetPresentersList(bool $publishedOnly = false): array
-  {
-    if (count($this->presenterCache)) return $this->presenterCache;
-
-    $query = $this->db->getQuery(true);
-
-    $query->select($this->db->qn(['id', 'uid', 'name', 'published']))
-      ->from($this->db->qn('#__claw_presenters'))
-      ->order('name ASC');
-
-    if ($publishedOnly) {
-      $query->where($this->db->qn('published') . ' = 1');
-    } else {
-      $query->where($this->db->qn('published') . ' IN (1,3)'); // published or new
-    }
-
-    if ($this->eventAlias != '') {
-      $eventAlias = $this->eventAlias;
-      $query->where($this->db->qn('event') . ' = :event')
-        ->bind(':event', $eventAlias);
-    }
-
-    $this->db->setQuery($query);
-    $this->presenterCache = $this->db->loadObjectList('uid') ?? [];
-    return $this->presenterCache;
-  }
-
-  /**
-   * Load the presenter bio records (check event for determining current)
-   * @param int $pid Presenter User ID
-   * @return array|null Bio records array (of objects) or null on error
-   */
-  public function GetPresenterBios(int $pid): ?array
-  {
-    $query = $this->db->getQuery(true);
-    $query->select('*')
-      ->from($this->db->quoteName('#__claw_presenters'))
-      ->where($this->db->qn('uid') . '= :uid')
-      ->where('(' . $this->db->qn('archive_state') . ' = "" OR ' . $this->db->qn('archive_state') . ' IS NULL)')
-      ->bind(':uid', $pid);
-
-    if ($this->eventAlias != '') {
-      $eventAlias = $this->eventAlias;
-      $query->where($this->db->qn('event') . ' = :event')
-        ->bind(':event', $eventAlias);
-    }
-
-    $query->order('mtime');
-
-    $this->db->setQuery($query);
-    return $this->db->loadObjectList();
-  }
-
-  /**
-   * Load the presenter skills class records (check event for determining current)
-   * @param int $pid User ID of Presenter
-   * @return array|null Bio records array (of objects) or null on error
-   */
-  public function GetPresenterClasses(int $pid): ?array
-  {
-    $query = $this->db->getQuery(true);
-    $query->select('*')
-      ->from($this->db->quoteName('#__claw_skills'))
-      ->where('((JSON_VALID(' . $this->db->qn('presenters') . ') AND JSON_CONTAINS(' . $this->db->qn('presenters') . ', :copresenters)) OR ' . $this->db->qn('owner') . ' = :uid)')
-      ->where('(' . $this->db->qn('archive_state') . ' = "" OR ' . $this->db->qn('archive_state') . ' IS NULL)')
-      ->bind(':uid', $pid)
-      ->bind(':copresenters', $pid);
-
-    if ($this->eventAlias != '') {
-      $eventAlias = $this->eventAlias;
-      $query->where($this->db->qn('event') . ' = :event')
-        ->bind(':event', $eventAlias);
-    }
-
-    $query->order('mtime');
-    $query->setLimit(30);
-
-    $this->db->setQuery($query);
-    return $this->db->loadObjectList();
-  }
-
-  /**
-   * Returns a list of classes for the given event
-   * 
-   * @param DatabaseDriver $db 
-   * @param bool $publishedOnly (default: true)
-   * @return array 
-   * @throws UnsupportedAdapterException 
-   * @throws QueryTypeAlreadyDefinedException 
-   * @throws RuntimeException 
-   * @throws InvalidArgumentException 
-   */
-  public function GetClassList(bool $publishedOnly = true): array
-  {
-    if (count($this->classCache)) return $this->classCache;
-
-    $query = $this->db->getQuery(true);
-
-    $eventAlias = $this->eventAlias;
-    $query->select('*')
-      ->from($this->db->qn('#__claw_skills'))
-      ->where($this->db->qn('event') . ' = :event')->bind(':event', $eventAlias);
-
-    if ($publishedOnly) {
-      $query->where($this->db->qn('published') . '= 1');
-      // ->where($this->db->qn('day') . ' != "0000-00-00"')
-      // ->where($this->db->qn('time_slot') . ' IS NOT NULL')
-      // ->where($this->db->qn('time_slot') . ' != ""');
-    }
-
-    $query->order('day ASC, time_slot ASC, title ASC');
-
-    $this->db->setQuery($query);
-    $this->classCache = $this->db->loadObjectList('id') ?? [];
-    return $this->classCache;
-  }
-
-  public function GetPresenter(int $uid, bool $published = true): ?object
-  {
-    $query = $this->db->getQuery(true);
-    $eventAlias = $this->eventAlias;
-
-    $fields = [
-      'id',
-      'uid',
-      'published',
-      'name',
-      'legal_name',
-      'event',
-      'social_media',
-      'email',
-      'phone',
-      'phone_info',
-      'arrival',
-      'copresenter',
-      'copresenting',
-      'comments',
-      'bio',
-      'submission_date',
-      'archive_state',
-      'mtime'
-    ];
-
-    $query->select($this->db->qn($fields))
-      ->from($this->db->qn('#__claw_presenters'))
-      ->where($this->db->qn('uid') . ' = :uid')->bind(':uid', $uid)
-      ->where($this->db->qn('event') . ' = :event')->bind(':event', $eventAlias);
-
-    if ($published) {
-      $query->where($this->db->qn('published') . ' = 1');
-    }
-
-    $this->db->setQuery($query);
-    $presenter = $this->db->loadObject();
-
-    if ($presenter != null)
-      $presenter->route = Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter->uid);
-
-    return $presenter;
-  }
-
-  public function GetClass(int $cid): ?object
-  {
-    $query = $this->db->getQuery(true);
-
-    $eventAlias = $this->eventAlias;
-    $query->select('*')
-      ->from($this->db->qn('#__claw_skills'))
-      ->where($this->db->qn('id') . ' = :cid')->bind(':cid', $cid)
-      ->where($this->db->qn('event') . ' = :event')->bind(':event', $eventAlias)
-      ->where($this->db->qn('published') . ' = 1');
-
-    $this->db->setQuery($query);
-    $class = $this->db->loadObject();
-
-    if (null == $class) return $class;
-
-    if (empty($class->presenters)) {
-      $presenterIds = [];
-    } else {
-      $presenterIds = json_decode($class->presenters);
-    }
-    array_unshift($presenterIds, $class->owner);
-
-    $locations = new Locations($this->eventAlias);
-    $location = $locations->GetLocationById($class->location);
-    $class->location = is_null($location) ? 'TBD' : $location->value;
-
-    // day
-    if ($class->day == '0000-00-00') {
-      $class->day = 'TBA';
-      $class->time = '';
-      $class->length = 'TBA';
-    } else {
-      $class->day = date('l', strtotime($class->day));
-
-      [$time, $length] = explode(':', $class->time_slot);
-      // time
-      $class->time = Helpers::formatTime($time);
-
-      // length
-      $class->length = (int)$length;
-    }
-
-    $config = new Config($this->eventAlias);
-    if ($class->category != 'None') $class->category = $config->getConfigText(ConfigFieldNames::SKILL_CATEGORY, $class->category);
-
-    // Get the presenters
-    $class->presenters = [];
-
-    foreach ($presenterIds as $presenterId) {
-      $presenter = $this->GetPresenter($presenterId);
-      if (null == $presenter) continue;
-      $class->presenters[] = $presenter;
-    }
-
-    return $class;
+  ) {
+    $this->eventInfo = new EventInfo($this->eventAlias);
   }
 
   public static function rsformJson()
@@ -281,35 +64,25 @@ class Skills
 
   public function presentersCSV(string $filename, bool $publishedOnly = true)
   {
-    if ($this->eventAlias == '') {
-      // error message
-      throw new GenericDataException('eventAlias must be specified', 500);
-    }
-
     // append image_preview to the presenter object
-    $config = new Config($this->eventAlias);
-    $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters') ?? '/images/skills/presenters/cache';
+    $config = new Config($this->eventInfo->alias);
+    $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters', '/images/skills/presenters');
 
-    $query = $this->db->getQuery(true);
+    $presenterArray = Presenters::get($this->eventInfo, $publishedOnly);
+    $keys = $presenterArray->keys();
 
-    $columnNames = ['id', 'uid', 'name', 'bio', 'image_preview'];
-
-    if (!$publishedOnly)
-      $columnNames = array_keys($this->db->getTableColumns('#__claw_presenters'));
-
-    $eventAlias = $this->eventAlias;
-    $query->select($this->db->qn($columnNames))
-      ->from($this->db->qn('#__claw_presenters'))
-      ->where($this->db->qn('event') . ' = :event')
-      ->bind(':event', $eventAlias)
-      ->order('name ASC');
-
-    if ($publishedOnly) {
-      $query->where($this->db->qn('published') . ' = 1');
+    if (!count($keys)) {
+      throw new GenericDataException('No presenters to export.', 500);
     }
 
-    $this->db->setQuery($query);
-    $presenters = $this->db->loadObjectList() ?? [];
+    /** @var \ClawCorpLib\Skills\Presenter */
+    $presenter = $presenterArray[$keys[0]];
+
+    if ($presenter === false) {
+      throw new GenericDataException('Unable to load presenters', 500);
+    }
+
+    $columnNames = array_keys((array)($presenter->toSimpleObject()));
 
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -323,14 +96,19 @@ class Skills
     $fp = fopen('php://output', 'wb');
     fputcsv($fp, $columnNames);
 
-    foreach ($presenters as $p) {
+    foreach ($keys as $pid) {
+      /** @var \ClawCorpLib\Skills\Presenter */
+      $p = $presenterArray[$pid];
+
       $row = [];
       foreach ($columnNames as $col) {
         switch ($col) {
-          case 'uid':
+          case 'id':
             $row[] = 'presenter_' . $p->$col;
             break;
           case 'image':
+            $row[] = '';
+            break;
           case 'image_preview':
             $cache = new DbBlob(
               db: $this->db,
@@ -351,12 +129,17 @@ class Skills
             $row[] = Helpers::cleanHtmlForCsv($p->$col);
             break;
           case 'published':
-            $row[] = match ($p->$col) {
-              -2 => 'Trashed',
-              0 => 'Unpublished',
-              1 => 'Published',
-              2 => 'Archived',
-              3 => 'New',
+            $row[] = match ($p->published) {
+              SkillPublishedState::unpublished => 'Unpublished',
+              SkillPublishedState::published => 'Published',
+              SkillPublishedState::new => 'New',
+              default => 'Unknown',
+            };
+            break;
+          case 'ownership':
+            $row[] = match ($p->ownership) {
+              SkillOwnership::user => 'User',
+              SkillOwnership::user => 'Admin',
               default => 'Unknown',
             };
             break;
@@ -375,13 +158,9 @@ class Skills
 
   public function classesCSV(string $filename, bool $publishedOnly = true)
   {
-    if ($this->eventAlias == '') {
-      // error message
-      throw new GenericDataException('eventAlias must be specified', 500);
-    }
+    $skillArray = \ClawCorpLib\Skills\Skills::get($this->eventInfo, $publishedOnly ? SkillPublishedState::published : SkillPublishedState::any);
+    $presenterArray = Presenters::get($this->eventInfo, $publishedOnly);
 
-    $this->GetClassList(publishedOnly: $publishedOnly);
-    $this->GetPresentersList(publishedOnly: $publishedOnly);
     $locations = new Locations($this->eventAlias);
 
     // Load the global config for com_claw. We need to the RS Form ID
@@ -406,7 +185,20 @@ class Skills
     // $rsformId = $config['se_survey_link'];
 
     // Load database columns
-    $columnNames = array_keys($this->db->getTableColumns('#__claw_skills'));
+    $keys = $skillArray->keys();
+
+    if (!count($keys)) {
+      throw new GenericDataException('No skills to export.', 500);
+    }
+
+    /** @var \ClawCorpLib\Skills\Skill */
+    $skill = $skillArray[$keys[0]];
+
+    if ($skill === false) {
+      throw new GenericDataException('Unable to load skills', 500);
+    }
+
+    $columnNames = array_keys((array)($skill->toSimpleObject()));
     $columnNames[] = 'multitrack';
     $columnNames[] = 'people';
     $columnNames[] = 'people_public_name';
@@ -451,12 +243,12 @@ class Skills
             $row[] = $time->format('g:i A');
             break;
 
-          case 'owner':
-            if (!$publishedOnly) {
-              $row[] = $this->presenterCache[$c->$col]->name;
-            } else {
-              $row[] = $c->$col;
-            }
+          case 'ownership':
+            $row[] = match ($c->ownership) {
+              SkillOwnership::user => 'User',
+              SkillOwnership::user => 'Admin',
+              default => 'Unknown',
+            };
             break;
 
           case 'people':
@@ -484,9 +276,7 @@ class Skills
             if (empty($c->presenters)) {
               $presenterIds = [];
             } else {
-              // TODO: Fix decode
-              $presenterIds = json_decode($c->presenters);
-              if (is_null($presenterIds)) $presenterIds = [];
+              $presenterIds = json_decode($c->presenters) ?? [];
             }
             array_unshift($presenterIds, $c->owner);
 
