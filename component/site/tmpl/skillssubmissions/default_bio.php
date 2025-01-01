@@ -64,7 +64,7 @@ if (is_null($userState->presenter)) {
 
 
 $published = match ($userState->presenter->published) {
-  SkillPublishedState::published => 'Published',
+  SkillPublishedState::published->value => 'Published',
   default => 'Pending Review'
 };
 

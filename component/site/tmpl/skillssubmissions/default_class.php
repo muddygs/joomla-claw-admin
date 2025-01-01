@@ -18,7 +18,7 @@ use ClawCorpLib\Lib\EventInfo;
 $class = $this->row;
 
 $published = match ($class->published) {
-  SkillPublishedState::published => 'Published',
+  SkillPublishedState::published->value => 'Published',
   default => 'Pending Review'
 };
 
