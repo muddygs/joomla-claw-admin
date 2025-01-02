@@ -52,7 +52,7 @@ class SkillslistModel extends BaseDatabaseModel
   {
     $this->eventAlias = $eventAlias;
     $eventInfo = new EventInfo($eventAlias);
-    $this->presenters = Presenters::get($eventInfo, true);
+    $this->presenters = Presenters::get($eventInfo, SkillPublishedState::published);
     $this->skills = Skills::get($eventInfo, SkillPublishedState::published);
 
     $simpleList = $listType === 'simple';

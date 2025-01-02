@@ -41,7 +41,7 @@ class SkillModel extends AdminModel
   public function validate($form, $data, $group = null)
   {
     $eventInfo = new EventInfo($data['event']);
-    $presenters = Presenters::get(eventInfo: $eventInfo, publishedOnly: true);
+    $presenters = Presenters::get(eventInfo: $eventInfo, published: SkillPublishedState::published);
 
     $okToPublish = true;
     if (SkillPublishedState::published->value == $data['published']) {

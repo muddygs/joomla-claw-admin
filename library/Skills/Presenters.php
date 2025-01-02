@@ -25,16 +25,9 @@ final class Presenters
    * @param bool $publishedOnly Default false
    * @param string $order DB column for the sort (default 'id asc')
    */
-  public static function get(EventInfo $eventInfo, bool $publishedOnly = false, string $order = 'id'): PresenterArray
+  public static function get(EventInfo $eventInfo, SkillPublishedState $published = SkillPublishedState::any, string $order = 'id'): PresenterArray
   {
     $presenters = new PresenterArray();
-
-    $published = match ($publishedOnly) {
-      false => [SkillPublishedState::published->value, SkillPublishedState::unpublished->value, SkillPublishedState::new->value],
-      default => [SkillPublishedState::published->value]
-    };
-
-    $published = implode(',', $published);
 
     $db = Factory::getContainer()->get('DatabaseDriver');
     $event = $eventInfo->alias;
@@ -43,9 +36,12 @@ final class Presenters
     $query->select('id')
       ->from(Presenter::PRESENTERS_TABLE)
       ->where('event = :event')
-      ->where('published IN (' . $published . ')')
       ->bind(':event', $event)
       ->order($order);
+    if (SkillPublishedState::any != $published) {
+      $query->where('published = ' . $published->value);
+    }
+
     $db->setQuery($query);
     $ids = $db->loadColumn();
 
