@@ -72,7 +72,6 @@ class SkillModel extends AdminModel
       $requestedId = $data['id'];
     } else {
       $requestedId = $this->getState($this->getName() . '.id');
-
     }
 
     if ($requestedId) {
@@ -172,6 +171,8 @@ class SkillModel extends AdminModel
 
     if (empty($data)) {
       $data = $this->getItem();
+      // Initialize for form fields that have event-specific population
+      Helpers::sessionSet('eventAlias', $data->event);
     }
 
     return $data;
