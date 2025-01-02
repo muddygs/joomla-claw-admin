@@ -19,16 +19,12 @@ use ClawCorpLib\Skills\Presenters;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\Filesystem\File;
-use Joomla\Filesystem\Folder;
-use Joomla\Filesystem\Path;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseDriver;
 
 class Skills
 {
-  private array $presenterCache = [];
-  private array $classCache = [];
   private EventInfo $eventInfo;
 
   // constructor
@@ -42,20 +38,18 @@ class Skills
   public static function rsformJson()
   {
     // Database driver
-    $db = Factory::getContainer()->get('DatabaseDriver');
-    $skills = new Skills($db, Aliases::current(true));
-    $classes = $skills->GetClassList();
+    $eventInfo = new EventInfo(Aliases::current(true));
+    $classes = \ClawCorpLib\Skills\Skills::get($eventInfo, SkillPublishedState::published);
 
     $results = [];
 
-    foreach ($classes as $class) {
-      // stime corresponds to the tabs, just to help people find their class in the list
+    foreach ($classes->keys() as $key) {
       $results[] = (object)[
-        'id' => $class->id,
-        'stime' => explode(':', $class->time_slot)[0],
-        'title' => htmlentities($class->title),
-        'gid' => $class->id,
-        'day' => date('w', strtotime($class->day)), // 0 = Sunday, 1 = Monday, etc.
+        'id' => $classes[$key]->id,
+        'stime' => explode(':', $classes[$key]->time_slot)[0],
+        'title' => htmlentities($classes[$key]->title),
+        'gid' => $key,
+        'day' => $classes[$key]->day->format('w')
       ];
     }
 
@@ -68,7 +62,7 @@ class Skills
     $config = new Config($this->eventInfo->alias);
     $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters', '/images/skills/presenters');
 
-    $presenterArray = Presenters::get($this->eventInfo, $publishedOnly);
+    $presenterArray = Presenters::get($this->eventInfo, $publishedOnly ? SkillPublishedState::published : SkillPublishedState::any);
     $keys = $presenterArray->keys();
 
     if (!count($keys)) {
@@ -96,10 +90,7 @@ class Skills
     $fp = fopen('php://output', 'wb');
     fputcsv($fp, $columnNames);
 
-    foreach ($keys as $pid) {
-      /** @var \ClawCorpLib\Skills\Presenter */
-      $p = $presenterArray[$pid];
-
+    foreach ($presenterArray as $p) {
       $row = [];
       foreach ($columnNames as $col) {
         switch ($col) {
@@ -158,8 +149,9 @@ class Skills
 
   public function classesCSV(string $filename, bool $publishedOnly = true)
   {
-    $skillArray = \ClawCorpLib\Skills\Skills::get($this->eventInfo, $publishedOnly ? SkillPublishedState::published : SkillPublishedState::any);
-    $presenterArray = Presenters::get($this->eventInfo, $publishedOnly);
+    $published = $publishedOnly ? SkillPublishedState::published : SkillPublishedState::any;
+    $skillArray = \ClawCorpLib\Skills\Skills::get($this->eventInfo, $published);
+    $presenterArray = Presenters::get($this->eventInfo, $published);
 
     $locations = new Locations($this->eventAlias);
 
@@ -221,12 +213,13 @@ class Skills
     $fp = fopen('php://output', 'wb');
     fputcsv($fp, $columnNames);
 
-    foreach ($this->classCache as $c) {
+    /** @var \ClawCorpLib\Skills\Skill */
+    foreach ($skillArray as $c) {
       $row = [];
       foreach ($columnNames as $col) {
         switch ($col) {
           case 'id':
-            $row[] = 'class_' . $c->$col;
+            $row[] = 'class_' . $c->id;
             break;
           case 'start_time':
             $time = Helpers::formatTime(explode(':', $c->time_slot)[0]);
@@ -252,46 +245,35 @@ class Skills
             break;
 
           case 'people':
-            if (empty($c->presenters)) {
-              $presenterIds = [];
-            } else {
-              // TODO: Fix decode
-              $presenterIds = json_decode($c->presenters);
-              if (is_null($presenterIds)) $presenterIds = [];
-            }
-            array_unshift($presenterIds, $c->owner);
+            $pids = [$c->presenter_id, ...$c->other_presenter_ids];
 
             // Remove any unpublished presenter ids
-            $presenterIds = array_filter($presenterIds, function ($id) {
-              return isset($this->presenterCache[$id]);
+            $pids = array_filter($pids, function ($id) use ($presenterArray) {
+              return $presenterArray->offsetExists($id);
             });
 
             // Prepend "presenter_" to each id and join with commas
             $row[] = implode(',', array_map(function ($id) {
               return 'presenter_' . $id;
-            }, $presenterIds));
+            }, $pids));
             break;
 
           case 'people_public_name':
-            if (empty($c->presenters)) {
-              $presenterIds = [];
-            } else {
-              $presenterIds = json_decode($c->presenters) ?? [];
-            }
-            array_unshift($presenterIds, $c->owner);
+            $pids = [$c->presenter_id, ...$c->other_presenter_ids];
 
             // Remove any unpublished presenter ids
-            $presenterIds = array_filter($presenterIds, function ($id) {
-              return isset($this->presenterCache[$id]);
+            $pids = array_filter($pids, function ($id) use ($presenterArray) {
+              return $presenterArray->offsetExists($id);
             });
 
-            $row[] = implode(',', array_map(function ($id) {
-              return $this->presenterCache[$id]->name;
-            }, $presenterIds));
+            // Prepend "presenter_" to each id and join with commas
+            $row[] = implode(',', array_map(function ($id) use ($presenterArray) {
+              return $presenterArray[$id]->name;
+            }, $pids));
             break;
 
           case 'location':
-            $location = $locations->GetLocationById($c->$col)->value;
+            $location = $locations->GetLocationById($c->location)->value;
             $row[] = $location;
             break;
 
@@ -328,11 +310,9 @@ class Skills
 
           case 'published':
             $row[] = match ($c->$col) {
-              -2 => 'Trashed',
-              0 => 'Unpublished',
-              1 => 'Published',
-              2 => 'Archived',
-              3 => 'New',
+              SkillPublishedState::new => 'New',
+              SkillPublishedState::unpublished => 'Unpublished',
+              SkillPublishedState::published => 'Published',
               default => 'Unknown',
             };
             break;
@@ -354,58 +334,13 @@ class Skills
       throw new GenericDataException('eventAlias must be specified', 500);
     }
 
-    $query = $this->db->getQuery(true);
-    $columnNames = ['id', 'name'];
-
-    $eventAlias = $this->eventAlias;
-    $query->select($this->db->qn($columnNames))
-      ->from($this->db->qn('#__claw_presenters'))
-      ->where($this->db->qn('published') . ' = 1')
-      ->where($this->db->qn('event') . ' = :event')
-      ->bind(':event', $eventAlias)
-      ->order('name ASC');
-
-    $this->db->setQuery($query);
-    $presenterRowIds = $this->db->loadObjectList('id');
+    $presenterArray = Presenters::get($this->eventInfo, SkillPublishedState::published);
 
     // Define the base tmp path
     $tmpBasePath = Factory::getApplication()->get('tmp_path');
 
     // Create a unique folder name, e.g., using a timestamp or a unique ID
-    $uniqueFolderName = 'presenters_' . uniqid();
-    $tempFolderPath = implode(DIRECTORY_SEPARATOR, [$tmpBasePath, $uniqueFolderName]);
     $zipFileName = implode(DIRECTORY_SEPARATOR, [$tmpBasePath, $filename]);
-
-    // Check if the directory already exists just in case
-    if (!is_dir(Path::clean($tempFolderPath))) {
-      Folder::create($tempFolderPath);
-    }
-
-    $cache = new DbBlob(
-      db: $this->db,
-      cacheDir: $tempFolderPath,
-      prefix: 'orig_',
-      extension: 'jpg'
-    );
-    $archiveFiles = $cache->toFile(
-      tableName: '#__claw_presenters',
-      rowIds: array_keys($presenterRowIds),
-      key: 'image',
-    );
-
-    /**** JOOMLA METHOD FAILS
-    $archive = new Archive(['tmp_path' => $tmpBasePath]);
-
-    try {
-        $zipFileAdapter = $archive->getAdapter('zip');
-        // HERE: says it wants list of files, but really is wants content?
-        $zipFile = $zipFileAdapter->create($zipFileName, $archiveFiles);
-    } catch (\Exception $e) {
-        // Handle exception
-        echo "Error creating zip archive: " . $e->getMessage();
-        return;
-    }
-     *****/
 
     /** PHP METHOD */
     $zip = new \ZipArchive();
@@ -414,10 +349,12 @@ class Skills
       return;
     }
 
-    foreach ($archiveFiles as $id => $file) {
-      $name = $presenterRowIds[$id]->name . '-' . $id . '.jpg';
-      $src = implode(DIRECTORY_SEPARATOR, [JPATH_ROOT, $file]);
-      $zip->addFromString($name, \file_get_contents($src));
+    /** @var \ClawCorpLib\Skills\Presenter */
+    foreach ($presenterArray as $presenter) {
+      $presenter->loadImageBlobs();
+
+      $name = $presenter->name . '-' . $presenter->id . '.jpg';
+      $zip->addFromString($name, $presenter->image);
     }
 
     $zip->close();
@@ -440,6 +377,5 @@ class Skills
     readfile($zipFileName);
 
     File::delete($zipFileName);
-    Folder::delete($tempFolderPath);
   }
 }
