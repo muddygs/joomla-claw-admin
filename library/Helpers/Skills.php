@@ -76,7 +76,20 @@ class Skills
       throw new GenericDataException('Unable to load presenters', 500);
     }
 
+    $ordering = [
+      'id',
+      'ownership',
+      'published',
+      'name',
+      'legal_name',
+      'email',
+      'phone',
+      'arrival',
+    ];
+
     $columnNames = array_keys((array)($presenter->toSimpleObject()));
+
+    $ordering = Helpers::combineArrays($ordering, $columnNames);
 
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -88,11 +101,12 @@ class Skills
     ini_set('error_reporting', E_NOTICE);
 
     $fp = fopen('php://output', 'wb');
-    fputcsv($fp, $columnNames);
+    fputcsv($fp, $ordering);
 
+    /** @var \ClawCorpLib\Skills\Presenter */
     foreach ($presenterArray as $p) {
       $row = [];
-      foreach ($columnNames as $col) {
+      foreach ($ordering as $col) {
         switch ($col) {
           case 'id':
             $row[] = 'presenter_' . $p->$col;
@@ -101,6 +115,7 @@ class Skills
             $row[] = '';
             break;
           case 'image_preview':
+            // Images must be on server for external app import
             $cache = new DbBlob(
               db: $this->db,
               cacheDir: JPATH_ROOT . $path,
@@ -130,9 +145,12 @@ class Skills
           case 'ownership':
             $row[] = match ($p->ownership) {
               SkillOwnership::user => 'User',
-              SkillOwnership::user => 'Admin',
+              SkillOwnership::admin => 'Admin',
               default => 'Unknown',
             };
+            break;
+          case 'arrival':
+            $row[] = implode(', ', $p->arrival);
             break;
           default:
             $row[] = $p->$col;
@@ -173,9 +191,6 @@ class Skills
       $surveyLink = $siteUrl . $item->alias;
     }
 
-
-    // $rsformId = $config['se_survey_link'];
-
     // Load database columns
     $keys = $skillArray->keys();
 
@@ -190,12 +205,29 @@ class Skills
       throw new GenericDataException('Unable to load skills', 500);
     }
 
+    $ordering = [
+      'id',
+      'day',
+      'start_time',
+      'end_time',
+      'ownership',
+      'published',
+      'people',
+      'people_public_name',
+      'copresenter_info',
+      'title',
+      'av',
+      'location',
+    ];
+
     $columnNames = array_keys((array)($skill->toSimpleObject()));
-    $columnNames[] = 'multitrack';
+    #$columnNames[] = 'multitrack';
     $columnNames[] = 'people';
     $columnNames[] = 'people_public_name';
     $columnNames[] = 'start_time';
     $columnNames[] = 'end_time';
+
+    $ordering = Helpers::combineArrays($ordering, $columnNames);
 
     // Load category strings
     $config = new Config($this->eventAlias);
@@ -211,12 +243,12 @@ class Skills
     ini_set('error_reporting', E_NOTICE);
 
     $fp = fopen('php://output', 'wb');
-    fputcsv($fp, $columnNames);
+    fputcsv($fp, $ordering);
 
     /** @var \ClawCorpLib\Skills\Skill */
     foreach ($skillArray as $c) {
       $row = [];
-      foreach ($columnNames as $col) {
+      foreach ($ordering as $col) {
         switch ($col) {
           case 'id':
             $row[] = 'class_' . $c->id;
@@ -231,15 +263,16 @@ class Skills
           case 'end_time':
             // take start time and add length
             [$time, $length] = explode(':', $c->time_slot);
-            $time = new \DateTime($c->day . ' ' . $time);
-            $time->modify('+ ' . $length . ' minutes');
-            $row[] = $time->format('g:i A');
+            $day = clone $c->day;
+            $day->modify($time);
+            $day->modify('+ ' . $length . ' minutes');
+            $row[] = $day->format('g:i A');
             break;
 
           case 'ownership':
             $row[] = match ($c->ownership) {
               SkillOwnership::user => 'User',
-              SkillOwnership::user => 'Admin',
+              SkillOwnership::admin => 'Admin',
               default => 'Unknown',
             };
             break;
@@ -277,17 +310,17 @@ class Skills
             $row[] = $location;
             break;
 
-          case 'multitrack':
-            // track is day converted to day of week
-            $time = $c->day . ' ' . explode(':', $c->time_slot)[0];
-            // Fri/Sat get AM/PM, Sun gets day of week
-            $day = date('w', strtotime($time));
-            if ($day == 5 || $day == 6) {
-              $row[] = date('l A', strtotime($time));
-            } else {
-              $row[] = date('l', strtotime($time));
-            }
-            break;
+            #case 'multitrack':
+            #// track is day converted to day of week
+            #$time = $c->day . ' ' . explode(':', $c->time_slot)[0];
+            #// Fri/Sat get AM/PM, Sun gets day of week
+            #$day = date('w', strtotime($time));
+            #if ($day == 5 || $day == 6) {
+            #$row[] = date('l A', strtotime($time));
+            #} else {
+            #$row[] = date('l', strtotime($time));
+            #}
+            #break;
 
           case 'description':
             $survey = '';
