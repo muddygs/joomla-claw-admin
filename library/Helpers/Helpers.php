@@ -471,4 +471,18 @@ class Helpers
 
     return $cleanedString;
   }
+
+  /**
+   * Merges two simple arrays, with $arr1 reduced to values in $arr2 and any
+   * remaining values in $arr2 merge to the end of $arr1
+   * @param array $arr1 Starting array
+   * @param array $arr1 Target array
+   * @return array Merged values
+   */
+  public static function combineArrays(array $arr1, array $arr2): array
+  {
+    $filtered = array_intersect($arr1, $arr2);
+    $diff = array_diff($arr2, $arr1);
+    return array_merge($filtered, $diff);
+  }
 }
