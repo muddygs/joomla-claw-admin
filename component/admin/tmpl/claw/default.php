@@ -82,7 +82,6 @@ $shifts = Route::_('index.php?option=com_claw&view=shifts');
     'store' => ['Vendors', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_vendors&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
     'user-tag' => ['Presenters', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_presenters&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
     'list' => ['Classes', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_classes&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
-    'file-archive' => ['Zip Presenter Images', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=zip_presenters&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
   ];
 
   Bootstrap::writeGrid($content, $tags, false);
@@ -100,6 +99,7 @@ $shifts = Route::_('index.php?option=com_claw&view=shifts');
     'user-tag' => ['Classes', '<a href="/administrator/index.php?option=com_claw&view=skills" role="button" class="btn btn-danger">Launch</a>'],
     'user-friends' => ['Presenters Export', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_presenters&published_only=0&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
     'list' => ['Classes Export', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=csv_classes&published_only=0&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
+    'file-archive' => ['Zip Presenter Images', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=zip_presenters&format=raw" role="button" class="btn btn-info" target="_blank">Export</a>'],
   ];
 
   Bootstrap::writeGrid($content, $tags, false);
