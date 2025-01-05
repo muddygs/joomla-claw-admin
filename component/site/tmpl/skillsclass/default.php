@@ -43,6 +43,12 @@ $class = $this->class;
       <div class="row border border-warning p-2">
         <?= $class->description ?>
       </div>
+      <?php if (trim($class->requirements_info)): ?>
+        <div class="row border border-info p-2">
+          <p>Presenter requested prerequisits/requirements:</p>
+          <?= $class->requirements_info ?>
+        </div>
+      <?php endif; ?>
       <hr />
       <div class="row">
         <div class="col">
