@@ -90,10 +90,9 @@ class HtmlView extends BaseHtmlView
     try {
       $eventInfo = new EventInfo($eventAlias);
     } catch (\Exception) {
-      Factory::getApplication()->enqueueMessage('Invalid event alias.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
-      return false;
+      $eventAlias = Aliases::current(true);
+      $eventInfo = new EventInfo($eventAlias);
     }
-
 
     /** @var \Joomla\CMS\Form\Field\ListField */
     $parentField = $this->filterForm->getField('category', 'filter');
