@@ -44,9 +44,9 @@ $class = $this->class;
         <?= $class->description ?>
       </div>
       <?php if (trim($class->requirements_info)): ?>
-        <div class="row border border-info p-2">
-          <p>Presenter requested prerequisits/requirements:</p>
-          <?= $class->requirements_info ?>
+        <div class="row border border-info p-2 mt-2">
+          <p>Presenter requested prerequisites/requirements for attendees:<br />
+            <?= $class->requirements_info ?> </p>
         </div>
       <?php endif; ?>
       <hr />
