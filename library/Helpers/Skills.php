@@ -253,20 +253,35 @@ class Skills
           case 'id':
             $row[] = 'class_' . $c->id;
             break;
+          case 'day':
+            if (is_null($c->day)) {
+              $row[] = '';
+            } else {
+              $row[] = $c->day->format('l');
+            }
+            break;
           case 'start_time':
-            $time = Helpers::formatTime(explode(':', $c->time_slot)[0]);
-            if ($time == 'Midnight') $time = '12:00 AM';
-            if ($time == 'Noon') $time = '12:00 PM';
-            $row[] = $time;
+            [$time, $length] = explode(':', $c->time_slot);
+            if (is_null($c->day)) {
+              $row[] = '';
+            } else {
+              $day = clone $c->day;
+              $day->modify($time);
+              $row[] = $day->format('g:i A');
+            }
             break;
 
           case 'end_time':
             // take start time and add length
             [$time, $length] = explode(':', $c->time_slot);
-            $day = clone $c->day;
-            $day->modify($time);
-            $day->modify('+ ' . $length . ' minutes');
-            $row[] = $day->format('g:i A');
+            if (is_null($c->day)) {
+              $row[] = '';
+            } else {
+              $day = clone $c->day;
+              $day->modify($time);
+              $day->modify('+ ' . $length . ' minutes');
+              $row[] = $day->format('g:i A');
+            }
             break;
 
           case 'ownership':
@@ -351,7 +366,7 @@ class Skills
             break;
 
           default:
-            $row[] = $c->$col;
+            $row[] = is_array($c->$col) ? implode(', ', $c->$col) : $c->$col;
             break;
         }
       }
