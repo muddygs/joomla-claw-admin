@@ -233,24 +233,38 @@ class Deploy
   public static function parseAlias(EventInfo $eventInfo, string $shiftAlias): object
   {
     // Remove prefix
-    if (str_starts_with($shiftAlias, $eventInfo->shiftPrefix . '-')) {
-      $shiftAlias = substr($shiftAlias, strlen($eventInfo->shiftPrefix) + 1);
-    } else {
+    if (!str_starts_with($shiftAlias, $eventInfo->shiftPrefix . '-')) {
       throw new \InvalidArgumentException('A shift alias must start with the event shift prefix');
     }
 
-    $parts = explode('-', $shiftAlias);
-    if (count($parts) != 5) {
-      throw new \InvalidArgumentException('A shift alias must have 6 components with prefix');
+    // Extract old-style prefixes (and new!) components
+    preg_match('/(.*?)-(\w+)-(\d+)-(.*)/', $shiftAlias, $matches);
+
+    $parts = explode('-', $matches[4]);
+
+    switch (count($parts)) {
+      case 2:
+        $tid = $parts[0];
+        $weight = 1;
+        $key = $parts[1];
+        break;
+      case 3:
+        $tid = $parts[0];
+        $weight = $parts[1];
+        $key = $parts[2];
+        break;
+      default:
+        throw new \InvalidArgumentException('A shift alias must have 5 or 6 components with prefix:' . $shiftAlias);
+        break;
     }
 
     return (object)[
-      'prefix' => $eventInfo->shiftPrefix,
-      'title' => $parts[0],
-      'sid' => $parts[1],
-      'tid' => $parts[2],
-      'weight' => $parts[3],
-      'key' => $parts[4],
+      'prefix' => $matches[1],
+      'title' => $matches[2],
+      'sid' => $matches[3],
+      'tid' => $tid,
+      'weight' => $weight,
+      'key' => $key,
     ];
   }
 
