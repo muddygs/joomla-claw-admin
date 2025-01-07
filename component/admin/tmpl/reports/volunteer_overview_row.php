@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -38,7 +39,7 @@ use ClawCorpLib\Helpers\Helpers;
       case ($p >= .5 && $p < .8):
         $style = "color:white; background-color:maroon";
         break;
-      case ( $p < 0 ):
+      case ($p < 0):
         $style = "color:white; background-color:orange";
         break;
       default:
@@ -50,7 +51,7 @@ use ClawCorpLib\Helpers\Helpers;
     $published = '';
     if ($day->published == 0) {
       $style = "color:white; background-color:black";
-      $published = '<br>UNP';
+      $published = '<br>UNPUBLISHED';
     } else {
       $this->needed += $day->event_capacity;
       $this->assigned += $day->memberCount;
