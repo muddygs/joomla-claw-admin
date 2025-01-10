@@ -53,6 +53,7 @@ $view = "packageinfos";
             <th scope="col">
               <?php echo HTMLHelper::_('searchtools.sort', 'Title', 'a.title', $listDirn, $listOrder); ?>
             </th>
+            <th scope="col">Base Fee</th>
             <th scope="col">Start</th>
             <th scope="col">End</th>
             <th scope="col">ID</th>
@@ -99,6 +100,10 @@ $view = "packageinfos";
                 <a href="<?php echo Route::_('index.php?option=com_claw&task=packageinfo.edit&id=' . $item->id); ?>" title="Edit Package Info">
                   <?php echo $item->title ?>
                 </a>
+              </td>
+
+              <td style="text-align:right;">
+                <?= '$' . number_format($item->fee) ?>
               </td>
 
               <td>
