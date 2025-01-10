@@ -30,16 +30,22 @@ else:
 
     <div class="row">
       <div class="col-md-3 d-flex justify-content-center align-items-center">
-        <span class=" fs-4 badge rounded-pill text-bg-info">NEW<br />Shift Weights</span>
+        <span class=" fs-4 badge rounded-pill text-bg-info">NEW<br />Shift Points</span>
       </div>
       <div class="col-md-9">
-        Most shifts have a &quot;weight&quot;
-        of 1. Shifts with weight of 2 or 3 will show a [x2] or [x3] in the titles, respectively. They are
-        also highlighted in the shift listing. If you are registering for a "Volunteer 3", your weights
-        must total to at least 3. Example, you can select one regular shift and one [x2] shift and satisfy your
-        shift selection requirement.
+        <ol>
+          <ul>
+            <li>Each shift has a designated point value:</li>
+            <ul>
+              <li><b>Regular shifts:</b> 1 point</li>
+              <li><b>Priority shifts:</b> 2 points (marked as <b>x2</b> during selection)
+              <li><b>Critical shifts:</b> 3 points (marked as <b>x3</b> during selection)
+            </ul>
+            <li>The point value reflects the importance or intensity of the shift</li>
+            <li>Volunteer shifts are 4-5 hours each regardless of assigned points</li>
+          </ul>
+        </ol>
       </div>
-
     </div>
   </div>
   <?php
