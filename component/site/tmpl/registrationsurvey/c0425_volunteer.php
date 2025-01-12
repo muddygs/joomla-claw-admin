@@ -29,7 +29,7 @@ else:
     <ul>
       <li>Each shift has a designated point value:</li>
       <ul>
-        <li><b>Regular shifts:</b> 1 point</li>
+        <li><b>Regular shifts:</b> 1 point (most shifts are regular shifts)</li>
         <li><b>Priority shifts:</b> 2 points (marked as <b>x2</b> during selection)
         <li><b>Critical shifts:</b> 3 points (marked as <b>x3</b> during selection)
       </ul>
@@ -41,7 +41,7 @@ else:
   <ul>
     <li>Volunteers are vital to the success of the event. Signing up to volunteer is a promise that you will attend all shifts on time and ready to work. Failure to attend some or all of your volunteer shifts will result in charges to your credit card, up to the cost of a full attendee package ($269).
     <li>3-Point Volunteer Package &mdash; $1 fee (non-refundable)</li>
-    <li>2-Point Volunteer Package &mdash; $79 fee</li>
+    <li>2-Point Volunteer Package &mdash; $89 fee</li>
     <li>6-8 Point Super Volunteer Package &mdash; $1 fee (requires pre-approval). Super Volunteers may receive shared accommodations at a designated CLAW hotel.</li>
     <li>Some volunteer roles &mdash; such as supervisors, bootblacks, entertainers, photographers, and cashier &mdash; require you to register as a <strong>Recruited Volunteer</strong>.
       If you are interested in one of these positions, please complete the survey <a href="https://forms.gle/qoJ61i9qQZ1bCvLv5" target="_blank">here</a> instead of registering now. Guest Services will contact you to discuss available opportunities.</li>
@@ -73,12 +73,12 @@ endif;
 $content = [
   'battery-full' => [
     'Volunteer',
-    '$1<br><a href="' . $this->registrationLinks['volunteer3'] . '" role="button" class="btn btn-danger">Volunteer for 3 Shifts</a>'
+    '$1<br><a href="' . $this->registrationLinks['volunteer3'] . '" role="button" class="btn btn-danger">Volunteer with 3 Points</a>'
   ],
-  #'battery-half' => [
-  #'Volunteer',
-  #'$89<br><a href="' . $this->registrationLinks['volunteer2'] . '" role="button" class="btn btn-danger">Volunteer for 2 Shifts</a>'
-  #],
+  'battery-half' => [
+  'Volunteer',
+  '$89<br><a href="' . $this->registrationLinks['volunteer2'] . '" role="button" class="btn btn-danger">Volunteer with 2 Points</a>'
+  ],
   'user-tag' => [
     'Recruited Volunteer',
     'If you are an approved Recruited Volunteer, please enter your coupon code above and click Start Registration or contact <a href="/planning/guest-services?category_id=19">guest services</a> to obtain your registration coupon.'
