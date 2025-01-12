@@ -18,7 +18,9 @@ if ($this->eventConfig->eventInfo->onsiteActive):
     </ul>
   </div>
 <?php
+
 else:
+
 ?>
   <div class="border border=info text-white p-3 mx-2 mb-2 rounded">
     <span style="font-size:large;"><i class="fa fa-info-circle fa-2x"></i>&nbsp;Select shifts from <u>one category</u>, then times that work for you. Please note the requirements listed for each shift.</span><br>Remember:
@@ -30,21 +32,19 @@ else:
 
     <div class="row">
       <div class="col-md-3 d-flex justify-content-center align-items-center">
-        <span class=" fs-4 badge rounded-pill text-bg-info">NEW<br />Shift Points</span>
+        <span class=" fs-4 badge rounded-pill text-bg-info">NEW:<br />Shift Points</span>
       </div>
       <div class="col-md-9">
-        <ol>
+        <ul>
+          <li>Each shift has a designated point value:</li>
           <ul>
-            <li>Each shift has a designated point value:</li>
-            <ul>
-              <li><b>Regular shifts:</b> 1 point</li>
-              <li><b>Priority shifts:</b> 2 points (marked as <b>x2</b> during selection)
-              <li><b>Critical shifts:</b> 3 points (marked as <b>x3</b> during selection)
-            </ul>
-            <li>The point value reflects the importance or intensity of the shift</li>
-            <li>Volunteer shifts are 4-5 hours each regardless of assigned points</li>
+            <li><b>Regular shifts:</b> 1 point</li>
+            <li><b>Priority shifts:</b> 2 points (marked as <b>x2</b> during selection)
+            <li><b>Critical shifts:</b> 3 points (marked as <b>x3</b> during selection)
           </ul>
-        </ol>
+          <li>The point value reflects the importance or intensity of the shift</li>
+          <li>Volunteer shifts are 4-5 hours each regardless of assigned points</li>
+        </ul>
       </div>
     </div>
   </div>
@@ -67,7 +67,7 @@ else:
       <div class="col d-flex flex-wrap">
         <a href="<?= $url ?>" class="w-100 btn btn-outline-danger" role="button">
           <h2><?= $name ?></h2>
-          <small class="text-center" style="color:#ffae00"><?= $description ?></small>
+          <small class="text-center"><strong><?= $description ?></strong></small>
         </a>
       </div>
     <?php
