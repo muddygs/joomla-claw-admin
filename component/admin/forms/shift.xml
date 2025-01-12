@@ -13,6 +13,7 @@
     name="title"
     type="text"
     label="Shift Title"
+    description="Do not include event prefix; this is added automatically."
     required="true"
     maxLength="30"
   />
