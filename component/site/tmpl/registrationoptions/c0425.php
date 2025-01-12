@@ -2,6 +2,8 @@
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Bootstrap;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Helper\ModuleHelper;
 
 ?>
 <h1 class="text-center">Registration Options for <?= $this->eventConfig->eventInfo->description ?></h1>
@@ -85,7 +87,7 @@ if (!$this->eventConfig->eventInfo->onsiteActive) {
 
   if (count($this->categories)) {
     $headings[] = 'Rentals';
-    $content[] = $this->loadTemplate('categories');
+    $content[] = '<p>Equipment rentals available onsite during onsite registration.</p>';
   }
 }
 
