@@ -210,7 +210,7 @@ class HtmlView extends BaseHtmlView
     }
 
     if (! $this->eventConfig->eventInfo->onsiteActive && $this->eventConfig->eventInfo->eb_cat_combomeals > 0) {
-      $categories[] = $this->eventConfig->eventInfo->eb_cat_combomeals;
+      $categoryIds[] = $this->eventConfig->eventInfo->eb_cat_combomeals;
     }
 
     return $categoryIds;
