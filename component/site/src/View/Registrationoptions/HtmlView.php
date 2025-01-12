@@ -328,12 +328,7 @@ class HtmlView extends BaseHtmlView
       EventPackageTypes::claw_board,
     ];
 
-    if (!in_array($this->eventPackageType, $metaPackages)) {
-      Helpers::sessionSet('autocart', false);
-      return;
-    }
-
-    $autocart = Helpers::sessionGet('autocart', false);
+    $autocart = in_array($this->eventPackageType, $metaPackages);
 
     if (!$autocart) return;
 
@@ -350,7 +345,6 @@ class HtmlView extends BaseHtmlView
 
     // In case they want to come back
     Helpers::sessionSet('eventAction', $this->eventPackageType->value);
-    Helpers::sessionSet('autocart', true);
 
     $this->app->redirect('/index.php?option=com_eventbooking&view=cart');
     return;
