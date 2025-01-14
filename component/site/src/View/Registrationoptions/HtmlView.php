@@ -28,6 +28,7 @@ use ClawCorpLib\Lib\RegistrantRecord;
 use ClawCorpLib\Lib\PackageInfo;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Enums\ConfigFieldNames;
+use Joomla\CMS\Date\Date;
 
 // *sigh* not namespaced
 require_once(JPATH_ROOT . '/components/com_eventbooking/helper/cart.php');
@@ -40,7 +41,7 @@ class HtmlView extends BaseHtmlView
   public ?SiteApplication $app;
   private User $identity;
   public string $eventAlias;
-  public string $action;
+  public int $action;
   public EventConfig $eventConfig;
   public string $registrationSurveyLink;
   public ?EventPackageTypes $eventPackageType;
@@ -62,12 +63,10 @@ class HtmlView extends BaseHtmlView
 
     $input = $this->app->getInput();
     $this->eventAlias = $input->get('event', '');
-    $this->action = $input->get('action', 0);
-
-    $this->eventPackageType = EventPackageTypes::tryFrom($this->action);
+    $this->action = $input->getUint('action', 0);
     $this->registrationSurveyLink = Helpers::sessionGet('registrationSurveyLink', '/');
 
-    if (is_null($this->eventPackageType) || $this->eventPackageType == EventPackageTypes::none) {
+    if (0 == $this->action || is_null($this->eventPackageType = EventPackageTypes::tryFrom($this->action))) {
       $this->app->enqueueMessage('Invalid registration action requested.', 'error');
       $this->app->redirect($this->registrationSurveyLink);
       return;
@@ -77,39 +76,53 @@ class HtmlView extends BaseHtmlView
     if (!in_array($this->eventAlias, $activeEvents)) {
       $this->eventAlias = Aliases::current(true);
     }
-    $this->eventConfig = new EventConfig($this->eventAlias);
-    $this->targetPackage = $this->eventConfig->getPackageInfo($this->eventPackageType);
 
-    if (empty($this->targetPackage->eventId)) {
-      $this->app->enqueueMessage('This event has not been configured! Please contact <a href="/help">Guest Services</a>', 'error');
+    try {
+      $this->eventConfig = new EventConfig($this->eventAlias);
+
+      if ($this->eventConfig->eventInfo->end_date < new Date()) {
+        $this->app->enqueueMessage('Invalid event requested.', 'error');
+        $this->app->redirect($this->registrationSurveyLink);
+        return;
+      }
+    } catch (\Exception) {
+      $this->app->enqueueMessage('Invalid event requested/e.', 'error');
       $this->app->redirect($this->registrationSurveyLink);
       return;
     }
 
-    //
-    // Redirect to public events (no authentication required)
-    //
-    $public_acl = Config::getGlobalConfig('packageinfo_public_acl', 0);
-    if ($this->targetPackage->acl_id == $public_acl) {
+
+    $this->targetPackage = $this->eventConfig->getPackageInfo($this->eventPackageType);
+
+    // If not addon, preprocess for validity or direct registration (public event)
+
+    if ($this->eventPackageType != EventPackageTypes::addons) {
       if (
         $this->targetPackage->published != EbPublishedState::published
         || $this->targetPackage->eventId == 0
       ) {
-        parent::display('blocked');
+        $this->app->enqueueMessage('This event has not been configured! Please contact <a href="/help">Guest Services</a>', 'error');
+        $this->app->redirect($this->registrationSurveyLink);
         return;
       }
 
-      // Clear cart prior to individual event registration
-      $cart = new \EventbookingHelperCart();
-      $cart->reset();
+      //
+      // Redirect to public events (no authentication required)
+      //
+      $public_acl = Config::getGlobalConfig('packageinfo_public_acl', 0);
+      if ($this->targetPackage->acl_id == $public_acl) {
 
-      $url    = 'index.php?option=com_eventbooking&view=register&event_id=' . $this->targetPackage->eventId;
-      $this->app->redirect($url);
-      return true;
+        // Clear cart prior to individual event registration
+        $cart = new \EventbookingHelperCart();
+        $cart->reset();
+
+        $url    = 'index.php?option=com_eventbooking&view=register&event_id=' . $this->targetPackage->eventId;
+        $this->app->redirect($url);
+        return;
+      }
     }
 
     $this->identity = $this->app->getIdentity();
-
     if (!$this->isAuthenticated()) die('Redirect error in Registration Options');
 
 
@@ -258,9 +271,13 @@ class HtmlView extends BaseHtmlView
 
   private function isValidTargetPackage(): bool
   {
-    if ($this->eventPackageType == EventPackageTypes::addons && !is_null($this->mainEvent)) {
-      $this->addons = true;
-      return true;
+    if ($this->eventPackageType == EventPackageTypes::addons) {
+      if (is_null($this->mainEvent)) {
+        return false;
+      } else {
+        $this->addons = true;
+        return true;
+      }
     }
 
     $valid = false;
