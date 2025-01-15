@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `#__claw_schedule` (
   `event_id` INT(4) DEFAULT NULL,
   `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
-  KEY `fb_groupby_day_INDEX` (`day`),
+  KEY `fb_groupby_day_INDEX` (`day`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__claw_presenters` (
