@@ -151,21 +151,6 @@ CREATE TABLE IF NOT EXISTS `#__claw_skills_handouts` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `#__claw_profile_charge_log`(
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `description` VARCHAR(255) NOT NULL,
-  `eventbooking_event_id` INT(11) NOT NULL,
-  `fname` VARCHAR(255) NOT NULL,
-  `lname` VARCHAR(255) NOT NULL,
-  `invoice_id` VARCHAR(255) NOT NULL,
-  `profile_id` VARCHAR(255) NOT NULL,
-  `payment_profile_id` VARCHAR(255) NOT NULL,
-  `charge_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-  `charge_amount` DECIMAL(10,2) DEFAULT 0.0,
-  `transaction_id` VARCHAR(50) NOT NULL
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `#__claw_jwt` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `iat` INT(11) DEFAULT NULL,
