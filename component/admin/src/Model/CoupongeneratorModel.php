@@ -62,7 +62,7 @@ class CoupongeneratorModel extends FormModel
   public function packageOptions(array $input): array
   {
     // TODO: Validate?
-    $eventAlias = $input['event'] ?? Aliases::current();
+    $eventAlias = $input['event'] ?: Aliases::current();
 
     $identity = Factory::getApplication()->getIdentity();
 
@@ -98,7 +98,7 @@ class CoupongeneratorModel extends FormModel
    */
   public function addonCheckboxes(array $input): array
   {
-    $eventAlias = $input['event'] ?? Aliases::current();
+    $eventAlias = $input['event'] ?: Aliases::current();
 
     $identity = Factory::getApplication()->getIdentity();
 
@@ -142,7 +142,7 @@ class CoupongeneratorModel extends FormModel
    */
   public function couponValueFloat(array $input): float
   {
-    $eventAlias = $input['event'] ?? Aliases::current();
+    $eventAlias = $input['event'] ?: Aliases::current();
     $eventConfig = new EventConfig($eventAlias, []);
     $package = (int)$input['packageid'] ?? 0;
 
@@ -415,11 +415,6 @@ class CoupongeneratorModel extends FormModel
       ->where('event_id IN (' . implode(',', $mainEventIds) . ')');
     $db->setQuery($query);
     $eventAssignments = $db->loadObjectList();
-
-    if ($eventAssignments == null || sizeof($eventAssignments) == 0) {
-      $result->msg = '<p class="text-warning">Coupon found but not assigned to a specific main event.</p>';
-      return $result;
-    }
 
     foreach ($coupons as $c) {
       $email = explode(':', $c->note)[1];
