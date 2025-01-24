@@ -40,6 +40,17 @@
       <option value="">Select Type</option>
     </field>
 
+    <field name="category"
+      type="SkillsCategoryList"
+      label="Category"
+      required="false"
+      default=""
+      onchange="this.form.submit();"
+    >
+      <option value="">Select Category</option>
+    </field>
+
+
     <field
       name="event"
       type="ClawEventsList"
@@ -62,6 +73,10 @@
       <option value="a.title DESC">Title Descending</option>
       <option value="a.time_slot ASC">Time Ascending</option>
       <option value="a.time_slot DESC">Time Descending</option>
+      <option value="a.category ASC">Category Ascending</option>
+      <option value="a.category DESC">Category Descending</option>
+      <option value="a.type ASC">Type Ascending</option>
+      <option value="a.type DESC">Type Descending</option>
       <option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
       <option value="a.id DESC">JGRID_HEADING_ID_DESC</option>
       <option value="a.mtime ASC">Modification Ascending</option>

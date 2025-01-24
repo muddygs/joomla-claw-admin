@@ -1,23 +1,22 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2025 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
- // No direct access to this file
+// No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 
-use ClawCorpLib\Enums\ConfigFieldNames;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Button\PublishedButton;
 
-use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Lib\EventConfig;
 
 /** @var \Joomla\CMS\WebAsset\WebAssetManager $wa */
@@ -32,102 +31,111 @@ $user = $app->getIdentity();
 
 ?>
 <div class="container">
-<form action="<?php echo Route::_('index.php?option=com_claw&view=skills'); ?>" method="post" name="adminForm" id="adminForm">
-  <?php echo LayoutHelper::render('joomla.searchtools.default', ['view' => $this]); ?>
+  <form action="<?php echo Route::_('index.php?option=com_claw&view=skills'); ?>" method="post" name="adminForm" id="adminForm">
+    <?php echo LayoutHelper::render('joomla.searchtools.default', ['view' => $this]); ?>
 
-  <div class="table-responsive">
-    <table class="table table-striped table-bordered" id="skillsList">
-    <thead>
-      <tr>
-        <th class="w-1 text-center">
-			    <?php echo HTMLHelper::_('grid.checkall'); ?>
-		    </th>
-        <th scope="col" class="w-1 text-center">
-          <?php echo HTMLHelper::_('searchtools.sort', 'JSTATUS', 'a.published', $listDirn, $listOrder); ?>
-        </th>
-        <th scole="col">Event</th>
-		    <th scope="col">
-			    <?php echo HTMLHelper::_('searchtools.sort', 'Title', 'a.title', $listDirn, $listOrder); ?>
-		    </th>
-		    <th scope="col">Day/Time</th>
-		    <th scope="col">Location</th>
-        <th scope="col">Track</th>
-        <th scope="col">Class Type</th>
-        <th scope="col">Presenter(s)</th>
-        <th scope="col">
-          <?php echo HTMLHelper::_('searchtools.sort', 'Modification', 'a.mtime', $listDirn, $listOrder); ?>  
-        </th>
-        <th scope="col">
-          <?php echo HTMLHelper::_('searchtools.sort', 'Submission', 'a.submission_date', $listDirn, $listOrder); ?>  
-        </th>
-        <th scope="col">ID</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php foreach ( $this->items AS $i => $item ): ?>
-        <tr class="row<?php echo $i % 2; ?>">
-          <td class="text-center">
-            <?php echo HTMLHelper::_('grid.id', $i, $item->id, false, 'cid', 'cb', $item->title); ?>
-          </td>
-          <td class="article-status text-center">
-            <?php
-              $options = [
-                'task_prefix' => 'skills.',
-                //'disabled' => $workflow_state || !$canChange,
-                'id' => 'state-' . $item->id
-              ];
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered" id="skillsList">
+        <thead>
+          <tr>
+            <th class="w-1 text-center">
+              <?php echo HTMLHelper::_('grid.checkall'); ?>
+            </th>
+            <th scope="col" class="w-1 text-center">
+              <?php echo HTMLHelper::_('searchtools.sort', 'JSTATUS', 'a.published', $listDirn, $listOrder); ?>
+            </th>
+            <th scole="col">Event</th>
+            <th scope="col">
+              <?php echo HTMLHelper::_('searchtools.sort', 'Title', 'a.title', $listDirn, $listOrder); ?>
+            </th>
+            <th scope="col">Day/Time</th>
+            <th scope="col">Location</th>
+            <th scope="col">Track</th>
+            <th scope="col">
+              <?php echo HTMLHelper::_('searchtools.sort', 'Class Type', 'a.type', $listDirn, $listOrder); ?>
+            </th>
+            <th scope="col">
+              <?php echo HTMLHelper::_('searchtools.sort', 'Category', 'a.category', $listDirn, $listOrder); ?>
+            </th>
+            <th scope="col">Presenter(s)</th>
+            <th scope="col">
+              <?php echo HTMLHelper::_('searchtools.sort', 'Modification', 'a.mtime', $listDirn, $listOrder); ?>
+            </th>
+            <th scope="col">
+              <?php echo HTMLHelper::_('searchtools.sort', 'Submission', 'a.submission_date', $listDirn, $listOrder); ?>
+            </th>
+            <th scope="col">ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($this->items as $i => $item): ?>
+            <tr class="row<?php echo $i % 2; ?>">
+              <td class="text-center">
+                <?php echo HTMLHelper::_('grid.id', $i, $item->id, false, 'cid', 'cb', $item->title); ?>
+              </td>
+              <td class="article-status text-center">
+                <?php
+                $options = [
+                  'task_prefix' => 'skills.',
+                  //'disabled' => $workflow_state || !$canChange,
+                  'id' => 'state-' . $item->id
+                ];
 
-              echo (new PublishedButton)->render((int) $item->published, $i, $options);
-            ?>
-          </td>
+                echo (new PublishedButton)->render((int) $item->published, $i, $options);
+                ?>
+              </td>
 
-          <td>
-            <?= EventConfig::getTitleMapping()[$item->event] ?? 'TBD' ?>
-          </td>
+              <td>
+                <?= EventConfig::getTitleMapping()[$item->event] ?? 'TBD' ?>
+              </td>
 
-          <td>
-            <a href="<?php echo Route::_('index.php?option=com_claw&task=skill.edit&id=' . $item->id); ?>"
-      			  title="Edit S&amp; Skill Class">
-              <?php echo $item->title ?>
-            </a>
-          </td>
-          <td>
-            <?php echo $item->day_text ?>
-          </td>
-          <td>
-            <?php echo $item->location_text ?>
-          </td>
-          <td>
-            <?php echo $item->track ?>
-          </td>
-          <td>
-            <?= array_key_exists($item->type, $this->skill_class_types) ? $this->skill_class_types[$item->type] : 'TBD' ?>
-          </td>
-          <td>
-              <?php echo implode('<br/>', $item->presenter_names) ?>
-          </td>
-          <td>
-            <?= $item->mtime ?>
-          </td>
-          <td>
-            <?= $item->submission_date ?>
-          </td>
-          <td>
-            <?php echo $item->id ?>
-          </td>
-        </tr>
-      <?php endforeach; ?>
-    </tbody>
-    </table>
-  </div>
+              <td>
+                <a href="<?php echo Route::_('index.php?option=com_claw&task=skill.edit&id=' . $item->id); ?>"
+                  title="Edit S&amp; Skill Class">
+                  <?php echo $item->title ?>
+                </a>
+              </td>
+              <td>
+                <?php echo $item->day_text ?>
+              </td>
+              <td>
+                <?php echo $item->location_text ?>
+              </td>
+              <td>
+                <?php echo $item->track ?>
+              </td>
+              <td>
+                <?= array_key_exists($item->type, $this->skill_class_types) ? $this->skill_class_types[$item->type] : 'TBD' ?>
+              </td>
+              <td>
+                <?= array_key_exists($item->category, $this->skill_categories) ? $this->skill_categories[$item->category] : 'TBD' ?>
 
-  <div class="row">
-    <?php echo $this->pagination->getListFooter(); ?>
-  </div>
+              </td>
+              <td>
+                <?php echo implode('<br/>', $item->presenter_names) ?>
+              </td>
+              <td>
+                <?= $item->mtime ?>
+              </td>
+              <td>
+                <?= $item->submission_date ?>
+              </td>
+              <td>
+                <?php echo $item->id ?>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
 
-  <input type="hidden" name="task" value="">
-  <input type="hidden" name="boxchecked" value="0">
-  <?php echo HTMLHelper::_('form.token'); ?>
+    <div class="row">
+      <?php echo $this->pagination->getListFooter(); ?>
+    </div>
 
-</form>
+    <input type="hidden" name="task" value="">
+    <input type="hidden" name="boxchecked" value="0">
+    <?php echo HTMLHelper::_('form.token'); ?>
+
+  </form>
 </div>

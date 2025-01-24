@@ -31,19 +31,20 @@ use ClawCorpLib\Skills\Presenters;
 class SkillsModel extends ListModel
 {
   private array $list_fields = [
-    'id',
-    'published',
-    'title',
-    'event',
+    'category',
     'day',
-    'time_slot',
+    'event',
+    'id',
     'location',
+    'mtime',
+    'other_presenter_ids',
+    'presenter_id',
+    'published',
+    'submission_date',
+    'time_slot',
+    'title',
     'track',
     'type',
-    'presenter_id',
-    'other_presenter_ids',
-    'mtime',
-    'submission_date'
   ];
 
   /**
@@ -249,6 +250,7 @@ class SkillsModel extends ListModel
     $day = $this->getState('filter.day');
     $presenter = $this->getState('filter.presenter');
     $type = $this->getState('filter.type');
+    $category = $this->getState('filter.category');
 
     Helpers::sessionSet('eventAlias', $event);
 
@@ -276,6 +278,12 @@ class SkillsModel extends ListModel
       $query->where('a.type = :type');
       $query->bind(':type', $type);
     }
+
+    if ($category) {
+      $query->where('a.category = :category');
+      $query->bind(':category', $category);
+    }
+
 
     // Add the list ordering clause.
     $orderCol  = $this->getState('list.ordering', 'a.title');

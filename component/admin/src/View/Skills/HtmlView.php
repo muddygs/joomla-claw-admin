@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -27,103 +28,104 @@ use ClawCorpLib\Lib\Aliases;
  */
 class HtmlView extends BaseHtmlView
 {
-	/**
-	 * The search tools form
-	 *
-	 * @var    Form
-	 * @since  1.6
-	 */
-	public $filterForm;
+  /**
+   * The search tools form
+   *
+   * @var    Form
+   * @since  1.6
+   */
+  public $filterForm;
 
-	/**
-	 * The active search filters
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	public $activeFilters = [];
+  /**
+   * The active search filters
+   *
+   * @var    array
+   * @since  1.6
+   */
+  public $activeFilters = [];
 
-	/**
-	 * Category data
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	protected $categories = [];
+  /**
+   * Category data
+   *
+   * @var    array
+   * @since  1.6
+   */
+  protected $categories = [];
 
-	/**
-	 * An array of items
-	 *
-	 * @var    array
-	 * @since  1.6
-	 */
-	protected $items = [];
+  /**
+   * An array of items
+   *
+   * @var    array
+   * @since  1.6
+   */
+  protected $items = [];
 
-	/**
-	 * The pagination object
-	 *
-	 * @var    Pagination
-	 * @since  1.6
-	 */
-	protected $pagination;
+  /**
+   * The pagination object
+   *
+   * @var    Pagination
+   * @since  1.6
+   */
+  protected $pagination;
 
-	/**
-	 * The model state
-	 *
-	 * @var    Registry
-	 * @since  1.6
-	 */
-	protected $state;
+  /**
+   * The model state
+   *
+   * @var    Registry
+   * @since  1.6
+   */
+  protected $state;
 
-	/**
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 * @return  void
-	 */
-	function display($tpl = null)
-	{
-		/** @var \ClawCorp\Component\Claw\Administrator\Model\SkillsModel */
-		$model               = $this->getModel();
-		$this->state         = $model->getState();
-		$this->items         = $model->getItems();
-		$this->pagination    = $model->getPagination();
-		$this->filterForm    = $model->getFilterForm();
-		$this->activeFilters = $model->getActiveFilters();
+  /**
+   * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+   * @return  void
+   */
+  function display($tpl = null)
+  {
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\SkillsModel */
+    $model               = $this->getModel();
+    $this->state         = $model->getState();
+    $this->items         = $model->getItems();
+    $this->pagination    = $model->getPagination();
+    $this->filterForm    = $model->getFilterForm();
+    $this->activeFilters = $model->getActiveFilters();
 
-		// Flag indicates to not add limitstart=0 to URL
-		$this->pagination->hideEmptyLimitstart = true;
+    // Flag indicates to not add limitstart=0 to URL
+    $this->pagination->hideEmptyLimitstart = true;
 
-		// Check for errors.
-		if (count($errors = $this->get('Errors'))) {
-			throw new GenericDataException(implode("\n", $errors), 500);
-		}
+    // Check for errors.
+    if (count($errors = $this->get('Errors'))) {
+      throw new GenericDataException(implode("\n", $errors), 500);
+    }
 
-		$this->addToolbar();
+    $this->addToolbar();
 
-		$event = array_key_exists('event', $this->activeFilters) ? $this->activeFilters['event'] : Aliases::current();
-		$config = new Config($event);
-		$this->skill_class_types = $config->getConfigValuesText(ConfigFieldNames::SKILL_CLASS_TYPE);
+    $event = array_key_exists('event', $this->activeFilters) ? $this->activeFilters['event'] : Aliases::current(true);
+    $config = new Config($event);
+    $this->skill_class_types = $config->getConfigValuesText(ConfigFieldNames::SKILL_CLASS_TYPE);
+    $this->skill_categories = $config->getConfigValuesText(ConfigFieldNames::SKILL_CATEGORY);
 
-		parent::display($tpl);
-	}
+    parent::display($tpl);
+  }
 
-	protected function addToolbar(): void
-	{
-		$app = Factory::getApplication();
+  protected function addToolbar(): void
+  {
+    $app = Factory::getApplication();
 
-		ToolbarHelper::title('CLAW Skills Classes');
+    ToolbarHelper::title('CLAW Skills Classes');
 
-		// Get the toolbar object instance
-		$toolbar = Toolbar::getInstance('toolbar');
+    // Get the toolbar object instance
+    $toolbar = Toolbar::getInstance('toolbar');
 
-		$user  = $app->getIdentity();
+    $user  = $app->getIdentity();
 
-		if ($user->authorise('core.admin', 'com_claw') || $user->authorise('claw.skills', 'com_claw')) {
-			$toolbar->addNew('skill.add');
+    if ($user->authorise('core.admin', 'com_claw') || $user->authorise('claw.skills', 'com_claw')) {
+      $toolbar->addNew('skill.add');
 
-			$toolbar->delete('skills.delete')
-			->text('Delete')
-			->message('Confirm delete selected class(es)?')
-			->listCheck(true);
-		}
-	}
+      $toolbar->delete('skills.delete')
+        ->text('Delete')
+        ->message('Confirm delete selected class(es)?')
+        ->listCheck(true);
+    }
+  }
 }
