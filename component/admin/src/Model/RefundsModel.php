@@ -514,7 +514,7 @@ class RefundsModel extends FormModel
   
   private function getTransactionDetails($transactionId)
   {
-    list($merchantId, $transactionKey) = authnetprofile::getCredentials();
+    list($merchantId, $transactionKey) = Authnetprofile::getCredentials();
   
     /* Create a merchantAuthenticationType object with authentication details
         retrieved from the constants file */
@@ -536,7 +536,7 @@ class RefundsModel extends FormModel
   
   private function refundTransaction($cardNumber, $refTransId, $registrantId, $amount, $email): \net\authorize\api\contract\v1\CreateTransactionResponse
   {
-    list($merchantId, $transactionKey) = authnetprofile::getCredentials();
+    list($merchantId, $transactionKey) = Authnetprofile::getCredentials();
   
     /* Create a merchantAuthenticationType object with authentication details
          retrieved from the constants file */
