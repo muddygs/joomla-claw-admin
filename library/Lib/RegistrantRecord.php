@@ -11,6 +11,7 @@
 namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Enums\EventPackageTypes;
+use stdClass;
 
 class RegistrantRecordEvent
 {
@@ -64,7 +65,7 @@ class RegistrantRecord
   public registrantRecordEvent $event;
   public registrantRecordCategory $category;
   public registrantRecordRegistrant $registrant;
-  public $fieldValue;
+  public stdClass $fieldValue;
 
   function __construct(string $clawEventAlias, object $r)
   {
@@ -90,4 +91,3 @@ class RegistrantRecord
     }
   }
 }
-
