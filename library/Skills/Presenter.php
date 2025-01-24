@@ -345,7 +345,7 @@ final class Presenter
 
     $subject = $new ? '[New] ' : '[Updated] ';
     $subject .= $info->description . ' Presenter Application - ';
-    $subject .= $data['name'];
+    $subject .= $this->name;
 
     $m = new Mailer(
       tomail: [$this->email],
