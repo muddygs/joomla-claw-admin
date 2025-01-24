@@ -17,7 +17,6 @@ use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
-use Joomla\CMS\Toolbar\ToolbarFactoryInterface;
 
 class HtmlView extends BaseHtmlView
 {
