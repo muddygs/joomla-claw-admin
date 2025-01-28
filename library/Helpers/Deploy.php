@@ -125,7 +125,7 @@ class Deploy
 
     $insert->set('article_id', $article_id);
     $insert->set('cancel_before_date', $cancel_before_date ? $this->useLocalTimeAsUtcSql($cancel_before_date) : $nullDate);
-    $insert->set('cut_off_date', $cut_off_date ? $this->useLocalTimeAsUtcSql($cut_off_date, true) : $nullDate);
+    $insert->set('cut_off_date', $cut_off_date ? $this->useLocalTimeAsUtcSql($cut_off_date) : $nullDate);
     $insert->set('event_date', $this->useLocalTimeAsUtcSql($event_date));
     $insert->set('event_end_date', $this->useLocalTimeAsUtcSql($event_end_date));
     $insert->set('publish_down', $publish_down ? $this->useLocalTimeAsUtcSql($publish_down) : $nullDate);
@@ -371,8 +371,8 @@ class Deploy
       $name = str_replace('_', '-', $packageInfo->eventPackageType->name);
       $packageInfo->alias = strtolower($this->eventInfo->prefix . '-' . $name);
 
-      $start = $startDateWed;
-      $end = $endDate;
+      $start = $packageInfo->start;
+      $end = $packageInfo->end;
       $cutoff = $endDate;
 
       $accessGroup = $packageInfo->acl_id > 0 ? $packageInfo->acl_id : $this->registered_acl;
@@ -384,8 +384,12 @@ class Deploy
       switch ($packageInfo->packageInfoType) {
         case PackageInfoTypes::combomeal:
         case PackageInfoTypes::main:
+          // Update internal start/end information for main packages to guarantee
+          // Wed-Sun on the package span; all others used packageInfo directly (above)
           $packageInfo->start = $startDateWed;
           $packageInfo->end = $endDate;
+          $start = $startDateWed;
+          $end = $endDate;
 
           if ($packageInfo->bundleDiscount > 0) {
             $price_text = '$' . $packageInfo->fee . ' (attendee) / $' . $packageInfo->fee - $packageInfo->bundleDiscount . ' (volunteer)';
@@ -407,15 +411,11 @@ class Deploy
           break;
 
         case PackageInfoTypes::daypass:
-          $start = $packageInfo->start;
-          $end = $packageInfo->end;
           $reg_start_date = $startDateWed;
           break;
 
         case PackageInfoTypes::passes:
         case PackageInfoTypes::passes_other:
-          $start = $packageInfo->start;
-          $end = $packageInfo->end;
           $cutoff = null;
           $cancel_before_date = null;
           // Remove any non-ascii char from title
@@ -427,8 +427,6 @@ class Deploy
           break;
 
         case PackageInfoTypes::equipment:
-          $start = $packageInfo->start;
-          $end = $packageInfo->end;
           $cutoff = $startDateWed;
           $name = preg_replace('/[^\S]+/', '-', $packageInfo->title);
           $packageInfo->alias = strtolower($this->eventInfo->prefix . '-' . $name);
