@@ -12,25 +12,19 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\SkillOwnership;
-use ClawCorpLib\Helpers\Config;
-use ClawCorpLib\Helpers\DbBlob;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Language\Text;
 
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Helpers\Mailer;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Enums\SkillPublishedState;
 use ClawCorpLib\Skills\Presenter;
-use ClawCorpLib\Skills\Skill;
-use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Table\Table;
 use Joomla\CMS\User\UserFactoryInterface;
