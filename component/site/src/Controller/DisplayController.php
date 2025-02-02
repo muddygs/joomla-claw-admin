@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2025 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -197,52 +197,5 @@ class DisplayController extends BaseController
     $result = $siteModel->JwtMealCheckin(token: $token, registration_code: $search, meal: $meal);
     header('Content-Type: application/json');
     echo json_encode($result);
-  }
-
-  public function volunteerSearch()
-  {
-    $this->checkToken();
-
-    $json = new Json();
-    $token = $json->get('token', '', 'string');
-    $regid = $json->get('regid', '', 'string');
-
-    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
-    $siteModel = $this->getModel('Checkin');
-    $result = $siteModel->volunteerSearch(token: $token, regid: $regid);
-    header('Content-Type: application/json');
-    echo json_encode($result);
-  }
-
-  public function volunteerUpdate()
-  {
-    $this->checkToken();
-    $json = new Json();
-    $token = $json->get('token', '', 'string');
-    $regid = $json->get('regid', '', 'uint');
-    $action = $json->get('action', '', 'string');
-    $currentValue = $json->get('currentValue', '', 'boolean');
-
-    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
-    $siteModel = $this->getModel('Checkin');
-    $result = $siteModel->volunteerUpdate(token: $token, regid: $regid, action: $action, currentValue: $currentValue);
-    header('Content-Type: text/plain');
-    echo $result;
-  }
-
-  public function volunteerAddShift()
-  {
-    $this->checkToken();
-
-    $json = new Json();
-    $token = $json->get('token', '', 'string');
-    $uid = $json->get('uid', '', 'uint');
-    $shift = $json->get('shift', '', 'string');
-
-    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
-    $siteModel = $this->getModel('Checkin');
-    $result = $siteModel->volunteerAddShift(token: $token, uid: $uid, shift: $shift);
-    header('Content-Type: text/plain');
-    echo $result;
   }
 }
