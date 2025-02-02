@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2025 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -210,10 +210,8 @@ class CheckinModel extends BaseDatabaseModel
     return $msg;
   }
 
-  public function volunteerSearch(string $token, string $regid)
+  public function volunteerSearch(string $regid): array
   {
-    Jwtwrapper::redirectOnInvalidToken(page: 'volunteer-roll-call', token: $token);
-
     $customFields = ['BADGE', 'Z_BADGE_ISSUED', 'Z_SHIFT_CHECKIN', 'Z_SHIFT_CHECKOUT'];
 
     $uid = Registrant::getUserIdFromInvoice($regid);
@@ -274,14 +272,19 @@ class CheckinModel extends BaseDatabaseModel
     return $result;
   }
 
-  public function volunteerUpdate(string $token, int $regid, string $action, bool $currentValue): string
+  /**
+   * Updates the checkin/checkout status for a registration record
+   * @param int $recordId Registration record id 
+   * @param bool $isChecking Updates checkin value then true, otherwise checkout value
+   * @param bool $action True = set, False = unset
+   * @return bool False on error
+   */
+  public function volunteerUpdate(int $recordId, bool $isCheckin, bool $action): bool
   {
-    Jwtwrapper::redirectOnInvalidToken(page: 'volunteer-roll-call', token: $token);
-
-    $record = Registrant::loadRegistrantRow($regid);
+    $record = Registrant::loadRegistrantRow($recordId);
 
     if ($record == null) {
-      return 'error';
+      return false;
     }
 
     $registrant = new registrant(Aliases::current(true), $record->user_id, [$record->event_id]);
@@ -289,44 +292,40 @@ class CheckinModel extends BaseDatabaseModel
 
     $records = $registrant->records();
     $record = reset($records);
-    if (false === $record) return 'error';
+    if (false === $record) return false;
 
     $update = [];
 
-    if ($action == 'checkin') {
-      if (true == $currentValue) {
+    if ($isCheckin) {
+      if ($action) {
+        $update = [
+          'Z_SHIFT_CHECKIN' => 1
+        ];
+      } else {
         $update = [
           'Z_SHIFT_CHECKIN' => 0,
           'Z_SHIFT_CHECKOUT' => 0
         ];
-      } else {
-        $update = [
-          'Z_SHIFT_CHECKIN' => 1
-        ];
       }
-    }
-
-    if ($action == 'checkout') {
-      if (true == $currentValue) {
-        $update = [
-          'Z_SHIFT_CHECKOUT' => 0
-        ];
-      } else {
+    } else {
+      if ($action) {
         $update = [
           'Z_SHIFT_CHECKOUT' => 1
         ];
+      } else {
+        $update = [
+          'Z_SHIFT_CHECKOUT' => 0
+        ];
       }
     }
 
-    $registrant->updateFieldValues($regid, $update);
-    return 'ok';
+    $registrant->updateFieldValues($recordId, $update);
+    return true;
   }
 
-  public function volunteerAddShift(string $token, int $uid, int $shift): string
+  public function volunteerAddShift(int $uid, int $eventid): bool
   {
-    Jwtwrapper::redirectOnInvalidToken(page: 'volunteer-roll-call', token: $token);
-
-    $registration = new Ebregistrant($shift, $uid);
+    $registration = new Ebregistrant($eventid, $uid);
 
     $registrant = new Registrant(Aliases::current(true), $uid);
     $registrant->loadCurrentEvents();
@@ -340,7 +339,7 @@ class CheckinModel extends BaseDatabaseModel
 
     $registration->copyFrom($mainEventId->registrant->id);
     $id = $registration->insert();
-    return $id ? 'ok' : 'error';
+    return $id ? true : false;
   }
 
   /**
@@ -402,4 +401,3 @@ class CheckinModel extends BaseDatabaseModel
     return $results;
   }
 }
-

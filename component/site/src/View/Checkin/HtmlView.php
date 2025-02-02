@@ -58,8 +58,9 @@ class HtmlView extends BaseHtmlView
     // Prepare data for meals checkin
     if ('meals-checkin' == $tpl) {
       // Categories of interest
+      // TODO: get the category titles from EB
       $mealHeadings = [
-        $eventConfig->eventInfo->eb_cat_dinners => 'International Leather Family Dinner',
+        $eventConfig->eventInfo->eb_cat_dinners => 'Leather Family Dinner',
         $eventConfig->eventInfo->eb_cat_buffets => 'Buffets',
         $eventConfig->eventInfo->eb_cat_brunches => 'Brunches'
       ];
@@ -100,6 +101,15 @@ class HtmlView extends BaseHtmlView
       usort($this->shifts, function ($a, $b) {
         return strcmp($a['time'], $b['time']);
       });
+
+
+      /** @var \Joomla\CMS\Extension\MVCComponent */
+      $c = $app->bootComponent('com_claw');
+      $d = $c->getMVCFactory();
+
+      /** @var \ClawCorp\Component\Claw\Administrator\Model\ReportsModel */
+      $model = $d->createModel('Reports', 'Administrator');
+      $this->items = $model->getVolunteerOverview();
     }
 
     parent::display($tpl);
