@@ -2,8 +2,6 @@
 defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Bootstrap;
-use Joomla\CMS\Factory;
-use Joomla\CMS\Helper\ModuleHelper;
 
 ?>
 <h1 class="text-center">Registration Options for <?= $this->eventConfig->eventInfo->description ?></h1>
