@@ -30,6 +30,7 @@ function prepare_media () {
 
   # Directories to append to main component package once admin is added
   /usr/bin/zip --quiet -r package/packages/com_claw.zip media
+  /usr/bin/zip --quiet -r package/packages/com_claw.zip layouts
 }
 
 # Items in SVN, while GPL, are based on third-party packages
