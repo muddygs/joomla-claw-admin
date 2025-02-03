@@ -1,11 +1,8 @@
 <?php
 
-use Joomla\CMS\Filesystem\File;
-use Joomla\CMS\Filesystem\Folder;
+use Joomla\Filesystem\Folder;
 use Joomla\Archive\Archive;
 use Joomla\CMS\Installer\InstallerAdapter;
-use Joomla\CMS\Factory;
-use Joomla\CMS\Installer\Installer;
 use Joomla\Database\DatabaseDriver;
 
 class pkg_clawInstallerScript
@@ -15,9 +12,7 @@ class pkg_clawInstallerScript
    *
    * @param   InstallerAdapter  $adapter  The object responsible for running this script
    */
-  public function __construct(InstallerAdapter $adapter)
-  {
-  }
+  public function __construct(InstallerAdapter $adapter) {}
 
   /**
    * Called before any type of action
@@ -44,28 +39,13 @@ class pkg_clawInstallerScript
   {
     $status = true;
 
-    if ( !in_array($route, ['install', 'update', 'discover_install']) ) {
+    if (!in_array($route, ['install', 'update', 'discover_install'])) {
       return true;
     }
 
-    if ( in_array($route, ['install', 'update']) ) {
+    if (in_array($route, ['install', 'update'])) {
       $status = $this->extractTarball($adapter);
     }
-
-    /*
-    // Verify that base key/value pairs exist in #__claw_field_values
-    $db = Factory::getContainer()->get('DatabaseDriver');
-    $query = $db->getQuery(true);
-    $query->select('COUNT(*)')
-      ->from($db->qn('#__claw_field_values'));
-    $db->setQuery($query);
-
-    if (!$db->loadResult())
-    {
-      $sqlFile = JPATH_ADMINISTRATOR . '/components/com_claw/sql/config.fieldvalues.sql';
-      $this->executeSqlFile($db, $sqlFile);
-    }
-     */
 
     return $status;
   }
@@ -79,7 +59,9 @@ class pkg_clawInstallerScript
    */
   public function update(InstallerAdapter $adapter)
   {
-    return true;
+    $result = true;
+    $result &= $this->copyLayouts();
+    return $result;
   }
 
   private function extractTarball(): bool
@@ -91,24 +73,48 @@ class pkg_clawInstallerScript
 
     $archive = new Archive(['tmp_path' => JPATH_ROOT . '/tmp']);
 
-    if (!Folder::exists($dest)) {
+    if (!is_dir($dest)) {
       Folder::create($dest);
     }
 
     try {
       $archive->extract($src, $dest);
-    } catch (\Exception $e) {
+    } catch (\Exception) {
       $result = false;
     }
 
-    if ( !$result ) {
-      echo '<p>Could not extract overlay tarball</p>';
+    if (!$result) {
+      echo '<p>Could not extract overlay tarball.</p>';
     } else {
-      echo '<p>Overlay tarball extracted</p>';
+      echo '<p>Overlay tarball extraction successful.</p>';
     }
 
     return $result;
+  }
 
+  private function copyLayouts()
+  {
+    $src = __DIR__ . '/layouts/claw/';
+    $dest = JPATH_ROOT . '/layouts/claw/';
+
+    if (!is_dir($dest)) {
+      if (!Folder::create($dest)) {
+        echo "Failed to create $dest.";
+      }
+    }
+
+    return Folder::copy($src, $dest, '', true);
+  }
+
+  private function removeLayouts()
+  {
+    $dest = JPATH_ROOT . '/layouts/claw/';
+
+    if (is_dir($dest)) {
+      return Folder::delete($dest);
+    }
+
+    return true;
   }
 
   /**
@@ -130,7 +136,10 @@ class pkg_clawInstallerScript
    */
   public function uninstall(InstallerAdapter $adapter)
   {
-    return true;
+    $result = true;
+
+    $result &= $this->removeLayouts();
+    return $result;
   }
 
   /**
