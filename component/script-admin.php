@@ -4,7 +4,7 @@ use Joomla\Filesystem\Folder;
 use Joomla\CMS\Installer\InstallerAdapter;
 use Joomla\Database\DatabaseDriver;
 
-class pkg_clawInstallerScript
+class com_clawInstallerScript
 {
   /**
    * Constructor
