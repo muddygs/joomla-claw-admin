@@ -1,7 +1,6 @@
 <?php
 
 use Joomla\Filesystem\Folder;
-use Joomla\Archive\Archive;
 use Joomla\CMS\Installer\InstallerAdapter;
 use Joomla\Database\DatabaseDriver;
 
@@ -37,17 +36,7 @@ class pkg_clawInstallerScript
    */
   public function postflight($route, $adapter)
   {
-    $status = true;
-
-    if (!in_array($route, ['install', 'update', 'discover_install'])) {
-      return true;
-    }
-
-    if (in_array($route, ['install', 'update'])) {
-      $status = $this->extractTarball($adapter);
-    }
-
-    return $status;
+    return true;
   }
 
   /**
@@ -59,35 +48,39 @@ class pkg_clawInstallerScript
    */
   public function update(InstallerAdapter $adapter)
   {
-    return true;
+    $result = true;
+    $result &= $this->copyLayouts();
+    return $result;
   }
 
-  private function extractTarball(): bool
+  private function copyLayouts()
   {
-    $src = JPATH_LIBRARIES . '/claw/svn/j4_claw_custom_code_current.tar.gz';
-    $dest = JPATH_ROOT;
-    $result = true;
-
-
-    $archive = new Archive(['tmp_path' => JPATH_ROOT . '/tmp']);
+    $src = __DIR__ . '/layouts/claw/';
+    $dest = JPATH_ROOT . '/layouts/claw/';
 
     if (!is_dir($dest)) {
-      Folder::create($dest);
+      if (!Folder::create($dest)) {
+        echo "Failed to create $dest.";
+      }
     }
 
-    try {
-      $archive->extract($src, $dest);
-    } catch (\Exception) {
-      $result = false;
-    }
-
+    $result = Folder::copy($src, $dest, '', true);
     if (!$result) {
-      echo '<p>Could not extract overlay tarball.</p>';
-    } else {
-      echo '<p>Overlay tarball extraction successful.</p>';
+      echo "Layouts copy failed.";
     }
 
     return $result;
+  }
+
+  private function removeLayouts()
+  {
+    $dest = JPATH_ROOT . '/layouts/claw/';
+
+    if (is_dir($dest)) {
+      return Folder::delete($dest);
+    }
+
+    return true;
   }
 
   /**
@@ -109,7 +102,10 @@ class pkg_clawInstallerScript
    */
   public function uninstall(InstallerAdapter $adapter)
   {
-    return true;
+    $result = true;
+
+    $result &= $this->removeLayouts();
+    return $result;
   }
 
   /**

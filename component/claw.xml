@@ -13,6 +13,8 @@
 
   <namespace path="src">ClawCorp\Component\Claw</namespace>
 
+  <scriptfile>script-admin.php</scriptfile>
+
   <install>
     <sql>
       <file driver="mysql"
@@ -37,10 +39,6 @@
     <folder>language</folder>
     <folder>src</folder>
     <folder>tmpl</folder>
-  </files>
-
-  <files folder="layouts">
-    <folder>claw</folder>
   </files>
 
   <administration>
