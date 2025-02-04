@@ -79,8 +79,13 @@ class HtmlView extends BaseHtmlView
       }
     }
 
-    if ('badge-print' == $tpl && $eventConfig->eventInfo->badgePrintingOverride) {
-      $tpl = 'disabled';
+    if ('badge-print' == $tpl) {
+      if ($eventConfig->eventInfo->badgePrintingOverride) {
+        $tpl = 'badges_disabled';
+      } else {
+        #$this->setLayout($tpl); // no "default_" prefix
+        $tpl = null;
+      }
     }
 
     if ('volunteer-roll-call' == $tpl) {
@@ -112,6 +117,7 @@ class HtmlView extends BaseHtmlView
       $this->items = $model->getVolunteerOverview();
     }
 
-    parent::display($tpl);
+    $this->setLayout($tpl); // no "default_" prefix
+    parent::display();
   }
 }
