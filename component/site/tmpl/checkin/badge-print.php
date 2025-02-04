@@ -17,7 +17,7 @@ $wa->useStyle('com_claw.admin');
 
 ?>
 <div class="mb-2 p-1 bg-info text-white" id="jwtstatus"></div>
-<h1>Batch Printing</h1>
+<h1 class="text-danger">NEW Batch Printing</h1>
 <p>Total badges to print: <b id="badgeCount"></b></p>
 
 <form method="post" name="claw-process-badge-batch" id="claw-process-badge-batch">
@@ -56,7 +56,7 @@ $wa->useStyle('com_claw.admin');
     <div class="row">
       <legend class="col-form-label col-3">Search by Name or Badge #:</legend>
       <div class="col-3">
-        <input name="search" id="search" value="" placeholder="" maxlength="15" size="15" class="" type="text" onchange="searchChange();"/>
+        <input name="search" id="search" value="" placeholder="" maxlength="15" size="15" class="" type="text" onchange="searchChange();" />
       </div>
       <div class="col-6"></div>
     </div>
@@ -154,10 +154,10 @@ $wa->useStyle('com_claw.admin');
   <div class="form-group" id="form-print-buttons">
     <div class="row">
       <div class="col">
-        <input name="submitPrint" id="submitPrint" type="button" value="Print Badge" class="btn btn-danger mb-2 w-100" style="display:none;" onclick="doPrint();"/>
+        <input name="submitPrint" id="submitPrint" type="button" value="Print Badge" class="btn btn-danger mb-2 w-100" style="display:none;" onclick="doPrint();" />
       </div>
       <div class="col">
-        <input name="submitPrintIssue" id="submitPrintIssue" type="button" value="Issue + Print Badge" class="btn btn-info mb-2 w-100" style="display:none;" onclick="doPrint(true);"/>
+        <input name="submitPrintIssue" id="submitPrintIssue" type="button" value="Issue + Print Badge" class="btn btn-info mb-2 w-100" style="display:none;" onclick="doPrint(true);" />
       </div>
     </div>
   </div>
