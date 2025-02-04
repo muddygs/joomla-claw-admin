@@ -81,7 +81,8 @@ class RawView extends BaseHtmlView
     $this->printOrderings[1] = $params->get('onsite_printer_attendee', 'sequential');
     $this->printOrderings[2] = $params->get('onsite_printer_volunteer', 'sequential');
 
-    parent::display($event);
+    $this->setLayout($event);
+    parent::display();
   }
 
   public function loadBatchRegistrationCodes(): array
