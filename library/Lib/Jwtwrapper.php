@@ -325,19 +325,26 @@ class Jwtwrapper
     return [$confirmToken, $revokeToken];
   }
 
-  public static function redirectOnInvalidToken(string $page, string $token): void
+  public static function valid(string $page, string $token): bool
   {
-    /** @var Joomla\CMS\Application\SiteApplication */
-    $app = Factory::getApplication();
-
-    if ('' == $token) {
-      $app->redirect('/link');
-    }
+    if (empty($token) || empty($page)) return false;
 
     $jwt = new Jwtwrapper('stub');
     $decoded = $jwt->loadFromToken($token);
 
     if (null == $decoded || $decoded->subject != $page) {
+      return false;
+    }
+
+    return true;
+  }
+
+  public static function redirectOnInvalidToken(string $page, string $token): void
+  {
+    /** @var \Joomla\CMS\Application\SiteApplication */
+    $app = Factory::getApplication();
+
+    if (!self::valid($page, $token)) {
       $app->redirect('/link');
     }
   }
@@ -508,7 +515,7 @@ class Jwtwrapper
 
     try {
       $payload = Jwtwrapper::decodeUnverified($token);
-    } catch (Exception $e) {
+    } catch (Exception) {
       return null;
     }
 
@@ -528,7 +535,7 @@ class Jwtwrapper
 
     // nonce should be the current Joomla session, unless confirming/revoking the token
     // via the email link
-    /** @var Joomla\CMS\Application\SiteApplication */
+    /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
     $session = $app->getSession();
     $sessionId = $session->getId();
