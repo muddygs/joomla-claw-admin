@@ -4,7 +4,7 @@
  * @package     ClawCorpLib
  * @subpackage  com_claw
  *
- * @copyright   (C) 2024 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2025 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -180,5 +180,19 @@ class Bootstrap
 
     </html>
 <?php
+  }
+
+  public static function percentColor(int $percentage): string
+  {
+    $result = match (true) {
+      $percentage < 1 => 'color:white; background-color:red; ',
+      $percentage <= 25 => 'color:white; background-color:darkorange; ',
+      $percentage <= 50 => 'color:black; background-color:gold; ',
+      $percentage <= 75 => 'color:black; background-color:greenyellow; ',
+      $percentage <= 100 => 'color:white; background-color:green; ',
+      default => 'color:black; background-color:yellow; ',
+    };
+
+    return $result;
   }
 }
