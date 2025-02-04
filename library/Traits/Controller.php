@@ -10,6 +10,8 @@
 
 namespace ClawCorpLib\Traits;
 
+use Joomla\CMS\Factory;
+
 trait Controller
 {
   private $model;
@@ -50,7 +52,7 @@ trait Controller
     }
 
     $name = ucfirst($name);
-    return parent::getModel($name, 'Administrator', ['ignore_request' => true]);
-    return $this->model;
+    $isAdmin = Factory::getApplication()->isClient('administrator');
+    return parent::getModel($name, $isAdmin ? 'Administrator' : 'Site', ['ignore_request' => true]);
   }
 }
