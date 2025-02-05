@@ -112,7 +112,12 @@ class Checkin
       return false;
     }
 
-    $event = self::$eventConfig->getMainEventByPackageType($mainEventRegistrantRecord->registrant->eventPackageType);
+    try {
+      $event = self::$eventConfig->getMainEventByPackageType($mainEventRegistrantRecord->registrant->eventPackageType);
+    } catch (\Exception) {
+      $this->r->error = 'Unexpected error loading registration package!';
+      return false;
+    }
 
     $this->r->package_eventId = $mainEventRegistrantRecord->event->eventId;
     $this->r->id = $mainEventRegistrantRecord->registrant->id;

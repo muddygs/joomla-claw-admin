@@ -11,6 +11,7 @@
 namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
+use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EbRecordIndexType;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Grid\Deploy;
@@ -52,8 +53,9 @@ class EbCart
     private array $items,
     private string $btnPrimary
   ) {
-    $this->submit = <<< HTML
-<input type="submit" class="{$this->btnPrimary}" name="btn-submit" id="btn-submit" value="${!${''} = Text::_('EB_PROCESS_REGISTRATION')}">
+    $text = Text::_('EB_PROCESS_REGISTRATION');
+    $this->submit = <<<HTML
+<input type="submit" class="{$this->btnPrimary}" name="btn-submit" id="btn-submit" value="$text">
 HTML;
 
     $this->options_link = EventBooking::getRegistrationLink();
@@ -84,6 +86,12 @@ HTML;
     $shiftCategoryIds = [...$eventConfig->eventInfo->eb_cat_shifts, ...$eventConfig->eventInfo->eb_cat_supershifts];
     $invoiceCategories = $eventConfig->eventInfo->eb_cat_invoicables;
     $mainRequiredEventIds = $eventConfig->getMainRequiredEventIds();
+
+    try {
+      $vendor_crew_eventid = $eventConfig->getPackageInfo(EventPackageTypes::vendor_crew)->eventId;
+    } catch (\Exception) {
+      $vendor_crew_eventid = 0;
+    }
 
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
     foreach ($records as $r) {
@@ -181,10 +189,12 @@ HTML;
 
     // Shift count check ignored for onsite
     if (!$onsiteActive) {
-      /** @var ClawCorpLib\Lib\PackageInfo */
+      /** @var \ClawCorpLib\Lib\PackageInfo */
       foreach ($eventConfig->packageInfos as $packageInfo) {
+        if ($packageInfo->eventId == 0 || $packageInfo->published != EbPublishedState::published) continue;
+
         if ($packageInfo->eventId == $packageEventId && $shift_count < $packageInfo->minShifts) {
-          $this->submit = '<div class="alert alert-danger">Please select at least ' . $packageInfo->minShifts . ' shifts. Click Modify Cart to add more shifts.</div>';
+          $this->submit = '<div class="alert alert-danger">Please select at least ' . $packageInfo->minShifts . ' shift points. Click Modify Cart to add more shifts.</div>';
           $this->show_error = true;
           break;
         }
@@ -196,7 +206,7 @@ HTML;
       }
 
       // No shifts allowed for non-packages & VendorMart Crew
-      if ($packageEventId == $eventConfig->getMainEventByPackageType(EventPackageTypes::vendor_crew)->eventId && $shift_count > 0) {
+      if ($packageEventId == $vendor_crew_eventid && $shift_count > 0) {
         $this->submit = '<div class="alert alert-danger">Your event package does not allow shift selection. Please modify your cart.</div>';
         $this->show_error = true;
       }
@@ -219,7 +229,8 @@ HTML;
     }
 
     $shiftCategoryCount = $registrantData->categoryCounts($shiftCategoryIds);
-    if (!$onsiteActive && !$this->show_error && $shiftCategoryCount > 1 && $packageEventId != $eventConfig->getPackageInfo(EventPackageTypes::volunteersuper)->eventId) {
+    $supervol = $eventConfig->getPackageInfo(EventPackageTypes::volunteersuper);
+    if (!$onsiteActive && !$this->show_error && $shiftCategoryCount > 1 && (is_null($supervol) || $packageEventId != $supervol->eventId)) {
       $this->submit = "<div class=\"alert alert-danger\">Shifts must all come from the same category (e.g., all Guest Services or Badge Check). Modify your cart to correct this error.</div>";
       $this->show_error = true;
     }

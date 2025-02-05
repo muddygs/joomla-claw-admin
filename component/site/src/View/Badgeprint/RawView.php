@@ -12,6 +12,7 @@ namespace ClawCorp\Component\Claw\Site\View\Badgeprint;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use ClawCorpLib\Lib\Aliases;
@@ -85,35 +86,80 @@ class RawView extends BaseHtmlView
     parent::display();
   }
 
-  public function loadBatchRegistrationCodes(): array
+  public function loadBatchRegistrationCodes()
   {
     $eventConfig = new EventConfig(Aliases::current(true));
     $this->registrationCodes = [];
 
     switch ($this->type) {
       case '0':
-        $staff = $eventConfig->getMainEventByPackageType(EventPackageTypes::claw_staff)->eventId;
-        $board = $eventConfig->getMainEventByPackageType(EventPackageTypes::claw_board)->eventId;
-        $eventStaff = $eventConfig->getMainEventByPackageType(EventPackageTypes::event_staff)->eventId;
-        $vendorCrew = $eventConfig->getMainEventByPackageType(EventPackageTypes::vendor_crew)->eventId;
-        //$vendorCrewExtra = $eventConfig->getMainEventByPackageType(EventPackageTypes::vendor_crew_extra)->eventId;
-        $educator = $eventConfig->getMainEventByPackageType(EventPackageTypes::educator)->eventId;
-        $vip = $eventConfig->getMainEventByPackageType(EventPackageTypes::vip)->eventId;
-        $this->registrationCodes = Checkin::getUnprintedBadges([$staff, $board, $eventStaff, $vendorCrew, $educator, $vip], $this->quantity);
+        $eventIds = $this->getOtherEventIds($eventConfig);
         break;
       case '1':
-        $attendee = $eventConfig->getMainEventByPackageType(EventPackageTypes::attendee);
-        $this->registrationCodes = Checkin::getUnprintedBadges([$attendee->eventId], $this->quantity);
+        $eventIds = $this->getAttendeeEventIds($eventConfig);
         break;
       case '2':
-        $vol2 = $eventConfig->getMainEventByPackageType(EventPackageTypes::volunteer2)->eventId;
-        $vol3 = $eventConfig->getMainEventByPackageType(EventPackageTypes::volunteer3)->eventId;
-        $volSuper = $eventConfig->getMainEventByPackageType(EventPackageTypes::volunteersuper)->eventId;
-        $volTalent = $eventConfig->getMainEventByPackageType(EventPackageTypes::event_talent)->eventId;
-        $this->registrationCodes = Checkin::getUnprintedBadges([$vol2, $vol3, $volSuper, $volTalent], $this->quantity);
+        $eventIds = $this->getVolunteerEventIds($eventConfig);
         break;
     }
 
-    return $this->registrationCodes;
+    $this->registrationCodes = Checkin::getUnprintedBadges($eventIds, $this->quantity);
+  }
+
+  private function getAttendeeEventIds(EventConfig $eventConfig): array
+  {
+    $eventPackageTypes = [
+      EventPackageTypes::attendee,
+    ];
+
+    return $this->typesToEventIds($eventConfig, $eventPackageTypes);
+  }
+
+  private function getVolunteerEventIds(EventConfig $eventConfig): array
+  {
+    $eventPackageTypes = [
+      EventPackageTypes::volunteer1,
+      EventPackageTypes::volunteer2,
+      EventPackageTypes::volunteer3,
+      EventPackageTypes::volunteersuper,
+      EventPackageTypes::event_talent,
+    ];
+
+    return $this->typesToEventIds($eventConfig, $eventPackageTypes);
+  }
+
+
+  private function getOtherEventIds(EventConfig $eventConfig): array
+  {
+    $eventPackageTypes = [
+      EventPackageTypes::claw_staff,
+      EventPackageTypes::claw_board,
+      EventPackageTypes::event_staff,
+      EventPackageTypes::vendor_crew,
+      EventPackageTypes::vendor_crew_extra,
+      EventPackageTypes::educator,
+      EventPackageTypes::vip,
+    ];
+
+    return $this->typesToEventIds($eventConfig, $eventPackageTypes);
+  }
+
+  private function typesToEventIds(EventConfig $eventConfig, array $types): array
+  {
+    $result = [];
+
+    foreach ($types as $eventPackageType) {
+      try {
+        $packageInfo = $eventConfig->getMainEventByPackageType($eventPackageType);
+      } catch (\Exception) {
+        continue;
+      }
+
+      if ($packageInfo->published == EbPublishedState::published && $packageInfo->eventId != 0) {
+        $result[] = $packageInfo->eventId;
+      }
+    }
+
+    return $result;
   }
 }

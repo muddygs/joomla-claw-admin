@@ -14,13 +14,10 @@ use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Iterators\PackageInfoArray;
-use InvalidArgumentException;
 use Joomla\CMS\Factory;
 use Joomla\Database\Exception\UnsupportedAdapterException;
 use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
-use RuntimeException;
 use Joomla\DI\Exception\KeyNotFoundException;
-use UnexpectedValueException;
 
 class EventConfig
 {
@@ -115,6 +112,7 @@ class EventConfig
 
   /**
    * Returns the PackageInfo for a given event package type; the target event must be a main event
+   * Warning: Will check for misconfiguraton and die on duplicated EventPackageTypes.
    * @param EventPackageTypes $packageType 
    * @return PackageInfo 
    */
@@ -130,10 +128,13 @@ class EventConfig
       }
     }
 
-    if ($found > 1) die('Duplicate package types loaded. Did you load multiple events?');
+    // "Normal" error
     if (0 == $found) {
-      die('Unconfigured package type requested: ' . $packageType->name);
+      throw new \Exception('Unconfigured package type requested: ' . $packageType->name);
     }
+
+    // Internal error - fix the caller!
+    if ($found > 1) die('Duplicate package types loaded. Did you load multiple events?');
 
     return $result;
   }

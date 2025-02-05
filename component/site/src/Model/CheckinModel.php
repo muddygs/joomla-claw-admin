@@ -152,14 +152,20 @@ class CheckinModel extends BaseDatabaseModel
     Jwtwrapper::redirectOnInvalidToken(page: 'badge-print', token: $token);
 
     $eventConfig = new EventConfig(Aliases::current(true));
-    $attendee = $eventConfig->getMainEventByPackageType(EventPackageTypes::attendee);
-    $attendeeCount = ($attendee->eventId > 0 && $attendee->published == EbPublishedState::published) ?
-      Checkin::getUnprintedBadgeCount($attendee->eventId) :
-      0;
+
+    try {
+      $attendee = $eventConfig->getMainEventByPackageType(EventPackageTypes::attendee);
+      $attendeeCount = ($attendee->eventId > 0 && $attendee->published == EbPublishedState::published) ?
+        Checkin::getUnprintedBadgeCount($attendee->eventId) :
+        0;
+    } catch (\Exception) {
+      $attendee = 0;
+    }
 
     $volunteerCount = 0;
     // Handle all the volunteer categories
     $vol = [
+      EventPackageTypes::volunteer1,
       EventPackageTypes::volunteer2,
       EventPackageTypes::volunteer3,
       EventPackageTypes::volunteersuper,
@@ -167,9 +173,12 @@ class CheckinModel extends BaseDatabaseModel
     ];
 
     foreach ($vol as $v) {
-      $packageInfo = $eventConfig->getMainEventByPackageType($v);
-      if ($packageInfo->eventId > 0 && $packageInfo->published == EbPublishedState::published) {
-        $volunteerCount += Checkin::getUnprintedBadgeCount($eventConfig->getMainEventByPackageType($v)->eventId);
+      try {
+        $packageInfo = $eventConfig->getMainEventByPackageType($v);
+        if ($packageInfo->eventId > 0 && $packageInfo->published == EbPublishedState::published) {
+          $volunteerCount += Checkin::getUnprintedBadgeCount($eventConfig->getMainEventByPackageType($v)->eventId);
+        }
+      } catch (\Exception) {
       }
     }
 

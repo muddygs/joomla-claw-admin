@@ -224,7 +224,16 @@ class PresenterModel extends AdminModel
   {
     $eventConfig = new EventConfig($eventAlias);
     /** @var \ClawCorpLib\Lib\PackageInfo */
-    $package = $eventConfig->getMainEventByPackageType(EventPackageTypes::educator);
+    try {
+      $package = $eventConfig->getMainEventByPackageType(EventPackageTypes::educator);
+    } catch (\Exception) {
+      throw new \Exception('Educator package not configured.');
+    }
+
+    if ($package->eventId == 0) {
+      throw new \Exception('Educator package not deployed.');
+    }
+
     return $package->acl_id; // the ACL id
   }
 
