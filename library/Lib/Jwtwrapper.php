@@ -60,34 +60,38 @@ class Jwtwrapper
       'exp' => 5 * 3600,
       'group' => 'VolunteerCoord',
       'description' => 'Volunteer Roll Call',
-      'icon' => 'check'
+      'view' => 'rollcall',
     ],
     'badge-checkin' => [
       'exp' => 5 * 3600,
       'group' => 'Registration',
       'description' => 'Badge Checkin',
-      'icon' => 'id-badge'
+      'view' => 'checkin',
     ],
     'badge-print' => [
       'exp' => 5 * 3600,
       'group' => 'Registration',
       'description' => 'Badge Print',
-      'icon' => 'print'
+      'view' => 'checkin',
     ],
     'meals-checkin' => [
       'exp' => 2 * 3600,
       'group' => 'Registration',
       'description' => 'Meals Checkin',
-      'icon' => 'utensils'
+      'view' => 'checkin',
     ]
   ];
 
 
   public function __construct(
-    private string $nonce
+    private ?string $nonce = null,
   ) {
+    if (is_null($this->nonce)) $this->nonce = self::getNonce();
+
     # nonce cannot resolve empty
-    if (trim($this->nonce) == '') die('Invalid nonce name');
+    if (trim($this->nonce) == '') {
+      die('Invalid nonce name');
+    }
     $payload['nonce'] = $this->nonce;
   }
 
@@ -464,7 +468,7 @@ class Jwtwrapper
    * person has the correct associated group assigned to the page).
    * @param string $email Email address of the user (and thus Joomla account) NOTE: Joomla requires unique email per account
    * @param string $nonce Some indicator of ownership, usually Joomla token name
-   * @param string $subject Some subject within jwt_token_pages::page
+   * @param string $subject Some subject as a key from jwt_token_pages
    * @return bool FALSE on error
    */
   function initTokenRequest(string $email, string $nonce, string $subject): bool
