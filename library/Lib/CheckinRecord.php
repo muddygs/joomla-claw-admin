@@ -10,6 +10,7 @@
 
 namespace ClawCorpLib\Lib;
 
+use ClawCorpLib\Checkin\Record;
 use ClawCorpLib\Enums\EventPackageTypes;
 
 class CheckinRecord
@@ -81,14 +82,18 @@ class CheckinRecord
   }
 
   /**
-   * Object expected by checkin_events.ts
+   * Record that is displayed upon search in the checkin and badge print interfaces
+   * This is "prepared" to be all strings
+   * @return Record Values from 
    */
-  public function toObject(): object
+  public function toRecord(): Record
   {
-    $result = (object)[];
+    $result = new Record();
 
     foreach (get_object_vars($this) as $key => $value) {
-      $result->$key = $value;
+      if (property_exists($result, $key)) {
+        $result->$key = $value;
+      }
     }
 
     $result->buffets = $this->getMealString($this->buffets);
