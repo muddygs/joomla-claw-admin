@@ -5,7 +5,7 @@ window.addEventListener('keydown', function (e) {
 }, true);
 
 function jwtdashboardAjaxUrl(task: string) {
-  return `/index.php?option=com_claw&view=checkin&task=${task}&format=raw`;
+  return `/index.php?option=com_claw&view=jwt&task=jwt.${task}&format=raw`;
 }
 
 function jwtdashboardOptions(id: number) {

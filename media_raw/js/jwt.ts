@@ -4,7 +4,7 @@ let email: string = '';
 let urlInput: string = '';
 
 function jwtstateAjaxUrl(task: string) {
-  return `/index.php?option=com_claw&view=checkin&task=${task}&format=raw`;
+  return `/index.php?option=com_claw&view=jwt&task=jwt.${task}&format=raw`;
 }
 
 function jwtstateOptions(action: string, email: string, urlInput: string) {
@@ -97,7 +97,7 @@ function getNonceStatus(): void {
 
       if (time() < timeout) {
         if (tokenState == 'issued') {
-          var redirect = `/index.php?option=com_claw&view=checkin&token=${token}`;
+          var redirect = `/index.php?option=com_claw&view=jwt&task=jwt.issue&token=${token}`;
           window.location.href = redirect;
         } else if (tokenState != "revoked") {
           updateStatus();

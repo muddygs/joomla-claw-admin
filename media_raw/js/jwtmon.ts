@@ -2,7 +2,7 @@ const jwtstatus:string = 'jwtstatus';
 let jwttoken:string = '';
 
 function jwtmonAjaxUrl(task: string) {
-  return `/index.php?option=com_claw&view=checkin&task=${task}&format=raw`;
+  return `/index.php?option=com_claw&view=jwt&task=jwt.${task}&format=raw`;
 }
 
 function tokencheck() {
@@ -48,7 +48,7 @@ function updateMonitorStatus(timer: number) {
 
   const minutes = Math.round(timer/60);
   if ( minutes <= 1 ) {
-    window.location.href = '/index.php?option=com_claw&view=checkin';
+    window.location.href = '/index.php?option=com_claw&view=jwt';
   }
 
   n.innerHTML = `Authentication expires in ${secondsToHms(timer)}.`;
