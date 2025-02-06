@@ -58,8 +58,6 @@ class DisplayController extends BaseController
    */
   public function validatecoupon()
   {
-    // TODO: Need to validate checkToken on ALL controllers
-    // Check for request forgeries.
     $this->checkToken();
 
     $json = new Json();
@@ -72,116 +70,6 @@ class DisplayController extends BaseController
     header('Content-Type: application/json');
     echo $json;
   }
-
-  public function jwtstateInit()
-  {
-    $this->checkToken();
-
-    $json = new Json();
-    $email = $json->get('email', '', 'string');
-    $url = $json->get('urlInput', '', 'string');
-
-    Helpers::sessionSet('jwt_url', $url);
-
-    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
-    $siteModel = $this->getModel('Checkin');
-    $json = $siteModel->JwtstateInit(email: $email, subject: $url);
-
-    header('Content-Type: application/json');
-    echo $json;
-  }
-
-  public function jwtstateState()
-  {
-    $this->checkToken();
-
-    $url = Helpers::sessionGet('jwt_url');
-
-    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
-    $siteModel = $this->getModel('Checkin');
-    $json = $siteModel->JwtstateState(subject: $url);
-
-    header('Content-Type: application/json');
-    echo json_encode($json);
-  }
-
-  #region email token response processing
-  /**
-   * Process token confirmation from email link
-   *
-   * @return void
-   */
-  public function jwtconfirm()
-  {
-    $token = $this->input->get('token', '', 'string');
-    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
-    $siteModel = $this->getModel('Checkin');
-    $json = $siteModel->JwtConfirm(token: $token);
-
-    header('Content-Type: application/json');
-    echo $json;
-  }
-
-  /**
-   * Process token revocation from email link
-   *
-   * @return void
-   */
-  public function jwtrevoke()
-  {
-    $token = $this->input->get('token', '', 'string');
-    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
-    $siteModel = $this->getModel('Checkin');
-    $json = $siteModel->JwtRevoke(token: $token);
-
-    header('Content-Type: application/json');
-    echo $json;
-  }
-  #endregion
-
-  #region jwtmon
-  public function jwtTokenCheck()
-  {
-    $this->checkToken();
-
-    $json = new Json();
-    $token = $json->get('token', '', 'string');
-    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
-    $siteModel = $this->getModel('Checkin');
-    $result = $siteModel->JwtmonValidate(token: $token);
-
-    header('Content-Type: application/json');
-    echo json_encode($result);
-  }
-  #endregion
-
-  #region jwt_dashboard
-  public function jwtdashboardConfirm(JwtStates $state = JwtStates::issued)
-  {
-    $this->checkToken();
-
-    $result = ['id' => 0];
-
-    $json = new Json();
-    $id = $json->get('tokenid', [], 'int');
-
-    // Verify user permissions
-    $user = $this->app->getIdentity();
-    if ($user->authorise('core.admin') && $id > 0) {
-      $return = Jwtwrapper::setDatabaseState($id, $state);
-      if ($return) $result['id'] = $id;
-    }
-
-    header('Content-Type: application/json');
-    echo json_encode($result);
-  }
-
-  public function jwtdashboardRevoke()
-  {
-    $this->jwtdashboardConfirm(JwtStates::revoked);
-  }
-
-  #endregion
 
   public function mealCheckin()
   {

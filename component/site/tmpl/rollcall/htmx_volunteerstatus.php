@@ -40,7 +40,7 @@ foreach ($this->records as $record) {
         class="btn btn-lg mt-2 mb-2 <?= $inClass ?>"
         <?= $inConfirm ?>
         hx-vals='{"action":"<?= $inAction ?>"}'
-        hx-post="/index.php?option=com_claw&task=checkin.rollcallToggle&format=raw"
+        hx-post="/index.php?option=com_claw&task=rollcall.rollcallToggle&format=raw"
         hx-target="#shifts">
         IN
       </button>
@@ -52,7 +52,7 @@ foreach ($this->records as $record) {
         class="btn btn-lg mt-2 mb-2 <?= $outClass ?>"
         <?= $outConfirm ?>
         hx-vals='{"action":"<?= $outAction ?>"}'
-        hx-post="/index.php?option=com_claw&task=checkin.rollcallToggle&format=raw"
+        hx-post="/index.php?option=com_claw&task=rollcall.rollcallToggle&format=raw"
         hx-target="#shifts">
         OUT
       </button>

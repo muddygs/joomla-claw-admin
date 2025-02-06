@@ -12,9 +12,9 @@ namespace ClawCorp\Component\Claw\Site\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Checkin\Record;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\EbPublishedState;
-use ClawCorpLib\Enums\JwtStates;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Checkin;
 use ClawCorpLib\Lib\ClawEvents;
@@ -29,110 +29,12 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
  */
 class CheckinModel extends BaseDatabaseModel
 {
-  public function JwtstateInit($email, $subject)
-  {
-    $nonce = Jwtwrapper::getNonce();
-    $email = trim($email);
-
-    $jsonValues = [
-      'state' => 'error',
-      'token' => ''
-    ];
-
-    if (filter_var($email, FILTER_VALIDATE_EMAIL) && array_key_exists($subject, Jwtwrapper::jwt_token_pages)) {
-      $jwt = new Jwtwrapper($nonce);
-      $result = $jwt->initTokenRequest($email, $nonce, $subject);
-      $jsonValues['state'] = $result ? JwtStates::init->value : JwtStates::error->value;
-    }
-
-    return json_encode($jsonValues);
-  }
-
-  public function JwtstateState($subject): array
-  {
-    $jsonValues = [];
-    $nonce = Jwtwrapper::getNonce();
-    $jwt = new Jwtwrapper($nonce);
-    list($state, $token) = $jwt->getDatabaseState($nonce, $subject);
-    $jsonValues['state'] = $state;
-    $jsonValues['token'] = $token;
-
-    return $jsonValues;
-  }
-
-  public function JwtConfirm($token): string
-  {
-    $jsonValues = [
-      'state' => 'error',
-      'token' => ''
-    ];
-
-    $nonce = Jwtwrapper::getNonce();
-    $jwt = new Jwtwrapper($nonce);
-    $payload = $jwt->confirmToken($token, JwtStates::confirm);
-
-    if ($payload != null) {
-      if ($payload->iat + 310 > time()) {
-        $jwt->updateDatabaseState($payload, JwtStates::issued);
-        $jsonValues['state'] = $payload->state;
-      }
-    }
-    $jwt->closeWindow();
-    return json_encode($jsonValues);
-  }
-
-  public function JwtRevoke($token): string
-  {
-    $jsonValues = [
-      'state' => 'error',
-      'token' => ''
-    ];
-
-    $nonce = Jwtwrapper::getNonce();
-    $jwt = new Jwtwrapper($nonce);
-    $payload = $jwt->confirmToken($token, JwtStates::revoked);
-
-    if ($payload != null) {
-      $jwt->updateDatabaseState($payload, JwtStates::revoked);
-      $jsonValues['state'] = $payload->state;
-    }
-    $jwt->closeWindow();
-    return json_encode($jsonValues);
-  }
-
-  public function JwtmonValidate(string $token): array
-  {
-    $result = [
-      'time_remaining' => 0,
-      'state' => JwtStates::error->value
-    ];
-
-    $payload = Jwtwrapper::confirmToken($token, JwtStates::issued);
-    if ($payload != null) {
-      $exp = intval($payload->exp);
-      $remaining = max(0, $exp - time());
-      $result['state'] = $payload->state;
-      $result['time_remaining'] = $remaining;
-    }
-
-    return $result;
-  }
-
-  public function JwtSearch(string $token, string $search, string $page)
-  {
-    Jwtwrapper::redirectOnInvalidToken(page: $page, token: $token);
-
-    $searchResults = $this->search($search, $page);
-    header('Content-Type: application/json');
-    return $searchResults;
-  }
-
-  public function JwtValue(string $token, string $registration_code, string $page)
+  public function JwtValue(string $token, string $registration_code, string $page): Record
   {
     Jwtwrapper::redirectOnInvalidToken(page: $page, token: $token);
 
     $checkinRecord = new Checkin($registration_code);
-    $r = $checkinRecord->r->toObject();
+    $r = $checkinRecord->r->toRecord();
     return $r;
   }
 
@@ -355,9 +257,9 @@ class CheckinModel extends BaseDatabaseModel
    * Using the search parameter, find the registrants that have the invoice # or last name
    * @param string $search substring to search
    * @param string $page If not 'badge-print', then only return those that have not been issued 
-   * @return array 
+   * @return array eb_registrant:id => description 
    */
-  private function search(string $search, string $page): array
+  public function search(string $search, string $page): array
   {
     $results = [];
     $byName = false;
@@ -366,13 +268,16 @@ class CheckinModel extends BaseDatabaseModel
     $inMainEventIds = implode(',', $eventConfig->getMainEventIds());
     $prefix = $eventConfig->eventInfo->prefix;
 
+    // TODO: configuration to select the custom field from EventBooking
     $issued = ClawEvents::getFieldId('Z_BADGE_ISSUED');
-    $search = strtoupper($search);
 
     /** @var \Joomla\Database\DatabaseDriver */
     $db = $this->getDatabase();
 
-    if (substr($search, 0, 3) == $prefix) {
+
+    // TODO: what the hell is this trying to accomplish?
+    $search = strtoupper($search);
+    if (str_starts_with($search, $prefix . '-')) {
       $search = substr($search, 1);
     }
 

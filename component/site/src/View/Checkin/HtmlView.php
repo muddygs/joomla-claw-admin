@@ -79,42 +79,8 @@ class HtmlView extends BaseHtmlView
       }
     }
 
-    if ('badge-print' == $tpl) {
-      if ($eventConfig->eventInfo->badgePrintingOverride) {
-        $tpl = 'badges_disabled';
-      } else {
-        #$this->setLayout($tpl); // no "default_" prefix
-        $tpl = null;
-      }
-    }
-
-    if ('volunteer-roll-call' == $tpl) {
-      $shiftCatIds = array_merge($eventConfig->eventInfo->eb_cat_shifts, $eventConfig->eventInfo->eb_cat_supershifts);
-      $rows = $eventConfig->getEventsByCategoryId($shiftCatIds);
-
-      $this->shifts = [];
-      foreach ($rows as $row) {
-        $this->shifts[] = [
-          'id' => $row->id,
-          'title' => $row->title . " - {$row->total_registrants} / {$row->event_capacity}",
-          'time' => $row->event_date,
-          'total_registrants' => $row->total_registrants,
-          'event_capacity' => $row->event_capacity
-        ];
-      }
-
-      usort($this->shifts, function ($a, $b) {
-        return strcmp($a['time'], $b['time']);
-      });
-
-
-      /** @var \Joomla\CMS\Extension\MVCComponent */
-      $c = $app->bootComponent('com_claw');
-      $d = $c->getMVCFactory();
-
-      /** @var \ClawCorp\Component\Claw\Administrator\Model\ReportsModel */
-      $model = $d->createModel('Reports', 'Administrator');
-      $this->items = $model->getVolunteerOverview();
+    if ('badge-print' == $tpl && $eventConfig->eventInfo->badgePrintingOverride) {
+      $tpl = 'badges_disabled';
     }
 
     $this->setLayout($tpl); // no "default_" prefix

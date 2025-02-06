@@ -41,7 +41,7 @@ $displayData['title'] = 'Select Shift to Add Below';
       </div>
       <div class="col-3">
         <input name="rollcallSearch" id="rollcallSearch" type="button" value="Search" class="btn btn-danger"
-          hx-post="/index.php?option=com_claw&task=checkin.rollcallSearch&format=raw"
+          hx-post="/index.php?option=com_claw&task=rollcall.rollcallSearch&format=raw"
           hx-target="#shifts"
           onClick="document.getElementById('regid').readOnly=true" />
         <button class="btn btn-success" type="button" onclick="clearVolunteerData();">Clear</button>
@@ -55,7 +55,7 @@ $displayData['title'] = 'Select Shift to Add Below';
   </fieldset>
 
   <div id="shifts"
-    hx-post="/index.php?option=com_claw&task=checkin.rollcallOverview&format=raw"
+    hx-post="/index.php?option=com_claw&task=rollcall.rollcallOverview&format=raw"
     hx-trigger="updateOverview from:body"
     hx-target="#overview">
   </div>

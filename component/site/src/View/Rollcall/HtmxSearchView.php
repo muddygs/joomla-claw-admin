@@ -8,7 +8,7 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace ClawCorp\Component\Claw\Site\View\Checkin;
+namespace ClawCorp\Component\Claw\Site\View\Rollcall;
 
 use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
