@@ -37,7 +37,6 @@ class Checkin
     if (self::$alias == '') self::$alias = Aliases::current(true);
 
     $this->uid = Registrant::getUserIdFromInvoice($registration_code);
-    $this->isValid = false;
     $this->r = null;
 
     if (self::$eventConfig == null) {
