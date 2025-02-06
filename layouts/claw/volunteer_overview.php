@@ -152,7 +152,7 @@ foreach ($items['shifts'] as $sid => $events) {
           ?>
             <td style="<?= $style ?>"
               <?php if ($htmx): ?>
-              hx-post="/index.php?option=com_claw&task=checkin.rollcallAddShift&format=raw"
+              hx-post="/index.php?option=com_claw&task=rollcall.rollcallAddShift&format=raw"
               hx-target="#shifts"
               hx-vals='{"eventid":"<?= $day->id ?? 0 ?>"}'
               <?php endif; ?>
