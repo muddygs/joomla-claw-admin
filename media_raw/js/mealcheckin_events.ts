@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function mealsAjaxUrl(task: string) {
-  return `/index.php?option=com_claw&task=${task}&format=raw`;
+  return `/index.php?option=com_claw&task=checkin.${task}&format=raw`;
 }
 
 function mealsOptions(data: object) {

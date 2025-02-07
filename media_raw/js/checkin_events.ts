@@ -94,7 +94,7 @@ function formatRecord(r: any): checkinRecord {
 }
 
 function checkinAjaxUrl(task: string) {
-	return '/index.php?option=com_claw&task=' + task + '&format=raw';
+	return '/index.php?option=com_claw&task=checkin.' + task + '&format=raw';
 }
 
 function checkinOptions(data: object) {
