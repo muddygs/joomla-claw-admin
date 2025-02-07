@@ -12,18 +12,18 @@ namespace ClawCorpLib\Checkin;
 
 class Record
 {
-  public string $badgeId;
-  public string $issued;
-  public string $printed;
-  public string $legalName;
-  public string $city;
-  public string $clawPackage;
-  public string $dinner;
-  public string $brunch;
-  public string $buffets;
-  public string $shifts;
-  public string $registration_code;
-  public string $shirtSize;
-  public string $error;
-  public string $info;
+  public string $badgeId = '';
+  public string $issued = '';
+  public string $printed = '';
+  public string $legalName = '';
+  public string $city = '';
+  public string $clawPackage = '';
+  public string $dinner = '';
+  public string $brunch = '';
+  public string $buffets = '';
+  public string $shifts = '';
+  public string $registration_code = '';
+  public string $shirtSize = '';
+  public string $error = '';
+  public string $info = '';
 }
