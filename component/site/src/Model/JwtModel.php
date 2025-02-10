@@ -17,7 +17,7 @@ use ClawCorpLib\Lib\Jwtwrapper;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
 /**
- * Methods to handle public class listing.
+ * Methods to handle JSON Web Token utilization
  */
 class JwtModel extends BaseDatabaseModel
 {
