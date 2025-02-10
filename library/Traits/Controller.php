@@ -23,13 +23,15 @@ trait Controller
   function controllerSetup(): void
   {
     $this->model   = $this->getModel();
-    // $this->model   = parent::getModel(config: ['ignore_request' => true]);
 
-    try {
-      $this->table   = $this->model->getTable();
-    } catch (\Exception) {
-      $this->table = null;
+    if ($this->model !== false) {
+      try {
+        $this->table   = $this->model->getTable();
+      } catch (\Exception) {
+        $this->table = null;
+      }
     }
+
     $this->data    = $this->input->post->get('jform', [], 'array');
 
     if (property_exists($this, 'context')) {
