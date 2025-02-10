@@ -62,24 +62,29 @@ class Checkin
     return $this->uid;
   }
 
+  /**
+   * Load the registrant record with lots of parsing and error checking
+   * @return bool 
+   */
   private function loadRecord(): bool
   {
     // Relay messages
     $errors = [];
 
     // TODO: move this to Config class database
-    $fieldValues = [
+    $fieldAliases = [
       'BADGE',
-      'Z_BADGE_ISSUED',
-      'Z_BADGE_PRINTED',
+      'CONDUCT_AGREEMENT',
       'Dinner',
       'DinnerCle',
-      'CONDUCT_AGREEMENT',
       'PHOTO_PERMISSION',
+      'PRONOUNS',
+      'STAFF_TYPE_EVENT',
       'TSHIRT',
       'TSHIRT_VOL',
+      'Z_BADGE_ISSUED',
+      'Z_BADGE_PRINTED',
       'Z_TICKET_SCANNED',
-      'PRONOUNS'
     ];
 
     $registrant = new Registrant(self::$alias, $this->uid);
@@ -90,7 +95,7 @@ class Checkin
     $records = $registrant->records();
 
     if (count($records)) {
-      $registrant->mergeFieldValues($fieldValues);
+      $registrant->mergeFieldValues($fieldAliases);
       /** @var \ClawCorpLib\Lib\RegistrantRecord */
       $mainEventRegistrantRecord = $registrant->getMainEvent();
     }
@@ -99,7 +104,7 @@ class Checkin
     $badgeValues = [];
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach (self::$eventConfig->packageInfos as $e) {
-      if ($e->badgeValue != '') {
+      if ($e->badgeValue != '' && $e->eventId != 0) {
         $badgeValues[$e->eventId] = $e->badgeValue;
       }
     }
@@ -138,6 +143,7 @@ class Checkin
     $this->r->eventPackageType = $mainEventRegistrantRecord->registrant->eventPackageType;
     $this->r->badgeId = $registrant->badgeId;
     $this->r->registration_code = $mainEventRegistrantRecord->registrant->registration_code;
+    $this->r->staff_type = $mainEventRegistrantRecord->fieldValue->STAFF_TYPE_EVENT;
 
     $shiftCatIds = array_merge($registrant->eventConfig->eventInfo->eb_cat_shifts, $registrant->eventConfig->eventInfo->eb_cat_supershifts);
     $leatherHeartCatId = ClawEvents::getCategoryId('donations-leather-heart');
@@ -277,7 +283,7 @@ class Checkin
     }
 
     if (sizeof($errors) != 0 && $this->errorReporting) {
-      array_unshift($errors, 'Do not issue badge:');
+      array_unshift($errors, 'Cannot issue badge:');
       $errors[] = 'Please direct to Guest Services';
       $this->r->error = implode("\n", $errors);
       return false;
