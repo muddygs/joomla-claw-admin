@@ -11,6 +11,7 @@
 namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Checkin\Record;
+use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
 
 class CheckinRecord
@@ -39,6 +40,7 @@ class CheckinRecord
   public string $legalName = '';
   public string $pronouns = '';
   public string $registration_code = '';
+  public string $staff_type = '';
   public string $shifts = '';
   public string $shirtSize = '';
   public string $state = '';
@@ -61,6 +63,9 @@ class CheckinRecord
 
     /** @var \ClawCorpLib\Lib\PackageInfo  */
     foreach ($eventConfig->packageInfos as $packageInfo) {
+      if ($packageInfo->published != EbPublishedState::published || $packageInfo->eventId == 0)
+        continue;
+
       switch ($packageInfo->category) {
         case $eventConfig->eventInfo->eb_cat_dinners:
           $this->dinners[$packageInfo->eventId] = '';
@@ -91,7 +96,7 @@ class CheckinRecord
     $result = new Record();
 
     foreach (get_object_vars($this) as $key => $value) {
-      if (property_exists($result, $key)) {
+      if (property_exists($result, $key) && (is_string($this->$key) || is_bool($this->$key))) {
         $result->$key = $value;
       }
     }
@@ -101,15 +106,13 @@ class CheckinRecord
     $result->dinner = $this->getMealString($this->dinners);
 
     if ($this->eventConfig->eventInfo->badgePrintingOverride) {
-      $result->printed = '';
-    } else {
-      $result->printed = $this->printed ? 'Printed' : 'Need to Print';
+      $result->printed = true;
     }
-
-    $result->issued = $this->issued ? 'Issued' : 'New';
 
     $result->clawPackage = $this->eventPackageType->toString();
     if ($this->dayPassDay != '') $result->clawPackage .= ' (' . $this->dayPassDay . ')';
+
+    $result->shifts = '<pre>' . $result->shifts . '</pre>';
 
     return $result;
   }
