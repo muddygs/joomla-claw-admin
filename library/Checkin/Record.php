@@ -13,8 +13,8 @@ namespace ClawCorpLib\Checkin;
 class Record
 {
   public string $badgeId = '';
-  public string $issued = '';
-  public string $printed = '';
+  public bool $issued = false;
+  public bool $printed = false;
   public string $legalName = '';
   public string $city = '';
   public string $clawPackage = '';
