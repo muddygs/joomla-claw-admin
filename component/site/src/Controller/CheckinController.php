@@ -10,7 +10,7 @@
 
 namespace ClawCorp\Component\Claw\Site\Controller;
 
-defined('_JEXEC') or die;
+\defined('_JEXEC') or die;
 
 use ClawCorpLib\Lib\Jwtwrapper;
 use Joomla\CMS\MVC\Controller\BaseController;
@@ -49,51 +49,44 @@ class CheckinController extends BaseController
       return;
     }
 
-    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
-    $siteModel = $this->getModel();
-    $selectKeyValues = $siteModel->search(search: $search, page: $page);
-
     /** @var \ClawCorp\Component\Claw\Site\View\Checkin\HtmxSearchView */
     $view = $this->getView('Checkin', 'HtmxSearch');
     $view->setModel($this->model, true);
-    $view->regid = $selectKeyValues;
+    $view->search = $search;
+    $view->page = $page;
 
     $view->display();
   }
 
   public function value()
   {
-    $this->checkToken();
+    $input = $this->input;
+    $token = $input->get('token', '');
+    $page = $input->get('page', '');
 
-    $json = new Json();
-    $token = $json->get('token', '', 'string');
-    $search = $json->get('registration_code', '', 'string');
-    $page = $json->get('page', '', 'string');
+    if (!Jwtwrapper::valid(page: $page, token: $token)) {
+      echo 'invalid token';
+      return;
+    }
 
-    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
-    $siteModel = $this->getModel();
-    $result = $siteModel->JwtValue(token: $token, registration_code: $search, page: $page);
-    header('Content-Type: application/json');
-    echo json_encode($result);
-  }
+    $searchresults = $input->get('searchresults', '');
 
-  public function print()
-  {
-    //* @var \ClawCorp\Component\Claw\Site\View\Badgeprint\RawView */
-    $view = $this->getView('badgeprint', 'raw');
-
-    $view->action = $this->input->get('action', '', 'string');
-    $view->registrationCode = trim($this->input->get('registration_code', '', 'string'));
-    $view->token = $this->input->get('token', '', 'string');
-    $view->page = $this->input->get('page', '', 'string');
-    $view->quantity = $this->input->get('quantity', 0, 'uint');
-    $view->type = $this->input->get('type', 0, 'uint');
+    /** @var \ClawCorp\Component\Claw\Site\View\Checkin\HtmxSearchView */
+    $view = $this->getView('Checkin', 'HtmxRecord');
+    $view->setModel($this->model, true);
+    $view->search = $searchresults;
+    $view->page = $page;
 
     $view->display();
   }
 
   public function issue()
   {
+    $input = $this->input;
+    $token = $input->get('token', '');
+    $registration_code = $input->get('searchresults', '');
+    $page = $input->get('page', '');
+
     $this->checkToken();
 
     $json = new Json();
@@ -110,16 +103,18 @@ class CheckinController extends BaseController
 
   public function count()
   {
-    $this->checkToken();
+    // Since we have multiple forms, the count has counttoken instead of just token
+    $token = $this->input->get('counttoken', '');
 
-    $array = new Json();
-    $token = $array->get('token', '', 'string');
+    if (!Jwtwrapper::valid(page: 'badge-print', token: $token)) {
+      echo 'invalid token';
+      return;
+    }
 
-    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
-    $siteModel = $this->getModel();
-    $array = $siteModel->JwtGetCount(token: $token);
+    /** @var \ClawCorp\Component\Claw\Site\View\Checkin\PrintcountView */
+    $view = $this->getView('Checkin', 'Printcount');
+    $view->setModel($this->model, true);
 
-    header('Content-Type: application/json');
-    echo json_encode($array);
+    $view->display();
   }
 }

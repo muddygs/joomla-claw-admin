@@ -13,10 +13,10 @@
         <input name="search" id="search" value="" placeholder="" maxlength="15" size="15" type="text"
           hx-post="/index.php?option=com_claw&task=checkin.search&format=raw"
           hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load"
-          hx-target="#searchresults" />
+          hx-target="#searchresults" hx-swap="outerHTML" />
       </div>
       <div class="col-6">
-        <button class="btn btn-info" name="clear" id="clear" onClick="">
+        <button class="btn btn-info" name="clear" id="clear" onClick="clearDisplay();">
           Clear
         </button>
       </div>
@@ -40,18 +40,6 @@
   echo $this->loadTemplate();
   ?>
 
-  <input type="hidden" id="registration_code" value="" />
-
-  <h4 id="errorMsg"></h4>
-  <h4 id="infoMsg"></h4>
-
-  <div class="form-group" id="form-print-buttons">
-    <div class="row">
-      <div class="col">
-        <input name="submit" id="submit" type="button" value="Confirm and Issue Badge" class="btn btn-danger mb-2" style="display:none;" onclick="doCheckin()" />
-      </div>
-    </div>
-  </div>
 
   <input type="hidden" name="token" id="token" value="<?= $this->token ?>" />
   <input type="hidden" name="page" id="page" value="<?= $this->page ?>" />

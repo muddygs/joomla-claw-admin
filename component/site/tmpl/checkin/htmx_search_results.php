@@ -1,19 +1,13 @@
 <?php
-
 \defined('_JEXEC') or die;
 
-use \ClawCorpLib\Checkin\Record;
+// name="info" used to clear in typescript
 
-$record = new Record();
-
-if (property_exists($this, 'record')) {
-  /** @var \ClawCorpLib\Checkin\Record */
-  $record = $this->record;
-}
-
+/** @var \ClawCorpLib\Checkin\Record */
+$record = $this->record;
 ?>
 
-<div class="container my-3">
+<div class="container my-3" id="record" name="record">
   <div class="row">
     <div class="col-6 border border-danger py-2">
       <div class="row">
@@ -24,8 +18,24 @@ if (property_exists($this, 'record')) {
     <div class="col-6 border border-danger py-2">
       <div class="row">
         <div class="col-4">Status</div>
-        <div class="col-4 fw-bold" id="printed" name="info" style="color:#ffae00"></div>
-        <div class="col-3 fw-bold text-center" id="issued" name="info" style="color:green; background-color:#fff"><?= $record->issued ?></div>
+        <?php if ($record->printed): ?>
+          <div class="col-4 fw-bold text-center text-bg-success" id="printed" name="info">
+            Printed
+          </div>
+        <?php else: ?>
+          <div class="col-4 fw-bold text-center text-bg-danger" id="printed" name="info">
+            Need to Print
+          </div>
+        <?php endif; ?>
+        <?php if ($record->issued): ?>
+          <div class="col-3 fw-bold text-center text-bg-success" id="issued" name="info">
+            Issued
+          </div>
+        <?php else: ?>
+          <div class="col-3 fw-bold text-center text-bg-danger" id="issued" name="info">
+            Not Issued
+          </div>
+        <?php endif; ?>
         <div class="col-1"></div>
       </div>
     </div>
@@ -88,4 +98,29 @@ if (property_exists($this, 'record')) {
     <div class="col-2">Volunteer Shifts</div>
     <div class="col-10" id="shifts" name="info" style="color:#ffae00" colspan="3"><?= $record->shifts ?></div>
   </div>
+
+  <input type="hidden" id="registration_code" value="<?= $record->registration_code ?>" />
+
+  <h4 id="errorMsg" name="info">
+    <?php if (!empty($this->error)): ?>
+      <pre><?= $this->error ?></pre>
+    <?php endif; ?>
+  </h4>
+
+  <h4 id="infoMsg">
+  </h4>
+
+  <?php if ($this->isValid ?? false): ?>
+    <div class="form-group" id="form-print-buttons">
+      <div class="row">
+        <div class="col">
+          <input name="submit" id="submit" type="button" value="Confirm and Issue Badge" class="btn btn-lg btn-success w-100 mb-2"
+            hx-target="this"
+            hx-swap="outerHTML"
+            hx-post="/index.php?option=com_claw&task=checkin.issue&format=raw" />
+        </div>
+      </div>
+    </div>
+  <?php endif; ?>
+
 </div>

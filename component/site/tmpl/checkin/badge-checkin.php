@@ -3,9 +3,6 @@
 \defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
-use ClawCorpLib\Lib\Jwtwrapper;
-
-Jwtwrapper::redirectOnInvalidToken('badge-checkin', $this->token);
 
 /** @var Joomla\CMS\Application\SiteApplication */
 $app = Factory::getApplication();
@@ -17,7 +14,7 @@ $wa->useStyle('com_claw.admin');
 
 
 ?>
-<div class="mb-2 p-1 bg-info text-white" id="jwtstatus"></div>
+<div class="mb-2 p-1 text-bg-info text-end" id="jwtstatus"></div>
 
 <h1>Badge Checkin Station</h1>
 

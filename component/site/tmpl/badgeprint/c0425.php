@@ -51,7 +51,6 @@ $ordering = $this->printOrderings[$this->type];
     case EventPackageTypes::volunteer2:
     case EventPackageTypes::volunteer3:
     case EventPackageTypes::volunteersuper:
-    case EventPackageTypes::event_talent:
       $image = 'volunteer.svg';
       break;
     case EventPackageTypes::claw_staff:
@@ -60,6 +59,9 @@ $ordering = $this->printOrderings[$this->type];
       break;
     case EventPackageTypes::event_staff:
       $image = 'staff.svg';
+      break;
+    case EventPackageTypes::event_talent:
+      $image = 'volunteer.svg';
       break;
     case EventPackageTypes::educator:
       $image = 'educator.svg';
@@ -117,10 +119,6 @@ ClawCorpLib\Helpers\Bootstrap::rawFooter();
 
 function badgeFront(CheckinRecord $r, string $orientation, string $frontImage): void
 {
-  // https://github.com/picqer/php-barcode-generator
-  // $generator = new \Picqer\Barcode\BarcodeGeneratorSVG();
-  // $bc = base64_encode($generator->getBarcode(strtoupper($r->registration_code), $generator::TYPE_CODE_39, 1, 38, 'black'));
-
   $options = new QROptions([
     'version'          => 1, // Max 20 characters w/ECC_M
     'outputType'       => QRCode::OUTPUT_MARKUP_SVG,
@@ -133,23 +131,20 @@ function badgeFront(CheckinRecord $r, string $orientation, string $frontImage): 
 
   $nophotoImage = dirname($frontImage) . '/nophoto.svg';
 
-  // Convenience variables
-  $regCode = $r->registration_code;
-  $badgename = $r->badge;
-  $pronouns = $r->pronouns;
-  $regid = $r->badgeId;
-
 ?>
-  <div class="label <?= $orientation ?>" style="position:relative;" id="<?= $regCode ?>">
+  <div class="label <?= $orientation ?>" style="position:relative;" id="<?= $r->registration_code ?>">
     <img class="graphic" src="<?= $frontImage ?>" />
     <div class="badgename">
-      <?= $badgename ?>
+      <?= $r->badge ?>
     </div>
     <div class="pronouns">
-      <?= $pronouns ?>
+      <?= $r->pronouns ?>
     </div>
     <div class="regid">
-      <?= $regid ?>
+      <?= $r->badgeId ?>
+    </div>
+    <div class="type">
+      <?= $r->staff_type ?>
     </div>
     <div class="barcode">
       <img class="qrcode" src="<?= $qr; ?>" alt="QR Code" />
@@ -170,7 +165,7 @@ function badgeFront(CheckinRecord $r, string $orientation, string $frontImage): 
 <?php
 }
 
-function badgeBack(CheckinRecord $r, string $imagePath): void
+function badgeBack(CheckinRecord $r): void
 {
   $s = nl2br($r->shifts);
   // Convenience variables

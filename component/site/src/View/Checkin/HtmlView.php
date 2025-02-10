@@ -12,6 +12,7 @@ namespace ClawCorp\Component\Claw\Site\View\Checkin;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Checkin\Record;
 use ClawCorpLib\Enums\JwtStates;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
@@ -71,6 +72,7 @@ class HtmlView extends BaseHtmlView
     }
 
     $this->setLayout($tpl); // no "default_" prefix
+    $this->record = new Record();
     parent::display();
   }
 
