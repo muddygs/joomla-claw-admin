@@ -94,7 +94,7 @@ body {
 	transform-origin: top left;
 }
 
-.regid {
+.regid, .type {
 	color: black;
 	font-weight: bold;
 	z-index: 1000;
@@ -103,6 +103,7 @@ body {
 	width: 100%;
 	font-size: 16pt;
 }
+
 .portrait .regid {
 	transform: translate(-3.4mm, 36mm);
 }
@@ -110,6 +111,17 @@ body {
 .landscape .regid {
 	transform: rotate(-90deg) translate(-71mm, 19mm);
 }
+
+.portrait .type {
+	color: white;
+	background: black;
+	transform: translate(-3.4mm, 41mm);
+}
+
+.landscape .type {
+	transform: rotate(-90deg) translate(-71mm, 19mm);
+}
+
 
 .barcode {
 	z-index: 900;
