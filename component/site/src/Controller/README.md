@@ -1,6 +1,6 @@
 # JWT vs. Joomla Session Token
 
-Some of these controllers use [JSON Web Token, JWT](jwt.io) instead of the standard Joomla session token verification.
+Some of these controllers use [JSON Web Token, JWT](https://jwt.io) instead of the standard Joomla session token verification.
 
 JWT Library used is [firebase/php-jwt](https://github.com/firebase/php-jwt).
 
@@ -34,7 +34,7 @@ init -> email does not exist -> error
      -> email:confirm received -> issued
      -> email:revoked received -> revoked
 
-issue -> exp > now() -> expired
+issued -> exp > now() -> expired
 ```
 
 `email:confirm` must be received within 310 seconds (a tad more than 5 minutes). `email:revoked` can
