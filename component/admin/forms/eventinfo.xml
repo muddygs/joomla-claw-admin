@@ -34,6 +34,18 @@
   </field>
 
   <field
+    name="anyShiftSelection"
+    type="radio"
+    label="Allow Any Shift Selection:"
+    required="true"
+    default="0"
+    class="btn-group btn-group-yesno"
+  >
+    <option value="1">JYES</option>
+    <option value="0">JNO</option>
+  </field>
+
+  <field
     name="dayPassesActive"
     type="radio"
     label="Display Day Passes:"
