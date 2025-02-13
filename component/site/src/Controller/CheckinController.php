@@ -14,7 +14,6 @@ namespace ClawCorp\Component\Claw\Site\Controller;
 
 use ClawCorpLib\Lib\Jwtwrapper;
 use Joomla\CMS\MVC\Controller\BaseController;
-use Joomla\Input\Json;
 use ClawCorpLib\Traits\Controller;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Form\FormFactoryInterface;
@@ -87,18 +86,15 @@ class CheckinController extends BaseController
     $registration_code = $input->get('searchresults', '');
     $page = $input->get('page', '');
 
-    $this->checkToken();
-
-    $json = new Json();
-    $token = $json->get('token', '', 'string');
-    $registration_code = $json->get('registration_code', '', 'string');
-    $page = $json->get('page', '', 'string');
+    if (!Jwtwrapper::valid(page: $page, token: $token)) {
+      echo 'invalid token';
+      return;
+    }
 
     /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
     $siteModel = $this->getModel();
-    $result = $siteModel->JwtCheckin(token: $token, registration_code: $registration_code, page: $page);
-    header('Content-Type: application/json');
-    echo json_encode($result);
+    $siteModel->JwtCheckin($registration_code);
+    echo '<h1>Checkin Complete</h1>';
   }
 
   public function count()
