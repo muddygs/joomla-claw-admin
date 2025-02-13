@@ -7,7 +7,7 @@
 
 <form method="post" name="claw-process-badge-checkin" id="claw-badge-checkin" class="form-horizontal">
   <fieldset class="form-group">
-    <div class="row">
+    <div class="row mb-1">
       <legend class="col-form-label col-3">Search by Name or Badge #:</legend>
       <div class="col-3">
         <input name="search" id="search" value="" placeholder="" maxlength="15" size="15" type="text"
@@ -16,7 +16,7 @@
           hx-target="#searchresults" hx-swap="outerHTML" />
       </div>
       <div class="col-6">
-        <button class="btn btn-info" name="clear" id="clear" onClick="clearDisplay();">
+        <button type=button" class="btn btn-lg btn-info" name="clear" id="clear" onClick="clearDisplay(); return false;">
           Clear
         </button>
       </div>
