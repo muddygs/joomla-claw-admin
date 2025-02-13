@@ -50,6 +50,7 @@ $view = 'eventinfo';
       </div>
       <div class="col-lg-2">
         <?= $this->form->renderField('onsiteActive'); ?>
+        <?= $this->form->renderField('anyShiftSelection'); ?>
         <?= $this->form->renderField('badge_printing_override'); ?>
       </div>
       <div class="col-lg-2">

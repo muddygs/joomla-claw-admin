@@ -228,11 +228,13 @@ HTML;
       $this->show_error = true;
     }
 
-    $shiftCategoryCount = $registrantData->categoryCounts($shiftCategoryIds);
-    $supervol = $eventConfig->getPackageInfo(EventPackageTypes::volunteersuper);
-    if (!$onsiteActive && !$this->show_error && $shiftCategoryCount > 1 && (is_null($supervol) || $packageEventId != $supervol->eventId)) {
-      $this->submit = "<div class=\"alert alert-danger\">Shifts must all come from the same category (e.g., all Guest Services or Badge Check). Modify your cart to correct this error.</div>";
-      $this->show_error = true;
+    if (!$eventConfig->eventInfo->anyShiftSelection) {
+      $shiftCategoryCount = $registrantData->categoryCounts($shiftCategoryIds);
+      $supervol = $eventConfig->getPackageInfo(EventPackageTypes::volunteersuper);
+      if (!$onsiteActive && !$this->show_error && $shiftCategoryCount > 1 && (is_null($supervol) || $packageEventId != $supervol->eventId)) {
+        $this->submit = "<div class=\"alert alert-danger\">Shifts must all come from the same category (e.g., all Guest Services or Badge Check). Modify your cart to correct this error.</div>";
+        $this->show_error = true;
+      }
     }
 
     $eventIds = array_keys($registrantData->records());

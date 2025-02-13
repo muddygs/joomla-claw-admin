@@ -29,6 +29,7 @@ class EventInfo
   public bool $active;
   public EventTypes $eventType;
   public bool $onsiteActive;
+  public bool $anyShiftSelection;
   public bool $dayPassesActive;
   public bool $passesActive;
   public bool $passesOtherActive;
@@ -78,6 +79,7 @@ class EventInfo
       throw (new \Exception("Invalid EventTypes value: {$info->eventType}"));
     }
     $this->onsiteActive = $info->onsiteActive ?? false;
+    $this->anyShiftSelection = $info->anyShiftSelection ?? false;
     $this->dayPassesActive = $info->dayPassesActive ?? false;
     $this->passesActive = $info->passesActive ?? false;
     $this->passesOtherActive = $info->passesOtherActive ?? false;

@@ -193,6 +193,7 @@ CREATE TABLE IF NOT EXISTS `#__claw_eventinfos` (
   `badge_printing_override` boolean DEFAULT 0,
   `eventType` TINYINT(4) DEFAULT NULL,
   `onsiteActive` boolean DEFAULT 0,
+  `anyShiftSelection` boolean DEFAULT 0,
   `dayPassesActive` boolean DEFAULT 0,
   `passesActive` boolean DEFAULT 0,
   `passesOtherActive` boolean DEFAULT 0,
