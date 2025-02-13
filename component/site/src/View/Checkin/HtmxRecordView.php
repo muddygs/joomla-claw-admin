@@ -26,8 +26,6 @@ class HtmxRecordView extends BaseHtmlView
   public Record $record;
   public bool $isValid;
 
-
-
   function display($tpl = null)
   {
     $checkinRecord = new Checkin($this->search);
@@ -35,7 +33,9 @@ class HtmxRecordView extends BaseHtmlView
     $this->error = 'Record not loaded';
     $this->isValid = $checkinRecord->isValid;
 
-    $this->record = $checkinRecord->r->toRecord();
+    if (!is_null($checkinRecord->r)) {
+      $this->record = $checkinRecord->r->toRecord();
+    }
     $this->error = $checkinRecord->r->error;
 
     $this->setLayout('htmx_search_results');
