@@ -13,7 +13,11 @@
 // name="info" used to clear in typescript
 
 ?>
-<select id="searchresults" name="searchresults" size="10" style="height:auto">
+<select id="searchresults" name="searchresults" size="10" style="height:auto"
+  hx-post="/index.php?option=com_claw&task=checkin.value&format=raw"
+  hx-trigger="keyup"
+  hx-target="#record"
+  hx-swap="outerHTML">
 
   <?php foreach ($this->data as $data): ?>
     <option value="<?= $data['id'] ?>"
