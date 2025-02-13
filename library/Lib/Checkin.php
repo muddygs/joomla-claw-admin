@@ -14,6 +14,7 @@ use Joomla\CMS\Factory;
 
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Grid\Deploy;
 use ClawCorpLib\Lib\Registrant;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Aliases;
@@ -149,7 +150,7 @@ class Checkin
     $leatherHeartCatId = ClawEvents::getCategoryId('donations-leather-heart');
 
     $this->r->shifts = '';
-    $shiftCount = 0;
+    $shiftPoints = 0;
 
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
     foreach ($records as $r) {
@@ -189,8 +190,9 @@ class Checkin
 
       // Shifts
       if (in_array($r->category->category_id, $shiftCatIds)) {
-        $this->r->shifts .= $r->event->title . "\n";
-        $shiftCount++;
+        $this->r->shifts = implode("\n", [$this->r->shifts, $r->event->title]);
+        $shiftAlias = Deploy::parseAlias(self::$eventConfig->eventInfo, $r->event->alias);
+        $shiftPoints += $shiftAlias->weight;
         continue;
       }
 
@@ -221,7 +223,7 @@ class Checkin
       $error[] = 'Multiple combo meals found. This is not allowed.';
     }
 
-    if ($shiftCount < $event->minShifts) {
+    if ($shiftPoints < $event->minShifts) {
       $errors[] = 'Minimum shifts not met.';
     }
 
@@ -353,34 +355,28 @@ class Checkin
 
         $mealTypes = [
           'beef' => [
-            'phrases' => ['beef'],
             'class' => 'meal-beef',
             'description' => 'Beef'
           ],
           'chicken' => [
-            'phrases' => ['chicken'],
             'class' => 'meal-chicken',
             'description' => 'Chicken'
           ],
           'fish' => [
-            'phrases' => ['fish', 'sea bass'],
             'class' => 'meal-fish',
             'description' => 'Fish'
           ],
-          'vega' => [
-            'phrases' => ['vege', 'vegan', 'ravioli'],
+          'vegetarian' => [
             'class' => 'meal-vegan',
             'description' => 'Vegetarian'
           ]
         ];
 
-        foreach ($mealTypes as $info) {
-          foreach ($info['phrases'] as $phrase) {
-            if (str_contains($meal, $phrase)) {
-              $description = $info['description'];
-              $class = $info['class'];
-              break 2;
-            }
+        foreach ($mealTypes as $type => $info) {
+          if (str_contains($meal, $type)) {
+            $description = $info['description'];
+            $class = $info['class'];
+            break;
           }
         }
 
