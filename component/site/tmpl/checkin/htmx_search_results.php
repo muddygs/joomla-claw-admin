@@ -114,7 +114,7 @@ $record = $this->record;
     <div class="form-group" id="form-print-buttons">
       <div class="row">
         <div class="col">
-          <input name="submit" id="submit" type="button" value="Confirm and Issue Badge" class="btn btn-lg btn-success w-100 mb-2"
+          <input name="issue" id="issue" type="button" value="Confirm and Issue Badge" class="btn btn-lg btn-success w-100 mb-2"
             hx-target="this"
             hx-swap="outerHTML"
             hx-post="/index.php?option=com_claw&task=checkin.issue&format=raw" />
