@@ -29,15 +29,10 @@ class CheckinModel extends BaseDatabaseModel
 {
   public CheckinRecord $record;
 
-  public function JwtCheckin(string $token, string $registration_code, string $page)
+  public function JwtCheckin(string $registration_code)
   {
-    Jwtwrapper::redirectOnInvalidToken(page: $page, token: $token);
-
     $checkinRecord = new Checkin($registration_code);
     $checkinRecord->doCheckin();
-
-    $r = ['result' => '1'];
-    return $r;
   }
 
   public function GetCount(): array
