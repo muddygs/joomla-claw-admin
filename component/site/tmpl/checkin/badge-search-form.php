@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * @package     ClawCorp
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2025 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
+\defined('_JEXEC') or die;
 \defined('_JEXEC') or die;
 
 ?>
@@ -8,9 +17,9 @@
 <form method="post" name="claw-process-badge-checkin" id="claw-badge-checkin" class="form-horizontal">
   <fieldset class="form-group">
     <div class="row mb-1">
-      <legend class="col-form-label col-3">Search by Name or Badge #:</legend>
+      <legend class="col-form-label col-3">Search by Last Name or Badge #:</legend>
       <div class="col-3">
-        <input name="search" id="search" value="" placeholder="" maxlength="15" size="15" type="text"
+        <input name="search" id="search" value="" placeholder="" maxlength="15" size="15" type="text" autocomplete="off"
           hx-post="/index.php?option=com_claw&task=checkin.search&format=raw"
           hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load"
           hx-target="#searchresults" hx-swap="outerHTML" />
@@ -25,7 +34,7 @@
 
   <fieldset class="form-group">
     <div class="row">
-      <legend class="col-form-label col-3">Search Results:</legend>
+      <legend class="col-form-label col-3">Search Results (ordered by first name):</legend>
       <div class="col-9">
         <select name="searchresults" id="searchresults" size="10" style="height:auto">
         </select>

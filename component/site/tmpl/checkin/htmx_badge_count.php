@@ -9,9 +9,13 @@
  */
 
 \defined('_JEXEC') or die;
+
+if ($this->placeholder ?? false) {
+  $this->attendeecount = $this->volunteercount = $this->othercount = $this->totalcount = 'Loading...';
+}
 ?>
 
-<div id="badgeCounts" hx-post="index.php?option=com_claw&task=checkin.count&format=raw" hx-trigger="load delay:30s" hx-swap="outerHTML">
+<div id="badgeCounts" hx-post="index.php?option=com_claw&task=checkin.count&format=raw" hx-trigger="load delay:60s" hx-swap="outerHTML">
   <p>Total badges to print:
     <b>
       <?= $this->totalcount ?>

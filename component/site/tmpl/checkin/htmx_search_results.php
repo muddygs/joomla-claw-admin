@@ -1,4 +1,14 @@
 <?php
+
+/**
+ * @package     ClawCorp
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2025 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
+\defined('_JEXEC') or die;
 \defined('_JEXEC') or die;
 
 // name="info" used to clear in typescript
@@ -8,6 +18,29 @@ $record = $this->record;
 ?>
 
 <div class="container my-3" id="record" name="record">
+  <h4 id="errorMsg" name="info">
+    <?php if (!empty($this->error)): ?>
+      <pre><?= $this->error ?></pre>
+    <?php endif; ?>
+  </h4>
+
+  <h4 id="infoMsg">
+  </h4>
+
+  <?php if ($this->isValid ?? false): ?>
+    <div class="form-group" id="form-print-buttons">
+      <div class="row">
+        <div class="col">
+          <input name="issue" id="issue" type="button" value="Confirm and Issue Badge" class="btn btn-lg btn-success w-100 mb-2"
+            hx-target="this"
+            hx-on::before-request='clearDisplay();'
+            hx-swap="outerHTML"
+            hx-post="/index.php?option=com_claw&task=checkin.issue&format=raw" />
+        </div>
+      </div>
+    </div>
+  <?php endif; ?>
+
   <div class="row">
     <div class="col-6 border border-danger py-2">
       <div class="row">
@@ -100,27 +133,5 @@ $record = $this->record;
   </div>
 
   <input type="hidden" id="registration_code" value="<?= $record->registration_code ?>" />
-
-  <h4 id="errorMsg" name="info">
-    <?php if (!empty($this->error)): ?>
-      <pre><?= $this->error ?></pre>
-    <?php endif; ?>
-  </h4>
-
-  <h4 id="infoMsg">
-  </h4>
-
-  <?php if ($this->isValid ?? false): ?>
-    <div class="form-group" id="form-print-buttons">
-      <div class="row">
-        <div class="col">
-          <input name="issue" id="issue" type="button" value="Confirm and Issue Badge" class="btn btn-lg btn-success w-100 mb-2"
-            hx-target="this"
-            hx-swap="outerHTML"
-            hx-post="/index.php?option=com_claw&task=checkin.issue&format=raw" />
-        </div>
-      </div>
-    </div>
-  <?php endif; ?>
 
 </div>
