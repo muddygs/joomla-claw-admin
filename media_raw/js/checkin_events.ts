@@ -55,4 +55,6 @@ function clearDisplay() {
   (document.getElementById('status') as HTMLInputElement).value = "";
   (document.getElementById('errorMsg') as HTMLInputElement).value = "";
   (document.getElementById('infoMsg') as HTMLInputElement).value = "";
+  (document.getElementById('search') as HTMLInputElement).value = "";
+  (document.getElementById('searchresults') as HTMLSelectElement).innerHTML = "";
 }
