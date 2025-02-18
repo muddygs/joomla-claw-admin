@@ -24,19 +24,24 @@ class HtmxRecordView extends BaseHtmlView
   // For the template
   public string $error; // prepared error string from Checkin->
   public Record $record;
-  public bool $isValid;
+  public bool $isValid = false;
 
   function display($tpl = null)
   {
-    $checkinRecord = new Checkin($this->search);
+    try {
+      $checkin = new Checkin($this->search);
+      $this->isValid = $checkin->isValid;
+    } catch (\Exception) {
+      $this->isValid = false;
+    }
+
     $this->record = new Record();
     $this->error = 'Record not loaded';
-    $this->isValid = $checkinRecord->isValid;
 
-    if (!is_null($checkinRecord->r)) {
-      $this->record = $checkinRecord->r->toRecord();
+    if (isset($checkin->r)) {
+      $this->record = $checkin->r->toRecord();
+      $this->error = $checkin->r->error;
     }
-    $this->error = $checkinRecord->r->error;
 
     $this->setLayout('htmx_search_results');
     parent::display($tpl);
