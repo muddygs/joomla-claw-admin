@@ -18,6 +18,7 @@ use Joomla\CMS\Factory;
 use Joomla\Database\Exception\UnsupportedAdapterException;
 use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
 use Joomla\DI\Exception\KeyNotFoundException;
+use RuntimeException;
 
 class EventConfig
 {
@@ -43,6 +44,7 @@ class EventConfig
    * @param array $filter By default, only primary registration events are included
    * @return void 
    * @throws KeyNotFoundException 
+   * @throws RuntimeException
    */
   public function __construct(
     public string $alias,
@@ -57,7 +59,7 @@ class EventConfig
     $this->eventInfo = self::$_EventInfoCache->{$this->alias};
 
     if (is_null($this->eventInfo)) {
-      throw (new \InvalidArgumentException("Invalid event alias: $this->alias"));
+      throw (new \RuntimeException("Invalid event alias: $this->alias"));
     }
 
     $this->packageInfos = new PackageInfoArray();
@@ -88,7 +90,7 @@ class EventConfig
 
     $query = $db->getQuery(true);
 
-    $query->select('*')
+    $query->select('id')
       ->from('#__claw_packages')
       ->where('eventAlias IN (' . $aliases . ')');
 
@@ -101,12 +103,12 @@ class EventConfig
 
     $db->setQuery($query);
 
-    $rows = $db->loadObjectList();
+    $rows = $db->loadColumn();
 
     if (is_null($rows)) return;
 
     foreach ($rows as $row) {
-      $this->packageInfos[$row->id] = new PackageInfo($this->eventInfo, $row->id);
+      $this->packageInfos[$row] = new PackageInfo($row);
     }
   }
 
@@ -158,6 +160,7 @@ class EventConfig
 
   public function getMainEventIds(): array
   {
+    // Empty means all packages, so ignore checks
     if (
       !empty($this->filter) &&
       !in_array(PackageInfoTypes::main, $this->filter) &&
