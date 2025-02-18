@@ -9,7 +9,6 @@
  */
 
 \defined('_JEXEC') or die;
-\defined('_JEXEC') or die;
 
 ?>
 <p>Type in the first few letters of the LAST NAME or Badge # (C21-01234 or 01234)</p>
