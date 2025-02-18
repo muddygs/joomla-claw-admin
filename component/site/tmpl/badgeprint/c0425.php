@@ -13,7 +13,7 @@
 use ClawCorpLib\Enums\BadgeOrientation;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Lib\Checkin;
-use ClawCorpLib\Lib\CheckinRecord;
+use ClawCorpLib\Checkin\Record;
 
 // Importing from Event Booking installed library
 $path = JPATH_ADMINISTRATOR . '/components/com_eventbooking/libraries/vendor/chillerlan/php-qrcode/src';
@@ -28,6 +28,7 @@ use chillerlan\QRCode\QRCode;
 
 ClawCorpLib\Helpers\Bootstrap::rawHeader(['/media/com_claw/js/print_badge.js'], ['/media/com_claw/css/primaryid_badge.css']);
 $ordering = $this->printOrderings[$this->type];
+$checkinCache = [];
 
 ?>
 <div class="noprint d-grid gap-2">
@@ -35,13 +36,15 @@ $ordering = $this->printOrderings[$this->type];
   <a class="btn btn-danger btn-lg" href="javascript:window.close();">CLOSE</a>
 </div>
 <?php foreach ($this->registrationCodes as $registrationCode):
-  $c = new Checkin($registrationCode);
+  try {
+    $checkinCache[$registrationCode] = new Checkin($registrationCode);
+  } catch (\Exception) {
+    continue;
+  }
 
-  //    if (!$c->isValid) continue;
+  if ($this->checkinRecord) $checkinCache[$registrationCode]->doCheckin();
 
-  if ($this->checkinRecord) $c->doCheckin();
-
-  $r = $c->r;
+  $r = $checkinCache[$registrationCode]->r;
 
   $image = 'attendee.svg';
   $orientation = BadgeOrientation::portrait->name;
@@ -78,21 +81,20 @@ $ordering = $this->printOrderings[$this->type];
     case EventPackageTypes::attendee:
       break;
     default:
-      $c->doMarkPrinted();
+      $checkinCache[$registrationCode]->doMarkPrinted();
       continue 2;
       # code...
       break;
   }
 
   if ($ordering == 'sequential') {
-    badgeFront($r, $orientation, $this->imagePath . $image);
-    badgeBack($r, $this->imagePath);
+    badgeFront($r->toRecord(), $orientation, $this->imagePath . $image);
+    badgeBack($r->toRecord(), $this->imagePath);
   } else {
-    badgeFront($r, $orientation, $this->imagePath . $image);
+    badgeFront($r->toRecord(), $orientation, $this->imagePath . $image);
   }
 
-  if ($this->checkinRecord) $c->doCheckin();
-  $c->doMarkPrinted();
+  $checkinCache[$registrationCode]->doMarkPrinted();
 endforeach;
 
 // Print backs in forward order
@@ -100,8 +102,7 @@ if ($ordering == 'fb') {
   reset($this->registrationCodes);
   for (key($this->registrationCodes); key($this->registrationCodes) !== null; next($this->registrationCodes)) {
     $code = current($this->registrationCodes);
-    $c = new Checkin($code);
-    badgeBack($c->r, $this->imagePath);
+    badgeBack($checkinCache[$code]->r->toRecord(), $this->imagePath);
   }
 }
 
@@ -110,14 +111,13 @@ if ($ordering == 'fbr') {
   reset($this->registrationCodes);
   for (end($this->registrationCodes); key($this->registrationCodes) !== null; prev($this->registrationCodes)) {
     $code = current($this->registrationCodes);
-    $c = new Checkin($code);
-    badgeBack($c->r, $this->imagePath);
+    badgeBack($checkinCache[$code]->r->toRecord(), $this->imagePath);
   }
 }
 
 ClawCorpLib\Helpers\Bootstrap::rawFooter();
 
-function badgeFront(CheckinRecord $r, string $orientation, string $frontImage): void
+function badgeFront(Record $r, string $orientation, string $frontImage): void
 {
   $options = new QROptions([
     'version'          => 1, // Max 20 characters w/ECC_M
@@ -135,7 +135,7 @@ function badgeFront(CheckinRecord $r, string $orientation, string $frontImage): 
   <div class="label <?= $orientation ?>" style="position:relative;" id="<?= $r->registration_code ?>">
     <img class="graphic" src="<?= $frontImage ?>" />
     <div class="badgename">
-      <?= $r->badge ?>
+      <?= $r->badgeName ?>
     </div>
     <div class="pronouns">
       <?= $r->pronouns ?>
@@ -165,19 +165,15 @@ function badgeFront(CheckinRecord $r, string $orientation, string $frontImage): 
 <?php
 }
 
-function badgeBack(CheckinRecord $r): void
+function badgeBack(Record $r): void
 {
   $s = nl2br($r->shifts);
   // Convenience variables
   $regCode = $r->registration_code;
 
-  $noPhoto = $r->photoAllowed == true ? '' : 'No';
+  $noPhoto = $r->photoAllowed ? '' : 'No';
 
   $coc = $r->cocSigned ? 'Yes' : 'No';
-
-  $buffet = $r->getMealString($r->buffets);
-  $brunch = $r->getMealString($r->brunches);
-  $dinner = $r->getMealString($r->dinners);
 
 ?>
   <div class="label" id="<?= $regCode ?>b">
@@ -195,9 +191,9 @@ function badgeBack(CheckinRecord $r): void
       <li class="infoline">Buffets</li>
       <li class="infoline">Photo</li>
       <li class="infoline">COC Signed</li>
-      <li class="value"><?= $dinner ?></li>
-      <li class="value"><?= $brunch ?></li>
-      <li class="value"><?= $buffet ?></li>
+      <li class="value"><?= $r->dinner ?></li>
+      <li class="value"><?= $r->brunch ?></li>
+      <li class="value"><?= $r->buffets ?></li>
       <li class="value"><?= $noPhoto ?></li>
       <li class="value"><?= $coc ?><br /><?= $r->id ?></li>
       <li class="shifts"><?= $s ?></li>
