@@ -99,6 +99,11 @@
       }
     },
     {
+      "name": "com_claw.checkin_css",
+      "type": "style",
+      "uri": "com_claw/checkin.css"
+    },
+    {
       "name": "com_claw.meals",
       "type": "script",
       "uri": "com_claw/mealcheckin_events.js",

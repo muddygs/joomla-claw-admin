@@ -1,0 +1,31 @@
+/* Hide buttons when the select is in the :invalid state */
+body:has(#searchresult:invalid) #issue {
+  display: none;
+}
+
+/* Show the button when the select is :valid */
+body:has(#searchresult:valid) #issue {
+  display: inline-block;
+  /* or block, etc. */
+}
+
+/* Meal coloring */
+.meal-beef {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+.meal-fish {
+  background-color: blue !important;
+  color: white !important;
+}
+
+.meal-vegan {
+  background-color: green !important;
+  color: white !important;
+}
+
+.meal-chicken {
+  background-color: yellow !important;
+  color: black !important;
+}
