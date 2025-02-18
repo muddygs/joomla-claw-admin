@@ -17,8 +17,6 @@ use Joomla\CMS\User\UserHelper;
 
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Enums\JwtStates;
-use Exception;
-use UnexpectedValueException;
 
 require_once(JPATH_LIBRARIES . '/claw/External/jwt/vendor/autoload.php');
 
@@ -78,7 +76,7 @@ class Jwtwrapper
       'exp' => 2 * 3600,
       'group' => 'Registration',
       'description' => 'Meals Checkin',
-      'view' => 'checkin',
+      'view' => 'mealcheckin',
     ]
   ];
 
@@ -114,7 +112,7 @@ class Jwtwrapper
   {
     try {
       $payload = JwtWrapper::decodeUnverified($token);
-    } catch (Exception) {
+    } catch (\Exception) {
       return null;
     }
 
@@ -133,7 +131,8 @@ class Jwtwrapper
 
     if (null == $decoded) return null;
 
-    $db = Factory::getDbo();
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
     $query = $db->getQuery(true);
     $query->select($db->qn('state'))
       ->from('#__claw_jwt')
@@ -160,14 +159,14 @@ class Jwtwrapper
   {
     $tks = \explode('.', $token);
     if (\count($tks) != 3) {
-      throw new UnexpectedValueException('Wrong number of segments');
+      throw new \UnexpectedValueException('Wrong number of segments');
     }
     list($headb64, $bodyb64, $cryptob64) = $tks;
     if (null === ($header = \Firebase\JWT\JWT::jsonDecode(\Firebase\JWT\JWT::urlsafeB64Decode($headb64)))) {
-      throw new UnexpectedValueException('Invalid header encoding');
+      throw new \UnexpectedValueException('Invalid header encoding');
     }
     if (null === $payload = \Firebase\JWT\JWT::jsonDecode(\Firebase\JWT\JWT::urlsafeB64Decode($bodyb64))) {
-      throw new UnexpectedValueException('Invalid claims encoding');
+      throw new \UnexpectedValueException('Invalid claims encoding');
     }
 
     return $payload;
@@ -187,7 +186,7 @@ class Jwtwrapper
 
     try {
       $payload = JWT::decode($token, new Key($secret, 'HS384'));
-    } catch (Exception $e) {
+    } catch (\Exception) {
       return null;
     }
 
@@ -203,7 +202,8 @@ class Jwtwrapper
   // @return 
   public function getSecret(bool $allowInit = false): string
   {
-    $db = Factory::getDbo();
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     $query = $db->getQuery(true);
     $query->select('*')
@@ -287,7 +287,8 @@ class Jwtwrapper
    */
   public function initEmailTokens(string $secret, string $nonce, string $subject): array
   {
-    $db = Factory::getDbo();
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     // $page = sessionGet('jwt_token_page');
 
@@ -343,19 +344,22 @@ class Jwtwrapper
     return true;
   }
 
-  public static function redirectOnInvalidToken(string $page, string $token): void
+  public static function redirectOnInvalidToken(?string $page, ?string $token): void
   {
     /** @var \Joomla\CMS\Application\SiteApplication */
     $app = Factory::getApplication();
 
-    if (!self::valid($page, $token)) {
-      $app->redirect('/link');
+    if (!is_null($page) && !is_null($token)) {
+      if (self::valid($page, $token)) return;
     }
+
+    $app->redirect('/link');
   }
 
   public static function updateDatabaseState(object $payload, JwtStates $state)
   {
-    $db = Factory::getDbo();
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     // The only values permitted by the database's definition:
     if ($state != JwtStates::issued && $state != JwtStates::revoked) return;
@@ -388,7 +392,8 @@ class Jwtwrapper
 
   public static function getDatabaseState(string $nonce, string $subject): array
   {
-    $db = Factory::getDbo();
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     $query = $db->getQuery(true);
     $query->select('*')
@@ -421,7 +426,8 @@ class Jwtwrapper
 
   public static function setDatabaseState(int $rowId, JwtStates $state): bool
   {
-    $db = Factory::getDbo();
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     $query = $db->getQuery(true);
     $s = $state->value;
@@ -439,7 +445,8 @@ class Jwtwrapper
    */
   public static function getJwtRecords(): array
   {
-    $db = Factory::getDbo();
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
     $time = time();
 
     $revoked = JwtStates::revoked->value;
@@ -473,7 +480,8 @@ class Jwtwrapper
    */
   function initTokenRequest(string $email, string $nonce, string $subject): bool
   {
-    $db = Factory::getDbo();
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
 
     if (!array_key_exists($subject, Jwtwrapper::jwt_token_pages)) return false;
     if ('' == $email || '' == $nonce) return false;
@@ -504,13 +512,13 @@ class Jwtwrapper
     // Initialize the secret
     $secret = $jwt->getSecret(allowInit: true);
 
-    [$confirmToken, $revokeToken] = $jwt->initEmailTokens($secret, $nonce, $subject);
-
     if ('' != $secret) {
+      [$confirmToken, $revokeToken] = $jwt->initEmailTokens($secret, $nonce, $subject);
       Jwtwrapper::emailLink($email, $confirmToken, $revokeToken, 'Registration link for ' . $subject . '(' . $email . ')');
+      return true;
     }
 
-    return true;
+    return false;
   }
 
   public static function confirmToken(string $token, JwtStates $requiredState): ?object
@@ -519,7 +527,7 @@ class Jwtwrapper
 
     try {
       $payload = Jwtwrapper::decodeUnverified($token);
-    } catch (Exception) {
+    } catch (\Exception) {
       return null;
     }
 
@@ -554,7 +562,8 @@ class Jwtwrapper
       // read database to update state from there
       $s = $requiredState->value;
 
-      $db = Factory::getDbo();
+      /** @var \Joomla\Database\DatabaseDriver */
+      $db = Factory::getContainer()->get('DatabaseDriver');
       $query = $db->getQuery(true);
       $query->select($db->qn('state'))
         ->from('#__claw_jwt')
@@ -588,8 +597,8 @@ class Jwtwrapper
     $root = Uri::getInstance();
     $root->setPath('/');
 
-    $confirmLink = $root->root() . "index.php?option=com_claw&view=checkin&format=raw&task=jwtconfirm&token=$confirmToken";
-    $revokeLink =  $root->root() . "index.php?option=com_claw&view=checkin&format=raw&task=jwtrevoke&token=$revokeToken";
+    $confirmLink = $root->root() . "index.php?option=com_claw&view=checkin&format=raw&task=jwt.jwtconfirm&token=$confirmToken";
+    $revokeLink =  $root->root() . "index.php?option=com_claw&view=checkin&format=raw&task=jwt.jwtrevoke&token=$revokeToken";
 
     $body =  Jwtwrapper::htmlButton($confirmLink, 'Confirm', '#28a745');
     $body .= Jwtwrapper::htmlButton($revokeLink,  'Revoke',  '#dc3545');
