@@ -19,6 +19,7 @@ use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\User\UserFactoryInterface;
 
 class Registrant
 {
@@ -253,7 +254,7 @@ class Registrant
   {
     if (count($this->_records) < 1) {
       if (!$this->enablePastEvents) {
-        throw(new \Exception('Cannot merge until records loaded.'));
+        throw (new \Exception('Cannot merge until records loaded.'));
       }
     }
 
@@ -372,7 +373,8 @@ class Registrant
     $uidCandidate = registrant::invoiceToUid($regid);
 
     $invoiceWhereOr = '';
-    if ($uidCandidate > 0 && $uidCandidate < 100000) {
+    if (is_numeric($uidCandidate) && $uidCandidate > 0) {
+      $uidCandidate = trim($uidCandidate);
       $l = $db->q('%-' . str_pad($uidCandidate, 5, '0', STR_PAD_LEFT) . '-%');
       $invoiceWhereOr .= 'invoice_number LIKE ' . $l . ' OR ';
     }
@@ -389,6 +391,14 @@ class Registrant
 
     $db->setQuery($q);
     $uid = $db->loadResult() ?? 0;
+
+    if ($uid) {
+      $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
+      $user = $userFactory->loadUserById($uid);
+      if (is_null($user) || $user->id == 0 || $user->block != 0) {
+        $uid = 0;
+      }
+    }
 
     return $uid;
   }
