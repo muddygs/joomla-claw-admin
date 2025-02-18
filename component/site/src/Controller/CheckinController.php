@@ -93,8 +93,8 @@ class CheckinController extends BaseController
 
     /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
     $siteModel = $this->getModel();
-    $siteModel->JwtCheckin($registration_code);
-    echo '<h1>Checkin Complete</h1>';
+    $result = $siteModel->JwtCheckin($registration_code);
+    echo $result ? '<h1>Checkin Complete</h1>' : '<h1 class="text-danger">Checkin FAILURE</h1>';
   }
 
   public function count()
