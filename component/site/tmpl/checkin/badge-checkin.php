@@ -21,6 +21,10 @@ $wa->useScript('com_claw.jwtmon');
 $wa->useScript('com_claw.checkin');
 $wa->useStyle('com_claw.admin');
 
+/* @var \Joomla\CMS\Application\WebApplication */
+$document = $app->getDocument();
+$document->setMetaData('htmx-config', '{"responseHandling": [{"code":".*", "swap": true}]}');
+
 ?>
 <div class="mb-2 p-1 text-bg-info text-end" id="jwtstatus"></div>
 

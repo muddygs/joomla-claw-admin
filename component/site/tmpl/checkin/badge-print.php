@@ -26,6 +26,10 @@ $wa->useScript('htmx');
 $this->page = 'badge-print';
 $this->placeholder = true;
 
+/* @var \Joomla\CMS\Application\WebApplication */
+$document = $app->getDocument();
+$document->setMetaData('htmx-config', '{"responseHandling": [{"code":".*", "swap": true}]}');
+
 ?>
 <div class="mb-2 p-1 text-bg-info text-end" id="jwtstatus"></div>
 <h1 class="text-center">Batch Printing</h1>
