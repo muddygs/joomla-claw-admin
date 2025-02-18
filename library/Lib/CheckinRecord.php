@@ -16,16 +16,14 @@ use ClawCorpLib\Enums\EventPackageTypes;
 
 class CheckinRecord
 {
-  public array $brunches = [];
-  public array $buffets = [];
-  public array $dinners = [];
+  public int $id = 0;
+  public array $meals = [];
   public bool $cocSigned = false;
   public bool $issued = false;
   public bool $leatherHeartSupport = false;
   public bool $photoAllowed = false;
   public bool $printed = false;
   public EventPackageTypes $eventPackageType = EventPackageTypes::none;
-  public int $id = 0;
   public int $package_eventId = 0;
   public string $address = '';
   public string $address2 = '';
@@ -61,34 +59,36 @@ class CheckinRecord
   ) {
     // Keeping separate since we need to separate these out for badge printing
 
+    $this->meals = [];
+
     /** @var \ClawCorpLib\Lib\PackageInfo  */
     foreach ($eventConfig->packageInfos as $packageInfo) {
       if ($packageInfo->published != EbPublishedState::published || $packageInfo->eventId == 0)
         continue;
 
-      switch ($packageInfo->category) {
-        case $eventConfig->eventInfo->eb_cat_dinners:
-          $this->dinners[$packageInfo->eventId] = '';
-          break;
-        case $eventConfig->eventInfo->eb_cat_brunches:
-          $this->brunches[$packageInfo->eventId] = '';
-          break;
-        case $eventConfig->eventInfo->eb_cat_buffets:
-          $this->buffets[$packageInfo->eventId] = '';
-          break;
+      if (in_array($packageInfo->category, [
+        $eventConfig->eventInfo->eb_cat_dinners,
+        $eventConfig->eventInfo->eb_cat_brunches,
+        $eventConfig->eventInfo->eb_cat_buffets,
+      ])) {
+        $this->meals[$packageInfo->category][$packageInfo->eventId] = '';
       }
     }
   }
 
-  public function getMealString(array $meals): string
+  public function getMealString(int $categoryId): string
   {
-    $result = trim(implode(' ', $meals));
-    return $result != '' ? $result : 'None';
+    if (array_key_exists($categoryId, $this->meals)) {
+      $result = trim(implode(' ', $this->meals[$categoryId]));
+      return empty($result) ? 'None' : $result;
+    }
+
+    return 'None';
   }
 
   /**
    * Record that is displayed upon search in the checkin and badge print interfaces
-   * This is "prepared" to be all strings
+   * This is "prepared" somewhat for display
    * @return Record Values from 
    */
   public function toRecord(): Record
@@ -96,14 +96,14 @@ class CheckinRecord
     $result = new Record();
 
     foreach (get_object_vars($this) as $key => $value) {
-      if (property_exists($result, $key) && (is_string($this->$key) || is_bool($this->$key))) {
+      if (property_exists($result, $key) && (is_string($this->$key) || is_bool($this->$key)) || is_int($this->$key)) {
         $result->$key = $value;
       }
     }
 
-    $result->buffets = $this->getMealString($this->buffets);
-    $result->brunch = $this->getMealString($this->brunches);
-    $result->dinner = $this->getMealString($this->dinners);
+    $result->buffets = $this->getMealString($this->eventConfig->eventInfo->eb_cat_buffets);
+    $result->brunch = $this->getMealString($this->eventConfig->eventInfo->eb_cat_brunches);
+    $result->dinner = $this->getMealString($this->eventConfig->eventInfo->eb_cat_dinners);
 
     if ($this->eventConfig->eventInfo->badgePrintingOverride) {
       $result->printed = true;
@@ -112,6 +112,7 @@ class CheckinRecord
     $result->clawPackage = $this->eventPackageType->toString();
     if ($this->dayPassDay != '') $result->clawPackage .= ' (' . $this->dayPassDay . ')';
 
+    // TODO: move to template
     $result->shifts = '<pre>' . $result->shifts . '</pre>';
 
     return $result;

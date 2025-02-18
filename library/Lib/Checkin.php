@@ -37,7 +37,10 @@ class Checkin
   ) {
     if (self::$alias == '') self::$alias = Aliases::current(true);
 
-    $this->uid = Registrant::getUserIdFromInvoice($registration_code);
+    if (!$this->uid = Registrant::getUserIdFromInvoice($this->registration_code)) {
+      throw new \InvalidArgumentException('Invalid Registration Code: ' . $this->registration_code);
+    }
+
     $this->r = null;
 
     if (self::$eventConfig == null) {
@@ -89,6 +92,7 @@ class Checkin
     ];
 
     $registrant = new Registrant(self::$alias, $this->uid);
+
     $registrant->loadCurrentEvents();
 
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
@@ -170,18 +174,18 @@ class Checkin
           foreach ($comboMeal->meta as $mealEventId) {
             $this->r->mealIssueMapping[$mealEventId] = $comboMeal->eventId;
 
-            if (array_key_exists($mealEventId, $this->r->dinners)) {
-              $this->r->dinners[$mealEventId] = $r->fieldValue->Dinner . $r->fieldValue->DinnerCle;
+            if (array_key_exists($mealEventId, $this->r->meals[self::$eventConfig->eventInfo->eb_cat_dinners])) {
+              $this->r->meals[self::$eventConfig->eventInfo->eb_cat_dinners][$mealEventId] = $r->fieldValue->Dinner . $r->fieldValue->DinnerCle;
               continue;
             }
 
-            if (array_key_exists($mealEventId, $this->r->brunches)) {
-              $this->r->brunches[$mealEventId] = $badgeValues[$mealEventId];
+            if (array_key_exists($mealEventId, $this->r->meals[self::$eventConfig->eventInfo->eb_cat_brunches])) {
+              $this->r->meals[self::$eventConfig->eventInfo->eb_cat_brunches][$mealEventId] = $badgeValues[$mealEventId];
               continue;
             }
 
-            if (array_key_exists($mealEventId, $this->r->buffets)) {
-              $this->r->buffets[$mealEventId] = $badgeValues[$mealEventId];
+            if (array_key_exists($mealEventId, $this->r->meals[self::$eventConfig->eventInfo->eb_cat_buffets])) {
+              $this->r->meals[self::$eventConfig->eventInfo->eb_cat_buffets][$mealEventId] = $badgeValues[$mealEventId];
               continue;
             }
           }
@@ -197,18 +201,18 @@ class Checkin
       }
 
       // Standard Meals
-      if (array_key_exists($r->event->eventId, $this->r->dinners)) {
-        $this->r->dinners[$r->event->eventId] = $r->fieldValue->Dinner . $r->fieldValue->DinnerCle;
+      if (array_key_exists($r->event->eventId, $this->r->meals[self::$eventConfig->eventInfo->eb_cat_dinners])) {
+        $this->r->meals[self::$eventConfig->eventInfo->eb_cat_dinners][$r->event->eventId] = $r->fieldValue->Dinner . $r->fieldValue->DinnerCle;
         continue;
       }
 
-      if (array_key_exists($r->event->eventId, $this->r->brunches)) {
-        $this->r->brunches[$r->event->eventId] = $badgeValues[$r->event->eventId];
+      if (array_key_exists($r->event->eventId, $this->r->meals[self::$eventConfig->eventInfo->eb_cat_brunches])) {
+        $this->r->meals[self::$eventConfig->eventInfo->eb_cat_brunches][$r->event->eventId] = $badgeValues[$r->event->eventId];
         continue;
       }
 
-      if (array_key_exists($r->event->eventId, $this->r->buffets)) {
-        $this->r->buffets[$r->event->eventId] = $badgeValues[$r->event->eventId];
+      if (array_key_exists($r->event->eventId, $this->r->meals[self::$eventConfig->eventInfo->eb_cat_buffets])) {
+        $this->r->meals[self::$eventConfig->eventInfo->eb_cat_buffets][$r->event->eventId] = $badgeValues[$r->event->eventId];
         continue;
       }
 
@@ -313,132 +317,7 @@ class Checkin
     $registrant->updateFieldValues($mainEvent->registrant->id, ['Z_BADGE_PRINTED' => Helpers::mtime()]);
   }
 
-  public function doMealCheckin(int $eventId): array
-  {
-    if ($eventId <= 0) return $this->htmlMsg('Event selection error', 'btn-dark');
-    if ($this->uid == 0) return $this->htmlMsg('Unknown badge number', 'btn-dark');
-    if ($this->r->error != '') return $this->htmlMsg($this->r->error, 'btn-dark');
-
-    if ($this->r->issued != true) {
-      return $this->htmlMsg('Badge Not Issued', 'btn-warning');
-    }
-
-    // Does this badge have this meal?
-    $eventConfig = new EventConfig(self::$alias);
-
-    /** @var \ClawCorpLib\Lib\PackageInfo */
-    $packageInfo = $eventConfig->getPackageInfoByProperty('eventId', $eventId, false);
-    if (null == $packageInfo) {
-      return $this->htmlMsg('Unknown event id ' . $eventId . ' in ' . self::$alias, 'btn-dark');
-    }
-
-    $ticketEventId = $eventId;
-    if (array_key_exists($eventId, $this->r->mealIssueMapping)) $ticketEventId = $this->r->mealIssueMapping[$eventId];
-
-    if (array_search($eventId, $this->r->issuedMealTickets) !== false) {
-      if ($packageInfo->eventPackageType == EventPackageTypes::dinner) {
-        return $this->htmlMsg($packageInfo->title . ' ticket already issued: ' . $this->r->dinners[$packageInfo->eventId], 'btn-dark');
-      } else {
-        return $this->htmlMsg($packageInfo->title . ' ticket already issued', 'btn-dark');
-      }
-    }
-
-    switch ($packageInfo->eventPackageType) {
-      case EventPackageTypes::dinner:
-        $meal = strtolower($this->r->dinners[$packageInfo->eventId]);
-
-        if ($meal == '') {
-          return $this->htmlMsg('Dinner not assigned to this badge', 'btn-dark');
-        }
-
-        $class = $description = '';
-
-        $mealTypes = [
-          'beef' => [
-            'class' => 'meal-beef',
-            'description' => 'Beef'
-          ],
-          'chicken' => [
-            'class' => 'meal-chicken',
-            'description' => 'Chicken'
-          ],
-          'fish' => [
-            'class' => 'meal-fish',
-            'description' => 'Fish'
-          ],
-          'vegetarian' => [
-            'class' => 'meal-vegan',
-            'description' => 'Vegetarian'
-          ]
-        ];
-
-        foreach ($mealTypes as $type => $info) {
-          if (str_contains($meal, $type)) {
-            $description = $info['description'];
-            $class = $info['class'];
-            break;
-          }
-        }
-
-        if ($description == '') {
-          return $this->htmlMsg('Unknown meal selection: ' . $meal, 'btn-dark');
-        }
-
-        $this->issueMealTicket($eventId, $ticketEventId);
-        return $this->htmlMsg($description, $class);
-        break;
-
-      case EventPackageTypes::brunch_fri:
-      case EventPackageTypes::brunch_sat:
-      case EventPackageTypes::brunch_sun:
-        if ($this->r->brunches[$packageInfo->eventId] == '') {
-          return $this->htmlMsg($packageInfo->title . ' not assigned to this badge', 'btn-dark');
-        }
-
-        $this->issueMealTicket($eventId, $ticketEventId);
-        return $this->htmlMsg($packageInfo->title . ' ticket issued for: ' . $this->r->badgeId, 'btn-info');
-        break;
-
-      case EventPackageTypes::buffet_wed:
-      case EventPackageTypes::buffet_thu:
-      case EventPackageTypes::buffet_fri:
-      case EventPackageTypes::buffet_bluf:
-      case EventPackageTypes::buffet_sat:
-      case EventPackageTypes::buffet_sun:
-        if ($this->r->buffets[$packageInfo->eventId] == '') {
-          return $this->htmlMsg($packageInfo->title . ' not assigned to this badge', 'btn-dark');
-        }
-
-        $this->issueMealTicket($eventId, $ticketEventId);
-        return $this->htmlMsg($packageInfo->title . ' ticket issued for: ' . $this->r->badgeId, 'btn-info');
-        break;
-
-      default:
-        return $this->htmlMsg(__FILE__ . ': Unhandled CLAW package', 'btn-danger');
-        break;
-    }
-  }
-
-  private function htmlMsg(string $msg, string $classes): array
-  {
-    $msg = <<< HTML
-    <div class="d-grid gap-2">
-  <button class="btn btn-lg $classes" type="button">$msg</button>
-</div>
-HTML;
-
-    $b = property_exists($this, 'r') ? $this->r->badgeId : 'error';
-
-    $result = [
-      'state' => 'ok',
-      'badge' => $b,
-      'message' => $msg
-    ];
-
-    return $result;
-  }
-
-  private function issueMealTicket(int $mealEventId, int $ticketEventId)
+  public function issueMealTicket(int $mealEventId, int $ticketEventId)
   {
     $registrant = new Registrant(self::$alias, $this->r->uid, [$ticketEventId]);
     $registrant->loadCurrentEvents();
