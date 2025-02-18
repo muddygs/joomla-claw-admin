@@ -19,7 +19,6 @@ use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Checkin;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\EventConfig;
-use ClawCorpLib\Lib\Jwtwrapper;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
 /**
@@ -29,10 +28,16 @@ class CheckinModel extends BaseDatabaseModel
 {
   public CheckinRecord $record;
 
-  public function JwtCheckin(string $registration_code)
+  public function JwtCheckin(string $registration_code): bool
   {
-    $checkinRecord = new Checkin($registration_code);
+    try {
+      $checkinRecord = new Checkin($registration_code);
+    } catch (\Exception) {
+      return false;
+    }
+
     $checkinRecord->doCheckin();
+    return true;
   }
 
   public function GetCount(): array
@@ -79,30 +84,6 @@ class CheckinModel extends BaseDatabaseModel
     ];
 
     return $result;
-  }
-
-  public function JwtMealCheckin(string $token, string $registration_code, string $meal)
-  {
-    Jwtwrapper::redirectOnInvalidToken(page: 'meals-checkin', token: $token);
-
-    $checkinRecord = new Checkin($registration_code);
-
-    if (!$checkinRecord->isValid) {
-      $errors = ['Record error or invalid badge #/code.'];
-      // TODO: r may not be initialized
-      if (!is_null($checkinRecord->r)) {
-        $errors = explode("\n", $checkinRecord->r->error);
-        array_shift($errors);
-      }
-
-      return [
-        'state' => 'error',
-        'message' => '<p class="text-center">' . implode("</p><p class=\"text-center\">", $errors) . '</p>'
-      ];
-    }
-
-    $msg = $checkinRecord->doMealCheckin($meal);
-    return $msg;
   }
 
   /**

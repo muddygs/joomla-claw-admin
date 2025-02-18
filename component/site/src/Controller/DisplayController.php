@@ -12,9 +12,7 @@ namespace ClawCorp\Component\Claw\Site\Controller;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Enums\JwtStates;
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Lib\Jwtwrapper;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormFactoryInterface;
@@ -69,21 +67,5 @@ class DisplayController extends BaseController
 
     header('Content-Type: application/json');
     echo $json;
-  }
-
-  public function mealCheckin()
-  {
-    $this->checkToken();
-
-    $json = new Json();
-    $token = $json->get('token', '', 'string');
-    $search = $json->get('registration_code', '', 'string');
-    $meal = $json->get('mealEvent', '', 'string');
-
-    /** @var \ClawCorp\Component\Claw\Site\Model\CheckinModel */
-    $siteModel = $this->getModel('Checkin');
-    $result = $siteModel->JwtMealCheckin(token: $token, registration_code: $search, meal: $meal);
-    header('Content-Type: application/json');
-    echo json_encode($result);
   }
 }

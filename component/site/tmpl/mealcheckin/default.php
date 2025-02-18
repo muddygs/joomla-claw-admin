@@ -1,11 +1,16 @@
 <?php
 
+/**
+ * @package     ClawCorp
+ * @subpackage  com_claw
+ *
+ * @copyright   (C) 2025 C.L.A.W. Corp. All Rights Reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 \defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
-use ClawCorpLib\Lib\Jwtwrapper;
-
-Jwtwrapper::redirectOnInvalidToken('meals-checkin', $this->token);
 
 /** @var Joomla\CMS\Application\SiteApplication */
 $app = Factory::getApplication();
@@ -14,6 +19,12 @@ $wa = $app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.jwtmon');
 $wa->useScript('com_claw.meals');
 $wa->useStyle('com_claw.admin');
+$wa->useStyle('com_claw.checkin_css');
+$wa->useScript('htmx');
+
+/* @var \Joomla\CMS\Application\WebApplication */
+$document = $app->getDocument();
+$document->setMetaData('htmx-config', '{"responseHandling": [{"code":".*", "swap": true}]}');
 
 ?>
 <div class="mb-2 p-1 bg-info text-white" id="jwtstatus"></div>
@@ -27,8 +38,11 @@ $wa->useStyle('com_claw.admin');
       <legend class="col-form-label col-3">Meal Selection:</legend>
       <div class="col-9">
         <select name="mealEvent" id="mealEvent">
-          <?php foreach ($this->meals as $id => $d): ?>
-            <option value="<?php echo $id < 0 ? 0 : $id ?>" <?php if ($id < 0) echo ' disabled' ?>><?php echo $d ?></option>
+          <?php foreach ($this->meals as $categoryId => $info): ?>
+            <option value="0" disabled><?= $info['title'] ?></option>
+            <?php foreach ($info['packageIds'] as $eventid => $title): ?>
+              <option value="<?= $eventid ?>">- <?= $title ?></option>
+            <?php endforeach; ?>
           <?php endforeach; ?>
         </select>
       </div>
@@ -40,15 +54,18 @@ $wa->useStyle('com_claw.admin');
       <legend class="col-form-label col-3">Scan Badge or Enter Badge #:</legend>
       <div class="col-3">
         <input name="badgecode" id="badgecode" value="" placeholder="" maxlength="255" size="15" class="" type="text"
-          onclick="clearcode();" onchange="doMealCheckin();" />
+          hx-post="/index.php?option=com_claw&task=mealcheckin.checkin&format=raw"
+          hx-on::before-request='clearcode();'
+          hx-trigger="keyup[key=='Enter']"
+          hx-target="#status" />
       </div>
       <div class="col-6"></div>
     </div>
   </fieldset>
 
-  <input type="hidden" id="registration_code" value="" />
-
-  <input type="hidden" name="token" id="token" value="<?php echo $this->token ?>" />
+  <input type="hidden" name="token" id="token" value="<?= $this->token ?>" />
 </form>
 
 <div id="status"></div>
+
+<div id="log"></div>

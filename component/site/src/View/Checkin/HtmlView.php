@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2025 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -25,9 +25,9 @@ use Joomla\CMS\Router\Route;
 class HtmlView extends BaseHtmlView
 {
   /**
-   * Checkin options for badge check, badge print, or meals
+   * Checkin options for badge check or print
    *
-   * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+   * @param   string  $tpl  Unused (needed for class compatibility)
    *
    * @return  void
    */
@@ -52,10 +52,6 @@ class HtmlView extends BaseHtmlView
     $eventConfig = new EventConfig(Aliases::current(true));
 
     switch ($tpl) {
-      case 'meals-checkin':
-        $this->loadMealData($eventConfig);
-        break;
-
       case 'badge-print':
         if ($eventConfig->eventInfo->badgePrintingOverride) {
           $tpl = 'badges_disabled';
@@ -74,29 +70,5 @@ class HtmlView extends BaseHtmlView
     $this->setLayout($tpl); // no "default_" prefix
     $this->record = new Record();
     parent::display();
-  }
-
-  private function loadMealData(EventConfig $eventConfig)
-  {
-    // Categories of interest
-    // TODO: get the category titles from EB
-    $mealHeadings = [
-      $eventConfig->eventInfo->eb_cat_dinners => 'Leather Family Dinner',
-      $eventConfig->eventInfo->eb_cat_buffets => 'Buffets',
-      $eventConfig->eventInfo->eb_cat_brunches => 'Brunches'
-    ];
-
-    $this->meals = [];
-
-    # TODO: could process to eliminate past events
-    foreach ($mealHeadings as $catId => $desc) {
-      $this->meals[-$catId] = $desc;
-      /** @var \ClawCorpLib\Lib\PackageInfo */
-      foreach ($eventConfig->packageInfos as $e) {
-        if ($e->category == $catId) {
-          $this->meals[$e->eventId] = '- ' . $e->title;
-        }
-      }
-    }
   }
 }
