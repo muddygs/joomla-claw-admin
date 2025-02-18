@@ -19,7 +19,6 @@ use Joomla\Database\DatabaseDriver;
 
 /**
  * Wrapper for #__claw_packages row
- * TODO: Reimplement as a Table class
  *  
  * @package ClawCorpLib\Lib
  * @since 24.4.1
@@ -29,6 +28,7 @@ class PackageInfo
   public EbPublishedState $published = EbPublishedState::published;
   public string $title = '';
   public string $description = '';
+  public string $eventAlias = '';
   public string $alias = '';
   public EventPackageTypes $eventPackageType = EventPackageTypes::none;
   public PackageInfoTypes $packageInfoType = PackageInfoTypes::none;
@@ -55,7 +55,6 @@ class PackageInfo
   private DatabaseDriver $db;
 
   public function __construct(
-    public EventInfo $eventInfo,
     public int $id
   ) {
     if ($this->id == 0) {
@@ -64,7 +63,6 @@ class PackageInfo
 
     $this->db = Factory::getContainer()->get('DatabaseDriver');
 
-    $this->alias = $eventInfo->alias;
     $this->fromSqlRow();
   }
 
@@ -74,6 +72,7 @@ class PackageInfo
 
     $result->id = $this->id;
     $result->published = $this->published->value;
+    $result->eventAlias = $this->eventAlias;
     $result->title = $this->title;
     $result->description = $this->description;
     $result->alias = $this->alias;
@@ -95,7 +94,6 @@ class PackageInfo
     $result->bundleDiscount = $this->bundleDiscount;
     $result->badgeValue = $this->badgeValue;
     $result->couponOnly = $this->couponOnly ? 1 : 0;
-    // TODO: add to DB $result->badgeOverride = $this->badgeOverride ? 1 : 0;
     $result->meta = json_encode($this->meta);
     $result->mtime = (new Date())->toSql();
 
@@ -114,12 +112,16 @@ class PackageInfo
     $this->db->setQuery($query);
     $result = $this->db->loadObject();
 
-    if ($result == null) return;
+    if ($result == null) {
+      throw new \RuntimeException("PackageInfo $this->id does not exist.");
+    }
 
     $this->id = $result->id;
     $this->published = EbPublishedState::tryFrom($result->published) ?? EbPublishedState::any;
+    $this->eventAlias = $result->eventAlias;
     $this->title = $result->title ?? '';
     $this->description = $result->description ?? '';
+    $this->alias = $result->alias;
     $this->eventPackageType = EventPackageTypes::FindValue($result->eventPackageType);
     $this->packageInfoType = PackageInfoTypes::FindValue($result->packageInfoType);
     $this->acl_id = $result->group_id; // TODO: update db schema
@@ -138,7 +140,6 @@ class PackageInfo
     $this->bundleDiscount = $result->bundleDiscount;
     $this->badgeValue = $result->badgeValue;
     $this->couponOnly = $result->couponOnly;
-    // TODO: add to DB $this->badgeOverride = $result->badgeOverride;
     $this->meta = json_decode($result->meta) ?? [];
   }
 
