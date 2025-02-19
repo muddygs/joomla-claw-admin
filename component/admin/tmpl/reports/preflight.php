@@ -148,7 +148,13 @@ foreach ($packageInfos as $packageInfo) {
 
         $baseInvoice = implode('-', [$invoice[0], $invoice[1]]);
 
-        $checkin = new Checkin($baseInvoice, false);
+        try {
+          $checkin = new Checkin($baseInvoice, false);
+        } catch (\Exception $e) {
+          $output->errors = '<span class="text-danger">' . $e->getMessage() . '</span>';
+          dataRow($output);
+          continue;
+        }
 
         $output->regid = implode('<br/>', [$registrant->badgeId, $checkin->r->legalName, $checkin->r->email]);
 
@@ -192,8 +198,8 @@ foreach ($packageInfos as $packageInfo) {
         }
 
         // Dinner selection valid?
-        reset($checkin->r->dinners);
-        $meal = current($checkin->r->dinners);
+        reset($checkin->r->meals[$eventInfo->eb_cat_dinners]);
+        $meal = current($checkin->r->meals[$eventInfo->eb_cat_dinners]);
 
         if ($meal != '') {
           $mealPhraseFound = false;
