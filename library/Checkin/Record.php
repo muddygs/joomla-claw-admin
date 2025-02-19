@@ -12,6 +12,7 @@ namespace ClawCorpLib\Checkin;
 
 class Record
 {
+  public int $id = 0;
   public string $badgeId = '';
   public bool $issued = false;
   public bool $printed = false;
@@ -26,4 +27,10 @@ class Record
   public string $shirtSize = '';
   public string $error = '';
   public string $info = '';
+  public bool $photoAllowed = false;
+  public bool $cocSigned = false;
+  public string $badgeName = '';
+  public string $pronouns = '';
+  public string $staff_type = '';
+  public bool $leatherHeartSupport = false;
 }
