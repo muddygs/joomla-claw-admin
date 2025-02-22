@@ -126,7 +126,7 @@ final class Skill
     $o->submission_date = $this->submission_date->toSql();
     $o->ownership = $this->ownership->value;
     $o->published = $this->published->value;
-    $o->other_presenter_ids = $this->other_presenter_ids;
+    $o->other_presenter_ids = json_encode($this->other_presenter_ids);
     $o->av = $this->av;
     $o->length_info = $this->length_info;
     $o->location = $this->location;
@@ -237,6 +237,7 @@ HTML;
   public function save(): int
   {
     $data = self::toSqlObject();
+
     if ($this->id) {
       $result = $this->db->updateObject(self::SKILLS_TABLE, $data, 'id');
       if (!$result) {
