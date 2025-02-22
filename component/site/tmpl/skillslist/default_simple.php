@@ -59,7 +59,7 @@ foreach ($this->list->tabs->overview['category'] as $tab_item) {
         $link = HTMLHelper::link(
           Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter) . '&tab=' . $this->tabId,
           $this->list->presenterArray[$presenter]->name,
-          $owner ? ['class' => 'fs-5'] : ['class' => 'fw-light']
+          $owner ? ['class' => 'fs-5 fw-normal'] : ['class' => 'fw-light']
         );
 
         $presenter_urls[] = $link;
@@ -67,11 +67,12 @@ foreach ($this->list->tabs->overview['category'] as $tab_item) {
       }
 
       $presenter_links = implode('<br/>', $presenter_urls);
-      $survey = '<i class="fa fa-comments fa-2x text-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Surveys are not open"></i>';
 
       if ($this->list->survey != '' && $this->enable_surveys) {
         $link = $this->list->survey . '&form[classTitleParam]=' . $class->id;
         $survey = '<a href="' . $link . '" style="color:#ffae00"><i class="fa fa-comments fa-2x"></i></a>';
+      } else {
+        $survey = '<i class="fa fa-comments fa-2x text-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Surveys are not open"></i>';
       }
 
     ?>

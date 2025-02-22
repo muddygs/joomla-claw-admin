@@ -33,7 +33,7 @@ foreach ($tabInfo['ids'] as $classId) {
     $link = HTMLHelper::link(
       Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter) . '&tab=' . $this->tabId,
       $this->list->presenterArray[$presenter]->name,
-      $owner ? ['class' => 'fs-5'] : ['class' => 'fw-light']
+      $owner ? ['class' => 'fs-5 fw-normal'] : ['class' => 'fw-light']
     );
 
     $presenter_urls[] = $link;
