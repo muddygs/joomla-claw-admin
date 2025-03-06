@@ -20,6 +20,7 @@ use Joomla\CMS\Language\Text;
 
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Locations;
+use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Skills\Presenter;
 use ClawCorpLib\Skills\Presenters;
@@ -172,7 +173,7 @@ class SkillModel extends AdminModel
     if (empty($data)) {
       $data = $this->getItem();
       // Initialize for form fields that have event-specific population
-      Helpers::sessionSet('eventAlias', $data->event);
+      Helpers::sessionSet('eventAlias', $data->event ?? Aliases::current(true));
     }
 
     return $data;
