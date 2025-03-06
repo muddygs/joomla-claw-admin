@@ -63,11 +63,9 @@ class SkillslistHelper implements DatabaseAwareInterface
     $db->setQuery($query);
     $classes = $db->loadObjectList('id') ?? [];
 
-    $locations = new Locations($eventAlias);
-
     $result = [
       'classes' => $classes,
-      'locations' => $locations->getLocationsList(),
+      'locations' => Locations::get($eventAlias),
       'timestamp' => $startDate->toUnix(),
     ];
 

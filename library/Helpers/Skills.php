@@ -171,7 +171,7 @@ class Skills
     $skillArray = \ClawCorpLib\Skills\Skills::get($this->eventInfo, $published);
     $presenterArray = Presenters::get($this->eventInfo, $published);
 
-    $locations = new Locations($this->eventAlias);
+    $locations = Locations::get($this->eventAlias);
 
     // Load the global config for com_claw. We need to the RS Form ID
     /** @var Joomla\CMS\Application\AdministratorApplication */
@@ -321,8 +321,7 @@ class Skills
             break;
 
           case 'location':
-            $location = $locations->GetLocationById($c->location)->value;
-            $row[] = $location;
+            $row[] = $locations[$c->location]->value ?? '';
             break;
 
             #case 'multitrack':

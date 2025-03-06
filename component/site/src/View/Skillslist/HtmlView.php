@@ -64,7 +64,7 @@ class HtmlView extends BaseHtmlView
 
     $this->list = $model->GetConsolidatedList($this->eventAlias, $this->list_type);
 
-    $this->locations = new Locations($this->eventAlias);
+    $this->locations = Locations::get($this->eventAlias);
 
     $this->listType = $this->params->get('list_type') ?? 'simple';
     $this->urlTab = $app->input->get('tab', 'overview', 'string');

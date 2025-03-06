@@ -71,8 +71,8 @@ class HtmlView extends BaseHtmlView
 
     $config = new Config($this->class->event);
     $this->time_slots = $config->getConfigValuesText(ConfigFieldNames::SKILL_TIME_SLOT);
-    $locations = new Locations($this->class->event);
-    $this->location = $locations->GetLocationById($this->class->location)->value;
+    $locations = Locations::get($this->class->event);
+    $this->location = $locations[$this->class->location]->value ?? null;
 
     $this->category = $config->getConfigText(ConfigFieldNames::SKILL_CATEGORY, $this->class->category, '');
 

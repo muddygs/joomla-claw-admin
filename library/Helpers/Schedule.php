@@ -82,7 +82,7 @@ class Schedule
 
   public function toCSV(string $filename)
   {
-    $locations = new Locations($this->event);
+    $locations = Locations::get($this->event);
 
     // Load database columns
     $columnNames = array_keys($this->db->getTableColumns('#__claw_schedule'));
@@ -128,8 +128,7 @@ class Schedule
             }
             break;
           case 'location':
-            $location = $locations->GetLocationById($c->$col)->value;
-            $row[] = $location;
+            $row[] = $locations[$c->$col]->value ?? '';
             break;
           case 'track':
             // track is day converted to day of week

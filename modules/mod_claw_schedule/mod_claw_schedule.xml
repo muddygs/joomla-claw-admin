@@ -3,12 +3,12 @@
   method="upgrade">
 
   <name>CLAW Schedule Display</name>
-  <creationDate>2024-10-07</creationDate>
+  <creationDate>2025-03-05</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>(c) 2024 CLAW Corp.</copyright>
   <license>GPLv2</license>
-  <version>4.3.1</version>
+  <version>4.3.2</version>
   <description>Displays event schedule</description>
 
   <namespace path="src">ClawCorp\Module\Schedule</namespace>

@@ -26,23 +26,22 @@ use ClawCorpLib\Lib\Aliases;
  */
 class Dispatcher extends AbstractModuleDispatcher implements HelperFactoryAwareInterface
 {
-    use HelperFactoryAwareTrait;
+  use HelperFactoryAwareTrait;
 
-    /**
-     * Returns the layout data.
-     *
-     * @return  array
-     *
-     * @since   4.4.0
-     */
-    protected function getLayoutData(): array
-    {
-        $data = parent::getLayoutData();
+  /**
+   * Returns the layout data.
+   *
+   * @return  array
+   *
+   * @since   4.4.0
+   */
+  protected function getLayoutData(): array
+  {
+    $data = parent::getLayoutData();
 
-        $data['events'] = $this->getHelperFactory()->getHelper('ScheduleHelper')->loadSchedule($data['params'], $data['app']);
-        $locations = new Locations(Aliases::current(true));
-        $data['locations'] = $locations->GetLocationsList();
+    $data['events'] = $this->getHelperFactory()->getHelper('ScheduleHelper')->loadSchedule($data['params'], $data['app']);
+    $data['locations'] = Locations::get(Aliases::current(true));
 
-        return $data;
-    }
+    return $data;
+  }
 }

@@ -51,11 +51,10 @@ class LocationListField extends ListField
     $options = parent::getOptions();
 
     $eventAlias = Helpers::sessionGet('eventAlias');
-    $locations = new Locations($eventAlias);
 
     $value = $this->__get('value');
 
-    foreach ($locations->GetLocationsList() as $location) {
+    foreach (Locations::get($eventAlias) as $location) {
       $tmp = (object)[
         'value'    => $location->id,
         'text'     => $location->value,

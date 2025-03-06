@@ -23,7 +23,7 @@ foreach ($tabInfo['ids'] as $classId) {
     continue;
   }
 
-  $room = $this->locations->GetLocationById($class->location)->value;
+  $room = $this->locations[$class->location]->value ?? 'TBD';
 
   // Merge presenters
   $presenter_urls = [];

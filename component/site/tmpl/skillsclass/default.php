@@ -37,7 +37,7 @@ $class = $this->class;
             <?php endif ?>
           </h3>
         </div>
-        <div class="col-12 text-center">Room: <?= $this->location ?></div>
+        <div class="col-12 text-center">Room: <?= $this->location ?? 'TBD' ?></div>
         <div class="col-12 p-1 m-2 text-center">Topic area: <?= $this->category ?></div>
       </div>
       <div class="row border border-warning p-2">
