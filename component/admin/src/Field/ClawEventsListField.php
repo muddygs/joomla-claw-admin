@@ -98,7 +98,7 @@ class ClawEventsListField extends ListField
   {
     $options = parent::getOptions();
 
-    $currentValue = $this->__get('value') ?? Aliases::current();
+    $currentValue = $this->__get('value') ?: Aliases::current();
     $options[] = HTMLHelper::_('select.option', '0', 'Select Event');
 
     foreach (EventConfig::getTitleMapping() as $alias => $title) {
@@ -133,4 +133,3 @@ class ClawEventsListField extends ListField
     return $options;
   }
 }
-
