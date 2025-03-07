@@ -51,8 +51,13 @@ class PresentersListField extends ListField
     $data = $this->getLayoutData();
 
     $eventAlias = Helpers::sessionGet('eventAlias');
-    $eventInfo = new EventInfo($eventAlias);
-    $this->presenters = Presenters::get(eventInfo: $eventInfo, order: 'name');
+
+    try {
+      $eventInfo = new EventInfo($eventAlias);
+      $this->presenters = Presenters::get(eventInfo: $eventInfo, order: 'name');
+    } catch (\Exception) {
+      $this->presenters = new PresenterArray();
+    }
 
     /*************
     // Get the list of presenters
