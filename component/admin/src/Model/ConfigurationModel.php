@@ -112,4 +112,3 @@ class ConfigurationModel extends AdminModel
     throw new \Exception(Text::sprintf('JLIB_APPLICATION_ERROR_TABLE_NAME_NOT_SUPPORTED', $name), 0);
   }
 }
-
