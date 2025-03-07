@@ -22,6 +22,7 @@ use Joomla\Database\ParameterType;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Helpers\Locations;
+use ClawCorpLib\Iterators\PresenterArray;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Skills\Presenters;
 
@@ -139,12 +140,16 @@ class SkillsModel extends ListModel
   {
     $items = parent::getItems();
 
-    $event = $this->getState('filter.event', Aliases::current(true));
-    $l = new Locations($event);
-    $locations = $l->GetLocationsList();
+    $event = $this->getState('filter.event') ?: Aliases::current(true);
 
-    $eventInfo = new EventInfo($event, true);
-    $presenters = Presenters::get($eventInfo);
+    $locations = Locations::get($event);
+
+    try {
+      $eventInfo = new EventInfo($event, true);
+      $presenters = Presenters::get($eventInfo);
+    } catch (\Exception) {
+      $presenters = new PresenterArray();
+    }
 
     $newPill = ' <span class="badge rounded-pill bg-warning">New</span>';
     $unpublishedPill = ' <span class="badge rounded-pill bg-danger">Unpublished</span>';
@@ -246,7 +251,7 @@ class SkillsModel extends ListModel
       $query->where('a.title LIKE ' . $search);
     }
 
-    $event = $this->getState('filter.event', Aliases::current());
+    $event = $this->getState('filter.event', Aliases::current(true));
     $day = $this->getState('filter.day');
     $presenter = $this->getState('filter.presenter');
     $type = $this->getState('filter.type');
