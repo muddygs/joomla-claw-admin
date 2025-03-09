@@ -26,6 +26,7 @@ use Joomla\Database\DatabaseDriver;
 class Skills
 {
   private EventInfo $eventInfo;
+  const YAPP_DATETIME_FORMAT = 'm/d/Y g:i A';
 
   // constructor
   public function __construct(
@@ -210,6 +211,8 @@ class Skills
       'day',
       'start_time',
       'end_time',
+      'start_daytime',
+      'end_daytime',
       'ownership',
       'published',
       'people',
@@ -226,6 +229,8 @@ class Skills
     $columnNames[] = 'people_public_name';
     $columnNames[] = 'start_time';
     $columnNames[] = 'end_time';
+    $columnNames[] = 'start_daytime';
+    $columnNames[] = 'end_daytime';
 
     $ordering = Helpers::combineArrays($ordering, $columnNames);
 
@@ -261,17 +266,19 @@ class Skills
             }
             break;
           case 'start_time':
+          case 'start_daytime':
             [$time, $length] = explode(':', $c->time_slot);
             if (is_null($c->day)) {
               $row[] = '';
             } else {
               $day = clone $c->day;
               $day->modify($time);
-              $row[] = $day->format('g:i A');
+              $row[] = $col == 'start_time' ? $day->format('g:i A') : $day->format(self::YAPP_DATETIME_FORMAT);
             }
             break;
 
           case 'end_time':
+          case 'end_daytime':
             // take start time and add length
             [$time, $length] = explode(':', $c->time_slot);
             if (is_null($c->day)) {
@@ -280,7 +287,7 @@ class Skills
               $day = clone $c->day;
               $day->modify($time);
               $day->modify('+ ' . $length . ' minutes');
-              $row[] = $day->format('g:i A');
+              $row[] = $col == 'end_time' ? $day->format('g:i A') : $day->format(self::YAPP_DATETIME_FORMAT);
             }
             break;
 
