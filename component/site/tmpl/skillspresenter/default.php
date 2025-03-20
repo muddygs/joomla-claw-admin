@@ -35,6 +35,9 @@ if ($presenter->image_preview) {
       <div class="col">
         <h2><?= $presenter->name ?></h2>
         <?= $presenter->bio ?>
+        <?php if (trim($presenter->social_media)): ?>
+          <p><?= $presenter->social_media ?></p>
+        <?php endif; ?>
       </div>
     </div>
   <?php
@@ -52,6 +55,9 @@ if ($presenter->image_preview) {
       <div class="col-md-12 col-lg-9">
         <h2><?= $presenter->name ?></h2>
         <?= $presenter->bio ?>
+        <?php if (trim($presenter->social_media)): ?>
+          <p><?= $presenter->social_media ?></p>
+        <?php endif; ?>
       </div>
     </div>
   <?php
