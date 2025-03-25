@@ -26,7 +26,8 @@ use Joomla\Database\DatabaseDriver;
 class Skills
 {
   private EventInfo $eventInfo;
-  const YAPP_DATETIME_FORMAT = 'm/d/Y g:i A';
+  const YAPP_DATE_FORMAT = 'm/d/Y';
+  const YAPP_TIME_FORMAT = 'g:i A';
 
   // constructor
   public function __construct(
@@ -132,8 +133,10 @@ class Skills
             $row[] = $filenames[$p->id] ? 'https://www.clawinfo.org/' . $filenames[$p->id] : '';
             break;
           case 'bio':
-            // Convert to HTML
-            $row[] = Helpers::cleanHtmlForCsv($p->$col);
+            // Convert to HTML and append socials
+            $bio = Helpers::cleanHtmlForCsv($p->$col);
+            if (trim($p->social_media)) $bio .= "\n\n" . $p->social_media;
+            $row[] = $bio;
             break;
           case 'published':
             $row[] = match ($p->published) {
@@ -209,10 +212,14 @@ class Skills
     $ordering = [
       'id',
       'day',
+      'multitrack',
+      'date',
       'start_time',
       'end_time',
       'start_daytime',
       'end_daytime',
+      'people',
+      'people_public_name',
       'ownership',
       'published',
       'people',
@@ -224,13 +231,12 @@ class Skills
     ];
 
     $columnNames = array_keys((array)($skill->toSimpleObject()));
-    #$columnNames[] = 'multitrack';
-    $columnNames[] = 'people';
-    $columnNames[] = 'people_public_name';
+    $columnNames[] = 'multitrack';
+    $columnNames[] = 'date';
     $columnNames[] = 'start_time';
     $columnNames[] = 'end_time';
-    $columnNames[] = 'start_daytime';
-    $columnNames[] = 'end_daytime';
+    $columnNames[] = 'people';
+    $columnNames[] = 'people_public_name';
 
     $ordering = Helpers::combineArrays($ordering, $columnNames);
 
@@ -259,26 +265,25 @@ class Skills
             $row[] = 'class_' . $c->id;
             break;
           case 'day':
+          case 'date':
             if (is_null($c->day)) {
               $row[] = '';
             } else {
-              $row[] = $c->day->format('l');
+              $row[] = $col == 'day' ? $c->day->format('l') : $c->day->format(self::YAPP_DATE_FORMAT);
             }
             break;
           case 'start_time':
-          case 'start_daytime':
             [$time, $length] = explode(':', $c->time_slot);
             if (is_null($c->day)) {
               $row[] = '';
             } else {
               $day = clone $c->day;
               $day->modify($time);
-              $row[] = $col == 'start_time' ? $day->format('g:i A') : $day->format(self::YAPP_DATETIME_FORMAT);
+              $row[] = $day->format(self::YAPP_TIME_FORMAT);
             }
             break;
 
           case 'end_time':
-          case 'end_daytime':
             // take start time and add length
             [$time, $length] = explode(':', $c->time_slot);
             if (is_null($c->day)) {
@@ -287,7 +292,7 @@ class Skills
               $day = clone $c->day;
               $day->modify($time);
               $day->modify('+ ' . $length . ' minutes');
-              $row[] = $col == 'end_time' ? $day->format('g:i A') : $day->format(self::YAPP_DATETIME_FORMAT);
+              $row[] = $day->format(self::YAPP_TIME_FORMAT);
             }
             break;
 
@@ -331,17 +336,19 @@ class Skills
             $row[] = $locations[$c->location]->value ?? '';
             break;
 
-            #case 'multitrack':
-            #// track is day converted to day of week
-            #$time = $c->day . ' ' . explode(':', $c->time_slot)[0];
-            #// Fri/Sat get AM/PM, Sun gets day of week
-            #$day = date('w', strtotime($time));
-            #if ($day == 5 || $day == 6) {
-            #$row[] = date('l A', strtotime($time));
-            #} else {
-            #$row[] = date('l', strtotime($time));
-            #}
-            #break;
+          case 'multitrack':
+            // hour:length - hour military hhhh, length in minutes mmm
+            $time = explode(':', $c->time_slot)[0];
+            // Fri/Sat get AM/PM, Sun gets day of week
+            $day = date('l', strtotime($c->day));
+
+            $row[] = match ($day) {
+              'Friday', 'Saturday' => $day . ' ' . date('A', strtotime($time)),
+              'Sunday' => $day,
+              default => die('Unhandled schedule date'),
+            };
+
+            break;
 
           case 'description':
             $survey = '';
