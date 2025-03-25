@@ -9,14 +9,11 @@ $now = date('Y-m-d H:i:s');
 
 ?>
 
-<div class="row border border-3 border-info">
-  <div class="col">
-    <h1 class="text-center">Night passes valid after 7PM. Registrant must wear Night Pass wristband for event access. Night passes do not include any BDSM Parties.</h1>
-  </div>
+<div class="row border border-3 border-info mb-2">
+  <p class="text-center mt-4 display-6"><strong>Night passes</strong> valid after 6PM. Registrant must wear Night Pass wristband for event access. Night passes do not include any BDSM Parties.</p>
 </div>
 
-<div class="mt-2 d-grid col-6 mx-auto gap-2 mb-2">
-
+<div class="mt-2 row row-cols-1 row-cols-md-2 row-cols-lg-4">
   <?php
   /** @var \ClawCorpLib\Lib\PackageInfo */
   foreach ($this->eventConfig->packageInfos as $packageInfo) {
@@ -24,15 +21,27 @@ $now = date('Y-m-d H:i:s');
       $now > $packageInfo->end
       || $packageInfo->packageInfoType != PackageInfoTypes::passes
       || $packageInfo->published != EbPublishedState::published
+      || $packageInfo->eventId == 0
     ) continue;
 
     $linkFull = EventBooking::buildIndividualLink($packageInfo);
 
     $price = '$' . number_format($packageInfo->fee);
-    $title = $packageInfo->title . ' (' . $price . ')';
 
   ?>
-    <a role="button" href="<?= $linkFull ?>" class="btn btn-success btn-lg"><?= $title ?></a>
+    <div class="col card border-warning p-2 mb-2" style="background-color: transparent;">
+      <div class="card-header">
+        <strong><?= $packageInfo->title ?></strong>
+      </div>
+      <div class="card-body">
+        <p class="card-text"><?= $packageInfo->description ?></p>
+      </div>
+      <div class="card-footer">
+        <a role="button" href="<?= $linkFull ?>" class="btn btn-danger btn-lg w-100">
+          <?= $price ?>
+        </a>
+      </div>
+    </div>
   <?php
   }
   ?>
