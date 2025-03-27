@@ -24,11 +24,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let scale = "";
     let left = 10;
 
-    if (width > 170) {
-      const s = 170 / width;
+    if (width > 154) {
+      const s = 154 / width;
       scale = `scaleX(${s})`;
     } else {
-      left = left + (170 - width) / 2;
+      left = left + (154 - width) / 2;
     }
 
     const t = `transform: translate(${left}px,25mm) ${scale};`;
