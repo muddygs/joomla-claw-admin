@@ -58,7 +58,9 @@ $checkinCache = [];
       break;
     case EventPackageTypes::claw_staff:
       $image = 'coordinator.svg';
-      //if ($r->overridePackage == 'Board member') $image = 'board.svg';
+      break;
+    case EventPackageTypes::claw_board:
+      $image = 'board.svg';
       break;
     case EventPackageTypes::event_staff:
       $image = 'staff.svg';
@@ -135,7 +137,7 @@ function badgeFront(Record $r, string $orientation, string $frontImage): void
   <div class="label <?= $orientation ?>" style="position:relative;" id="<?= $r->registration_code ?>">
     <img class="graphic" src="<?= $frontImage ?>" />
     <div class="badgename">
-      <?= $r->badgeName ?>
+      <?= $r->badge ?>
     </div>
     <div class="pronouns">
       <?= $r->pronouns ?>
