@@ -54,7 +54,7 @@ class JwtController extends BaseController
 
     if (!is_null($payload) && array_key_exists($payload->subject, Jwtwrapper::jwt_token_pages)) {
       $view = Jwtwrapper::jwt_token_pages[$payload->subject]['view'];
-      $route = Route::_("index.php?option=com_claw&view=$view&token=$token");
+      $route = Route::_("/index.php?option=com_claw&view=$view&token=$token");
     } else {
       $this->app->enqueueMessage('Permission denied.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);
       $route = Route::_('/');
