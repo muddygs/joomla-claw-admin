@@ -29,7 +29,7 @@ class Record
   public string $info = '';
   public bool $photoAllowed = false;
   public bool $cocSigned = false;
-  public string $badgeName = '';
+  public string $badge = '';
   public string $pronouns = '';
   public string $staff_type = '';
   public bool $leatherHeartSupport = false;
