@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" method="upgrade">
   <name>CLAW</name>
-  <creationDate>2025-MAR-25</creationDate>
+  <creationDate>2025-MAR-27</creationDate>
   <author>CLAW Corp.</author>
   <authorUrl>https://www.clawinfo.org/</authorUrl>
   <copyright>Copyright 2025 CLAW Corp. - All Rights Reserved</copyright>
   <license>GPLv2</license>
-  <version>25.1.6</version>
+  <version>25.1.7</version>
   <description>CLAW Data Administration</description>
 
   <namespace path="src">ClawCorp\Component\Claw</namespace>
