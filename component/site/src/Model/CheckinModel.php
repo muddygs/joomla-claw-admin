@@ -15,6 +15,7 @@ defined('_JEXEC') or die;
 use ClawCorpLib\Lib\CheckinRecord;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\EbPublishedState;
+use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Checkin;
 use ClawCorpLib\Lib\ClawEvents;
@@ -42,7 +43,12 @@ class CheckinModel extends BaseDatabaseModel
 
   public function GetCount(): array
   {
-    $eventConfig = new EventConfig(Aliases::current(true));
+    $eventConfig = new EventConfig(Aliases::current(true), [
+      PackageInfoTypes::main,
+      PackageInfoTypes::daypass,
+      PackageInfoTypes::passes,
+      PackageInfoTypes::passes_other,
+    ]);
 
     try {
       $attendee = $eventConfig->getMainEventByPackageType(EventPackageTypes::attendee);
