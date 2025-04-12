@@ -10,6 +10,7 @@
 
 namespace ClawCorpLib\Lib;
 
+use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
@@ -49,6 +50,7 @@ class EventConfig
   public function __construct(
     public string $alias,
     public array $filter = self::DEFAULT_FILTERS,
+    public bool $publishedOnly = false
   ) {
     $cacheKey = md5($alias . implode(',', array_map(fn($e) => $e->value, $filter)));
 
@@ -97,6 +99,10 @@ class EventConfig
     if (!empty($this->filter)) {
       $packageInfoTypesFilter = implode(',', array_map(fn($e) => $e->value, $this->filter));
       $query->where('packageInfoType IN (' . $packageInfoTypesFilter . ')');
+    }
+
+    if ($this->publishedOnly) {
+      $query->where('published = ' . EbPublishedState::published->value);
     }
 
     $query->order('start ASC')->order('end ASC');
