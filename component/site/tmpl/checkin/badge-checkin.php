@@ -20,6 +20,7 @@ $wa = $app->getDocument()->getWebAssetManager();
 $wa->useScript('com_claw.jwtmon');
 $wa->useScript('com_claw.checkin');
 $wa->useStyle('com_claw.admin');
+$wa->useScript('htmx');
 
 /* @var \Joomla\CMS\Application\WebApplication */
 $document = $app->getDocument();
