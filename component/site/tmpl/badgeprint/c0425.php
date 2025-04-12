@@ -96,7 +96,7 @@ $checkinCache = [];
     badgeFront($r->toRecord(), $orientation, $this->imagePath . $image);
   }
 
-  $checkinCache[$registrationCode]->doMarkPrinted();
+  if (array_key_exists($registrationCode, $checkinCache)) $checkinCache[$registrationCode]->doMarkPrinted();
 endforeach;
 
 // Print backs in forward order
@@ -104,6 +104,7 @@ if ($ordering == 'fb') {
   reset($this->registrationCodes);
   for (key($this->registrationCodes); key($this->registrationCodes) !== null; next($this->registrationCodes)) {
     $code = current($this->registrationCodes);
+    if (!array_key_exists($code, $checkinCache)) continue;
     badgeBack($checkinCache[$code]->r->toRecord(), $this->imagePath);
   }
 }
@@ -113,6 +114,7 @@ if ($ordering == 'fbr') {
   reset($this->registrationCodes);
   for (end($this->registrationCodes); key($this->registrationCodes) !== null; prev($this->registrationCodes)) {
     $code = current($this->registrationCodes);
+    if (!array_key_exists($code, $checkinCache)) continue;
     badgeBack($checkinCache[$code]->r->toRecord(), $this->imagePath);
   }
 }
@@ -169,12 +171,9 @@ function badgeFront(Record $r, string $orientation, string $frontImage): void
 
 function badgeBack(Record $r): void
 {
-  $s = nl2br($r->shifts);
   // Convenience variables
   $regCode = $r->registration_code;
-
   $noPhoto = $r->photoAllowed ? '' : 'No';
-
   $coc = $r->cocSigned ? 'Yes' : 'No';
 
 ?>
@@ -198,7 +197,7 @@ function badgeBack(Record $r): void
       <li class="value"><?= $r->buffets ?></li>
       <li class="value"><?= $noPhoto ?></li>
       <li class="value"><?= $coc ?><br /><?= $r->id ?></li>
-      <li class="shifts"><?= $s ?></li>
+      <li class="shifts"><?= $r->shifts ?></li>
     </ul>
   </div>
   <div class="page-break"></div>
