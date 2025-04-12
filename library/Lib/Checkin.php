@@ -44,7 +44,7 @@ class Checkin
     $this->r = null;
 
     if (self::$eventConfig == null) {
-      self::$eventConfig = new EventConfig(self::$alias, []);
+      self::$eventConfig = new EventConfig(self::$alias, [], true);
     }
 
     // Combo meals events
