@@ -34,6 +34,10 @@ foreach ($this->list->tabs->overview['category'] as $tab_item) {
       /** @var \ClawCorpLib\Skills\Skill */
       $class = $this->list->skillArray[$classId];
 
+      if (!in_array($class->presenter_id, $this->list->presenterArray->keys())) {
+        continue;
+      }
+
       $url = '';
 
       $title = HTMLHelper::link(
@@ -58,7 +62,7 @@ foreach ($this->list->tabs->overview['category'] as $tab_item) {
       foreach ([$class->presenter_id, ...$class->other_presenter_ids] as $presenter) {
         $link = HTMLHelper::link(
           Route::_('index.php?option=com_claw&view=skillspresenter&id=' . $presenter) . '&tab=' . $this->tabId,
-          $this->list->presenterArray[$presenter]->name,
+          $this->list->presenterArray[$presenter]->name ?? $presenter,
           $owner ? ['class' => 'fs-5 fw-normal'] : ['class' => 'fw-light']
         );
 
