@@ -9,7 +9,6 @@
  */
 
 \defined('_JEXEC') or die;
-\defined('_JEXEC') or die;
 
 // name="info" used to clear in typescript
 
