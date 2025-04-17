@@ -39,9 +39,8 @@ class Skills
 
   public static function rsformJson()
   {
-    // Database driver
     $eventInfo = new EventInfo(Aliases::current(true));
-    $classes = \ClawCorpLib\Skills\Skills::get($eventInfo, SkillPublishedState::published);
+    $classes = \ClawCorpLib\Skills\Skills::get($eventInfo, SkillPublishedState::published, ['title']);
 
     $results = [];
 
