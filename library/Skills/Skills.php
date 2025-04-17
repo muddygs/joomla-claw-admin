@@ -26,8 +26,11 @@ final class Skills
    * @param SkillPublishedState $published Defaults to any
    * @return SkillArray
    */
-  public static function get(EventInfo $eventInfo, SkillPublishedState $published = SkillPublishedState::any): SkillArray
-  {
+  public static function get(
+    EventInfo $eventInfo,
+    SkillPublishedState $published = SkillPublishedState::any,
+    array $order = ['day', 'time_slot', 'title', 'id']
+  ): SkillArray {
     $skills = new SkillArray();
 
     $db = Factory::getContainer()->get('DatabaseDriver');
@@ -38,7 +41,7 @@ final class Skills
       ->from(Skill::SKILLS_TABLE)
       ->where('event = :event')
       ->bind(':event', $event)
-      ->order(['day', 'time_slot', 'title', 'id']);
+      ->order($order);
 
     if ($published != SkillPublishedState::any) {
       $p = $published->value;
