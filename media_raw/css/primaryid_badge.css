@@ -1,197 +1,201 @@
 /* Evolis Primary ID Badge */
 
 body {
-	width: 56mm;
-	height: 85.6mm;
-	margin: 0mm;
-	line-height: 1.0 !important;
-	background-color: #fff !important;
-	font-family: Arial, Helvetica, sans-serif !important;
+  width: 56mm;
+  height: 85.6mm;
+  margin: 0mm;
+  line-height: 1.0 !important;
+  background-color: #fff !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
 }
 
 *,
 ::after,
 ::before {
-	box-sizing: unset !important;
+  box-sizing: unset !important;
 }
 
 .graphic {
-	width: 56mm;
-	height: 85.6mm;
-	z-index: 2;
-	position: absolute;
-	left: -3px;
-	top: 3px;
+  width: 56mm;
+  height: 85.6mm;
+  z-index: 2;
+  position: absolute;
+  left: -3px;
+  top: 3px;
 }
 
 .nophoto {
-	width: 56mm;
-	height: 85.6mm;
-	z-index: 3;
-	position: absolute;
-	left: -3px;
-	top: 3px;
+  width: 56mm;
+  height: 85.6mm;
+  z-index: 3;
+  position: absolute;
+  left: -3px;
+  top: 3px;
 }
 
 .label {
-	width: 50mm;
-	/* total width minus 6mm for padding */
-	height: 79.6mm;
-	/* total height minus 6mm for padding */
-	padding: 3mm 3mm;
-	margin-right: 0mm;
-	/* the gutter */
+  width: 50mm;
+  /* total width minus 6mm for padding */
+  height: 79.6mm;
+  /* total height minus 6mm for padding */
+  padding: 3mm 3mm;
+  margin-right: 0mm;
+  /* the gutter */
 
-	float: left;
+  float: left;
 
-	text-align: center;
-	overflow: hidden;
-	/* outline: 1px dotted; */
+  text-align: center;
+  overflow: hidden;
+  /* outline: 1px dotted; */
 }
 
 .badgename {
-	color: black;
-	font-weight: bold;
-	z-index: 1000;
-	position: absolute;
-	white-space: nowrap;
+  color: black;
+  font-weight: bold;
+  z-index: 1000;
+  position: absolute;
+  white-space: nowrap;
 }
 
 .landscape .badgename {
-	font-size: 18pt;
-	transform-origin: top left;
+  font-size: 18pt;
+  transform-origin: top left;
 }
 
 .portrait .badgename {
-	font-size: 18pt;
-	transform-origin: top left;
-	white-space: nowrap;
+  font-size: 18pt;
+  transform-origin: top left;
+  white-space: nowrap;
 }
 
 .pronouns {
-	color: black;
-	font-size: 12pt;
-	z-index: 1000;
-	position: absolute;
-	text-align: center;
-	width: 100%;
+  color: black;
+  font-size: 12pt;
+  z-index: 1000;
+  position: absolute;
+  text-align: center;
+  width: 100%;
 }
 
 .portrait .pronouns {
-	transform: translate(-4.6mm, 32mm);
-	transform-origin: center center;
+  transform: translate(-4.6mm, 32mm);
+  transform-origin: center center;
 }
+
 .landscape .pronouns {
-	transform: rotate(-90deg) translate(-71mm,23mm);
-	transform-origin: top left;
+  transform: rotate(-90deg) translate(-71mm, 23mm);
+  transform-origin: top left;
 }
 
 .heart {
-	color: red;
-	z-index: 999;
-	position: absolute;
-	transform: translate(1mm, 58mm);
-	transform-origin: top left;
+  color: red;
+  z-index: 999;
+  position: absolute;
+  transform: translate(1mm, 58mm);
+  transform-origin: top left;
 }
 
-.regid, .type {
-	color: black;
-	font-weight: bold;
-	z-index: 1000;
-	position: absolute;
-	text-align: center;
-	width: 100%;
-	font-size: 16pt;
+.regid,
+.type {
+  color: black;
+  font-weight: bold;
+  z-index: 1000;
+  position: absolute;
+  text-align: center;
+  width: 100%;
+  font-size: 16pt;
 }
 
 .portrait .regid {
-	transform: translate(-3.4mm, 36mm);
+  transform: translate(-3.4mm, 36mm);
 }
 
 .landscape .regid {
-	transform: rotate(-90deg) translate(-71mm, 19mm);
+  transform: rotate(-90deg) translate(-71mm, 19mm);
 }
 
 .portrait .type {
-	color: white;
-	background: black;
-	transform: translate(-3.4mm, 41mm);
+  color: white;
+  background: black;
+  transform: translate(-3.4mm, 41mm);
 }
 
 .landscape .type {
-	transform: rotate(-90deg) translate(-71mm, 19mm);
+  transform: rotate(-90deg) translate(-71mm, 19mm);
 }
 
 
 .barcode {
-	z-index: 900;
-	position: absolute;
-	width: 100%;
+  z-index: 900;
+  position: absolute;
+  width: 100%;
 }
 
 .landscape .barcode {
-	transform: translate(0mm, 70mm);
+  transform: translate(0mm, 70mm);
 }
 
 .portrait .barcode {
-	transform: translate(-15.7mm, 45.7mm);
+  transform: translate(-15.7mm, 45.7mm);
 }
 
 .barcode .qrcode {
-	z-index: 900;
-	position: absolute;
-	width: 80px;
-	height: 80px;
+  z-index: 900;
+  position: absolute;
+  width: 80px;
+  height: 80px;
 }
 
 .page-break {
-	clear: left;
-	/* display:block; */
-	position: relative;
-	page-break-after: always;
+  clear: left;
+  /* display:block; */
+  position: relative;
+  page-break-after: always;
 }
 
 .flex-container {
-	padding: 0;
-	margin: 0;
-	list-style: none;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 
-	justify-content: space-around;
+  justify-content: space-around;
 
-	display: -webkit-flex;
-	display: -moz-flex;
-	display: -ms-flex;
-	display: -o-flex;
-	display: flex;
-	-webkit-flex-direction: row;
-	-moz-flex-direction: row;
-	-ms-flex-direction: row;
-	flex-direction: row;
-	-webkit-flex-flow: row wrap;
-	-moz-flex-flow: row wrap;
-	-ms-flex-flow: row wrap;
-	flex-flow: row wrap;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flex;
+  display: -o-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  -moz-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-flex-flow: row wrap;
+  -moz-flex-flow: row wrap;
+  -ms-flex-flow: row wrap;
+  flex-flow: row wrap;
 
-	-ms-flex-align: center;
-	-webkit-align-items: center;
-	-webkit-box-align: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
 
-	align-items: center;
+  align-items: center;
 
-	width: 80mm;
+  width: 80mm;
 
-	transform: rotate(90deg) translate(0mm, -42mm);
-	transform-origin: top left;
+  transform: rotate(90deg) translate(0mm, -42mm);
+  transform-origin: top left;
 }
 
 .flex-container li {
-	background: white;
-	padding: 0px;
-	margin: 0px;
+  background: white;
+  padding: 0px;
+  margin: 0px;
 
-	color: black;
-	text-align: center;
-	outline: 1px solid black;
+  color: black;
+  text-align: center;
+  outline: 1px solid black;
 }
 
 /* .flex-container .nophoto {
@@ -199,39 +203,39 @@ body {
 } */
 
 .flex-container .header {
-	width: 86mm;
-	height: 5mm;
-	font-size: 12pt;
-	text-align: left;
-	font-weight: bold;
+  width: 86mm;
+  height: 5mm;
+  font-size: 12pt;
+  text-align: left;
+  font-weight: bold;
 }
 
 .flex-container .value {
-	width: 16mm;
-	height: 13mm;
-	font-size: 10pt;
+  width: 16mm;
+  height: 13mm;
+  font-size: 10pt;
 }
 
 .flex-container .infoline {
-	width: 16mm;
-	height: 3mm;
-	font-size: 7pt;
+  width: 16mm;
+  height: 3mm;
+  font-size: 7pt;
 }
 
 .flex-container .shifts {
-	width: 86mm;
-	height: 19mm;
-	font-size: 9pt;
-	text-align: left;
-	padding: 1mm;
-	overflow: hidden;
-	white-space: nowrap;
+  width: 86mm;
+  height: 19mm;
+  font-size: 9pt;
+  text-align: left;
+  padding: 1mm;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 @media print {
 
-	.noprint,
-	.noprint * {
-		display: none !important;
-	}
+  .noprint,
+  .noprint * {
+    display: none !important;
+  }
 }
