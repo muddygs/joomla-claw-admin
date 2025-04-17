@@ -272,14 +272,15 @@ class Checkin
 
     $this->r->dayPassDay = '';
 
+    // Use -1 default because that shouldn't happen as the event id is a db index > 0
     switch ($this->r->package_eventId) {
-      case self::$eventConfig->getPackageInfo(EventPackageTypes::day_pass_fri)->eventId:
+      case self::$eventConfig->getPackageInfo(EventPackageTypes::day_pass_fri)->eventId ?? -1:
         $this->r->dayPassDay = 'Fri';
         break;
-      case self::$eventConfig->getPackageInfo(EventPackageTypes::day_pass_sat)->eventId:
+      case self::$eventConfig->getPackageInfo(EventPackageTypes::day_pass_sat)->eventId ?? -1:
         $this->r->dayPassDay = 'Sat';
         break;
-      case self::$eventConfig->getPackageInfo(EventPackageTypes::day_pass_sun)->eventId:
+      case self::$eventConfig->getPackageInfo(EventPackageTypes::day_pass_sun)->eventId ?? -1:
         $this->r->dayPassDay = 'Sun';
         break;
     }
