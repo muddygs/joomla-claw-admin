@@ -86,13 +86,19 @@ class HtmlView extends BaseHtmlView
         return;
       }
     } catch (\Exception) {
-      $this->app->enqueueMessage('Invalid event requested/e.', 'error');
+      $this->app->enqueueMessage('Invalid event requested.', 'error');
       $this->app->redirect($this->registrationSurveyLink);
       return;
     }
 
 
     $this->targetPackage = $this->eventConfig->getPackageInfo($this->eventPackageType);
+
+    if (is_null($this->targetPackage)) {
+      $this->app->enqueueMessage('Event package for action not configured.', 'error');
+      $this->app->redirect($this->registrationSurveyLink);
+      return;
+    }
 
     // If not addon, preprocess for validity or direct registration (public event)
 
