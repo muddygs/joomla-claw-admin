@@ -150,6 +150,11 @@
       "name": "htmx",
       "type": "script",
       "uri": "com_claw/htmx.min.js"
+    },
+    {
+      "name": "hyperscript",
+      "type": "script",
+      "uri": "com_claw/hyperscript.org@0.9.14.min.js"
     }
   ]
 }
