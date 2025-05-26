@@ -40,7 +40,9 @@ document.addEventListener('DOMContentLoaded', function() {
 	observer.observe(document.getElementById('claw-coupon-generator'), config);
 
 	document.addEventListener('htmx:configRequest', function(event) {
+    // @ts-ignore
 		const triggeredElement = event.detail.triggeringEvent.target;
+    // @ts-ignore
 		event.detail.parameters.htmxChangedField = triggeredElement.name;
 	});
 });
