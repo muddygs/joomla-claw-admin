@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #rsync -arv --delete /var/www/j4_dev/public_html/administrator/components/com_claw/ component/admin/
 rsync -arv /var/www/j4_dev/public_html/administrator/components/com_claw/ component/admin/
 rsync -arv /var/www/j4_dev/public_html/components/com_claw/ component/site/
