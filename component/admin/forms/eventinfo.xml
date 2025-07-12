@@ -150,6 +150,16 @@
     <option value="">Select Location</option>
   </field>
 
+  <field name="clawLocationId"
+    type="list"
+    label="Event City:"
+    default="1"
+    validate="options">
+    <option value="0">N/A</option>
+    <option value="1">Cleveland</option>
+    <option value="2">Los Angeles</option>
+  </field>
+
   <field
     name="prefix"
     type="text"
