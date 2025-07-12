@@ -5,9 +5,9 @@
     <description>Provides a CLAW Registration Button</description>
     <author>CLAW Corp.</author>
     <creationDate>2025-07-08</creationDate>
-    <copyright>(C) 2025 CLAW Corp.</copyright>
+    <copyright>(C)2025 CLAW Corp.</copyright>
     <license>GNU General Public License version 2 or later</license>
-    <namespace path="src">ClawCorp\Plugin\Content\Clawreg</namespace>
+    <namespace path="src">Clawcorp\Plugin\Content\Clawreg</namespace>
     <files>
         <folder plugin="clawreg">services</folder>
         <folder>src</folder>

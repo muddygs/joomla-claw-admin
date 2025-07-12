@@ -31,8 +31,6 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
     [$context, $article, $params, $page] = array_values($event->getArguments());
     if ($context !== "com_content.article") return;
 
-
-
     if (str_contains($article->text, "{clawreg")) {
       $text = $article->text; // text of the article to manipulate
 
@@ -50,7 +48,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
           // 2: display option (null, onsite_active) 
           $matcheslist = explode(',', $match[1]);
 
-          $output = $this->load($position, $style);
+          $output = $this->errorButton();
 
           // We should replace only first occurrence in order to allow positions with the same name to regenerate their content:
           if (($start = strpos($article->text, $match[0])) !== false) {

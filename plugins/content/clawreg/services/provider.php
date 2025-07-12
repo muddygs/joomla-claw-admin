@@ -10,21 +10,20 @@ use Clawcorp\Plugin\Content\Clawreg\Extension\Clawreg;
 
 return new class() implements ServiceProviderInterface
 {
-    public function register(Container $container)
-    {
-        $container->set(
-            PluginInterface::class,
-            function (Container $container) {
+  public function register(Container $container)
+  {
+    $container->set(
+      PluginInterface::class,
+      function (Container $container) {
+        $config = (array) PluginHelper::getPlugin('content', 'clawreg');
+        $subject = $container->get(DispatcherInterface::class);
+        $app = Factory::getApplication();
 
-                $config = (array) PluginHelper::getPlugin('content', 'clawreg');
-                $subject = $container->get(DispatcherInterface::class);
-                $app = Factory::getApplication();
-                
-                $plugin = new Clawreg($subject, $config);
-                $plugin->setApplication($app);
+        $plugin = new Clawreg($subject, $config);
+        $plugin->setApplication($app);
 
-                return $plugin;
-            }
-        );
-    }
-}
+        return $plugin;
+      }
+    );
+  }
+};
