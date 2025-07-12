@@ -34,6 +34,7 @@ $view = 'eventinfo';
     </div>
     <div class="row">
       <div class="col-lg-6">
+        <?= $this->form->renderField('clawLocationId'); ?>
         <?= $this->form->renderField('alias'); ?>
         <?= $this->form->renderField('prefix'); ?>
       </div>
