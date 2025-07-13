@@ -50,51 +50,49 @@ if ($masterCells > 10) $masterwidth = round(100 * (10 / $masterCells));
   }
 </style>
 
-<div class="container">
-  <div class="row">
-    <div class="col-12">
-      <div class="d-flex flex-column mb-2" id="master_sponsors">
-        <div class="w-100 justify-content-center">
-          <div class="text-white bg-danger master_sponsor_header">
-            <h3 style="text-align:center; font-variant:all-petite-caps; font-size:14pt;">Master Sponsors</h3>
-          </div>
+<div class="row">
+  <div class="col-12">
+    <div class="d-flex flex-column mb-2" id="master_sponsors">
+      <div class="w-100 justify-content-center">
+        <div class="text-white bg-danger master_sponsor_header">
+          <h3 style="text-align:center; font-variant:all-petite-caps; font-size:14pt;">Master Sponsors</h3>
         </div>
-        <div class="d-flex flex-wrap justify-content-center">
-          <?php
-          foreach ([SponsorshipType::Legacy_Master->value, SponsorshipType::Master->value] as $type) {
-            $class = match ($type) {
-              SponsorshipType::Legacy_Master->value => 'mastersponsor2x',
-              SponsorshipType::Master->value => 'mastersponsor',
-            };
+      </div>
+      <div class="d-flex flex-wrap justify-content-center">
+        <?php
+        foreach ([SponsorshipType::Legacy_Master->value, SponsorshipType::Master->value] as $type) {
+          $class = match ($type) {
+            SponsorshipType::Legacy_Master->value => 'mastersponsor2x',
+            SponsorshipType::Master->value => 'mastersponsor',
+          };
 
-            /** @var \ClawCorpLib\Lib\Sponsor */
-            foreach ($sponsorsByType[$type] as $sponsor) {
-              $logo = $sponsor->logo_small;
-              $url = $sponsor->link;
-          ?>
-              <div class="<?= $class ?>">
+          /** @var \ClawCorpLib\Lib\Sponsor */
+          foreach ($sponsorsByType[$type] as $sponsor) {
+            $logo = $sponsor->logo_small;
+            $url = $sponsor->link;
+        ?>
+            <div class="<?= $class ?>">
 
+              <?php
+              if (!empty($url)) {
+              ?>
+                <a href="<?= $sponsor->link ?>" target="_blank" rel="noopener">
+                <?php
+              }
+                ?>
+                <img src="<?= $logo ?>" class="img-fluid mx-auto d-block <?= $class ?>logo" alt="<?= $sponsor->name ?>" title="<?= $sponsor->name ?>" />
                 <?php
                 if (!empty($url)) {
                 ?>
-                  <a href="<?= $sponsor->link ?>" target="_blank" rel="noopener">
-                  <?php
+                </a>
+              <?php
                 }
-                  ?>
-                  <img src="<?= $logo ?>" class="img-fluid mx-auto d-block <?= $class ?>logo" alt="<?= $sponsor->name ?>" title="<?= $sponsor->name ?>" />
-                  <?php
-                  if (!empty($url)) {
-                  ?>
-                  </a>
-                <?php
-                  }
-                ?>
-              </div>
-          <?php
-            }
+              ?>
+            </div>
+        <?php
           }
-          ?>
-        </div>
+        }
+        ?>
       </div>
     </div>
   </div>
