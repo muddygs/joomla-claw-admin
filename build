@@ -60,7 +60,7 @@ retrieve_svn() {
 }
 
 build_main_package() {
-  echo "Package Build"
+  banner "Package Build"
   cd package && /usr/bin/zip --quiet -r ../pkg_claw.zip . && cd - &>/dev/null
 }
 
@@ -68,7 +68,7 @@ build_main_package() {
 # TODO: make loop
 
 build_modules() {
-  echo "Module Build"
+  banner "Module Build"
   local VMODSPONSORS=$(xmllint --xpath '/extension/version/text()' modules/mod_claw_sponsors/mod_claw_sponsors.xml)
   local VMODCART=$(xmllint --xpath '/extension/version/text()' modules/mod_claw_cart/mod_claw_cart.xml)
   local VMODVENDORS=$(xmllint --xpath '/extension/version/text()' modules/mod_claw_vendors/mod_claw_vendors.xml)
@@ -90,10 +90,13 @@ build_modules() {
   ls -l package/packages/mod_claw_*
 }
 
-build_packages() {
-  echo "Package Build"
+build_plugins() {
+  banner "Plugins Build"
   local VPLUGINTASK=$(xmllint --xpath '/extension/version/text()' plugins/task/clawcorp/clawcorp.xml)
+  local VCONTENTCLAWREG=$(xmllint --xpath '/extension/version/text()' plugins/content/clawreg/clawreg.xml)
+
   cd plugins/task/clawcorp && /usr/bin/zip --quiet -r ../../../package/packages/plg_task_clawcorp_$VPLUGINTASK.zip . && cd - &>/dev/null
+  cd plugins/content/clawreg && /usr/bin/zip --quiet -r ../../../package/packages/plg_content_clawreg_$VCONTENTCLAWREG.zip . && cd - &>/dev/null
   ls -l package/packages/plg_*
 }
 
@@ -110,7 +113,7 @@ prepare_media
 retrieve_svn
 build_main_package
 build_modules
-build_packages
+build_plugins
 
 VPACKAGE=$(xmllint --xpath '/extension/version/text()' package/pkg_claw.xml)
 VCOMPONENT=$(xmllint --xpath '/extension/version/text()' component/claw.xml)
