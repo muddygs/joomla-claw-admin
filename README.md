@@ -1,4 +1,6 @@
-# COM_CLAW Joomla 4 components and libraries to support event management for our organization
+> This project is not sponsored by or associated with Joomla! project in any way.
+
+# COM_CLAW Joomla 5 components and libraries to support event management for our organization
 
 The main purpose of this code base is to support event management of
 our bi-annual conference. We needed a solution that manages our complex
@@ -10,16 +12,16 @@ Each event consists of hundreds of registration events (many are volunteers "shi
 However, this component architecture may be useful in other ways. Rather than managing articles for hundred of events, our site pivots around database entries for schedule, presenters, class listings, and volunteer management (we generally have several hundred per event).
 
 ---
-## Current status (2025-JAN-01)
+## Current status (2025-JUL-13)
 
-Migration testing on Joomla 5 will begin this month.
+Migration testing on Joomla 5 in progress.
 
 * Build needs to be improved; current process is a bash script to assemble the zip files for installation
 * No translations; uncertain if this wll be done since everything for our purposes is in English
 
 ### History
 
-We had thousands of lines of PHP targeting Joomla 3 that were migrated to the J4 MVC model. We had been using [Fabrik](https://fabrikar.com/) UI, but we were not confident a Joomla 4/5 version would even happen (it did!), but the decision was made that reliance upon Fabrik is not in the best interest of a fully-dedicated solution. This code base replaces the parts we were using within Fabrik with a J4-specific UI, which is primarily for data entry.
+We had thousands of lines of PHP targeting Joomla 3 that were migrated to the J4 MVC model. We had been using [Fabrik](https://fabrikar.com/) UI, but we were not confident a Joomla 4/5 version would even happen (it did!), but the decision was made that reliance upon Fabrik is not in the best interest of a fully-dedicated solution. This code base replaces the parts we were using within Fabrik with a Joomla-specific UI, which is primarily for data entry.
 
 ---
 ## Major Component Menu Description
@@ -57,18 +59,6 @@ Information used during development as guides to understanding Joomla 4 Content 
    * [Standard form field types](https://manual.joomla.org/docs/general-concepts/forms-fields/)
    * [Manifest files](https://manual.joomla.org/docs/building-extensions/install-update/installation/manifest/)
 
-### Example repositories and development resources
-
-* [Joomla Code](https://joomla-code.com/)
-
-May be outdated
-
-* [astrid/j4examplecode](https://codeberg.org/astrid/j4examplecode/src/branch/t42)
-
-   **Note**: View by specific tag; hasn't been updated in a while
-* [Astrid Gunther](https://blog.astrid-guenther.de/)
-
-* [ceford/j4xdemos-com-countrybase](https://github.com/ceford/j4xdemos-com-countrybase)
 ---
 ### License
 
