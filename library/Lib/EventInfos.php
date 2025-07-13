@@ -21,6 +21,7 @@ class EventInfos implements \IteratorAggregate, \Countable
   public function __construct(
     public bool $fromPlugin = false,
     public bool $withUnpublished = false,
+    public int $clawLocationId = 0,
   ) {
     $this->eventInfoArray = new EventInfoArray();
     $this->load();
@@ -51,7 +52,7 @@ class EventInfos implements \IteratorAggregate, \Countable
 
   #endregion
   #
-  private static function loadAliases(bool $withUnpublished = false, bool $fromPlugin = false): array
+  private static function loadAliases(bool $withUnpublished = false, int $clawLocationId = 0): array
   {
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
@@ -67,6 +68,10 @@ class EventInfos implements \IteratorAggregate, \Countable
       $query->where('active=' . EbPublishedState::published->value);
     }
 
+    if ($clawLocationId > 0) {
+      $query->where('clawLocationId=' . $clawLocationId);
+    }
+
     $db->setQuery($query);
     $aliases = $db->loadColumn();
 
@@ -78,7 +83,7 @@ class EventInfos implements \IteratorAggregate, \Countable
 
   private function load()
   {
-    $aliases = self::loadAliases($this->withUnpublished, $this->fromPlugin);
+    $aliases = self::loadAliases($this->withUnpublished, $this->clawLocationId);
 
     foreach ($aliases as $alias) {
       $this->eventInfoArray[strtolower($alias)] = new EventInfo($alias, $this->withUnpublished);

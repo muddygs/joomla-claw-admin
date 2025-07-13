@@ -14,6 +14,7 @@ namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Helpers\Helpers;
+use Exception;
 use Joomla\CMS\Factory;
 
 /** 
@@ -37,5 +38,14 @@ class Aliases
     }
 
     return EventConfig::getCurrentEventAlias();
+  }
+
+  static function currentByLocation(int $clawLocationId): string
+  {
+    if (1 != $clawLocationId && 2 != $clawLocationId) {
+      throw new Exception("Invalid clawLocationId", 1);
+    }
+
+    return EventConfig::getCurrentEventAlias($clawLocationId);
   }
 }
