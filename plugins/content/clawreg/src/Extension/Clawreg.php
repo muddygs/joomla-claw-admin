@@ -8,7 +8,6 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Event\Event;
 use Joomla\Event\SubscriberInterface;
-use Joomla\CMS\Event\Result\ResultAwareInterface;
 
 use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Enums\EventPackageTypes;
@@ -32,12 +31,10 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
     }
 
     [$context, $article, $params, $page] = array_values($event->getArguments());
-    if ($context !== "com_content.article") return;
+    #if ($context !== "com_content.article") return;
 
     // no plugin marker in article, we're done
     if (!str_contains($article->text, "{clawreg")) return;
-
-    $text = $article->text; // text of the article to manipulate
 
     // $matches[0] is full pattern match, $matches[1] is the position
     $regex         = "/{clawreg\s+([\w\s,\"\#\(\)]+)}/i";
@@ -50,7 +47,8 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
       // ordering:
       // 0: location
       // 1: EventPackageType enum case | packageId
-      // 2: display option (null, onsite_active) 
+      // 2: displayed text with limited substitutions available
+      // 3: display option (null, onsite_active) 
       $matcheslist = explode(',', $match[1]);
 
       $output = $this->paramsToButton($matcheslist);
@@ -130,11 +128,12 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
 
   private function parseButtonText(PackageInfo $packageInfo, string $param): string
   {
+    $day = $packageInfo->start == null ? '' : $packageInfo->start->format('D');
     // Possible substitutions
     $patterns = [
       '#title#' => $packageInfo->title,
       '#fee#' => '$' . round($packageInfo->fee),
-      '#day#' => $packageInfo->start->format('D'),
+      '#day#' => $day,
     ];
 
     $param = str_replace(array_keys($patterns), array_values($patterns), $param);
