@@ -96,7 +96,7 @@ final class Skill
     $this->submission_date = new Date($o->submission_date);
     $this->ownership = SkillOwnership::tryFrom($o->ownership) ?? SkillOwnership::admin;
     $this->published = SkillPublishedState::tryFrom($o->published) ?? SkillPublishedState::unpublished;
-    $this->other_presenter_ids = json_decode($o->other_presenter_ids) ?? [];
+    $this->other_presenter_ids = json_decode($o->other_presenter_ids ?? []) ?? [];
     $this->av = $o->av;
     $this->length_info = $o->length_info;
     $this->location = $o->location ?? 0;
