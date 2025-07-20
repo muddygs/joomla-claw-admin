@@ -18,7 +18,6 @@ use ClawCorpLib\Iterators\PackageInfoArray;
 use Joomla\CMS\Factory;
 use Joomla\Database\Exception\UnsupportedAdapterException;
 use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
-use Joomla\DI\Exception\KeyNotFoundException;
 use RuntimeException;
 
 class EventConfig
@@ -44,7 +43,6 @@ class EventConfig
    * @param string $alias Event alias (required)
    * @param array $filter By default, only primary registration events are included
    * @return void 
-   * @throws KeyNotFoundException 
    * @throws RuntimeException
    */
   public function __construct(
@@ -200,7 +198,6 @@ class EventConfig
    * @throws QueryTypeAlreadyDefinedException 
    * @throws RuntimeException 
    * @throws InvalidArgumentException 
-   * @throws KeyNotFoundException 
    * @throws UnexpectedValueException 
    */
   public function getMainRequiredEventIds(): array
@@ -327,11 +324,11 @@ class EventConfig
     return $titles;
   }
 
-  public static function getCurrentEventAlias(): string
+  public static function getCurrentEventAlias(int $clawLocationId = 0): string
   {
     if (self::$_current != '') return self::$_current;
 
-    $eventInfos = new EventInfos();
+    $eventInfos = new EventInfos(clawLocationId: $clawLocationId);
 
     if (count($eventInfos) == 0) {
       die('No events found in Config::getCurrentEvent().');
@@ -354,6 +351,7 @@ class EventConfig
 
     foreach (array_keys($endDates) as $endDate) {
       if ($endDate > $now) {
+        // not errors - type hinting problem
         self::$_current = $endDates[$endDate];
         break;
       }
@@ -361,6 +359,7 @@ class EventConfig
 
     if (self::$_current == '') {
       // Failsafe-ish: Get last item in array
+      // not errors - type hinting problem
       self::$_current = array_pop($endDates);
     }
 
