@@ -345,6 +345,12 @@ class Deploy
     $log = [];
     $count = 0;
 
+    $metaPackages = [
+      EventPackageTypes::vip,
+      EventPackageTypes::claw_staff,
+      EventPackageTypes::claw_board,
+    ];
+
     $eventConfig = new EventConfig($this->eventAlias, []);
     $packageInfos = $eventConfig->packageInfos;
 
@@ -363,6 +369,14 @@ class Deploy
         continue;
       }
 
+      if (in_array($packageInfo->eventPackageType, $metaPackages) && count($packageInfo->meta) == 0) {
+        $log[] = "Meta Missing: $packageInfo->title";
+        continue;
+      }
+
+
+      // See: administrator/components/com_claw/forms/packageinfo.xml
+      //showon="packageInfoType:3[OR]eventPackageType:3[OR]eventPackageType:32[OR]eventPackageType:20"
       if ($packageInfo->published != EbPublishedState::published) {
         $log[] =  "Skipping unpublished: $packageInfo->title";
         continue;
@@ -383,6 +397,18 @@ class Deploy
 
       switch ($packageInfo->packageInfoType) {
         case PackageInfoTypes::combomeal:
+          // Update internal start/end information for main packages to guarantee
+          // Wed-Sun on the package span; all others used packageInfo directly (above)
+          $packageInfo->start = $startDateWed;
+          $packageInfo->end = $endDate;
+          $start = $startDateWed;
+          $end = $endDate;
+
+          if ($packageInfo->bundleDiscount > 0) {
+            $price_text = '$' . $packageInfo->fee . ' (attendee) / $' . $packageInfo->fee - $packageInfo->bundleDiscount . ' (volunteer)';
+          }
+          break;
+
         case PackageInfoTypes::main:
           // Update internal start/end information for main packages to guarantee
           // Wed-Sun on the package span; all others used packageInfo directly (above)
@@ -390,6 +416,8 @@ class Deploy
           $packageInfo->end = $endDate;
           $start = $startDateWed;
           $end = $endDate;
+
+          // If this event is supposed to have meta data, but it is not setup, skip for now
 
           if ($packageInfo->bundleDiscount > 0) {
             $price_text = '$' . $packageInfo->fee . ' (attendee) / $' . $packageInfo->fee - $packageInfo->bundleDiscount . ' (volunteer)';
@@ -547,7 +575,7 @@ class Deploy
       $cutoff = clone ($startDate);
 
       switch ($packageInfo->category) {
-          // We need advertising submitted no later than 3 weeks before the event
+        // We need advertising submitted no later than 3 weeks before the event
         case $sponsorshipCategories['sponsorships-advertising']:
           $cutoff->modify('-3 weeks');
           break;
@@ -556,21 +584,21 @@ class Deploy
           $cutoff->modify('-1 week');
           break;
 
-          // Buffer until next event
+        // Buffer until next event
         case $sponsorshipCategories['sponsorships-master-sustaining']:
           $cutoff->modify('+6 months');
           $end = $cutoff;
           $publish_down = $cutoff;
           break;
 
-          // Blue, black, gold are all the same
+        // Blue, black, gold are all the same
         case $sponsorshipCategories['sponsorships-black']:
         case $sponsorshipCategories['sponsorships-blue']:
         case $sponsorshipCategories['sponsorships-gold']:
           $cutoff->modify('-1 week');
           break;
 
-          // Leather heart donations are available until the end of the event
+        // Leather heart donations are available until the end of the event
         case $sponsorshipCategories['donations-leather-heart']:
           $cutoff = clone ($endDate);
           break;
