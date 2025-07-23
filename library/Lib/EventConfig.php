@@ -50,6 +50,8 @@ class EventConfig
     public array $filter = self::DEFAULT_FILTERS,
     public bool $publishedOnly = false
   ) {
+    //var_dump($alias);
+    //dd(debug_backtrace());
     $cacheKey = md5($alias . implode(',', array_map(fn($e) => $e->value, $filter)));
 
     if (!isset(self::$_EventInfoCache)) {
@@ -326,7 +328,7 @@ class EventConfig
 
   public static function getCurrentEventAlias(int $clawLocationId = 0): string
   {
-    if (self::$_current != '') return self::$_current;
+    if ('' != self::$_current && 0 == $clawLocationId) return self::$_current;
 
     $eventInfos = new EventInfos(clawLocationId: $clawLocationId);
 
@@ -335,6 +337,7 @@ class EventConfig
     };
 
     $endDates = [];
+
 
     /** @var \ClawCorpLib\Lib\EventInfo */
     foreach ($eventInfos as $alias => $eventInfo) {
