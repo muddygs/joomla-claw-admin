@@ -65,7 +65,7 @@ else:
       $description = $info->meta_description;
     ?>
       <div class="col d-flex flex-wrap">
-        <a href="<?= $url ?>" class="w-100 btn btn-outline-danger" role="button">
+        <a href="<?= $url ?>" class="w-100 btn btn-outline-danger" role="button" style="background-color:transparent">
           <h2><?= $name ?></h2>
           <small class="text-center"><strong><?= $description ?></strong></small>
         </a>
