@@ -267,6 +267,7 @@
     <option value="0">JNO</option>
   </field>
 
+  <!-- This field needs to sync with Deploy.php::Packages() to verify meta is defined -->
   <field
     name="meta"
     type="list"
