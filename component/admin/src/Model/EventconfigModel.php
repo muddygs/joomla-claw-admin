@@ -163,7 +163,7 @@ class EventconfigModel extends AdminModel
 
       // Equipment Rental needs meta as a string
       if ($data->packageInfoType == PackageInfoTypes::equipment->value) {
-        $data->meta = (is_array($data->meta) ? $data->meta[0] : $data->meta);
+        $data->meta = (is_array($data->meta) ? $data->meta[0] ?? '' : $data->meta);
       }
 
       // Package types with specific start and end times that need to be converted
