@@ -308,7 +308,9 @@ class Helpers
     }
 
     // I'm not a teapot!
-    throw new GenericDataException('Null session not permitted.', 418);
+    $return = \Joomla\CMS\Uri\Uri::root();
+    $app->redirect($return);
+    return '';
   }
   #endregion Session
 
