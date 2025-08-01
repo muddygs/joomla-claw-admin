@@ -68,7 +68,7 @@ endif;
 
   if (0 == $this->autoCoupon->eventId):
   ?>
-    <h1>Have a coupon?</h1>
+    <h1 class="rstpl-title-left text-white">Have a coupon?</h1>
   <?php
   else:
     $databaseRow = ClawEvents::loadEventRow($this->autoCoupon->eventId);
