@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package     CLAW.Schedule
+ * @package     CLAW.Module
  * @subpackage  mod_claw_schedule
  *
  * @copyright   (C) 2024 C.L.A.W. Corp.
@@ -35,5 +35,4 @@ class ScheduleHelper implements DatabaseAwareInterface
     $schedule = new Schedule(Aliases::current(true), $db, 'upcoming');
     return $schedule->getUpcomingEvents();
   }
-
 }
