@@ -38,6 +38,7 @@ class EventconfigModel extends AdminModel
   private $jsonFields = ['couponAccessGroups', 'meta'];
 
   protected $context = 'com_claw.edit.packageinfo';
+  protected ?EventInfo $eventInfo = null;
 
   public function __construct($config = array())
   {
@@ -58,7 +59,9 @@ class EventconfigModel extends AdminModel
       }
     }
 
-    $eventInfo = new EventInfo($data['eventAlias']);
+    if (is_null($this->eventInfo)) {
+      $this->eventInfo = new EventInfo($data['eventAlias']);
+    }
 
     $packageInfoType = PackageInfoTypes::FindValue($data['packageInfoType']);
 
@@ -79,19 +82,19 @@ class EventconfigModel extends AdminModel
 
         if ($data['end_time'] < $data['start_time']) $end .= ' +1 day';
 
-        $startDate = $eventInfo->modify($start ?? '');
+        $startDate = $this->eventInfo->modify($start ?? '');
         $data['start'] = $startDate !== false ? $startDate->toSql() : $data['start'];
 
-        $data['start'] = $eventInfo->modify($start ?? '')->toSql();
-        $data['end'] = $eventInfo->modify($end ?? '')->toSql();
+        $data['start'] = $this->eventInfo->modify($start ?? '')->toSql();
+        $data['end'] = $this->eventInfo->modify($end ?? '')->toSql();
         break;
 
       case PackageInfoTypes::speeddating:
         $start = $data['day'] . ' ' . $data['start_time'];
         $end = $data['day'] . ' ' . $data['start_time'] . ' +45 minutes';
 
-        $data['start'] = $eventInfo->modify($start ?? '')->toSql();
-        $data['end'] = $eventInfo->modify($end ?? '')->toSql();
+        $data['start'] = $this->eventInfo->modify($start ?? '')->toSql();
+        $data['end'] = $this->eventInfo->modify($end ?? '')->toSql();
         break;
 
       case PackageInfoTypes::sponsorship:
@@ -102,8 +105,8 @@ class EventconfigModel extends AdminModel
         $start = $data['day'] . ' ' . $data['start_time'];
         $end = $data['day'] . ' ' . $data['start_time'] . ' +' . (int)$data['length'] . ' minutes';
 
-        $data['start'] = $eventInfo->modify($start ?? '')->toSql();
-        $data['end'] = $eventInfo->modify($end ?? '')->toSql();
+        $data['start'] = $this->eventInfo->modify($start ?? '')->toSql();
+        $data['end'] = $this->eventInfo->modify($end ?? '')->toSql();
         break;
 
       default:

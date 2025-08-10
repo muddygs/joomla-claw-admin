@@ -12,7 +12,7 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
-use ClawCorpLib\Lib\ClawEvents;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Factory;
 
 defined('_JEXEC') or die;
@@ -33,8 +33,9 @@ class SpeeddatinginfoModel extends EventconfigModel
     $data['packageInfoType'] = PackageInfoTypes::speeddating->value;
     $data['eventPackageType'] = EventPackageTypes::speeddating->value;
 
-    // TODO: Put into config db table
-    $data['category'] = ClawEvents::getCategoryId('speed-dating');
+    // Do this now to validate the alias
+    $this->eventInfo = new EventInfo($data['eventAlias']);
+    $data['category'] = $this->eventInfo->eb_cat_speeddating[0];
 
     $result = parent::save($data);
     return $result;
@@ -48,4 +49,3 @@ class SpeeddatinginfoModel extends EventconfigModel
     return $form;
   }
 }
-
