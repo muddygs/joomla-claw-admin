@@ -175,30 +175,35 @@ class HtmlView extends BaseHtmlView
       return;
     }
 
+    // FORCE CLEANUP ON NEW EVENT SELECTION
+    $cart = new \EventbookingHelperCart();
+    $cart->reset();
+    $cart->addEvents([$this->targetPackage->eventId]);
+    return;
+
     // Auto add this registration to the cart
     // Remove any other main events that might be in cart
-    $cart = new \EventbookingHelperCart();
 
-    $items = $cart->getItems();
-    if (!in_array($this->targetPackage->eventId, $items)) {
-      $cart->reset();
-      array_unshift($items, $this->targetPackage->eventId);
-      $cart->addEvents($items);
-      $items = $cart->getItems();
-    }
+    //$items = $cart->getItems();
+    //if (!in_array($this->targetPackage->eventId, $items)) {
+    //$cart->reset();
+    //array_unshift($items, $this->targetPackage->eventId);
+    //$cart->addEvents($items);
+    //$items = $cart->getItems();
+    //}
 
     // In case there are any oddball nulls, clean them out
-    $cart->remove(null);
+    //$cart->remove(null);
 
-    $cartMainEvents = array_intersect($items, $this->eventConfig->getMainEventIds());
+    //$cartMainEvents = array_intersect($items, $this->eventConfig->getMainEventIds());
 
-    if (sizeof($cartMainEvents) > 1) {
-      foreach ($cartMainEvents as $c) {
-        if ($c != $this->targetPackage->eventId) {
-          $cart->remove($c);
-        }
-      }
-    }
+    //if (sizeof($cartMainEvents) > 1) {
+    //foreach ($cartMainEvents as $c) {
+    //if ($c != $this->targetPackage->eventId) {
+    //$cart->remove($c);
+    //}
+    //}
+    //}
   }
 
   private function resetSession()
