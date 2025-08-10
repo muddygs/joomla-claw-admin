@@ -17,6 +17,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Button\PublishedButton;
+use ClawCorpLib\Lib\EventConfig;
 
 $wa = $this->document->getWebAssetManager();
 $wa->useScript('table.columns');
@@ -43,6 +44,9 @@ $view = "equipmentrentals";
             </th>
             <th scope="col" class="w-1 text-center">
               <?php echo HTMLHelper::_('searchtools.sort', 'JSTATUS', 'a.published', $listDirn, $listOrder); ?>
+            </th>
+            <th scope="col">
+              Event
             </th>
             <th scope="col">
               Type
@@ -75,6 +79,10 @@ $view = "equipmentrentals";
 
                 echo (new PublishedButton)->render((int) $item->published, $i, $options);
                 ?>
+              </td>
+
+              <td>
+                <?= EventConfig::getTitleMapping()[$item->eventAlias] ?>
               </td>
 
               <td>
