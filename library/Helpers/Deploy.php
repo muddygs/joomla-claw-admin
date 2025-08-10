@@ -378,7 +378,7 @@ class Deploy
       // See: administrator/components/com_claw/forms/packageinfo.xml
       //showon="packageInfoType:3[OR]eventPackageType:3[OR]eventPackageType:32[OR]eventPackageType:20"
       if ($packageInfo->published != EbPublishedState::published) {
-        $log[] =  "Skipping unpublished: $packageInfo->title";
+        //$log[] =  "Skipping unpublished: $packageInfo->title";
         continue;
       }
 
@@ -458,6 +458,11 @@ class Deploy
           $cutoff = $startDateWed;
           $name = preg_replace('/[^\S]+/', '-', $packageInfo->title);
           $packageInfo->alias = strtolower($this->eventInfo->prefix . '-' . $name);
+          $deposit_fee = count($packageInfo->meta) > 0 ? $packageInfo->meta[0] : 0;
+          if ($deposit_fee > 0) {
+            $price_text = '$' . $packageInfo->fee . ' (rental) + $' . $deposit_fee . ' (refundable deposit)';
+            $packageInfo->fee += $deposit_fee;
+          }
           break;
 
         default:
