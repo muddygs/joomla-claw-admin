@@ -14,6 +14,7 @@ use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
+use Joomla\Database\ParameterType;
 
 \defined('_JEXEC') or die;
 
@@ -117,6 +118,7 @@ class Ebmgmt
     }
 
     $this->updateMapping();
+    $this->updateEbCategoryRouting();
 
     return $this->defaults->id;
   }
@@ -156,6 +158,62 @@ class Ebmgmt
       ->values(implode(',', (array)$this->db->quote([$this->defaults->id, $this->eventAlias])));
     $this->db->setQuery($query);
     $this->db->execute();
+  }
+
+  private function updateEbCategoryRouting(): void
+  {
+    //$queryString = http_build_query($queryArr);
+    //$queryString = "view=event&id={$this->defaults->id}&catid={$this->defaults->main_category_id}";
+    $queryString = "view=category&id={$this->defaults->main_category_id}";
+    $categoryPathArray = $this->getEbCategoryPath();
+    //$categoryPathArray[] = $this->defaults->id . '-' . $this->itemAlias;
+    $segments    = array_map('Joomla\CMS\Application\ApplicationHelper::stringURLSafe', $categoryPathArray);
+    $route       = implode('/', $segments);
+    $key         = md5($route);
+
+    $dbQuery = $this->db->getQuery(true)
+      ->select('id')
+      ->from('#__eb_urls')
+      ->where('md5_key = ' . $this->db->quote($key));
+    $this->db->setQuery($dbQuery);
+    $urlId = (int) $this->db->loadResult();
+
+    if (!$urlId) {
+      $dbQuery->clear()
+        ->insert('#__eb_urls')
+        ->columns($this->db->quoteName(['md5_key', 'query', 'route', 'view', 'record_id']))
+        ->values(implode(',', $this->db->quote([$key, $queryString, $route, 'category', (int) $this->defaults->main_category_id])));
+      $this->db->setQuery($dbQuery);
+      $this->db->execute();
+    }
+  }
+
+  private function getEbCategoryPath()
+  {
+    $sql = <<<SQL
+WITH RECURSIVE ancestor_chain AS (
+  SELECT c.id, c.parent, c.alias, 0 AS depth, CAST(c.id AS CHAR(512)) AS path_guard
+  FROM s1fi8_eb_categories c
+  WHERE c.id = {$this->defaults->main_category_id}
+  UNION ALL
+  SELECT p.id, p.parent, p.alias, ac.depth + 1, CONCAT(ac.path_guard, ',', p.id)
+  FROM s1fi8_eb_categories p
+  JOIN ancestor_chain ac ON p.id = ac.parent
+  WHERE p.id <> ac.id
+    AND FIND_IN_SET(p.id, ac.path_guard) = 0
+    AND ac.depth < 64
+)
+SELECT id, parent, alias, depth
+FROM ancestor_chain
+ORDER BY depth DESC
+SQL;
+
+    $this->db->setQuery($sql);
+    //  $this->db->bind(':id', $this->defaults->main_category_id, ParameterType::INTEGER);
+
+    $results = $this->db->loadAssocList();   // works with mysqli or PDO drivers
+    $results = array_column($results, 'alias');
+    return $results;
   }
 
 
