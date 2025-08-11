@@ -113,7 +113,7 @@ class EventconfigModel extends AdminModel
         throw (new \Exception("Unhandled PackageInfoTypes value: $packageInfoType->value"));
     }
 
-    if ($data['start'] === false || $data['end'] === false) {
+    if ((in_array('start', $data) && $data['start'] === false) || (in_array('end', $data) && $data['end'] === false)) {
       $app = Factory::getApplication();
       $app->enqueueMessage(Text::_('COM_CLAW_ERROR_INVALID_DATE'), 'error');
       return false;
