@@ -10,8 +10,6 @@
 
 namespace ClawCorpLib\Enums;
 
-use ClawCorpLib\Lib\ClawEvents;
-
 enum EventSponsorshipTypes: int
 {
   case advertising = 1;
@@ -20,17 +18,34 @@ enum EventSponsorshipTypes: int
   case black = 4;
   case blue = 5;
   case gold = 6;
+  case community = 7;
 
-  public function toCategoryId(): int
+  public function toString(): string
   {
     return match ($this) {
-      EventSponsorshipTypes::advertising => ClawEvents::getCategoryId('sponsorships-' . $this->name),
-      EventSponsorshipTypes::logo => ClawEvents::getCategoryId('sponsorships-' . $this->name),
-      EventSponsorshipTypes::master_sustaining => ClawEvents::getCategoryId('sponsorships-master-sustaining'),
-      EventSponsorshipTypes::black => ClawEvents::getCategoryId('sponsorships-' . $this->name),
-      EventSponsorshipTypes::blue => ClawEvents::getCategoryId('sponsorships-' . $this->name),
-      EventSponsorshipTypes::gold => ClawEvents::getCategoryId('sponsorships-' . $this->name),
-      default => 0
+      EventSponsorshipTypes::advertising => 'Advertising',
+      EventSponsorshipTypes::logo => 'Logo Placements',
+      EventSponsorshipTypes::master_sustaining => 'Master/Sustaining',
+      EventSponsorshipTypes::black => 'Black-Level',
+      EventSponsorshipTypes::blue => 'Blue-Level',
+      EventSponsorshipTypes::gold => 'Gold-Level',
+      EventSponsorshipTypes::community => 'Community',
     };
+
+    throw (new \Exception("Unhandled PackageInfoTypes value: $this->value"));
+  }
+
+  public static function toOptions(): array
+  {
+    $result = [];
+
+    foreach (EventSponsorshipTypes::cases() as $c) {
+      $result[$c->value] = $c->toString();
+    }
+
+    // Sort by value, but retain the original key
+    asort($result);
+
+    return $result;
   }
 }

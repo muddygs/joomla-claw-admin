@@ -13,6 +13,7 @@ namespace ClawCorpLib\Helpers;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Enums\EbPublishedState;
+use ClawCorpLib\Enums\EventSponsorshipTypes;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Ebmgmt;
 use ClawCorpLib\Lib\EventConfig;
@@ -540,16 +541,9 @@ class Deploy
     $eventConfig = new EventConfig($this->eventAlias, [PackageInfoTypes::sponsorship]);
     $packageInfos = $eventConfig->packageInfos;
 
-    // Map Eventbooking configured categories to supported sponsorships
-    $sponsorshipCategories = ClawEvents::getCategoryIds([
-      'sponsorships-advertising',
-      'sponsorships-logo',
-      'sponsorships-master-sustaining',
-      'sponsorships-black',
-      'sponsorships-blue',
-      'sponsorships-gold',
-      'donations-leather-heart'
-    ], true);
+    // Merge general sponsorship categories with the specific community sponsorship
+    $sponsorshipCategories = $eventConfig->eventInfo->eb_cat_sponsorships;
+    $sponsorshipCategories[] = $eventConfig->eventInfo->eb_cat_sponsorship[0];
 
     $componentParams = ComponentHelper::getParams('com_claw');
     $user_email_body = $componentParams->get('sponsorship_registration_email', '');
@@ -579,38 +573,48 @@ class Deploy
       $end = clone ($endDate);
       $cutoff = clone ($startDate);
 
-      switch ($packageInfo->category) {
+      if (count($packageInfo->meta) != 1) {
+        $log[] = "Skipping $packageInfo->title due to invalid sponsorship classification";
+        continue;
+      }
+
+      if (!in_array($packageInfo->category, $sponsorshipCategories)) {
+        var_dump($packageInfo);
+        die("Sponsorship category not present in event $packageInfo->eventAlias");
+      }
+
+      switch ((int)$packageInfo->meta[0]) {
         // We need advertising submitted no later than 3 weeks before the event
-        case $sponsorshipCategories['sponsorships-advertising']:
+        case (EventSponsorshipTypes::advertising->value):
           $cutoff->modify('-3 weeks');
           break;
 
-        case $sponsorshipCategories['sponsorships-logo']:
+        case (EventSponsorshipTypes::logo->value):
           $cutoff->modify('-1 week');
           break;
 
         // Buffer until next event
-        case $sponsorshipCategories['sponsorships-master-sustaining']:
+        case (EventSponsorshipTypes::master_sustaining->value):
           $cutoff->modify('+6 months');
           $end = $cutoff;
           $publish_down = $cutoff;
           break;
 
         // Blue, black, gold are all the same
-        case $sponsorshipCategories['sponsorships-black']:
-        case $sponsorshipCategories['sponsorships-blue']:
-        case $sponsorshipCategories['sponsorships-gold']:
+        case (EventSponsorshipTypes::black->value):
+        case (EventSponsorshipTypes::blue->value):
+        case (EventSponsorshipTypes::gold->value):
           $cutoff->modify('-1 week');
           break;
 
         // Leather heart donations are available until the end of the event
-        case $sponsorshipCategories['donations-leather-heart']:
+        case (EventSponsorshipTypes::community->value):
           $cutoff = clone ($endDate);
           break;
 
         default:
           var_dump($packageInfo);
-          die('Invalid sponsorship category');
+          die('Invalid sponsorship classification');
           break;
       }
 

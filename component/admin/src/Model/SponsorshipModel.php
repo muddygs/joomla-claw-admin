@@ -31,7 +31,7 @@ class SponsorshipModel extends EventconfigModel
     $app->setUserState('com_claw.edit.sponsorship.data', $data);
 
     // Convert meta to a single column array
-    $data['meta'] = json_encode([]);
+    //$data['meta'] = json_encode([]);
     $data['packageInfoType'] = PackageInfoTypes::sponsorship->value;
     $data['eventPackageType'] = EventPackageTypes::sponsorship->value;
 

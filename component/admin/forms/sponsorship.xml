@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form addfieldprefix="ClawCorp\Component\Claw\Administrator\Field">
-  <field
-    name="id"
+  <field name="id"
     type="hidden"
     label="JGLOBAL_FIELD_ID_LABEL"
     class="readonly"
     default="0"
-    readonly="true"
-  />
+    readonly="true" />
 
-  <field
-    name="eventAlias"
+  <field name="eventAlias"
     type="ClawEventsList"
     label="Event Selection"
     required="true"
     multiple="false"
     default=""
-    validate="options"
-  />
+    validate="options" />
 
   <field name="published"
     type="list"
@@ -29,60 +25,58 @@
     <option value="0">JUNPUBLISHED</option>
   </field>
 
-  <field
-    name="title"
+  <field name="title"
     type="text"
     label="Sponsorship Title:"
     required="true"
     maxlength="255"
-    filter="string"
-  />
+    filter="string" />
 
-  <field
-    name="description"
+  <field name="description"
     type="textarea"
     label="Sponsorship Description:"
     description="Sponsorship description (used for short and long; HTML allowed)"
     required="false"
     rows="5"
     cols="40"
-    filter="safehtml"
-  />
+    filter="safehtml" />
 
-  <field
-    name="alias"
+  <field name="alias"
     type="text"
     label="Event Alias:"
     required="true"
     class="readonly"
     default="Assigned during publication"
-    readonly="true"
-  />
+    readonly="true" />
 
 
-  <field
-    name="fee"
+  <field name="fee"
     type="text"
     label="Event Fee ($):"
     required="true"
     filter="float"
     default="0.00"
-    showon="packageInfoType!:7"
-  />
+    showon="packageInfoType!:7" />
 
-  <field
-    name="event_id"
+  <field name="event_id"
     type="text"
     label="Event Booking ID:"
     description="Event Assigned at Deployment"
     readonly="true"
-    class="readonly"
-  />
+    class="readonly" />
 
-  <field
-    name="category"
+  <field name="meta"
+    type="EventSponsorshipTypeList"
+    label="Sponsorship Classification:"
+    required="true"
+    default=""
+    filter="string">
+    <option value="">Select Classification</option>
+  </field>
+
+
+  <field name="category"
     type="EbCategoryList"
     label="Event Booking Category:"
-    required="true"
-  />
+    required="true" />
 </form>
