@@ -41,10 +41,21 @@ class EventBooking
 
   public static function buildRegistrationLink(string $eventAlias, EventPackageTypes $eventAction, string $referrer = ''): string
   {
-    $route = Route::link('site', 'index.php?option=com_claw&view=registrationoptions&event=' . $eventAlias . '&action=' . $eventAction->value);
+    $currentUri = \Joomla\CMS\Uri\Uri::getInstance();
+
+    $query = [
+      'option' => 'com_claw',
+      'view' => 'registrationoptions',
+      'event' => $eventAlias,
+      'action' => $eventAction->value,
+      'return' => base64_encode($currentUri->toString()),
+    ];
+
     if ('' != $referrer) {
-      $route .= '&referrer=' . $referrer;
+      $query['referrer'] = $referrer;
     }
+
+    $route = Route::_('index.php?' . http_build_query($query));
 
     return $route;
   }

@@ -16,6 +16,9 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\User\User;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\Application\SiteApplication;
+use Joomla\CMS\Date\Date;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Router\Route;
 
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Aliases;
@@ -29,7 +32,6 @@ use ClawCorpLib\Lib\PackageInfo;
 use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Enums\ConfigFieldNames;
-use Joomla\CMS\Date\Date;
 
 // *sigh* not namespaced
 require_once(JPATH_ROOT . '/components/com_eventbooking/helper/cart.php');
@@ -39,7 +41,7 @@ require_once(JPATH_ROOT . '/components/com_eventbooking/helper/helper.php');
 /** @package ClawCorp\Component\Claw\Site\Controller */
 class HtmlView extends BaseHtmlView
 {
-  public ?SiteApplication $app;
+  public SiteApplication $app;
   private User $identity;
   public string $eventAlias;
   public int $action;
@@ -57,15 +59,22 @@ class HtmlView extends BaseHtmlView
 
   public function __construct($config = [])
   {
+    parent::__construct($config);
+
     /** @var \Joomla\CMS\Application\SiteApplication */
     $this->app = Factory::getApplication();
-
-    parent::__construct($config);
 
     $input = $this->app->getInput();
     $this->eventAlias = $input->get('event', '');
     $this->action = $input->getUint('action', 0);
-    $this->registrationSurveyLink = Helpers::sessionGet('registrationSurveyLink', '/');
+
+    // This parameter should always be the uri of some reg info page with buttons
+    // provided by the registration button plugin
+    $this->registrationSurveyLink = $input->getBase64('return');
+
+    if (!$this->registrationSurveyLink || !Uri::isInternal($this->registrationSurveyLink)) {
+      $this->registrationSurveyLink = Route::_('index.php');
+    }
 
     if (0 == $this->action || is_null($this->eventPackageType = EventPackageTypes::tryFrom($this->action))) {
       $this->app->enqueueMessage('Invalid registration action requested.', 'error');
@@ -121,6 +130,7 @@ class HtmlView extends BaseHtmlView
 
         // Clear cart prior to individual event registration
         $cart = new \EventbookingHelperCart();
+        Helpers::sessionSet('autocart', false);
         $cart->reset();
 
         $url    = 'index.php?option=com_eventbooking&view=register&event_id=' . $this->targetPackage->eventId;
@@ -147,7 +157,7 @@ class HtmlView extends BaseHtmlView
 
     if (!$this->isAuthorized()) die('Redirect error in Registration Options [2]');
 
-    if (!$this->addons) $this->setVolunteerDefaultTab();
+    $this->setDefaultTab();
 
     $this->resetCart();
     $this->eventDescription = !$this->addons ? $this->targetPackage->title . ' Registration' : $this->mainEvent->event->title . ' Addons';
@@ -159,14 +169,25 @@ class HtmlView extends BaseHtmlView
     $this->coupon = Helpers::sessionGet('clawcoupon');
   }
 
-  private function setVolunteerDefaultTab()
+  // Default in constructor is Meals
+  private function setDefaultTab()
   {
+    if ($this->addons) return;
+
     if (in_array($this->eventPackageType, [
       EventPackageTypes::volunteer2,
       EventPackageTypes::volunteer3,
       EventPackageTypes::volunteersuper,
     ])) {
       $this->tab = 'Shifts';
+      return;
+    }
+
+    if (in_array($this->eventPackageType, [
+      EventPackageTypes::vip,
+      EventPackageTypes::claw_board,
+    ])) {
+      $this->tab = 'Speed Dating';
     }
   }
 
@@ -212,8 +233,10 @@ class HtmlView extends BaseHtmlView
 
       if (count($aliases) > 1) {
         $this->app->enqueueMessage('Adding to the cart across events is not permitted. Your cart has been reset.', 'error');
+        Helpers::sessionSet('autocart', false);
         $cart->reset();
-        $this->app->redirect('/');
+        $this->handleMetaPackages();
+        $this->app->redirect($this->registrationSurveyLink);
       }
     }
   }
@@ -288,7 +311,6 @@ class HtmlView extends BaseHtmlView
 
     $this->handleMetaPackages();
 
-    $this->setLayout($this->eventAlias);
     parent::display();
   }
 
@@ -368,9 +390,11 @@ class HtmlView extends BaseHtmlView
       EventPackageTypes::claw_board,
     ];
 
+    $previousAutoCart = Helpers::sessionGet('autocart', false);
     $autocart = in_array($this->eventPackageType, $metaPackages);
 
-    if (!$autocart) return;
+    if (!$autocart || $previousAutoCart) return;
+    Helpers::sessionSet('autocart', true);
 
     $cart = new \EventbookingHelperCart();
     $cart->reset();
