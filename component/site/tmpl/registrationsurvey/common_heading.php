@@ -2,6 +2,7 @@
 
 \defined('_JEXEC') or die;
 
+use ClawCorpLib\Helpers\EventBooking;
 use Joomla\CMS\Factory;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\ClawEvents;
@@ -71,7 +72,7 @@ endif;
     <h1 class="rstpl-title-left text-white">Have a coupon?</h1>
   <?php
   else:
-    $databaseRow = ClawEvents::loadEventRow($this->autoCoupon->eventId);
+    $databaseRow = EventBooking::loadEventRow($this->autoCoupon->eventId);
   ?>
     <h1>You have a coupon assigned to your account</h1>
     <p>Coupon Event Assignment: <strong><?= $databaseRow->title ?></strong></p>
