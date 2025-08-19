@@ -14,7 +14,6 @@ use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
-use Joomla\Database\ParameterType;
 
 \defined('_JEXEC') or die;
 
@@ -160,13 +159,16 @@ class Ebmgmt
     $this->db->execute();
   }
 
+  // This code is based on components/com_eventbooking/router.php:478
+  // But, I think there's a bug in their code that isn't handling routing of
+  // category paths when they don't exist in the database, so let's make sure
+  // they exist
+  // TODO: will this also be needed for event-level routing? so far, not needed
   private function updateEbCategoryRouting(): void
   {
-    //$queryString = http_build_query($queryArr);
-    //$queryString = "view=event&id={$this->defaults->id}&catid={$this->defaults->main_category_id}";
     $queryString = "view=category&id={$this->defaults->main_category_id}";
     $categoryPathArray = $this->getEbCategoryPath();
-    //$categoryPathArray[] = $this->defaults->id . '-' . $this->itemAlias;
+
     $segments    = array_map('Joomla\CMS\Application\ApplicationHelper::stringURLSafe', $categoryPathArray);
     $route       = implode('/', $segments);
     $key         = md5($route);
@@ -188,6 +190,10 @@ class Ebmgmt
     }
   }
 
+  // Honestly, this mess came from the gipities...it has been tested as mostly functional
+  // I wasn't aware of WITH in the newer MariaDB, so we can learn from an LLM once in a while
+  // Nice to be able to find the chain of hierarchy at the db level instead of using
+  // a loop
   private function getEbCategoryPath()
   {
     $sql = <<<SQL
@@ -209,9 +215,8 @@ ORDER BY depth DESC
 SQL;
 
     $this->db->setQuery($sql);
-    //  $this->db->bind(':id', $this->defaults->main_category_id, ParameterType::INTEGER);
 
-    $results = $this->db->loadAssocList();   // works with mysqli or PDO drivers
+    $results = $this->db->loadAssocList();
     $results = array_column($results, 'alias');
     return $results;
   }
