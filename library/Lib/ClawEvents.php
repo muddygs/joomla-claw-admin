@@ -97,21 +97,6 @@ class ClawEvents
     return $result;
   }
 
-  public static function getRawCategories(array $categoryIds): ?array
-  {
-    /** @var \Joomla\Database\DatabaseDriver */
-    $db = Factory::getContainer()->get('DatabaseDriver');
-
-    $query = $db->getQuery(true);
-    $query->select('*')
-      ->from($db->qn('#__eb_categories'))
-      ->where($db->qn('id') . ' IN (' . implode(',', (array)($db->q($categoryIds))) . ')');
-    $db->setQuery($query);
-    $rows = $db->loadObjectList('id');
-
-    return $rows;
-  }
-
   /**
    * Converts field alias to its id
    * @param string $fieldName Field alias
@@ -130,25 +115,6 @@ class ClawEvents
     } else {
       throw new UnexpectedValueException(__FILE__ . ': Unknown field name: ' . $fieldName);
     }
-  }
-
-  /**
-   * Returns the raw database row for an event
-   * @param int $event_id The event row ID
-   * @return object Database row as object or null on error
-   */
-  public static function loadEventRow(int $event_id): ?object
-  {
-    /** @var \Joomla\Database\DatabaseDriver */
-    $db = Factory::getContainer()->get('DatabaseDriver');
-
-    $q = $db->getQuery(true);
-
-    $q->select('*')
-      ->from('#__eb_events')
-      ->where($db->qn('id') . '=' . $db->q($event_id));
-    $db->setQuery($q);
-    return $db->loadObject();
   }
 
   public static function eventIdtoAlias(int $eventId): bool|string
