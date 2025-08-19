@@ -60,14 +60,14 @@ $locationView = $this->params->get('ShowLocation') ? '' : 'd-none';
       if ($event_id != 0) {
         $payHtml = "<a href=\"/index.php?option=com_eventbooking&view=event&id={$event_id}\" data-toggle=\"tooltip\" title=\"Purchase Ticket\"";
       }
-      $payHtml .= '<span style="color:red;"><i class="fa fa-ticket-alt fa-2x align-middle"></i></span>';
+      $payHtml .= '<span style="color:var(--claw-danger);"><i class="fa fa-ticket-alt fa-2x align-middle"></i></span>';
       if ($event_id != 0) {
         $payHtml .= "</a>";
       }
     }
 
     if (count(array_intersect($fee_event, ['door', 'dooronly'])) > 0) {
-      $payHtml .= '<span style="color:red;"><i class="fa fa-door-open fa-2x align-middle"></i></span>';
+      $payHtml .= '<span style="color:var(--claw-danger);"><i class="fa fa-door-open fa-2x align-middle"></i></span>';
     }
 
     if ($payHtml != '') {
@@ -84,7 +84,7 @@ $locationView = $this->params->get('ShowLocation') ? '' : 'd-none';
         $sponsorItem = $this->sponsors[$sponsorId];
 
   ?>
-        <div class="text-center" style="font-size: smaller; color:#ffae00"><?= $sponsorItem->type->toString() ?>&nbsp;Sponsor</div>
+        <div class="text-center" style="font-size: smaller; color:var(--claw-warning)"><?= $sponsorItem->type->toString() ?>&nbsp;Sponsor</div>
     <?php
 
         echo HTMLHelper::_('image', $sponsorItem->logo_small, $sponsorItem->name, ['class' => 'd-block mx-auto']);
