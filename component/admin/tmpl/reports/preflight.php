@@ -16,6 +16,7 @@
 
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\PackageInfoTypes;
+use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Checkin;
 use ClawCorpLib\Lib\ClawEvents;
@@ -286,7 +287,7 @@ if (count($duplicateUserIds) > 0) {
         $eventRow->title = "<span class=\"text-danger\">{$packageInfo->title} Not deployed</span>";
         $eventRow->published = EbPublishedState::any;
       } else {
-        $eventRow = ClawEvents::loadEventRow($packageInfo->eventId);
+        $eventRow = EventBooking::loadEventRow($packageInfo->eventId);
 
         if ($packageInfo->couponKey != '') $couponKeys[] = $packageInfo->couponKey;
 

@@ -12,8 +12,8 @@ namespace ClawCorp\Component\Claw\Administrator\View\Shift;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\MVC\View\GenericDataException;
@@ -52,7 +52,7 @@ class HtmlView extends BaseHtmlView
     $parentField = $this->form->getField('category');
 
     $shiftCategoryIds = [...$eventInfo->eb_cat_shifts, ...$eventInfo->eb_cat_supershifts];
-    $shiftRawCategories = ClawEvents::getRawCategories($shiftCategoryIds);
+    $shiftRawCategories = EventBooking::getRawCategories($shiftCategoryIds);
 
     foreach ($shiftRawCategories as $row) {
       $parentField->addOption(htmlentities($row->name), ['value' => $row->id]);
