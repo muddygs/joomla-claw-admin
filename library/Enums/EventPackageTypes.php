@@ -59,6 +59,9 @@ enum EventPackageTypes: int
   case combo_meal_3 = 102;
   case combo_meal_4 = 103;
 
+  case vendormart_cle = 500;
+  case vendormart_la = 501;
+
   case speeddating = 901;
   case sponsorship = 902;
   case equipment = 903;
