@@ -154,14 +154,39 @@ class EventConfig
    */
   public function getPackageInfo(EventPackageTypes $packageType): ?PackageInfo
   {
+    $result = null;
+
     /** @var \ClawCorpLib\Lib\PackageInfo */
     foreach ($this->packageInfos as $e) {
       if ($e->eventPackageType == $packageType) {
-        return $e;
+        if (!is_null($result)) {
+          throw (new \Exception("More than one package of type {$packageType->name}"));
+        }
+
+        $result = $e;
       }
     }
 
-    return null;
+    return $result;
+  }
+
+  /**
+   * Returns the PackageInfo object for a given EventPackageTypes enum
+   * @param EventPackageTypes $packageType Event alias in Event Booking
+   * @return PackageInfoArray PackageInfo (or null if not found)
+   */
+  public function getPackageInfos(EventPackageTypes $packageType): PackageInfoArray
+  {
+    $result = new PackageInfoArray();
+
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ($this->packageInfos as $packageInfo) {
+      if ($packageInfo->eventPackageType == $packageType) {
+        $result->set($packageInfo->eventId, $packageInfo);
+      }
+    }
+
+    return $result;
   }
 
   public function getMainEventIds(): array
