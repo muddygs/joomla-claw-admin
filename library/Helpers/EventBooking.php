@@ -10,7 +10,6 @@
 
 namespace ClawCorpLib\Helpers;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
@@ -18,7 +17,6 @@ use Joomla\CMS\Uri\Uri;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
-use ClawCorpLib\Lib\PackageInfo;
 
 class EventBooking
 {
@@ -60,9 +58,16 @@ class EventBooking
     return $route;
   }
 
-  public static function buildIndividualLink(PackageInfo $packageInfo): string
+  public static function buildDirectLink(int $eventId): string
   {
-    $route = '/index.php?option=com_eventbooking&view=register&event_id=' . $packageInfo->eventId;
+    $query = [
+      'option' => 'com_eventbooking',
+      'view' => 'register',
+      'event_id' => $eventId,
+    ];
+
+    //what the hell is Joomla doing? loosing the event_id param: $route = Route::_('index.php?' . http_build_query($query));
+    $route = '/index.php?' . http_build_query($query);
     return $route;
   }
 
@@ -196,5 +201,44 @@ class EventBooking
     #dd($result);
 
     return $result;
+  }
+
+  /**
+   * Returns the raw database row for an event
+   * @param int $event_id The event row ID
+   * @return object Database row as object or null on error
+   */
+  public static function loadEventRow(int $event_id): ?object
+  {
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
+
+    $q = $db->getQuery(true);
+
+    $q->select('*')
+      ->from('#__eb_events')
+      ->where($db->qn('id') . '=' . $db->q($event_id));
+    $db->setQuery($q);
+    return $db->loadObject();
+  }
+
+  /**
+   * Given an array of category ids, returns the raw row values
+   * @param array $categoryIds The array of category ids to retrieve
+   * @return object Object list keyed by row id
+   */
+  public static function getRawCategories(array $categoryIds): ?array
+  {
+    /** @var \Joomla\Database\DatabaseDriver */
+    $db = Factory::getContainer()->get('DatabaseDriver');
+
+    $query = $db->getQuery(true);
+    $query->select('*')
+      ->from($db->qn('#__eb_categories'))
+      ->where($db->qn('id') . ' IN (' . implode(',', (array)($db->q($categoryIds))) . ')');
+    $db->setQuery($query);
+    $rows = $db->loadObjectList('id');
+
+    return $rows;
   }
 }
