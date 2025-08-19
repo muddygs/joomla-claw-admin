@@ -11,9 +11,12 @@ use Joomla\Event\SubscriberInterface;
 
 use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Iterators\PackageInfoArray;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventConfig;
+use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\PackageInfo;
+use Joomla\CMS\Date\Date;
 
 class Clawreg extends CMSPlugin implements SubscriberInterface
 {
@@ -48,7 +51,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
       // 0: location
       // 1: EventPackageType enum case | packageId
       // 2: displayed text with limited substitutions available
-      // 3: display option (null, onsite_active) 
+      // 3: display option (null, any, onsite_active) 
       $matcheslist = explode(',', $match[1]);
 
       $output = $this->paramsToButton($matcheslist);
@@ -60,12 +63,17 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
     }
   }
 
-  public function errorButton(): string
+  private function errorButton(): string
   {
     return "[ error ]";
   }
 
-  private function paramsToButton($params)
+  private function expiredButton(): string
+  {
+    return '<a href="javascript:void(0)" role="button" class="btn btn-lg btn-info">Registration Closed</a>';
+  }
+
+  private function paramsToButton($params): string
   {
     if (count($params) < 3) return $this->errorButton();
     $params = array_map('trim', $params);
@@ -75,31 +83,127 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
     // TODO: update when database table is ready
 
     $metaLocation = $this->parseMetaLocation($params[0]);
+    if (0 == $metaLocation) {
+      return $this->errorButton();
+    }
+
     $packageType = $this->parsePackageType($params[1]);
     $buttonText = $params[2];
     $displayOption = sizeof($params) > 3 ? $this->parseDisplayOption($params[3]) : '';
 
     // 2 - either missing or "any" only
-    if (0 == $metaLocation || null === $packageType || null === $displayOption) {
-      //dd([$metaLocation, $packageType, $displayOption]);
+    if (null === $packageType || null === $displayOption) {
       return $this->errorButton();
     }
 
     // Seems valid, let's try to find an active event for it
     $eventAlias = Aliases::currentByLocation($metaLocation);
     $eventConfig = new EventConfig(alias: $eventAlias, publishedOnly: true);
-    $packageInfo = $eventConfig->getPackageInfo($packageType);
 
-    if (is_null($packageInfo)) return $this->errorButton();
+    if (gettype($packageType) == 'object') {
+      if (in_array($packageType, [
+        EventPackageTypes::pass,
+        EventPackageTypes::day_pass_fri,
+        EventPackageTypes::day_pass_sat,
+        EventPackageTypes::day_pass_sun,
+        EventPackageTypes::pass_other
+      ])) {
+        return $this->passes($eventConfig, $packageType, $displayOption, $buttonText);
+      }
 
-    $buttonText = $this->parseButtonText($packageInfo, $buttonText);
+      $packageInfo = $eventConfig->getPackageInfo($packageType);
 
-    $link = EventBooking::buildRegistrationLink(
-      $eventAlias,
-      $packageType
-    );
+      if (is_null($packageInfo)) return $this->errorButton();
 
-    return '<a href="' . $link . '" role="button" class="btn btn-danger">' . $buttonText . '</a>';
+      $buttonText = $this->parseButtonText($packageInfo, $buttonText);
+
+      $link = EventBooking::buildRegistrationLink(
+        $eventAlias,
+        $packageType
+      );
+
+      $link = '<a href="' . $link . '" role="button" class="btn btn-lg btn-large btn-danger">' . $buttonText . '</a>';
+      $row = EventBooking::loadEventRow($packageInfo->eventId);
+      $endDate = new Date($row->event_end_date);
+    }
+
+    // Direct link to specific event id
+    if (gettype($packageType) == 'int') {
+      $row = EventBooking::loadEventRow($packageType);
+
+      if (is_null($row)) return $this->errorButton();
+
+      $endDate = new Date($row->event_end_date);
+    }
+
+    $now = new Date();
+
+    return $now > $endDate ? $this->expiredButton() : $link;
+  }
+
+  private function passes(EventConfig $eventConfig, EventPackageTypes $packageType, string $displayOption, string $buttonText): string
+  {
+    $show = false;
+
+    switch ($packageType) {
+      case EventPackageTypes::pass:
+        if ($eventConfig->eventInfo->passesActive) $show = true;
+        break;
+
+      case EventPackageTypes::pass_other:
+        if ($eventConfig->eventInfo->passesOtherActive) $show = true;
+        break;
+      case EventPackageTypes::day_pass_fri:
+      case EventPackageTypes::day_pass_sat:
+      case EventPackageTypes::day_pass_sun:
+        if ($eventConfig->eventInfo->dayPassesActive) $show = true;
+        break;
+      default:
+        break;
+    }
+
+    if ($show) {
+      $packageInfoArray = $eventConfig->getPackageInfos($packageType);
+      $html = $this->processButtonGroup($packageInfoArray, $buttonText, $displayOption);
+      return $html;
+    } else {
+      return '';
+    }
+  }
+
+  private function processButtonGroup(PackageInfoArray $packageInfoArray, string $buttonText, ?string $displayOption): string
+  {
+    ob_start();
+    $dayStart = new Date('today midnight');
+    $dayEnd = new Date('tomorrow 2am');
+    $now = new Date();
+
+?>
+    <div class="d-grid gap-2">
+      <?php
+
+      /** @var \ClawCorpLib\Lib\PackageInfo */
+      foreach ($packageInfoArray as $packageInfo) {
+        $row = EventBooking::loadEventRow($packageInfo->eventId);
+        $rowStart = new Date($row->event_date);
+        $rowEnd = new Date($row->event_end_date);
+
+        if (is_null($row)) {
+          echo $this->errorButton();
+          continue;
+        }
+
+        if ((is_null($displayOption) && $rowStart >= $dayStart && $rowEnd <= $dayEnd) || ($displayOption == 'any' && $now <= $rowEnd)) {
+          $link = EventBooking::buildDirectLink($packageInfo->eventId);
+          $title = $this->parseButtonText($packageInfo, $buttonText);
+          echo '<a href="' . $link . '" role="button" class="btn btn-lg btn-danger">' . $title . '</a>';
+        }
+      }
+      ?>
+    </div>
+<?php
+
+    return ob_get_clean();
   }
 
   private function parseMetaLocation(string $param): int
@@ -115,7 +219,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
 
   // a fully-numeric packageType means we're going to lookup the package by database id
   // otherwise, we treat as EventPackageType 
-  private function parsePackageType(string $param): ?EventPackageTypes
+  private function parsePackageType(string $param): EventPackageTypes|int|null
   {
     if (preg_match('/^[1-9]\d*$/', $param)) {
       $packageType = EventPackageTypes::tryFrom((int)$param);
@@ -141,10 +245,11 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
     return $param;
   }
 
-  private function parseDisplayOption(string $param): string
+  private function parseDisplayOption(string $param): ?string
   {
     return match ($param) {
       'any' => 'any',
+      'onsite' => 'onsite',
       default => null,
     };
   }
