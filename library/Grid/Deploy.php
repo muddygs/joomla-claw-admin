@@ -15,10 +15,10 @@ namespace ClawCorpLib\Grid;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Iterators\GridShiftArray;
 use Joomla\Database\DatabaseDriver;
-use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\Ebmgmt;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Enums\EbPublishedState;
+use ClawCorpLib\Helpers\EventBooking;
 use Joomla\CMS\Factory;
 
 \defined('JPATH_PLATFORM') or die;
@@ -65,7 +65,7 @@ class Deploy
     self::populateShifts();
 
     $shiftCategoryIds = [...$this->eventInfo->eb_cat_shifts, ...$this->eventInfo->eb_cat_supershifts];
-    $shiftRawCategories = ClawEvents::getRawCategories($shiftCategoryIds);
+    $shiftRawCategories = EventBooking::getRawCategories($shiftCategoryIds);
 
     /** @var \ClawCorpLib\Grid\GridShift */
     foreach ($this->shifts as $shift) {
