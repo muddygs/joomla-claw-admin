@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="library" method="upgrade">
+<extension method="upgrade" type="library">
   <name>CLAW Support Libraries</name>
   <author>CLAW Corp.</author>
-  <creationDate>2025-08-11</creationDate>
+  <creationDate>2025-08-19</creationDate>
   <copyright>Copyright 2025 CLAW Corp. - All Rights Reserved</copyright>
   <license>GNU/GPLv2</license>
   <authorEmail>webmaster@clawinfo.org</authorEmail>
   <authorUrl>www.clawinfo.org</authorUrl>
-  <version>26.0.4</version>
+  <version>26.0.5</version>
   <description>CLAW Support Libraries</description>
-
   <libraryname>claw</libraryname>
   <namespace path="">ClawCorpLib</namespace>
-R
+
   <files>
     <folder>Checkin</folder>
     <folder>Enums</folder>
