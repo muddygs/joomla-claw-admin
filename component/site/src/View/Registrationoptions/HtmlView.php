@@ -91,7 +91,7 @@ class HtmlView extends BaseHtmlView
       $this->eventConfig = new EventConfig($this->eventAlias);
 
       if ($this->eventConfig->eventInfo->end_date < new Date()) {
-        $this->app->enqueueMessage('Invalid event requested.', 'error');
+        $this->app->enqueueMessage('Expired event requested.', 'error');
         $this->app->redirect($this->registrationSurveyLink);
         return;
       }
@@ -311,6 +311,7 @@ class HtmlView extends BaseHtmlView
 
     $this->handleMetaPackages();
 
+    Helpers::sessionSet('registrationOptionsLink', \Joomla\CMS\Uri\Uri::getInstance()->toString());
     parent::display();
   }
 
