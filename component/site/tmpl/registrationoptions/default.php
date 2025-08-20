@@ -10,6 +10,9 @@ echo $this->loadTemplate('header');
 
 ?>
 <h2 class="rstpl-title-left text-white">Add On Packages</h2>
+<div class="border border-2 border-info rounded mb-5">
+  <h3 class="m-2 text-center">One Registration Per Person. Any addons must be purchased <u>per registration</u>.</h3>
+</div>
 <?php
 
 // Define tab headings
