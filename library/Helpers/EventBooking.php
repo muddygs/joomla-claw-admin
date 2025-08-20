@@ -37,6 +37,13 @@ class EventBooking
     return self::buildRegistrationLink($eventAlias, EventPackageTypes::FindValue($regAction), $referrer);
   }
 
+  /**
+   * Creates a link that goes to the registration options page
+   * @param string $eventAlias Event Alias as defined in the EventInfo
+   * @param EventPackageTypes $eventAction The "action" url param indicating the registration package
+   * @param string $referrer (option) For third-party references/logo display
+   * @return string href
+   **/
   public static function buildRegistrationLink(string $eventAlias, EventPackageTypes $eventAction, string $referrer = ''): string
   {
     $currentUri = \Joomla\CMS\Uri\Uri::getInstance();
@@ -58,6 +65,11 @@ class EventBooking
     return $route;
   }
 
+  /**
+   * Creates a link to a event (by id) directly (no cart)
+   * @param int $eventId ID of the event in Event EventBooking
+   * @return string href
+   **/
   public static function buildDirectLink(int $eventId): string
   {
     $query = [
@@ -71,6 +83,11 @@ class EventBooking
     return $route;
   }
 
+  /**
+   * Override of Event Booking MailChimp subscriber
+   * Requires customization of plugins/eventbooking/mailchimp to call into this
+   * @param object $row Registration object from Event Booking
+   **/
   public static function subscribeByRegistrantId($row)
   {
     // Ignore mailchimp subscription if not on clawinfo.org (i.e., dev site)
@@ -131,7 +148,7 @@ class EventBooking
 
     try {
       $response = $client->lists->setListMember($list_id, $email_hash, $data);
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
       $app = Factory::getApplication();
       //$errors[] = $e->getMessage();
       $app->enqueueMessage('An error occurred while subscribing you to our MailChimp list. Please contact <a href="/help">Guest Services</a> for assistance.', 'Warning');
@@ -147,6 +164,11 @@ class EventBooking
     }
   }
 
+  /**
+   * Reverse lookup on an Event Booking location ID
+   * @param int $locationId Database id of location
+   * @return string Name of location
+   **/
   public static function getLocationName(int $locationId): string
   {
     $db = Factory::getContainer()->get('DatabaseDriver');
