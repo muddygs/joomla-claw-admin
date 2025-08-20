@@ -47,7 +47,7 @@ enum EventPackageTypes: int
 
     // Additional options for registration options
   case addons = 27;
-  case vip2 = 28;
+    //case vip2 = 28;
 
     // Virtual CLAW
   case virtual_claw = 29;
@@ -59,8 +59,7 @@ enum EventPackageTypes: int
   case combo_meal_3 = 102;
   case combo_meal_4 = 103;
 
-  case vendormart_cle = 500;
-  case vendormart_la = 501;
+  case vendormart = 500;
 
   case speeddating = 901;
   case sponsorship = 902;
@@ -88,6 +87,7 @@ enum EventPackageTypes: int
       EventPackageTypes::pass => 'Pass',
       EventPackageTypes::vip => 'VIP',
       EventPackageTypes::virtual_claw => 'Virtual CLAW',
+      EventPackageTypes::vendormart => 'VendorMart',
       default => ''
     };
   }
@@ -112,7 +112,6 @@ enum EventPackageTypes: int
       EventPackageTypes::volunteersuper => 'super',
       EventPackageTypes::educator => 'edu',
       EventPackageTypes::vip => 'vip',
-      EventPackageTypes::vip2 => 'vip2',
       EventPackageTypes::addons => 'addons',
       default => ''
     };
@@ -120,9 +119,8 @@ enum EventPackageTypes: int
 
   public static function FindValue(int $key): EventPackageTypes
   {
-    foreach (EventPackageTypes::cases() as $c) {
-      if ($c->value == $key) return $c;
-    }
+    $result = self::tryFrom($key);
+    if (!is_null($result)) return $result;
 
     throw (new \Exception("Invalid EventPackageTypes value: $key"));
   }
@@ -134,7 +132,6 @@ enum EventPackageTypes: int
     foreach (EventPackageTypes::cases() as $c) {
       if (
         $c == EventPackageTypes::none ||
-        $c == EventPackageTypes::vip2 ||
         $c == EventPackageTypes::addons ||
         $c == EventPackageTypes::speeddating ||
         $c == EventPackageTypes::sponsorship

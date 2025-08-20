@@ -69,6 +69,7 @@ class EventconfigModel extends AdminModel
       case PackageInfoTypes::main:
       case PackageInfoTypes::combomeal:
       case PackageInfoTypes::coupononly:
+      case PackageInfoTypes::vendormart:
         $data['start'] = $this->getDatabase()->getNullDate();
         $data['end'] = $this->getDatabase()->getNullDate();
         break;

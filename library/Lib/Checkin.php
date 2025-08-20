@@ -261,7 +261,6 @@ class Checkin
       case EventPackageTypes::vendor_crew:
       case EventPackageTypes::vendor_crew_extra:
       case EventPackageTypes::vip:
-      case EventPackageTypes::vip2:
         $this->r->shirtSize = $mainEventRegistrantRecord->fieldValue->TSHIRT;
         break;
       default:

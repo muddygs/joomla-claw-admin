@@ -133,7 +133,6 @@ class ReportsModel extends BaseDatabaseModel
             case EventPackageTypes::vendor_crew:
             case EventPackageTypes::vendor_crew_extra:
             case EventPackageTypes::vip:
-            case EventPackageTypes::vip2:
               $size = $record->fieldValue->TSHIRT;
               break;
             default:

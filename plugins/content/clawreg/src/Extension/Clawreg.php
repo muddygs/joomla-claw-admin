@@ -98,7 +98,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
 
     // Seems valid, let's try to find an active event for it
     $eventAlias = Aliases::currentByLocation($metaLocation);
-    $eventConfig = new EventConfig(alias: $eventAlias, publishedOnly: true);
+    $eventConfig = new EventConfig(alias: $eventAlias, filter: [], publishedOnly: true);
 
     if (gettype($packageType) == 'object') {
       if (in_array($packageType, [
@@ -113,14 +113,17 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
 
       $packageInfo = $eventConfig->getPackageInfo($packageType);
 
-      if (is_null($packageInfo)) return $this->errorButton();
+      if (is_null($packageInfo)) {
+        return $this->errorButton();
+      }
 
       $buttonText = $this->parseButtonText($packageInfo, $buttonText);
 
-      $link = EventBooking::buildRegistrationLink(
-        $eventAlias,
-        $packageType
-      );
+      if ($packageType == EventPackageTypes::vendormart) {
+        $link = EventBooking::buildDirectLink($packageInfo->eventId);
+      } else {
+        $link = EventBooking::buildRegistrationLink($eventAlias, $packageType);
+      }
 
       $link = '<a href="' . $link . '" role="button" class="btn btn-lg btn-large btn-danger">' . $buttonText . '</a>';
       $row = EventBooking::loadEventRow($packageInfo->eventId);

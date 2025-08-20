@@ -40,6 +40,7 @@ class PackageinfosModel extends EventconfigsModel
       PackageInfoTypes::combomeal->value,
       PackageInfoTypes::passes->value,
       PackageInfoTypes::passes_other->value,
+      PackageInfoTypes::vendormart->value,
     ];
 
     $query->where('a.packageInfoType IN (' . implode(',', $packageInfoTypes) . ')');

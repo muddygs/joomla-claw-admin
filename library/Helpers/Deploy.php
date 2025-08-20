@@ -425,6 +425,13 @@ class Deploy
           }
           break;
 
+        case PackageInfoTypes::vendormart:
+          // VendorMart runs Fri-Sun
+          $start = $packageInfo->start = $this->eventInfo->modify('Fri 9AM');
+          $end = $packageInfo->end = $this->eventInfo->modify('Sun 6PM');;
+          $price_text = 'Price depends on options';
+          break;
+
         case PackageInfoTypes::addon:
           $interval = $packageInfo->start->diff($packageInfo->end);
 
