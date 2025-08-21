@@ -94,9 +94,11 @@ build_plugins() {
   banner "Plugins Build"
   local VPLUGINTASK=$(xmllint --xpath '/extension/version/text()' plugins/task/clawcorp/clawcorp.xml)
   local VCONTENTCLAWREG=$(xmllint --xpath '/extension/version/text()' plugins/content/clawreg/clawreg.xml)
+  local VCONTENTCOUPON=$(xmllint --xpath '/extension/version/text()' plugins/content/clawcoupon/clawcoupon.xml)
 
   cd plugins/task/clawcorp && /usr/bin/zip --quiet -r ../../../package/packages/plg_task_clawcorp_$VPLUGINTASK.zip . && cd - &>/dev/null
   cd plugins/content/clawreg && /usr/bin/zip --quiet -r ../../../package/packages/plg_content_clawreg_$VCONTENTCLAWREG.zip . && cd - &>/dev/null
+  cd plugins/content/clawcoupon && /usr/bin/zip --quiet -r ../../../package/packages/plg_content_clawcoupon_$VCONTENTCOUPON.zip . && cd - &>/dev/null
   ls -l package/packages/plg_*
 }
 

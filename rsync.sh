@@ -9,6 +9,7 @@ mv component/admin/script.php package/
 #rsync -arv --delete /var/www/j5/public_html/libraries/claw/ library/
 rsync -arv /var/www/j5/public_html/libraries/claw/ library/
 rsync -arv /var/www/j5/public_html/plugins/content/clawreg/ plugins/content/clawreg/
+rsync -arv /var/www/j5/public_html/plugins/content/clawcoupon/ plugins/content/clawcoupon/
 rsync -arv /var/www/j5/public_html/plugins/task/clawcorp/ plugins/task/clawcorp/
 rsync -arv /var/www/j5/public_html/media/com_claw/ media_raw/
 rsync -arv /var/www/j5/public_html/modules/mod_claw_sponsors modules/
