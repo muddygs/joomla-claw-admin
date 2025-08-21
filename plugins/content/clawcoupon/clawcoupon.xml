@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension method="upgrade" type="plugin" group="content">
+    <name>CLAW Registration Coupon Entry</name>
+    <version>25.0.0</version>
+    <description>Provides a CLAW Registration Coupon Entry</description>
+    <author>CLAW Corp.</author>
+    <creationDate>2025-08-20</creationDate>
+    <copyright>(C)2025 CLAW Corp.</copyright>
+    <license>GNU General Public License version 2 or later</license>
+    <namespace path="src">Clawcorp\Plugin\Content\Clawcoupon</namespace>
+    <files>
+        <folder plugin="clawcoupon">services</folder>
+        <folder>src</folder>
+        <folder>tmpl</folder>
+    </files>
+</extension>
