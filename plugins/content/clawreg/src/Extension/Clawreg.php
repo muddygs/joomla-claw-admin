@@ -14,7 +14,6 @@ use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Iterators\PackageInfoArray;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventConfig;
-use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\PackageInfo;
 use Joomla\CMS\Date\Date;
 
@@ -63,9 +62,9 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
     }
   }
 
-  private function errorButton(): string
+  private function errorButton(string $msg = ''): string
   {
-    return "[ error ]";
+    return "[ error $msg]";
   }
 
   private function expiredButton(): string
@@ -75,7 +74,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
 
   private function paramsToButton($params): string
   {
-    if (count($params) < 3) return $this->errorButton();
+    if (count($params) < 3) return $this->errorButton('- Missing parameters');
     $params = array_map('trim', $params);
     #$params = array_map('strtolower', $params);
 
@@ -84,7 +83,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
 
     $metaLocation = $this->parseMetaLocation($params[0]);
     if (0 == $metaLocation) {
-      return $this->errorButton();
+      return $this->errorButton('- Bad location');
     }
 
     $packageType = $this->parsePackageType($params[1]);
@@ -93,7 +92,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
 
     // 2 - either missing or "any" only
     if (null === $packageType || null === $displayOption) {
-      return $this->errorButton();
+      return $this->errorButton('- bad display option');
     }
 
     // Seems valid, let's try to find an active event for it
@@ -114,7 +113,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
       $packageInfo = $eventConfig->getPackageInfo($packageType);
 
       if (is_null($packageInfo)) {
-        return $this->errorButton();
+        return $this->errorButton('- unknown package type');
       }
 
       $buttonText = $this->parseButtonText($packageInfo, $buttonText);
@@ -134,7 +133,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
     if (gettype($packageType) == 'int') {
       $row = EventBooking::loadEventRow($packageType);
 
-      if (is_null($row)) return $this->errorButton();
+      if (is_null($row)) return $this->errorButton('- null package row');
 
       $endDate = new Date($row->event_end_date);
     }
@@ -192,7 +191,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
         $rowEnd = new Date($row->event_end_date);
 
         if (is_null($row)) {
-          echo $this->errorButton();
+          echo $this->errorButton("- invalid event id $packageInfo->eventId");
           continue;
         }
 
