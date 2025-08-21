@@ -351,9 +351,18 @@ class EventConfig
     return $titles;
   }
 
+  /*
+  * Retrieves the event alias. If location is not set, caching is automatic, however,
+  * setting the location id overrides the cache and performs a full lookup
+  * @param int $clawLocationId The location ID from the event configuration
+  * @return string Event alias
+  */
+
   public static function getCurrentEventAlias(int $clawLocationId = 0): string
   {
     if ('' != self::$_current && 0 == $clawLocationId) return self::$_current;
+
+    self::$_current = '';
 
     $eventInfos = new EventInfos(clawLocationId: $clawLocationId);
 
@@ -376,26 +385,29 @@ class EventConfig
     ksort($endDates);
 
     $now = Factory::getDate()->toSql();
+    $alias = '';
 
     foreach (array_keys($endDates) as $endDate) {
       if ($endDate > $now) {
         // not errors - type hinting problem
-        self::$_current = $endDates[$endDate];
+        $alias = $endDates[$endDate];
         break;
       }
     }
 
-    if (self::$_current == '') {
+    if ('' == $alias) {
       // Failsafe-ish: Get last item in array
       // not errors - type hinting problem
-      self::$_current = array_pop($endDates);
+      $alias = array_pop($endDates);
     }
 
-    if (self::$_current == '') {
+    if ('' == $alias) {
       die('No current event found in EventConfig::getCurrentEvent().');
     }
 
-    return self::$_current;
+    if (0 == $clawLocationId) self::$_current = $alias;
+
+    return $alias;
   }
 
   public static function getActiveEventAliases(bool $mainOnly = false): array
