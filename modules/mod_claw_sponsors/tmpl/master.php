@@ -54,8 +54,8 @@ if ($masterCells > 10) $masterwidth = round(100 * (10 / $masterCells));
   <div class="col-12">
     <div class="d-flex flex-column mb-2" id="master_sponsors">
       <div class="w-100 justify-content-center">
-        <div class="text-white bg-danger master_sponsor_header">
-          <h3 style="text-align:center; font-variant:all-petite-caps; font-size:14pt;">Master Sponsors</h3>
+        <div class="text-white master_sponsor_header" style="background-color: var(--claw-danger);">
+          <h3 class="text-center text-uppercase fs-2" style="line-height: 3rem; margin-bottom: 5px;">Master Sponsors</h3>
         </div>
       </div>
       <div class="d-flex flex-wrap justify-content-center">

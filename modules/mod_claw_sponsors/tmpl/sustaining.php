@@ -54,8 +54,8 @@ $sustainingCells = count($sponsorsByType[SponsorshipType::Legacy_Sustaining->val
   <div class="col-12">
     <div class="d-flex flex-column mb-3 justify-content-center" id="sustaining_sponsors">
       <div class="w-100 justify-content-center">
-        <div class="flex-fill text-white bg-danger sponsor_header">
-          <h3 style="text-align:center; font-variant:all-petite-caps; font-size:14pt;">Sustaining Sponsors</h3>
+        <div class="text-white master_sponsor_header" style="background-color: var(--claw-danger);">
+          <h3 class="text-center text-uppercase fs-2" style="line-height: 3rem; margin-bottom: 5px;">Sustaining Sponsors</h3>
         </div>
       </div>
 
