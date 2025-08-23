@@ -672,6 +672,7 @@ class Deploy
     $count = 0;
 
     $eventConfig = new EventConfig($this->eventAlias, []);
+    $prefix = $eventConfig->eventInfo->prefix;
     $mainPackages = $eventConfig->packageInfos;
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
@@ -701,7 +702,7 @@ class Deploy
 
         if (is_null($addon)) continue;
 
-        list($success, $log[]) = $this->addDiscountBundle($addon->fee, $packageInfo, $addon);
+        list($success, $log[]) = $this->addDiscountBundle($addon->fee, $prefix, $packageInfo, $addon);
 
         if ($success) $count++;
       }
@@ -718,6 +719,8 @@ class Deploy
     $count = 0;
 
     $mainEventConfig = new EventConfig($this->eventAlias, [PackageInfoTypes::main]);
+    $prefix = $mainEventConfig->eventInfo->prefix;
+
     $mainPackages = $mainEventConfig->packageInfos;
 
     $addonsEventConfig = new EventConfig($this->eventAlias, [PackageInfoTypes::addon, PackageInfoTypes::combomeal]);
@@ -754,7 +757,7 @@ class Deploy
           continue;
         }
 
-        list($success, $log[]) = $this->addDiscountBundle($addon->bundleDiscount, $packageInfo, $addon);
+        list($success, $log[]) = $this->addDiscountBundle($addon->bundleDiscount, $prefix, $packageInfo, $addon);
 
         if ($success) $count++;
       }
@@ -771,9 +774,9 @@ class Deploy
    * @param int Dollar amount
    * @return array [bool success, log message]
    */
-  private function addDiscountBundle(int $dollarAmount, \ClawCorpLib\Lib\PackageInfo ...$packageInfos): array
+  private function addDiscountBundle(int $dollarAmount, string $prefix, \ClawCorpLib\Lib\PackageInfo ...$packageInfos): array
   {
-    if (count($packageInfos) < 2) return "Skipping discount bundle: Not enough events";
+    if (count($packageInfos) < 2) return [false, "Skipping discount bundle: Not enough events"];
 
     $eventIds = [];
     $titles = [];
@@ -798,6 +801,7 @@ class Deploy
 
     if ($result != null) return [false, "Skipping duplicate discount: $result"];
 
+    array_unshift($titles, $prefix);
     $title = implode('-', $titles);
 
     $query = $db->getQuery(true);
