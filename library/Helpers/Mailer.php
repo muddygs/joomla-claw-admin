@@ -11,12 +11,13 @@
 namespace ClawCorpLib\Helpers;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Mail\MailerFactoryInterface;
 
 final class Mailer
 {
   public function __construct(
-    public array $tomail,
-    public array $toname,
+    public array $tomail, //parallel arrays
+    public array $toname, //parallel arrays 
     public string $fromname,
     public string $frommail,
     public string $subject,
@@ -29,7 +30,7 @@ final class Mailer
 
   public function send(): bool
   {
-    $mailer = Factory::getMailer();
+    $mailer = Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
 
     $sender = [
       $this->frommail,
