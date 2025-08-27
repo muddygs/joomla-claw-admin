@@ -52,7 +52,7 @@ class HtmlView extends BaseHtmlView
     $parentField = $this->form->getField('category');
 
     $shiftCategoryIds = [...$eventInfo->eb_cat_shifts, ...$eventInfo->eb_cat_supershifts];
-    $shiftRawCategories = EventBooking::getRawCategories($shiftCategoryIds);
+    $shiftRawCategories = EventBooking::getRawCategories($shiftCategoryIds) ?? [];
 
     foreach ($shiftRawCategories as $row) {
       $parentField->addOption(htmlentities($row->name), ['value' => $row->id]);

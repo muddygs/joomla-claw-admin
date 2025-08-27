@@ -121,7 +121,7 @@ class EventBooking
       foreach ($response->interests as $id => $value) {
         $interests[$id] = $value == 1 ? true : false;
       }
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
       // new user -- ignore error
     } finally {
       $interests['ff661c2ef4'] = true; // eNews
@@ -247,7 +247,7 @@ class EventBooking
   /**
    * Given an array of category ids, returns the raw row values
    * @param array $categoryIds The array of category ids to retrieve
-   * @return object Object list keyed by row id
+   * @return ?array Object list keyed by row id|null
    */
   public static function getRawCategories(array $categoryIds): ?array
   {

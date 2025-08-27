@@ -65,11 +65,10 @@ class Deploy
     self::populateShifts();
 
     $shiftCategoryIds = [...$this->eventInfo->eb_cat_shifts, ...$this->eventInfo->eb_cat_supershifts];
-    $shiftRawCategories = EventBooking::getRawCategories($shiftCategoryIds);
 
     /** @var \ClawCorpLib\Grid\GridShift */
     foreach ($this->shifts as $shift) {
-      if (!array_key_exists($shift->category, $shiftRawCategories)) {
+      if (!array_key_exists($shift->category, $shiftCategoryIds)) {
         throw new \Exception('Invalid category id for ' . $shift->title . '. Did you forget to add to the event info config?');
       }
 
@@ -130,7 +129,7 @@ class Deploy
     $description = implode('<br/>', [$shift->description, $shift->requirements]);
 
     $insert = new Ebmgmt(
-      eventAlias: $this->eventInfo->alias,
+      eventInfo: $this->eventInfo,
       mainCategoryId: $shift->category,
       itemAlias: $alias,
       title: $title,

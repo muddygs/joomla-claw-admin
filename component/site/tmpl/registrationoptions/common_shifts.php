@@ -54,7 +54,7 @@ else:
   if ($this->eventPackageType == EventPackageTypes::volunteersuper) {
     $categoryIds = array_merge($categoryIds, $this->eventConfig->eventInfo->eb_cat_supershifts);
   }
-  $categoryInfo = EventBooking::getRawCategories($categoryIds);
+  $categoryInfo = EventBooking::getRawCategories($categoryIds) ?? [];
 
   ?>
   <div class="row row-cols-1 row-cols-sm-2 g-2 px-4 py-2">
