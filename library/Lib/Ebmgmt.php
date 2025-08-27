@@ -12,8 +12,10 @@ namespace ClawCorpLib\Lib;
 
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Lib\EventConfig;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\User\UserFactoryInterface;
 
 \defined('_JEXEC') or die;
 
@@ -25,13 +27,13 @@ class Ebmgmt
   /** @var \Joomla\Database\DatabaseDriver */
   private $db;
 
-  #TODO: pass in EventInfo instead of an alias string
   function __construct(
-    public string $eventAlias,
+    public EventInfo $eventInfo,
     public int $mainCategoryId,
     public string $itemAlias,
     public string $title,
-    public string $description = ''
+    public string $description = '',
+    public int $created_by = 0,
   ) {
     $this->db = Factory::getContainer()->get('DatabaseDriver');
 
@@ -47,6 +49,27 @@ class Ebmgmt
     $this->set('main_category_id', $this->mainCategoryId);
     $this->set('ordering', $this->getOrdering());
     $this->set('title', $this->title);
+
+    if ($this->created_by > 0) {
+      $user = Factory::getContainer()->get(UserFactoryInterface::class)->loadUserById($this->created_by);
+      if (is_null($user)) {
+        throw new \Exception("Invalid created_by user id $this->created_by requested");
+      }
+    } else {
+      $identity = Factory::getApplication()->getIdentity();
+
+      if (is_null($identity)) {
+        throw new \Exception("Unauthorized");
+      }
+
+      $this->created_by = $identity->id;
+
+      if (!$this->created_by) {
+        throw new \Exception("Unauthorized");
+      }
+    }
+
+    $this->set('created_by', $this->created_by);
   }
 
   public function load(int $id)
@@ -80,19 +103,21 @@ class Ebmgmt
     $this->db->updateObject('#__eb_events', $this->defaults, 'id');
   }
 
-  public function insert(bool $force = false): int
+  public function insert(): int
   {
-    if (false === $force) {
-      $query = $this->db->getQuery(true);
-      $query->select('id')
-        ->from('#__eb_events')
-        ->where('alias = :alias')
-        ->bind(':alias', $this->defaults->alias);
-      $this->db->setQuery($query);
-      $row = $this->db->loadResult();
+    $query = $this->db->getQuery(true);
+    $query->select('id')
+      ->from('#__eb_events')
+      ->where('alias = :alias')
+      ->bind(':alias', $this->defaults->alias);
+    $this->db->setQuery($query);
+    $row = $this->db->loadResult();
 
-      if ($row != null) return 0;
-    }
+    if ($row != null) return 0;
+
+    // Highly unlikely to happen as it's set in the constructor, but...
+    if (!$this->defaults->created_by)
+      throw new \Exception("Cannot insert with unset ownership");
 
     $this->db->insertObject('#__eb_events', $this->defaults, 'id');
 
@@ -154,7 +179,7 @@ class Ebmgmt
     $query
       ->insert($this->db->quoteName('#__claw_eventid_mapping'))
       ->columns($this->db->quoteName(['eventid', 'alias']))
-      ->values(implode(',', (array)$this->db->quote([$this->defaults->id, $this->eventAlias])));
+      ->values(implode(',', (array)$this->db->quote([$this->defaults->id, $this->eventInfo->alias])));
     $this->db->setQuery($query);
     $this->db->execute();
   }
@@ -224,14 +249,17 @@ SQL;
 
   /**
    * Sets a database column value, defaults to quoting value
-   * @param $key Column name
-   * @param $value Value to set
-   * @param $quoted (optional) Default: true
+   * @param string $key Column name
+   * @param mixed $value Value to set
    */
-  public function set(string $key, $value): void
+  public function set(string $key, mixed $value): void
   {
     if (!property_exists($this->defaults, $key)) {
-      die('Unknown column name: ' . $key);
+      throw new \Exception('Unknown column name: ' . $key);
+    }
+
+    if (gettype($this->defaults->$key) != gettype($value)) {
+      throw new \Exception('Type mismatch setting column name: ' . $key);
     }
 
     $this->defaults->$key = $value;
@@ -297,7 +325,7 @@ SQL;
       'certificate_bg_width' => 0,
       'certificate_layout' => null,
       'collect_member_information' => '',
-      'created_by' => 224,
+      'created_by' => 0,
       'created_date' => '0000-00-00 00:00:00',
       'created_language' => '*',
       'currency_code' => '',
@@ -341,11 +369,11 @@ SQL;
       'id' => 0,
       'image' => '',
       'image_alt' => '',
-      'individual_price' => '0.00',
+      'individual_price' => 0.00,
       'invoice_format' => '',
       'is_additional_date' => 0,
       'language' => '*',
-      'late_fee_amount' => '0.00',
+      'late_fee_amount' => 0.00,
       'late_fee_date' => '0000-00-00 00:00:00',
       'late_fee_type' => 1,
       'location_id' => 0,
