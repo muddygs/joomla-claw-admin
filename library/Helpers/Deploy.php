@@ -104,16 +104,17 @@ class Deploy
     ?Date $publish_down,
     float $individual_price,
     Date $registration_start_date,
-    string $registration_access,
+    int $registration_access,
     string $price_text = '',
     string $user_email_body = '',
     string $payment_methods = '2',
     int $enable_cancel_registration = 1,
     int $event_capacity = 0,
     string $notification_emails = '',
+    int $created_by = 0,
   ): int {
     $insert = new ebMgmt(
-      eventAlias: $this->eventAlias,
+      eventInfo: $this->eventInfo,
       mainCategoryId: $mainCategoryId,
       itemAlias: $itemAlias,
       title: $title,
@@ -140,6 +141,7 @@ class Deploy
     $insert->set('enable_cancel_registration', $enable_cancel_registration);
     $insert->set('event_capacity', $event_capacity);
     $insert->set('notification_emails', $notification_emails);
+    $insert->set('created_by', $created_by);
 
     $eventId = $insert->insert();
 
@@ -270,6 +272,7 @@ class Deploy
 
       foreach ($packageInfo->meta as $metaKey => $metaRow) {
         $eventId = $metaRow->eventId;
+        $userId = $metaRow->userid;
 
         if ($eventId > 0) {
           $log[] =  "Already deployed: $packageInfo->title ($metaRow->userid) @ $eventId";
@@ -289,32 +292,39 @@ class Deploy
             throw new \Exception('User missing public name in user configuration: ' . $metaRow->userid);
           }
 
-          $userEmails[$metaRow->userid] = $user->email;
-          $publicNames[$metaRow->userid] = $publicName;
+          $userEmails[$userId] = $user->email;
+          $publicNames[$userId] = $publicName;
         }
 
         $start = $packageInfo->start;
         $end = $packageInfo->end;
         $cancel_before_date = $start;
 
-        $alias = strtolower(preg_replace('/[^\S]+/', '_', implode('-', [$eventInfo->prefix, 'spa', $packageInfo->title, $index++])));
+        $alias = strtolower(
+          preg_replace(
+            '/[^\S]+/',
+            '_',
+            implode('-', [$eventInfo->prefix, 'spa', $packageInfo->title, $publicNames[$userId], $index++])
+          )
+        );
 
         $eventId = $this->Insert(
-          mainCategoryId: $packageInfo->category,
-          itemAlias: $alias,
-          title: $eventInfo->prefix . ' ' . $packageInfo->title . '(' . $publicNames[$metaRow->userid] . ')',
-          description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
           article_id: $eventInfo->termsArticleId,
           cancel_before_date: $cancel_before_date,
           cut_off_date: $cutoff,
+          description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
+          event_capacity: 1,
           event_date: $start,
           event_end_date: $end,
-          publish_down: $end,
           individual_price: $packageInfo->fee,
-          registration_start_date: $this->registration_start_date,
-          registration_access: $this->registered_acl,
-          event_capacity: 1,
+          itemAlias: $alias,
+          mainCategoryId: $packageInfo->category,
           notification_emails: is_null($defaultEmail) ? $userEmails[$metaRow->userid] : implode(',', [$defaultEmail, $userEmails[$metaRow->userid]]),
+          publish_down: $end,
+          registration_access: $this->registered_acl,
+          registration_start_date: $this->registration_start_date,
+          title: $eventInfo->prefix . ' ' . $packageInfo->title . '(' . $publicNames[$metaRow->userid] . ')',
+          created_by: $userId, // Set to the therapist uid for reporting access
         );
 
         if ($eventId == 0) {
