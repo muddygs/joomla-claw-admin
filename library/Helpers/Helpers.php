@@ -16,7 +16,6 @@ use DateTime;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Image\Image;
-use Joomla\CMS\Mail\MailerFactoryInterface;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\User\UserHelper;
 use Joomla\Database\DatabaseDriver;
@@ -319,22 +318,17 @@ class Helpers
    */
   public static function sendErrorNotification(string $path, $data)
   {
-    $mailer = Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
-
     $config = new Config(Aliases::current(true));
     $email = $config->getConfigText(ConfigFieldNames::CONFIG_DEBUG_EMAIL, 'email', '');
     if (empty($email)) return;
 
-    $mailer->setSender([$email, 'CLAW']);
-    $mailer->setSubject('Some Error Has Occurred');
-    $mailer->addRecipient($email);
-
     $body = 'PATH: ' . $path . "\n";
     $body .= "DATA FOLLOWS (may be truncated):\n";
-    $body .= print_r(substr($data, 0, 2048), true);
-    $mailer->setBody($body);
+    $body .= substr(print_r($data, true), 0, 2048);
 
-    $mailer->Send();
+    $mailer = new Mailer([$email], ['webmaster'], 'CLAW', $email, 'Some error has occurred', $body);
+
+    $mailer->send();
   }
 
   /**
