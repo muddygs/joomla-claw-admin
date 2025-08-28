@@ -89,10 +89,11 @@ class Clawcoupon extends CMSPlugin implements SubscriberInterface
   {
     $eventAlias = Aliases::current(true);
 
-    $this->eventConfig = new EventConfig($eventAlias);
+    $this->eventConfig = new EventConfig($this->alias);
     $this->uid = $this->getApplication()->getIdentity()->id;
 
     if ($this->eventConfig->eventInfo->onsiteActive) {
+      // TODO: need to figure out onsite logout handling
       if ($this->getApplication()->getIdentity()->id != 0) $this->getApplication()->logout();
       $coupon = new Coupon();
       $this->autoCoupon = $coupon;
