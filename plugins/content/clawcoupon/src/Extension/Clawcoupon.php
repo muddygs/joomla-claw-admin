@@ -15,6 +15,7 @@ use Joomla\CMS\Plugin\PluginHelper;
 use ClawCorpLib\Lib\Coupon;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\Registrant;
+use ClawCorpLib\Lib\RegistrantRecord;
 
 class Clawcoupon extends CMSPlugin implements SubscriberInterface
 {
@@ -22,19 +23,22 @@ class Clawcoupon extends CMSPlugin implements SubscriberInterface
   public string $plg_name = "clawcoupon";
   public Coupon $autoCoupon;
   public int $uid = 0;
+  public int $location = 0;
+  public string $alias = '';
+  public string $referrer = '';
   public bool $hasMainEvent = false;
   public bool $onsiteActive = false;
-  public ?\ClawCorpLib\Lib\RegistrantRecord $mainEvent = null;
-  public ?\ClawCorpLib\Lib\EventConfig $eventConfig = null;
+  public ?RegistrantRecord $mainEvent = null;
+  public ?EventConfig $eventConfig = null;
 
   public static function getSubscribedEvents(): array
   {
     return [
-      'onContentPrepare' => 'createButton',
+      'onContentPrepare' => 'createCouponForm',
     ];
   }
 
-  public function createButton(Event $event)
+  public function createCouponForm(Event $event)
   {
     $target = '{' . $this->plg_name . '}';
 
@@ -70,8 +74,14 @@ class Clawcoupon extends CMSPlugin implements SubscriberInterface
 
   private function insertCouponEntry(): string
   {
+    $this->location  = $this->params->get('clawLocationId', 0);
+    $this->alias  = $this->params->get('event', '');
+    $this->referrer = $this->getApplication()->getInput()->get('referrer', '', 'alnum');
+
     $this->loadCoupon();
+
     $form = $this->getTemplateOutput();
+
     return $form;
   }
 

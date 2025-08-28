@@ -7,19 +7,16 @@ use ClawCorpLib\Helpers\Helpers;
 
 Helpers::sessionSet('clawcoupon', '');
 ?>
-<div style="text-align: center;">
-  <p><img alt="Registration Banner" src="images/<?= strtolower($this->eventConfig->eventInfo->prefix) ?>/banners/registration.svg" class="img-fluid mx-auto d-block" alt="Registration Banner" title="Registration Banner" /></p>
-</div>
+<img src="images/<?= strtolower($this->eventConfig->eventInfo->prefix) ?>/banners/registration.svg" class="img-fluid mx-auto d-block mb-3" alt="Registration Banner" title="Registration Banner" />
 
 <?php
-$ref = Helpers::sessionGet('referrer');
-if ($ref != '') {
-  $refImagePath = JPATH_ROOT . '/images/0_static_graphics/referrers/' . $ref;
+if ($this->referrer != '') {
+  $refImagePath = JPATH_ROOT . '/images/0_static_graphics/referrers/' . $this->referrer;
   $files = glob($refImagePath . ".{[jJ][pP][gG],[pP][nN][gG],[sS][vV][gG]}", GLOB_BRACE);
   if (count($files)) {
     $file = substr($files[0], strlen(JPATH_ROOT));
 ?>
-    <img alt="<?= $ref ?> Banner" title="<?= $ref ?> Banner" src="<?= $file ?>" class="img-fluid mx-auto mb-3" />
+    <img alt="<?= $this->referrer ?> Banner" title="<?= $this->referrer ?> Banner" src="<?= $file ?>" class="img-fluid mx-auto d-block mb-3" />
 <?php
   }
 }
@@ -30,10 +27,9 @@ if (!is_null($this->mainEvent)):
 ?>
   <h1 class="text-center">You are already registered</h1>
   <div class="d-grid gap-2 col-6 mx-auto mb-3">
-    <a href="/planning/my-reg" role="button" class="btn btn-danger">View Registrations</a>
-    <a href="<?= $this->registrationLinks['addons'] ?>" role="button" class="btn btn-success">Get Addons/Shifts</a>
+    <a href="/account/my-reg" role="button" class="btn btn-success btn-lg btn-large">View Registrations / Get Addons</a>
   </div>
-  <p>If you are trying to register another person, please SIGN OUT (under the Registration menu) and start again using that person's account.</p>
+  <p class="text-center"><strong>If you are trying to register another person, please <a href="index.php?option=com_users&view=login&layout=logout&task=user.menulogout" class="text-decoration-underline">SIGN OUT</a> and start again using that person's account.</strong></p>
 <?php
   return;
 endif;
