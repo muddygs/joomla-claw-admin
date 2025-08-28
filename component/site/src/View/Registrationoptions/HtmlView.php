@@ -101,18 +101,16 @@ class HtmlView extends BaseHtmlView
       return;
     }
 
-
-    $this->targetPackage = $this->eventConfig->getPackageInfo($this->eventPackageType);
-
-    if (is_null($this->targetPackage)) {
-      $this->app->enqueueMessage('Event package for action not configured.', 'error');
-      $this->app->redirect($this->registrationSurveyLink);
-      return;
-    }
-
     // If not addon, preprocess for validity or direct registration (public event)
-
     if ($this->eventPackageType != EventPackageTypes::addons) {
+      $this->targetPackage = $this->eventConfig->getPackageInfo($this->eventPackageType);
+
+      if (is_null($this->targetPackage)) {
+        $this->app->enqueueMessage('Event package for action not configured.', 'error');
+        $this->app->redirect('/'); // Need to force somewhere, otherwise we end up in a redirection loop
+        return;
+      }
+
       if (
         $this->targetPackage->published != EbPublishedState::published
         || $this->targetPackage->eventId == 0
@@ -367,7 +365,7 @@ class HtmlView extends BaseHtmlView
     $acl = $this->identity->getAuthorisedViewLevels();
     if (! in_array($this->targetPackage->acl_id, $acl)) {
       $this->app->enqueueMessage('You are not authorized to register for this event.', 'error');
-      $this->app->redirect($this->registrationSurveyLink);
+      $this->app->redirect('/'); // Need to force somewhere, otherwise we end up in a redirection loop
       return false;
     }
 
