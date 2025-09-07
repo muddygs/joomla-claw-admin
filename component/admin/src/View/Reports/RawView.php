@@ -19,16 +19,15 @@ class RawView extends BaseHtmlView
 {
   public function display($tpl = null)
   {
-    $this->state = $this->get('State');
+    /** @var \ClawCorp\Component\Claw\Administrator\Model\ReportsModel */
+    $this->model = $this->getModel('Reports');
+    $this->state = $this->model->getState();
     $input = Factory::getApplication()->getInput();
     $layout = $input->get('layout');
 
     if (!is_null($layout)) {
       $this->setLayout($layout);
     }
-
-    /** @var \ClawCorp\Component\Claw\Administrator\Model\ReportsModel */
-    $this->model = $this->getModel('Reports');
 
     $this->db = Factory::getContainer()->get('DatabaseDriver');
 
