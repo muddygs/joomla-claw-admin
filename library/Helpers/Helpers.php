@@ -472,8 +472,8 @@ class Helpers
    * Merges two simple arrays, with $arr1 reduced to values in $arr2 and any
    * remaining values in $arr2 merge to the end of $arr1
    * @param array $arr1 Starting array
-   * @param array $arr1 Target array
-   * @return array Merged values
+   * @param array $arr2 Target array
+   * @return array Merged array
    */
   public static function combineArrays(array $arr1, array $arr2): array
   {

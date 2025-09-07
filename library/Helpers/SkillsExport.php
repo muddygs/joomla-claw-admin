@@ -16,17 +16,19 @@ use ClawCorpLib\Enums\SkillPublishedState;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Skills\Presenters;
+use ClawCorpLib\Skills\Skills;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\Filesystem\File;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseDriver;
+use RuntimeException;
 
-class Skills
+class SkillsExport
 {
   private EventInfo $eventInfo;
-  const YAPP_DATE_FORMAT = 'm/d/Y';
+  const YAPP_DATE_FORMAT = 'm/d/Y'; // Yapp uses the poorly formatted US m/d/y format
   const YAPP_TIME_FORMAT = 'g:i A';
 
   // constructor
@@ -40,7 +42,7 @@ class Skills
   public static function rsformJson()
   {
     $eventInfo = new EventInfo(Aliases::current(true));
-    $classes = \ClawCorpLib\Skills\Skills::get($eventInfo, SkillPublishedState::published, ['title']);
+    $classes = Skills::get($eventInfo, SkillPublishedState::published, ['title']);
 
     $results = [];
 
@@ -57,52 +59,122 @@ class Skills
     return json_encode($results);
   }
 
-  public function presentersCSV(string $filename, bool $publishedOnly = true)
+  private function presentersPreviewCache(array $presenterIds)
   {
-    // append image_preview to the presenter object
     $config = new Config($this->eventInfo->alias);
     $path = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'presenters', '/images/skills/presenters');
 
-    $presenterArray = Presenters::get($this->eventInfo, $publishedOnly ? SkillPublishedState::published : SkillPublishedState::any);
-    $keys = $presenterArray->keys();
+    // Images must be on server for external app import
+    $cache = new DbBlob(
+      db: $this->db,
+      cacheDir: JPATH_ROOT . $path,
+      prefix: 'web_',
+      extension: 'jpg'
+    );
+    $filenames = $cache->toFile(
+      tableName: '#__claw_presenters',
+      rowIds: $presenterIds,
+      key: 'image_preview',
+    );
 
-    if (!count($keys)) {
-      throw new GenericDataException('No presenters to export.', 500);
+    return $filenames;
+  }
+
+  public function presentersCSV(string $filename, bool $publishedOnly = true)
+  {
+    $presenterArray = Presenters::get(
+      $this->eventInfo,
+      $publishedOnly ? SkillPublishedState::published : SkillPublishedState::any
+    );
+
+    if (!count($presenterArray)) {
+      throw new GenericDataException('No presenters to export for event ' . $this->eventInfo->description, 500);
     }
+
+    $keys = $presenterArray->keys();
 
     /** @var \ClawCorpLib\Skills\Presenter */
     $presenter = $presenterArray[$keys[0]];
 
-    if ($presenter === false) {
-      throw new GenericDataException('Unable to load presenters', 500);
-    }
-
-    $ordering = [
+    // Display these columns first
+    $preferred = [
       'id',
       'ownership',
       'published',
       'name',
       'legal_name',
+      'bio',
       'email',
       'phone',
       'arrival',
     ];
 
+    $publishedOnlyColumns = [
+      'id',
+      'name',
+      'bio',
+      'image_preview',
+    ];
+
+    // Renaming for readability
+    // TODO: move into Presenter class
+    $remapping = [
+      'id' => 'Unique ID',
+      'image' => 'Full Image',
+      'image_preview' => 'Photo URL',
+      'submission_date' => 'Submission Date',
+      'ownership' => 'Ownership',
+      'published' => 'Published',
+      'arrival' => 'Arrival Day',
+      'copresenter' => 'Is Copresenter?',
+      'uid' => 'Joomla User ID',
+      'archive_state' => 'Is Archived?',
+      'bio' => 'About',
+      'comments' => 'Comments',
+      'copresenting' => 'Copresenting Classes',
+      'email' => 'Email',
+      'event' => 'Event Alias',
+      'legal_name' => 'Legal Name',
+      'name' => 'First Name',
+      'phone' => 'Phone',
+      'social_media' => 'Social Media',
+    ];
+
     $columnNames = array_keys((array)($presenter->toSimpleObject()));
 
-    $ordering = Helpers::combineArrays($ordering, $columnNames);
+    $ordering = Helpers::combineArrays($preferred, $columnNames);
+
+    if ($publishedOnly) {
+      $ordering = array_intersect($ordering, $publishedOnlyColumns);
+    }
+
+    $headers = array_map(function ($x) use ($remapping) {
+      return array_key_exists($x, $remapping) ? $remapping[$x] : $x;
+    }, $ordering);
+
+    $imageMap = $this->presentersPreviewCache($keys);
+
+    // Small maps to keep the row builder clean
+    $publishedMap = [
+      SkillPublishedState::unpublished->value => 'Unpublished',
+      SkillPublishedState::published->value   => 'Published',
+      SkillPublishedState::new->value         => 'New',
+    ];
+
+    $ownershipMap = [
+      SkillOwnership::user->value  => 'User',
+      SkillOwnership::admin->value => 'Admin',
+    ];
 
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
-    ob_clean();
-    ob_start();
     set_time_limit(0);
     ini_set('error_reporting', E_NOTICE);
 
     $fp = fopen('php://output', 'wb');
-    fputcsv($fp, $ordering);
+    fputcsv($fp, $headers);
 
     /** @var \ClawCorpLib\Skills\Presenter */
     foreach ($presenterArray as $p) {
@@ -116,20 +188,8 @@ class Skills
             $row[] = '';
             break;
           case 'image_preview':
-            // Images must be on server for external app import
-            $cache = new DbBlob(
-              db: $this->db,
-              cacheDir: JPATH_ROOT . $path,
-              prefix: 'web_',
-              extension: 'jpg'
-            );
-            $filenames = $cache->toFile(
-              tableName: '#__claw_presenters',
-              rowIds: [$p->id],
-              key: 'image_preview',
-            );
-
-            $row[] = $filenames[$p->id] ? 'https://www.clawinfo.org/' . $filenames[$p->id] : '';
+            $rel = $imageMap[$p->id] ?? '';
+            $row[] = $rel ? 'https://www.clawinfo.org/' . $rel : '';
             break;
           case 'bio':
             // Convert to HTML and append socials
@@ -138,19 +198,10 @@ class Skills
             $row[] = $bio;
             break;
           case 'published':
-            $row[] = match ($p->published) {
-              SkillPublishedState::unpublished => 'Unpublished',
-              SkillPublishedState::published => 'Published',
-              SkillPublishedState::new => 'New',
-              default => 'Unknown',
-            };
+            $row[] = $publishedMap[$p->published->value] ?? 'Unknown';
             break;
           case 'ownership':
-            $row[] = match ($p->ownership) {
-              SkillOwnership::user => 'User',
-              SkillOwnership::admin => 'Admin',
-              default => 'Unknown',
-            };
+            $row[] = $ownershipMap[$p->ownership->value] ?? 'Unknown';
             break;
           case 'arrival':
             $row[] = implode(', ', $p->arrival);
@@ -165,18 +216,31 @@ class Skills
     }
 
     fclose($fp);
-    ob_end_flush();
   }
 
   public function classesCSV(string $filename, bool $publishedOnly = true)
   {
-    $published = $publishedOnly ? SkillPublishedState::published : SkillPublishedState::any;
-    $skillArray = \ClawCorpLib\Skills\Skills::get($this->eventInfo, $published);
-    $presenterArray = Presenters::get($this->eventInfo, $published);
+    $skillArray = Skills::get(
+      $this->eventInfo,
+      $publishedOnly ? SkillPublishedState::published : SkillPublishedState::any
+    );
+
+    $presenterArray = Presenters::get(
+      $this->eventInfo,
+      $publishedOnly ? SkillPublishedState::published : SkillPublishedState::any
+    );
+
+    if (!count($presenterArray)) {
+      throw new GenericDataException('No presenters available to export for event ' . $this->eventInfo->description, 500);
+    }
+
+    if (!count($skillArray)) {
+      throw new GenericDataException('No classes available to export for event ' . $this->eventInfo->description, 500);
+    }
 
     $locations = Locations::get($this->eventAlias);
 
-    // Load the global config for com_claw. We need to the RS Form ID
+    // Load the global config for com_claw. We need to get the RS Form ID
     /** @var Joomla\CMS\Application\AdministratorApplication */
     $app = Factory::getApplication();
     $componentParams = ComponentHelper::getParams('com_claw');
@@ -188,45 +252,49 @@ class Skills
       $menu = $app->getMenu('site');
       $item = $menu->getItem($seSurveyMenuId);
 
+      if (!$item) {
+        throw new RuntimeException("Survey link not configured - cannot complete export.");
+      }
+
       // Get main site link
       $uri = Uri::getInstance();
-      $siteUrl = $uri::root();
-      $surveyLink = $siteUrl . $item->alias;
+      $siteUrl = rtrim($uri::root(), '/');
+      $surveyLink = $siteUrl . '/' . $item->alias;
     }
 
     // Load database columns
     $keys = $skillArray->keys();
 
-    if (!count($keys)) {
-      throw new GenericDataException('No skills to export.', 500);
-    }
-
     /** @var \ClawCorpLib\Skills\Skill */
     $skill = $skillArray[$keys[0]];
 
-    if ($skill === false) {
-      throw new GenericDataException('Unable to load skills', 500);
-    }
-
-    $ordering = [
+    $preferred = [
       'id',
       'day',
       'multitrack',
       'date',
       'start_time',
       'end_time',
-      'start_daytime',
-      'end_daytime',
       'people',
       'people_public_name',
       'ownership',
       'published',
-      'people',
-      'people_public_name',
       'copresenter_info',
       'title',
       'av',
       'location',
+    ];
+
+    $publishedOnlyColumns = [
+      'description',
+      'end_time',
+      'id',
+      'location',
+      'multitrack',
+      'people',
+      'start_time',
+      'title',
+      'yappday',
     ];
 
     $columnNames = array_keys((array)($skill->toSimpleObject()));
@@ -237,7 +305,43 @@ class Skills
     $columnNames[] = 'people';
     $columnNames[] = 'people_public_name';
 
-    $ordering = Helpers::combineArrays($ordering, $columnNames);
+    $ordering = Helpers::combineArrays($preferred, $columnNames);
+
+    if ($publishedOnly) {
+      $ordering = array_intersect($ordering, $publishedOnlyColumns);
+    }
+
+    $remapping = [
+      'id' => 'Unique ID',
+      'day' => 'Day',
+      'mtime' => '',
+      'submission_date' => 'Submission Date',
+      'ownership' => 'Ownership',
+      'published' => 'Published',
+      'other_presenter_ids' => 'Other Presenter IDs',
+      'av' => 'A/V Requirements',
+      'length_info' => 'Requested Length',
+      'location' => 'Location',
+      'presenter_id' => 'Class Owner',
+      'archive_state' => 'Archive State',
+      'audience' => 'Audience',
+      'category' => 'Category',
+      'comments' => 'Submission Comments',
+      'copresenter_info' => 'Copresenter Info',
+      'description' => 'Class Description',
+      'equipment_info' => 'Equipment Requests',
+      'event' => 'Event Alias',
+      'requirements_info' => 'Participant Requirements',
+      'time_slot' => 'Time Slot',
+      'title' => 'Title',
+      'track' => 'Special Track',
+      'type' => 'Class Type',
+      'multitrack' => 'Track',
+    ];
+
+    $headers = array_map(function ($x) use ($remapping) {
+      return array_key_exists($x, $remapping) ? $remapping[$x] : $x;
+    }, $ordering);
 
     // Load category strings
     $config = new Config($this->eventAlias);
@@ -247,13 +351,11 @@ class Skills
     header('Content-Disposition: attachment; filename="' . $filename . '"');
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
-    ob_clean();
-    ob_start();
     set_time_limit(0);
     ini_set('error_reporting', E_NOTICE);
 
     $fp = fopen('php://output', 'wb');
-    fputcsv($fp, $ordering);
+    fputcsv($fp, $headers);
 
     /** @var \ClawCorpLib\Skills\Skill */
     foreach ($skillArray as $c) {
@@ -264,11 +366,17 @@ class Skills
             $row[] = 'class_' . $c->id;
             break;
           case 'day':
-          case 'date':
             if (is_null($c->day)) {
               $row[] = '';
             } else {
-              $row[] = $col == 'day' ? $c->day->format('l') : $c->day->format(self::YAPP_DATE_FORMAT);
+              $row[] = $c->day->format('l');
+            }
+            break;
+          case 'yappday':
+            if (is_null($c->day)) {
+              $row[] = '';
+            } else {
+              $row[] = $c->day->format(self::YAPP_DATE_FORMAT);
             }
             break;
           case 'start_time':
@@ -336,6 +444,11 @@ class Skills
             break;
 
           case 'multitrack':
+            if (!$c->time_slot) {
+              $row[] = 'Not configured';
+              break;
+            }
+
             // hour:length - hour military hhhh, length in minutes mmm
             $time = explode(':', $c->time_slot)[0];
             // Fri/Sat get AM/PM, Sun gets day of week
@@ -344,7 +457,7 @@ class Skills
             $row[] = match ($day) {
               'Friday', 'Saturday' => $day . ' ' . date('A', strtotime($time)),
               'Sunday' => $day,
-              default => die('Unhandled schedule date'),
+              default => 'Unhandled timeslot'
             };
 
             break;
@@ -357,7 +470,7 @@ class Skills
               $oldurl = '/skills_survey_' . $c->id;
               $redirect = new Redirects($this->db, $oldurl, $newurl, 'survey_' . $c->id);
               $redirectId = $redirect->insert();
-              if ($redirectId) $survey = 'Survey: ' . $oldurl . '<br/>';
+              if ($redirectId) $survey = 'Survey: ' . $siteUrl . $oldurl . '<br/>';
               $description = $survey . 'Category: ' . $categories[$c->category] . '<br/>' . $c->$col;
             } else {
               $description = $c->$col;

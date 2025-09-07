@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -7,14 +8,13 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
- // No direct access to this file
+// No direct access to this file
 \defined('_JEXEC') or die('Restricted Access');
 
-use ClawCorpLib\Helpers\Skills;
+use ClawCorpLib\Helpers\SkillsExport;
 use ClawCorpLib\Lib\Aliases;
-use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 
-$skills = new Skills(Factory::getContainer()->get('DatabaseDriver'), Aliases::current());
+$skills = new SkillsExport($this->db, Aliases::current());
 $filename = 'Presenters_Export_' . HtmlHelper::date('now', 'Y-m-d_H-i-s') . '.csv';
 $skills->presentersCSV($filename, $this->publishedOnly);
