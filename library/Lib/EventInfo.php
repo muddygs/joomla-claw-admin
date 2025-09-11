@@ -62,7 +62,12 @@ class EventInfo
       throw new \Exception(__FILE__ . ': Event alias not found or not active: ' . $alias);
     }
 
-    $info = $this->loadRawEventInfo($alias);
+    $this->fromSql();
+  }
+
+  private function fromSql()
+  {
+    $info = $this->loadRawEventInfo($this->alias);
 
     // Get server timezone
     $this->timezone = $info->timezone;
@@ -74,18 +79,18 @@ class EventInfo
     $this->end_date = Factory::getDate($info->end_date, $this->timezone);
     $this->prefix = strtoupper($info->prefix);
     $this->cancelBy = Factory::getDate($info->cancelBy, $this->timezone);
-    $this->active = $info->active ?? false;
+    $this->active = boolval($info->active);
     try {
       $this->eventType = EventTypes::from($info->eventType);
     } catch (\ValueError) {
       throw (new \Exception("Invalid EventTypes value: {$info->eventType}"));
     }
-    $this->onsiteActive = $info->onsiteActive ?? false;
-    $this->anyShiftSelection = $info->anyShiftSelection ?? false;
-    $this->dayPassesActive = $info->dayPassesActive ?? false;
-    $this->passesActive = $info->passesActive ?? false;
-    $this->passesOtherActive = $info->passesOtherActive ?? false;
-    $this->badgePrintingOverride = $info->badge_printing_override ?? true;
+    $this->onsiteActive = boolval($info->onsiteActive);
+    $this->anyShiftSelection = boolval($info->anyShiftSelection);
+    $this->dayPassesActive = boolval($info->dayPassesActive);
+    $this->passesActive = boolval($info->passesActive);
+    $this->passesOtherActive = boolval($info->passesOtherActive);
+    $this->badgePrintingOverride = boolval($info->badge_printing_override);
     $this->termsArticleId = $info->termsArticleId;
 
     $this->eb_cat_shifts = json_decode($info->eb_cat_shifts ?? '[]') ?? [];
@@ -128,7 +133,8 @@ class EventInfo
     $query->select('*')
       ->from('#__claw_eventinfos')
       ->where('alias = :alias')
-      ->bind(':alias', $alias);
+      ->bind(':alias', $alias)
+      ->setLimit(1);
     $db->setQuery($query);
     return $db->loadObject();
   }
