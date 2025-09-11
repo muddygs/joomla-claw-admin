@@ -16,6 +16,7 @@ enum EventTypes: int
   case main = 1;
   case vc = 3;
   case refunds = 4;
+  case single = 5;
 
   public function toString(): string
   {
@@ -23,8 +24,10 @@ enum EventTypes: int
       EventTypes::main => 'Main',
       EventTypes::vc => 'Virtual Claw',
       EventTypes::refunds => 'Refunds',
-      EventTypes::none => 'None',
+      EventTypes::single => 'Single',
     };
+
+    return 'None';
   }
 
   public static function toOptions(): array
