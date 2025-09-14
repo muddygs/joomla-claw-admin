@@ -19,7 +19,6 @@ use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Checkin;
-use ClawCorpLib\Lib\ClawEvents;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\Registrant;
 use Joomla\CMS\Factory;

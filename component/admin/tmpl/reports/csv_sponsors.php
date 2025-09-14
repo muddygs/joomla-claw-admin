@@ -13,7 +13,6 @@
 
 use ClawCorpLib\Lib\Sponsors;
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Enums\SponsorshipType;
 use Joomla\CMS\HTML\HTMLHelper;
 
 $filename = 'Sponsors_Export_' . HtmlHelper::date('now', 'Y-m-d_H-i-s') . '.csv';
