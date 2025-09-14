@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     ClawCorp
  * @subpackage  com_claw
@@ -7,7 +8,7 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
- // No direct access to this file
+// No direct access to this file
 \defined('_JEXEC') or die('Restricted Access');
 
 \ClawCorpLib\Helpers\Bootstrap::rawHeader([], ['/media/com_claw/css/print_letter.css']);
@@ -16,58 +17,58 @@
 <h1><?= $this->items['eventInfo']->description ?> T-Shirt Size Summary</h1>
 <h2>All Registrations</h2>
 <table class="table table-striped table-bordered">
-<thead class="thead-dark">
-  <th>Size</th>
-  <th>Count</th>
-</thead>
-<tbody>
-<?php
+  <thead class="thead-dark">
+    <th>Size</th>
+    <th>Count</th>
+  </thead>
+  <tbody>
+    <?php
 
-foreach ( $this->items['sizes'] as $size ) {
-?>
-<tr>
-  <td><?php echo $size ?></td>
-  <td><?php echo $this->items['counters']->$size ?></td>
-</tr>
-<?php
-}
-?>
-</tbody>
+    foreach ($this->items['sizes'] as $size):
+    ?>
+      <tr>
+        <td><?= $size ?></td>
+        <td><?= $this->items['counters']->$size ?></td>
+      </tr>
+    <?php
+    endforeach;
+    ?>
+  </tbody>
 </table>
 
-<h2>TOTAL ALL REGISTRATIONS: <?php echo $this->items['totalCount'] ?>
+<h2>TOTAL ALL REGISTRATIONS: <?= $this->items['totalCount'] ?></h2>
 
 <h2>Volunteer Registrations</h2>
 <table class="table table-striped table-bordered">
-<thead class="thead-dark">
-  <th>Size</th>
-  <th>Count</th>
-</thead>
-<tbody>
-<?php
-
-foreach ( $this->items['sizes'] as $size ) {
-?>
-<tr>
-  <td><?php echo $size ?></td>
-  <td><?php echo $this->items['volcounters']->$size ?></td>
-</tr>
-<?php
-}
-?>
-</tbody>
-</table>
-<h2>TOTAL VOLUNTEER REGISTRATIONS: <?php echo $this->items['volTotalCount'] ?>
-
-<?php
-  if ( count($this->items['missing']) > 0 ):
-    ?>
-    <h2>Error/missing list:</h2>
-    <ol>
+  <thead class="thead-dark">
+    <th>Size</th>
+    <th>Count</th>
+  </thead>
+  <tbody>
     <?php
-      echo '<li>' . implode('</li><li>', $this->items['missing']) . '</li>';
+
+    foreach ($this->items['sizes'] as $size):
     ?>
-    </ol>
+      <tr>
+        <td><?= $size ?></td>
+        <td><?= $this->items['volcounters']->$size ?></td>
+      </tr>
+    <?php
+    endforeach;
+    ?>
+  </tbody>
+</table>
+<h2>TOTAL VOLUNTEER REGISTRATIONS: <?php echo $this->items['volTotalCount'] ?></h2>
+
 <?php
-  endif;
+if (count($this->items['missing']) > 0):
+?>
+  <h2>Error/missing list:</h2>
+  <ol>
+    <?php
+    echo '<li>' . implode('</li><li>', $this->items['missing']) . '</li>';
+    ?>
+  </ol>
+<?php
+endif;
 \ClawCorpLib\Helpers\Bootstrap::rawFooter();
