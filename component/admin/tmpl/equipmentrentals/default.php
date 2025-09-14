@@ -12,7 +12,6 @@
 defined('_JEXEC') or die('Restricted Access');
 
 use ClawCorpLib\Enums\PackageInfoTypes;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
@@ -25,8 +24,7 @@ $wa->useScript('table.columns');
 $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn  = $this->escape($this->state->get('list.direction'));
 
-$app = Factory::getApplication();
-$user = $app->getIdentity();
+$eventTitleCache = EventConfig::getTitleMapping(withUnpublished: true);
 
 $view = "equipmentrentals";
 
@@ -82,7 +80,7 @@ $view = "equipmentrentals";
               </td>
 
               <td>
-                <?= EventConfig::getTitleMapping()[$item->eventAlias] ?>
+                <?= $eventTitleCache[$item->eventAlias] ?? 'Unknown' ?>
               </td>
 
               <td>

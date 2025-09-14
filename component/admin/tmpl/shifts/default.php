@@ -11,7 +11,6 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\LayoutHelper;
@@ -27,8 +26,8 @@ $wa->useScript('table.columns');
 $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn  = $this->escape($this->state->get('list.direction'));
 
-$app = Factory::getApplication();
-$user = $app->getIdentity();
+
+$eventTitleCache = EventConfig::getTitleMapping(withUnpublished: true);
 
 ?>
 <div class="container">
@@ -93,7 +92,7 @@ $user = $app->getIdentity();
                 <?php echo $this->shiftCategories[$item->category]->name ?>
               </td>
               <td>
-                <?= EventConfig::getTitleMapping()[$item->event] ?>
+                <?= $eventTitleCache[$item->event] ?? 'Unknown' ?>
               </td>
               <td>
                 <?php echo $item->id ?>
