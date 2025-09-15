@@ -28,10 +28,9 @@ class SchedulesModel extends ListModel
   private array $list_fields = [
     'id',
     'published',
-    'day',
-    'event',
-    'start_time',
-    'end_time',
+    'event_alias',
+    'datetime_start',
+    'datetime_end',
     'event_title',
     'location',
     'sponsors'
@@ -177,9 +176,9 @@ class SchedulesModel extends ListModel
       $db->quoteName('l.id') . ' = ' . $db->quoteName('a.location'));
     $query->select($db->quoteName('l.value', 'location_text'));
 
-    $query->select('SUBSTRING(DAYNAME(a.day),1,3) AS day_text');
-    $query->select('TIME_FORMAT(a.start_time, "%h:%i %p") AS start_time_text');
-    $query->select('TIME_FORMAT(a.end_time, "%h:%i %p") AS end_time_text');
+    $query->select('SUBSTRING(DAYNAME(a.datetime_start),1,3) AS day_text');
+    $query->select('TIME_FORMAT(a.datetime_start, "%h:%i %p") AS start_time_text');
+    $query->select('TIME_FORMAT(a.datetime_end, "%h:%i %p") AS end_time_text');
 
     // Get filter values
     $search = $this->getState('filter.search');
@@ -193,13 +192,13 @@ class SchedulesModel extends ListModel
 
       if ($dayInt !== false) {
         $dayInt++; // PHP to MariaDB conversion
-        $query->where('DAYOFWEEK(a.day) = :dayint');
+        $query->where('DAYOFWEEK(a.datetime_start) = :dayint');
         $query->bind(':dayint', $dayInt, ParameterType::INTEGER);
       }
     }
 
     if ($event != 'all') {
-      $query->where('a.event = :event')->bind(':event', $event);
+      $query->where('a.event_alias = :event')->bind(':event', $event);
     }
 
     if ($published != null && $published != '*') {
@@ -217,8 +216,7 @@ class SchedulesModel extends ListModel
     $orderDirn = $this->getState('list.direction', 'ASC');
 
     if ($orderCol == 'a.day') {
-      $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
-      $query->order($db->escape('a.start_time') . ' ' . $db->escape($orderDirn));
+      $query->order($db->escape('a.datetime_start') . ' ' . $db->escape($orderDirn));
     } else {
       $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
     }

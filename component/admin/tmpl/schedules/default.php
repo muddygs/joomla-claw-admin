@@ -23,6 +23,7 @@ $wa->useScript('table.columns');
 
 $listOrder = $this->escape($this->state->get('list.ordering'));
 $listDirn  = $this->escape($this->state->get('list.direction'));
+$eventTitleCache = EventConfig::getTitleMapping(withUnpublished: true);
 
 ?>
 <div class="container">
@@ -43,10 +44,10 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
               <?= HTMLHelper::_('searchtools.sort', 'Event', 'a.event', $listDirn, $listOrder); ?>
             </th>
             <th scope="col">
-              <?= HTMLHelper::_('searchtools.sort', 'Day', 'a.day', $listDirn, $listOrder); ?>
+              <?= HTMLHelper::_('searchtools.sort', 'Day', 'a.datetime_start', $listDirn, $listOrder); ?>
             </th>
             <th scope="col">
-              <?= HTMLHelper::_('searchtools.sort', 'Start Time', 'a.start_time', $listDirn, $listOrder); ?>
+              <?= HTMLHelper::_('searchtools.sort', 'Start Time', 'a.datetime_start', $listDirn, $listOrder); ?>
             </th>
             <th scope="col">End Time</th>
             <th scope="col">
@@ -75,7 +76,7 @@ $listDirn  = $this->escape($this->state->get('list.direction'));
                 ?>
               </td>
               <td>
-                <?= EventConfig::getTitleMapping()[$item->event] ?? 'TBD' ?>
+                <?= $eventTitleCache[$item->event_alias] ?? 'Unknown' ?>
               </td>
               <td>
                 <?= $item->day_text ?? '' ?>

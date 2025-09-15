@@ -68,9 +68,9 @@ CREATE TABLE IF NOT EXISTS `#__claw_schedule` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `published` TINYINT(4) DEFAULT NULL,
     `event` VARCHAR(10) DEFAULT NULL,
-    `day` DATE DEFAULT NULL,
-    `start_time` TIME DEFAULT NULL,
-    `end_time` TIME DEFAULT NULL,
+    `alias` VARCHAR(10) DEFAULT NULL,
+    `datetime_start` DATETIME DEFAULT NULL,
+    `datetime_end` DATETIME DEFAULT NULL,
     `featured` boolean NOT NULL DEFAULT 0,
     `event_title` VARCHAR(255) DEFAULT NULL,
     `fee_event` TEXT DEFAULT NULL,
@@ -79,11 +79,10 @@ CREATE TABLE IF NOT EXISTS `#__claw_schedule` (
     `location` INT(11) DEFAULT NULL,
     `sponsors` TEXT DEFAULT NULL,
     `poster` TEXT DEFAULT NULL,
-    `photo_size` VARCHAR(255) DEFAULT NULL,
     `event_id` INT(4) DEFAULT NULL,
     `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     PRIMARY KEY (`id`),
-    KEY `fb_groupby_day_INDEX` (`day`)
+    KEY `IDX_datetime_range` (`datetime_start`, `datetime_end`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 CREATE TABLE IF NOT EXISTS `#__claw_presenters` (
@@ -244,4 +243,14 @@ CREATE TABLE IF NOT EXISTS `#__claw_packages` (
     `mtime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     PRIMARY KEY (`id`),
     KEY `fb_eventalias_INDEX` (`eventAlias`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+CREATE TABLE IF NOT EXISTS `#__claw_category_mapping` (
+    `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `eventId` int(10) UNSIGNED NOT NULL,
+    `categoryId` int(10) UNSIGNED NOT NULL,
+    `mappingType` int(10) UNSIGNED NOT NULL,
+    `value` int(10) UNSIGNED NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `fb_eventaliascat_INDEX` (`eventId`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;

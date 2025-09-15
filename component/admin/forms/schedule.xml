@@ -10,7 +10,7 @@
   />
 
   <field
-    name="event"
+    name="event_alias"
     type="ClawEventsList"
     label="Event"
     required="true"
@@ -27,8 +27,6 @@
     >
     <option value="1">JPUBLISHED</option>
     <option value="0">JUNPUBLISHED</option>
-    <option value="2">JARCHIVED</option>
-    <option value="-2">JTRASHED</option>
   </field>
 
   <field
@@ -43,7 +41,7 @@
   </field>
 
   <field
-    name="start_time"
+    name="start"
     type="time"
     label="Start Time"
     description="Start time of event"
@@ -53,7 +51,7 @@
     default="00:00"
   />
   <field
-    name="end_time"
+    name="end"
     type="time"
     label="Ending Time"
     description="End time of event"

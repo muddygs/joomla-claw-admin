@@ -37,10 +37,10 @@ $view = 'schedule';
 
     <?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'general', 'General'); ?>
     <div class="row">
-      <?php echo $this->form->renderField('event'); ?>
+      <?php echo $this->form->renderField('event_alias'); ?>
       <?php echo $this->form->renderField('day'); ?>
-      <?php echo $this->form->renderField('start_time'); ?>
-      <?php echo $this->form->renderField('end_time'); ?>
+      <?php echo $this->form->renderField('start'); ?>
+      <?php echo $this->form->renderField('end'); ?>
       <?php echo $this->form->renderField('featured'); ?>
       <?php echo $this->form->renderField('location'); ?>
       <?php echo $this->form->renderField('event_description'); ?>
@@ -63,7 +63,6 @@ $view = 'schedule';
   </div>
 
   <input type="hidden" name="id" value="<?php echo $this->item->id ?>" />
-  <input type="hidden" name="sort_order" value="<?php echo $this->item->sort_order ?>" />
   <input type="hidden" name="task" value="" />
   <?php echo HTMLHelper::_('form.token'); ?>
 </form>
