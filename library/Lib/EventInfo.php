@@ -53,6 +53,7 @@ class EventInfo
    * Event info object with simple date validation if main events are allowed
    * @param string $eventAlias
    * @return void 
+   * @throws \Exception if event alias does not resolve
    */
   public function __construct(
     public readonly string $alias,
