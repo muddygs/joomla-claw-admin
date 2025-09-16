@@ -107,7 +107,7 @@ class ScheduleModel extends AdminModel
       $data['poster'] = '';
     }
 
-    $record = new ScheduleRecord($data['id'] ?? 0);
+    $record = new ScheduleRecord($eventInfo, $data['id'] ?? 0);
     $record->fromSql((object)$data, true);
 
     try {
@@ -218,8 +218,8 @@ class ScheduleModel extends AdminModel
     // Pull out day, start/end times
     if (array_key_exists('datetime_start', $data)) {
       $data['day'] = Factory::getDate($data['datetime_start'])->format('D');
-      $data['start'] = Factory::getDate($data['datetime_start'])->format('G:i');
-      $data['end'] = Factory::getDate($data['datetime_end'])->format('G:i');
+      $data['start'] = Factory::getDate($data['datetime_start'])->format('H:i');
+      $data['end'] = Factory::getDate($data['datetime_end'])->format('H:i');
     }
 
     return $data;
