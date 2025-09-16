@@ -334,11 +334,11 @@ class EventConfig
 
   #region Event Alias Initialization
 
-  public static function getTitleMapping(): array
+  public static function getTitleMapping(bool $withUnpublished = false): array
   {
     if (count(self::$_titles)) return self::$_titles;
 
-    $eventInfos = new EventInfos();
+    $eventInfos = new EventInfos(withUnpublished: $withUnpublished);
     $titles = [];
 
     /** @var \ClawCorpLib\Lib\EventInfo */
