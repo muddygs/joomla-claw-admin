@@ -12,6 +12,7 @@ namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\EventInfo;
 use DateTime;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
@@ -113,27 +114,17 @@ class Helpers
     return $time;
   }
 
-  /**
-   * Returns array with short day (Mon,Tue) to sql date for the event week starting Monday
-   */
-  public static function getDateArray(Date $date, bool $dateOnly = false): array
+  public static function formatDateTime(DateTime $dt): string
   {
-    $result = [];
-
-    if ($date->dayofweek != 1) // 0 is Sunday
-    {
-      die('Starting date must be a Monday');
+    $time = $dt->format('H:i');
+    switch ($time) {
+      case '00:00':
+        return 'Midnight';
+      case '12:00':
+        return 'Noon';
+      default:
+        return $dt->format('g:iA');
     }
-
-    $date->setTime(0, 0);
-    for ($i = 0; $i < 7; $i++) {
-      $date->modify(('+1 day'));
-      $d = $date->toSql();
-      if ($dateOnly) $d = substr($d, 0, 10);
-      $result[$date->format('D')] = $d;
-    }
-
-    return $result;
   }
 
   #endregion Date/Time functions

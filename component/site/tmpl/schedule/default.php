@@ -10,8 +10,9 @@ use ClawCorpLib\Helpers\Bootstrap;
 $tabs = [];
 $tabData = [];
 
+
 foreach ($this->events as $date => $events) {
-  if ($date >= $this->start_date && $date <= $this->end_date) {
+  if (count($events)) {
     # convert date to day of week
     $tabs[] = strtoupper(date('D', strtotime($date)));
 
