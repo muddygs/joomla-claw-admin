@@ -25,6 +25,8 @@ use Joomla\Database\DatabaseDriver;
  */
 class PackageInfo
 {
+  const TABLE_NAME = "#__claw_packages";
+
   public EbPublishedState $published = EbPublishedState::published;
   public string $title = '';
   public string $description = '';
@@ -95,7 +97,7 @@ class PackageInfo
     $result->badgeValue = $this->badgeValue;
     $result->couponOnly = $this->couponOnly ? 1 : 0;
     $result->meta = json_encode($this->meta);
-    $result->mtime = (new Date())->toSql();
+    $result->mtime = $this->mtime;
 
     return $result;
   }
@@ -106,7 +108,7 @@ class PackageInfo
 
     $query = $this->db->getQuery(true);
     $query->select('*')
-      ->from('#__claw_packages')
+      ->from(self::TABLE_NAME)
       ->where('id = :id')
       ->bind(':id', $this->id);
     $this->db->setQuery($query);
@@ -145,7 +147,18 @@ class PackageInfo
 
   public function save(): bool
   {
+    $this->mtime = new Date();
+
     $data = $this->toSqlObject();
-    return $this->db->updateObject('#__claw_packages', $data, 'id');
+    $result = false;
+
+    if ($this->id == 0) {
+      $result = $this->db->insertObject(self::TABLE_NAME, $data);
+      if ($result) $this->id = $this->db->insertid();
+    } else {
+      $result = $this->db->updateObject(self::TABLE_NAME, $data, 'id');
+    }
+
+    return $result;
   }
 }
