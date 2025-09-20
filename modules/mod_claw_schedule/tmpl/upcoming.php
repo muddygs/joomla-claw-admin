@@ -11,7 +11,7 @@
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\Sponsors;
 
-$allSponsors = (new Sponsors())->sponsors;
+$allSponsors = Sponsors::get();
 
 ?>
 <h1 class="text-center">Upcoming Events</h1>
@@ -27,28 +27,29 @@ $allSponsors = (new Sponsors())->sponsors;
       </tr>
     </thead>
     <tbody>
+      <?php /** @var \ClawCorpLib\Lib\ScheduleRecord */  ?>
       <?php foreach ($events as $event) :
         $order = 0;
       ?>
         <tr>
-          <td><?= Helpers::formatTime($event->start_time) ?>&nbsp;&#8209;&nbsp;<?= Helpers::formatTime($event->end_time) ?></td>
+          <td><?= Helpers::formatDateTime($event->datetime_start) ?>&nbsp;&#8209;&nbsp;<?= Helpers::formatDateTime($event->datetime_end) ?></td>
           <td><?= $event->event_title; ?></td>
           <td><?= $locations[$event->location]->value ?></td>
           <td>
             <?php
-            $sponsors = json_decode($event->sponsors);
-            if ($sponsors !== null) {
+            if (count($event->sponsors)) {
             ?>
               <div class="d-flex justify-content-start align-items-stretch">
                 <?php
-                foreach ($sponsors as $sponsor) {
+                foreach ($event->sponsors as $sponsor) {
                   /** @var \ClawCorpLib\Lib\Sponsor */
                   $s = $allSponsors[$sponsor];
+                  if (is_null($s)) continue;
                   $type = $s->type->toString();
                 ?>
-                  <div class="border border-danger rounded pt-1 pb-1 pe-2 ps-2 me-1 order-<?= $order++ ?>">
+                  <div class="border border-danger rounded pt-1 pb-1 pe-2 ps-2 me-1 order-<?= $s->ordering ?>">
                     <p class="text-center tight"><?= $s->name ?><br />
-                      <span style="font-size: smaller; color:#ffae00"><?= $type ?></span>
+                      <span style="font-size: smaller; color:--var(claw-warning)"><?= $type ?></span>
                     </p>
                   </div>
                 <?php

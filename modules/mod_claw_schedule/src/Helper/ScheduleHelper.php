@@ -10,8 +10,10 @@
 
 namespace ClawCorp\Module\Schedule\Site\Helper;
 
-use ClawCorpLib\Helpers\Schedule;
+use ClawCorpLib\Iterators\ScheduleArray;
+use ClawCorpLib\Lib\Schedule;
 use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Lib\EventInfo;
 use Joomla\Database\DatabaseAwareInterface;
 use Joomla\Database\DatabaseAwareTrait;
 
@@ -27,12 +29,10 @@ class ScheduleHelper implements DatabaseAwareInterface
 {
   use DatabaseAwareTrait;
 
-  public function loadSchedule(): array
+  public function loadSchedule(): ScheduleArray
   {
-    $db = $this->getDatabase();
-    // $debugDateTime = new \DateTime('2024-04-13 09:03:00');
-    // $schedule = new Schedule(Aliases::current(true), $db, 'upcoming', $debugDateTime);
-    $schedule = new Schedule(Aliases::current(true), $db, 'upcoming');
-    return $schedule->getUpcomingEvents();
+    $eventInfo = new EventInfo(Aliases::current(true));
+    $schedule = new Schedule($eventInfo, 'upcoming');
+    return $schedule->scheduleArray;
   }
 }
