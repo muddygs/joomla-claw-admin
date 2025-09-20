@@ -15,6 +15,7 @@ use Joomla\CMS\Factory;
 class Locations
 {
   const BLANK_LOCATION = -1;
+  const TABLE_NAME = "#__claw_locations";
 
   private static array $cache = [];
 
@@ -27,7 +28,7 @@ class Locations
     $query = $db->getQuery(true);
 
     $query->select($db->qn(['id', 'value']))
-      ->from($db->qn('#__claw_locations'))
+      ->from($db->qn(self::TABLE_NAME))
       ->where($db->qn('published') . '=1')
       ->where($db->qn('event') . '=' . $db->q($eventAlias))
       ->order($db->qn('value'));

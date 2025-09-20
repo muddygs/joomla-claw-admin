@@ -22,6 +22,7 @@ use Joomla\Database\DatabaseDriver;
  */
 class Vendors
 {
+  const TABLE_NAME = "#__claw_vendors";
   private DatabaseDriver $db;
   private array $cache = [];
 
@@ -37,7 +38,7 @@ class Vendors
     $query = $this->db->getQuery(true);
 
     $query->select('*')
-      ->from('#__claw_vendors')
+      ->from(self::TABLE_NAME)
       ->where('published = 1')
       ->where('event = ' . $this->db->quote($this->eventAlias))
       ->order('ordering');
@@ -50,14 +51,12 @@ class Vendors
   public function toCSV(string $filename)
   {
     // Load database columns
-    $columnNames = array_keys($this->db->getTableColumns('#__claw_vendors'));
+    $columnNames = array_keys($this->db->getTableColumns(self::TABLE_NAME));
 
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0,pre-check=0");
-    ob_clean();
-    ob_start();
     set_time_limit(0);
     ini_set('error_reporting', E_NOTICE);
 
@@ -84,6 +83,5 @@ class Vendors
     }
 
     fclose($fp);
-    ob_end_flush();
   }
 }
