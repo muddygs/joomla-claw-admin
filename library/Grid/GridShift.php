@@ -40,14 +40,12 @@ class GridShift
 
   public function __construct(
     public int $id = 0,
-    public EventInfo $eventInfo,
   ) {
     if ($id < 0) {
       throw new \InvalidArgumentException('GridShift ID cannot be negative');
     }
 
     $this->db = Factory::getContainer()->get('DatabaseDriver');
-    $this->event = $eventInfo->alias;
     if ($this->id) $this->fromSqlRow();
   }
 
@@ -157,8 +155,7 @@ class GridShift
 
     // We need to load the grid in the database for comparison
     $sid = $formData['id'];
-    $eventInfo = new EventInfo($formData['event']);
-    $gridShift = new GridShift($sid, $eventInfo);
+    $gridShift = new GridShift($sid);
     $times = $gridShift->getTimes();
     $timeKeys = GridTime::getKeys();
 
@@ -288,6 +285,7 @@ class GridShift
 
   public function save(): int
   {
+    $this->mtime = new Date();
     $data = $this->toSqlObject();
 
     if ($this->id) {
@@ -303,7 +301,9 @@ class GridShift
       $this->id = $data->id;
     }
 
+    /** @var \ClawCorpLib\Grid\GridTime */
     foreach ($this->times as $time) {
+      $time->sid = $this->id;
       $time->save();
     }
 

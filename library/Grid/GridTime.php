@@ -44,10 +44,6 @@ class GridTime
     // Initialize needed and eventids to default
     self::keysValidation();
 
-    if ($this->id != 0) {
-      throw (new \exception('New GridTime record id must be 0.'));
-    }
-
     # TODO: verify sid is valid
     if ($this->sid < 1) {
       throw (new \exception('Shift record id must be 1 or greater.'));

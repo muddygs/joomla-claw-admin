@@ -194,7 +194,7 @@ class Deploy
     $gridIds = $this->db->loadColumn();
 
     foreach ($gridIds as $gid) {
-      $gridShift = new GridShift($gid, $this->eventInfo);
+      $gridShift = new GridShift($gid);
       $this->shifts[$gid] = $gridShift;
     }
   }
