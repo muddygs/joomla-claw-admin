@@ -10,6 +10,7 @@
 
 namespace ClawCorpLib\Lib;
 
+use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Iterators\ScheduleArray;
 use Joomla\CMS\Factory;
@@ -32,17 +33,22 @@ class Schedule
     $this->loadSchedule();
   }
 
+  public static function get(EventInfo $eventInfo): ScheduleArray
+  {
+    return (new Schedule($eventInfo))->scheduleArray;
+  }
+
   private function loadSchedule()
   {
     $alias = $this->eventInfo->alias;
-  
+    $published = EbPublishedState::published->value;
+
     $q = $this->db->getQuery(true);
     $q->select(['*'])
       ->from('#__claw_schedule')
-      ->where('published = 1')
+      ->where('published = :published')->bind(':published', $published) // only published items loaded
       ->where('event_alias = :event')->bind(':event', $alias)
-      ->order('datetime_start ASC')
-      ->order('datetime_end ASC');
+      ->order('DATE(datetime_start) ASC');
 
     switch ($this->view) {
       case 'upcoming':
@@ -52,6 +58,10 @@ class Schedule
       default:
         $q->order('featured DESC');
     }
+
+    $q->order('datetime_start ASC');
+    $q->order('datetime_end ASC');
+    $q->order('event_title ASC');
 
     $this->db->setQuery($q);
     $rows = $this->db->loadObjectList('id');
