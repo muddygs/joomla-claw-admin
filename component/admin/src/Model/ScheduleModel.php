@@ -107,7 +107,7 @@ class ScheduleModel extends AdminModel
       $data['poster'] = '';
     }
 
-    $record = new ScheduleRecord($eventInfo, $data['id'] ?? 0);
+    $record = new ScheduleRecord($data['id'] ?? 0);
     $record->fromSql((object)$data, true);
 
     try {
