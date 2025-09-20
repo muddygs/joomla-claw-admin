@@ -12,9 +12,13 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Grid\GridTime;
+use ClawCorpLib\Grid\GridShift;
 use ClawCorpLib\Helpers\Helpers;
+use ClawCorpLib\Helpers\Locations;
+use ClawCorpLib\Helpers\Vendors;
 use ClawCorpLib\Lib\EventConfig;
+use ClawCorpLib\Lib\PackageInfo;
+use ClawCorpLib\Lib\ScheduleRecord;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\FormModel;
 use Joomla\CMS\Date\Date;
@@ -53,7 +57,7 @@ class EventcopyModel extends FormModel
     return $form;
   }
 
-  public function doCopyEvent(string $from, string $to, array $tableNames): string
+  public function doCopyEvent(string $from, string $to, array $tableNames, bool $delete = false): string
   {
     try {
       $srcEventConfig = new EventConfig($from);
@@ -82,12 +86,12 @@ class EventcopyModel extends FormModel
     $tables = [];
     foreach ($tableNames as $name) {
       $tables[] = match ($name) {
-        "Schedule" => '#__claw_schedule',
-        "Vendors" => '#__claw_vendors',
-        "Shifts" => '#__claw_shifts',
-        "Locations" => '#__claw_locations',
+        "Schedule" => ScheduleRecord::TABLE_NAME,
+        "Vendors" => Vendors::TABLE_NAME,
+        "Shifts" => GridShift::SHIFTS_TABLE,
+        "Locations" => Locations::TABLE_NAME,
         "FieldValues" => '#__claw_field_values',
-        "Packages" => '#__claw_packages',
+        "Packages" => PackageInfo::TABLE_NAME,
       };
     }
 
@@ -95,15 +99,23 @@ class EventcopyModel extends FormModel
 
     foreach ($tables as $table) {
       $results[$table] = '';
-      $eventColumn = $table == '#__claw_packages' ? 'eventAlias' : 'event';
+
+      // TODO: this inconsistency is boring. Update the table columns and fix this.
+      $eventColumn = match ($table) {
+        PackageInfo::TABLE_NAME => 'eventAlias',
+        ScheduleRecord::TABLE_NAME => 'event_alias',
+        default =>  'event'
+      };
 
       // Delete existing
-      // $query = $db->getQuery(true);
-      // $query->delete($db->quoteName($table))
-      //   ->where($db->quoteName($eventColumn) . ' = ' . $db->quote($to));
-      // $db->setQuery($query);
-      // $db->execute();
-      //
+      if ($delete) {
+        $query = $db->getQuery(true);
+        $query->delete($db->quoteName($table))
+          ->where($db->quoteName($eventColumn) . ' = ' . $db->quote($to));
+        $db->setQuery($query);
+        $db->execute();
+        $results[] = "<b>Database for $to deleted.</b>";
+      }
 
       // Copy from older event
       $query = $db->getQuery(true);
@@ -114,74 +126,136 @@ class EventcopyModel extends FormModel
       $rows = $db->loadObjectList();
 
       foreach ($rows as $row) {
-        $row->$eventColumn = $to;
-        $oldId = $row->id;
-        $row->id = null;
-
         switch ($table) {
-          case '#__claw_schedule':
-            $targetDay = new Date($row->day);
-            $dstDate = $this->translateDate($srcEventConfig->eventInfo->start_date, $targetDay, $dstEventConfig->eventInfo->start_date);
+          case ScheduleRecord::TABLE_NAME:
+            $msg = $this->copyScheduleRecord($srcEventConfig, $dstEventConfig, (int)$row->id);
+            if (!is_null($msg)) $results[$table] .= $msg;
+            continue 2;
 
-            // TODO: Handle false here!
-            $row->day = $dstDate->toSql();
-            $row->poster = '';
-            $row->poster_size = '';
-            $row->event_id = 0;
-            break;
+          case PackageInfo::TABLE_NAME:
+            $msg = $this->copyPackageInfo($srcEventConfig, $dstEventConfig, (int)$row->id);
+            if (!is_null($msg)) $results[$table] .= $msg;
+            continue 2;
 
-          case '#__claw_packages':
-            if ($row->start != $db->getNullDate()) {
-              $targetDay = new Date($row->start);
-              $startDate = $this->translateDate($srcEventConfig->eventInfo->start_date, $targetDay, $dstEventConfig->eventInfo->start_date);
-              $row->start = $startDate->toSql();
-              $targetDay = new Date($row->end);
-              $endDate = $this->translateDate($srcEventConfig->eventInfo->start_date, $targetDay, $dstEventConfig->eventInfo->start_date);
-              $row->end = $endDate->toSql();
-            }
-
-            // TODO: Handle false here!
-            $row->eventId = 0;
-            $row->alias = 'Assigned when deployed';
-            $row->meta = '[]';
-            break;
+          case GridShift::SHIFTS_TABLE:
+            $msg = $this->copyGridShift($dstEventConfig, (int)$row->id);
+            if (!is_null($msg)) $results[$table] .= $msg;
+            continue 2;
         }
+
+        // TODO: Other tables should have library handling
+        $row->$eventColumn = $to;
+        $row->id = null;
 
         $row->mtime = Helpers::mtime();
 
         $db->insertObject($table, $row, 'id');
-
-        if ('#__claw_shifts' == $table) {
-          $this->migrateShiftTimes($oldId, $row->id);
-        }
       }
 
-      $results[$table] .= "$table: " . count($rows) . ' rows copied';
+      $results[$table] .= "$table: " . count($rows) . ' rows processed';
     }
 
     return implode("<br/>", $results);
   }
 
-  private function migrateShiftTimes(int $oldSid, int $sid)
+  private function copyScheduleRecord(EventConfig $src, EventConfig $dst, int $srcId): ?string
   {
-    $db = $this->getDatabase();
-
-    // Copy from older event
-    $query = $db->getQuery(true);
-    $query->select('id')
-      ->from($db->quoteName('#__claw_shift_times'))
-      ->where($db->quoteName('sid') . ' = ' . $db->quote($oldSid));
-    $db->setQuery($query);
-    $ids = $db->loadColumn();
-
-    foreach ($ids as $id) {
-      $gridTime = new GridTime($id, $oldSid);
-      $gridTime->id = 0;
-      $gridTime->sid = $sid;
-      $keys = $gridTime->getKeys();
-      $gridTime->setEventIds(...array_fill(0, count($keys), 0));
-      $gridTime->save();
+    if (0 == $srcId) {
+      return 'Schedule copy requires a source id';
     }
+
+    $scheduleItem = new ScheduleRecord($srcId);
+    $scheduleItem->id = 0;
+    $scheduleItem->event_alias = $dst->alias;
+
+    try {
+      $scheduleItem->datetime_start = $this->translateDate(
+        $src->eventInfo->start_date,
+        $scheduleItem->datetime_start,
+        $dst->eventInfo->start_date
+      );
+    } catch (\Exception $e) {
+      return $e->getMessage() . ": ScheduleRecord@$srcId";
+    }
+
+    try {
+      $scheduleItem->datetime_end = $this->translateDate(
+        $src->eventInfo->start_date,
+        $scheduleItem->datetime_end,
+        $dst->eventInfo->start_date
+      );
+    } catch (\Exception $e) {
+      return $e->getMessage() . ": ScheduleRecord@$srcId";
+    }
+
+    $scheduleItem->poster = '';
+    $scheduleItem->event_id = 0;
+    $scheduleItem->save();
+
+    return null;
+  }
+
+  private function copyPackageInfo(EventConfig $src, EventConfig $dst, int $srcId): ?string
+  {
+    if (0 == $srcId) {
+      return 'PackageInfo copy requires a source id';
+    }
+
+    $packageInfo = new PackageInfo($srcId);
+    $packageInfo->id = 0;
+    $packageInfo->eventAlias = $dst->eventInfo->alias;
+
+    // Some packages are all weekend and don't have specific start/end
+    if (!is_null($packageInfo->start)) {
+      try {
+        $packageInfo->start = $this->translateDate(
+          $src->eventInfo->start_date,
+          $packageInfo->start,
+          $dst->eventInfo->start_date
+        );
+      } catch (\Exception $e) {
+        return $e->getMessage() . ": PackageInfo@$srcId";
+      }
+
+      try {
+        $packageInfo->end = $this->translateDate(
+          $src->eventInfo->start_date,
+          $packageInfo->end,
+          $dst->eventInfo->start_date
+        );
+      } catch (\Exception $e) {
+        return $e->getMessage() . ": PackageInfo@$srcId";
+      }
+    }
+
+    $packageInfo->eventId = 0;
+    $packageInfo->alias = 'Assigned when deployed';
+    $packageInfo->meta = [];
+    $packageInfo->save();
+
+    return null;
+  }
+
+  private function copyGridShift(EventConfig $dst, int $srcId): ?string
+  {
+    if (0 == $srcId) {
+      return 'Shift copy requires a source id';
+    }
+
+    $gridShift = new GridShift($srcId);
+    $gridShift->id = 0; // force new
+    $gridShift->event = $dst->alias;
+
+    /** @var \ClawCorpLib\Grid\GridTime */
+    foreach ($gridShift->getTimes() as $time) {
+      $time->id = 0; // force new
+      $keys = $time->getKeys();
+      $time->setEventIds(...array_fill(0, count($keys), 0));
+    }
+
+    $gridShift->save(); // updates sid on times for us
+
+    return null;
   }
 
   private function translateDate(Date $srcBase, Date $srcOffset, Date $dstBase): Date|bool
@@ -190,13 +264,17 @@ class EventcopyModel extends FormModel
     $srcOffset = Factory::getDate($srcOffset);
     $dstBase = Factory::getDate($dstBase);
 
+    if ($srcOffset < $srcBase) {
+      throw new \Exception("Offset time cannot be before source time.");
+    }
+
     $diff = $srcBase->diff($srcOffset);
 
     if ($diff === false) {
       throw new \Exception("Invalid date diff");
     }
 
-    $newtime = $dstBase->modify($diff->format('%d days %H hours %M minutes'));
+    $newtime = $dstBase->modify($diff->format('%d days %H hours %i minutes'));
 
     $result = clone $newtime;
 
