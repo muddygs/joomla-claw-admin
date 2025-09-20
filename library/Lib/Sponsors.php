@@ -25,6 +25,11 @@ class Sponsors
     $this->getSponsors();
   }
 
+  public static function get(bool $published = true): SponsorArray
+  {
+    return (new Sponsors($published))->sponsors;
+  }
+
   private function getSponsors()
   {
     $ordering = SponsorshipType::valuesOrdered();
