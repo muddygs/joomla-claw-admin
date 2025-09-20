@@ -17,6 +17,8 @@ use Joomla\CMS\Factory;
 
 class ScheduleRecord
 {
+  const TABLE_NAME = "#__claw_schedule";
+
   private DatabaseDriver $db;
 
   public ?Date $datetime_start;
@@ -38,6 +40,7 @@ class ScheduleRecord
     public int $id = 0
   ) {
     $this->db = Factory::getContainer()->get('DatabaseDriver');
+    date_default_timezone_set('UTC');
 
     if ($id > 0) {
       $this->fromSqlRow();
@@ -62,7 +65,7 @@ class ScheduleRecord
     $result->onsite_description = $this->onsite_description;
     $result->poster = $this->poster;
     $result->sponsors = json_encode($this->sponsors);
-
+    $result->mtime = $this->mtime->toSql();
 
     return $result;
   }
@@ -71,7 +74,7 @@ class ScheduleRecord
   {
     $query = $this->db->getQuery(true);
     $query->select('*')
-      ->from('#__claw_schedule')
+      ->from(self::TABLE_NAME)
       ->where('id = :id')
       ->bind(':id', $this->id);
     $this->db->setQuery($query);
@@ -113,16 +116,14 @@ class ScheduleRecord
 
   public function save(): bool
   {
-    $db = $this->db;
-
+    $this->mtime = new Date();
     $data = $this->toSqlObject();
-    $data->mtime = (new Date())->toSql();
 
     if ($this->id == 0) {
-      $db->insertObject('#__claw_schedule', $data);
-      $this->id = $db->insertid();
+      $this->db->insertObject(self::TABLE_NAME, $data);
+      $this->id = $this->db->insertid();
     } else {
-      $db->updateObject('#__claw_schedule', $data, 'id');
+      $this->db->updateObject(self::TABLE_NAME, $data, 'id');
     }
 
     return true;
