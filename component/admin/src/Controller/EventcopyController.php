@@ -29,10 +29,10 @@ class EventcopyController extends FormController
 
   public function __construct(
     $config = [],
-    MVCFactoryInterface $factory = null,
+    ?MVCFactoryInterface $factory = null,
     ?CMSApplication $app = null,
     ?Input $input = null,
-    FormFactoryInterface $formFactory = null
+    ?FormFactoryInterface $formFactory = null
   ) {
     parent::__construct($config, $factory, $app, $input, $formFactory);
 
@@ -47,10 +47,11 @@ class EventcopyController extends FormController
     $model = $this->model;
 
     // Extract individual values from the filtered data
+    // Validation occurs in doCopyEvent
     $from = $this->data['from_event'] ?? '';
     $to = $this->data['to_event'] ?? '';
 
-    $response = $model->doCopyEvent($from, $to, $this->data['tables'] ?? []);
+    $response = $model->doCopyEvent($from, $to, $this->data['tables'] ?? [], $this->data['delete'] ?? false);
     header('Content-Type: text/html');
     echo $response; // htmx -> #results
   }
