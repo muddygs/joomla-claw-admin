@@ -30,6 +30,7 @@ $token = Session::getFormToken();
     <div class="col-12 col-lg-4">
       <?php echo $this->form->renderField('from_event'); ?>
       <?php echo $this->form->renderField('tables'); ?>
+      <?php echo $this->form->renderField('delete'); ?>
     </div>
     <div class="col-12 col-lg-4">
       <?php echo $this->form->renderField('to_event'); ?>
