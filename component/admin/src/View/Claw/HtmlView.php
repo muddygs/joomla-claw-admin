@@ -18,7 +18,9 @@ class HtmlView extends BaseHtmlView
 {
   function display($tpl = null)
   {
-    $this->form  = $this->get('Form');
+    /** @var \Joomla\CMS\MVC\Model\AdminModel */
+    $model = $this->getModel();
+    $this->form = $model->getForm();
     parent::display($tpl);
   }
 }
