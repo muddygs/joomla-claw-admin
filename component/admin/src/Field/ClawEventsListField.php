@@ -32,17 +32,17 @@ class ClawEventsListField extends ListField
    * @var    string
    */
   protected $type = 'ClawEventsList';
-  protected bool $all;
+  protected bool $all = false;
+  protected bool $unpublished = false;
 
-  // Methods to add "all" parameter to field
+  // Methods to add "all" and "unpublished" parameters to field
   public function __get($name)
   {
-    switch ($name) {
-      case 'all':
-        return $this->$name;
-    }
-
-    return parent::__get($name);
+    return match ($name) {
+      'all' => $this->$name,
+      'unpublished' => $this->$name,
+      default => parent::__get($name)
+    };
   }
 
   public function __set($name, $value)
@@ -63,6 +63,7 @@ class ClawEventsListField extends ListField
 
     if ($result == true) {
       $this->all = strtolower($this->element['all'] ?? 'false') === 'true';
+      $this->unpublished = strtolower($this->element['unpublished'] ?? 'false') === 'true';
     }
 
     return $result;
@@ -101,7 +102,7 @@ class ClawEventsListField extends ListField
     $currentValue = $this->__get('value') ?: Aliases::current();
     $options[] = HTMLHelper::_('select.option', '0', 'Select Event');
 
-    foreach (EventConfig::getTitleMapping() as $alias => $title) {
+    foreach (EventConfig::getTitleMapping($this->unpublished) as $alias => $title) {
       $options[] = (object)[
         'value'    => $alias,
         'text'     => $title,
