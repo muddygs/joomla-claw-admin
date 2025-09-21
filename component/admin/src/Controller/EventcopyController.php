@@ -48,11 +48,28 @@ class EventcopyController extends FormController
 
     // Extract individual values from the filtered data
     // Validation occurs in doCopyEvent
-    $from = $this->data['from_event'] ?? '';
-    $to = $this->data['to_event'] ?? '';
+    $from = (string)($this->data['from_event'] ?? '');
+    $to = (string)($this->data['to_event'] ?? '');
 
-    $response = $model->doCopyEvent($from, $to, $this->data['tables'] ?? [], $this->data['delete'] ?? false);
-    header('Content-Type: text/html');
-    echo $response; // htmx -> #results
+    $tables = $this->data['tables'] ?? [];
+    if (!is_array($tables)) {
+      $tables = [$tables];
+    }
+    $tables = array_values(array_unique(array_filter($tables, 'strlen')));
+
+    $rawDelete = $this->data['delete'] ?? false;
+    $delete = in_array($rawDelete, [1, '1', true, 'true', 'on'], true);
+
+    try {
+      $response = $model->doCopyEvent($from, $to, $tables, $delete);
+
+      header('Content-Type: text/html; charset=UTF-8');
+      echo $response; // htmx -> #results
+    } catch (\Throwable $e) {
+      header('Content-Type', 'text/html; charset=UTF-8', true);
+      echo '<div class="text-danger">' . htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</div>';
+    }
+
+    $this->app->close();
   }
 }
