@@ -4,6 +4,7 @@
     name="from_event"
     type="ClawEventsList"
     label="From Event"
+    unpublished="true"
     required="true"
   />
 
