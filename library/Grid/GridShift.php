@@ -285,27 +285,36 @@ class GridShift
 
   public function save(): int
   {
-    $this->mtime = new Date();
+    $this->mtime = new Date('now', 'UTC');
     $data = $this->toSqlObject();
 
-    if ($this->id) {
-      $result = $this->db->updateObject(self::SHIFTS_TABLE, $data, 'id');
-      if (!$result) {
-        throw new \Exception('Error during GridShift update');
+    $this->db->transactionStart();
+
+    try {
+      if ($this->id) {
+        $result = $this->db->updateObject(self::SHIFTS_TABLE, $data, 'id');
+        if (!$result) {
+          throw new \Exception('Error during GridShift update');
+        }
+      } else {
+        $result = $this->db->insertObject(self::SHIFTS_TABLE, $data, 'id');
+        if (!$result) {
+          throw new \Exception('Error during GridShift insert');
+        }
+        $this->id = $data->id;
       }
-    } else {
-      $result = $this->db->insertObject(self::SHIFTS_TABLE, $data, 'id');
-      if (!$result) {
-        throw new \Exception('Error during GridShift insert');
+
+      /** @var \ClawCorpLib\Grid\GridTime */
+      foreach ($this->times as $time) {
+        $time->sid = $this->id;
+        $time->save();
       }
-      $this->id = $data->id;
+    } catch (\Throwable $e) {
+      $this->db->transactionRollback();
+      throw ($e);
     }
 
-    /** @var \ClawCorpLib\Grid\GridTime */
-    foreach ($this->times as $time) {
-      $time->sid = $this->id;
-      $time->save();
-    }
+    $this->db->transactionCommit();
 
     return $this->id;
   }
