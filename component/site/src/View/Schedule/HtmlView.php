@@ -47,6 +47,8 @@ class HtmlView extends BaseHtmlView
     $eventAlias =  $this->params->get('ScheduleEvent') ?: Aliases::current(true);
     $this->eventInfo = new EventInfo($eventAlias);
 
+    date_default_timezone_set('UTC');
+
     $config = new Config($eventAlias);
     $this->adsdir = $config->getConfigText(ConfigFieldNames::CONFIG_IMAGES, 'ads', ' /images/0_static_graphics/ads');
 
@@ -95,9 +97,7 @@ class HtmlView extends BaseHtmlView
       if (count($this->events[$date])) $this->end_date = end($this->events[$date])->datetime_start;
     }
 
-    // Time zone
-    date_default_timezone_set($this->eventInfo->timezone);
-    $now = new Date();
+    $now = new Date('now', 'UTC');
 
     // Set default tab based on range for today if onsite is active (see: \ClawCorpLib\Lib\EventInfo)
     if ($this->eventInfo->onsiteActive && $now >= $this->start_date && $now <= $this->end_date) {
@@ -124,8 +124,7 @@ class HtmlView extends BaseHtmlView
       die('Starting date must be a Monday');
     }
 
-    $date = clone $this->eventInfo->start_date;
-    $date->setTime(0, 0);
+    $date = new \DateTime($this->eventInfo->start_date->format('Y-m-d 00:00:00'), new \DateTimeZone('UTC'));
 
     for ($i = 0; $i < 7; $i++) {
       $date->modify(('+1 day'));
