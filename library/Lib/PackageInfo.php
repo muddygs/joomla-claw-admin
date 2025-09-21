@@ -147,7 +147,7 @@ class PackageInfo
 
   public function save(): bool
   {
-    $this->mtime = new Date();
+    $this->mtime = new Date('now', 'UTC');
 
     $data = $this->toSqlObject();
     $result = false;
