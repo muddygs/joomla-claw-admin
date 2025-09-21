@@ -55,7 +55,11 @@ class EventConfig
     $cacheKey = md5($alias . implode(',', array_map(fn($e) => $e->value, $filter)));
 
     if (!isset(self::$_EventInfoCache)) {
-      self::$_EventInfoCache = new EventInfos();
+      self::$_EventInfoCache = new EventInfos(withUnpublished: !$this->publishedOnly);
+    }
+
+    if (!in_array($this->alias, self::$_EventInfoCache->keys())) {
+      throw new \Exception("Unknown event alias $this->alias.");
     }
 
     $this->eventInfo = self::$_EventInfoCache->{$this->alias};
