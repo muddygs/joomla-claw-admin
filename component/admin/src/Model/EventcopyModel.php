@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2022 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2025 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -12,6 +12,7 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Grid\GridShift;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Helpers\Locations;
@@ -59,23 +60,28 @@ class EventcopyModel extends FormModel
 
   public function doCopyEvent(string $from, string $to, array $tableNames, bool $delete = false): string
   {
+    $user = Factory::getApplication()->getIdentity();
+    if (!$user || !$user->authorise('core.create', 'com_claw')) {
+      return '<span style="color:red">Not authorised to copy.</span>';
+    }
+
     try {
-      $srcEventConfig = new EventConfig($from);
-    } catch (\Exception) {
+      $srcEventConfig = new EventConfig(alias: $from, publishedOnly: false);
+    } catch (\Throwable) {
       return 'Invalid from event: ' . $from;
     }
 
     try {
-      $dstEventConfig = new EventConfig($to);
-    } catch (\Exception) {
-      return 'Invalid from event: ' . $to;
+      $dstEventConfig = new EventConfig(alias: $to, publishedOnly: true);
+    } catch (\Throwable) {
+      return 'Invalid to event: ' . $to;
     }
 
-    if ($srcEventConfig->eventInfo->alias === $dstEventConfig->eventInfo->alias) {
+    if ($srcEventConfig->alias === $dstEventConfig->alias) {
       return 'Cannot copy to the same event';
     }
 
-    if (count($tableNames) == 0) {
+    if (count($tableNames) === 0) {
       return 'No tables selected to copy';
     }
 
@@ -97,62 +103,69 @@ class EventcopyModel extends FormModel
 
     $results = [];
 
-    foreach ($tables as $table) {
-      $results[$table] = '';
+    $db->transactionStart();
 
-      // TODO: this inconsistency is boring. Update the table columns and fix this.
-      $eventColumn = match ($table) {
-        PackageInfo::TABLE_NAME => 'eventAlias',
-        ScheduleRecord::TABLE_NAME => 'event_alias',
-        default =>  'event'
-      };
+    try {
+      foreach ($tables as $table) {
+        // TODO: this inconsistency is boring. Update the table columns and fix this.
+        $eventColumn = match ($table) {
+          PackageInfo::TABLE_NAME => 'eventAlias',
+          ScheduleRecord::TABLE_NAME => 'event_alias',
+          default =>  'event'
+        };
 
-      // Delete existing
-      if ($delete) {
-        $query = $db->getQuery(true);
-        $query->delete($db->quoteName($table))
-          ->where($db->quoteName($eventColumn) . ' = ' . $db->quote($to));
-        $db->setQuery($query);
-        $db->execute();
-        $results[] = "<b>Database for $to deleted.</b>";
-      }
-
-      // Copy from older event
-      $query = $db->getQuery(true);
-      $query->select('*')
-        ->from($db->quoteName($table))
-        ->where($db->quoteName($eventColumn) . ' = ' . $db->quote($from));
-      $db->setQuery($query);
-      $rows = $db->loadObjectList();
-
-      foreach ($rows as $row) {
-        switch ($table) {
-          case ScheduleRecord::TABLE_NAME:
-            $msg = $this->copyScheduleRecord($srcEventConfig, $dstEventConfig, (int)$row->id);
-            if (!is_null($msg)) $results[$table] .= $msg;
-            continue 2;
-
-          case PackageInfo::TABLE_NAME:
-            $msg = $this->copyPackageInfo($srcEventConfig, $dstEventConfig, (int)$row->id);
-            if (!is_null($msg)) $results[$table] .= $msg;
-            continue 2;
-
-          case GridShift::SHIFTS_TABLE:
-            $msg = $this->copyGridShift($dstEventConfig, (int)$row->id);
-            if (!is_null($msg)) $results[$table] .= $msg;
-            continue 2;
+        // Delete existing
+        if ($delete) {
+          $query = $db->getQuery(true);
+          $query->delete($db->quoteName($table))
+            ->where($db->quoteName($eventColumn) . ' = ' . $db->quote($to));
+          $db->setQuery($query);
+          $db->execute();
+          $results[] = "<b>Entries in $table database for $to deleted.</b>";
         }
 
-        // TODO: Other tables should have library handling
-        $row->$eventColumn = $to;
-        $row->id = null;
+        // Copy from older event
+        $query = $db->getQuery(true);
+        $query->select('*')
+          ->from($db->quoteName($table))
+          ->where($db->quoteName($eventColumn) . ' = ' . $db->quote($from));
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
 
-        $row->mtime = Helpers::mtime();
+        foreach ($rows as $row) {
+          switch ($table) {
+            case ScheduleRecord::TABLE_NAME:
+              $msg = $this->copyScheduleRecord($srcEventConfig, $dstEventConfig, (int)$row->id);
+              if (!is_null($msg)) $results[] = $msg;
+              continue 2;
 
-        $db->insertObject($table, $row, 'id');
+            case PackageInfo::TABLE_NAME:
+              $msg = $this->copyPackageInfo($srcEventConfig, $dstEventConfig, (int)$row->id);
+              if (!is_null($msg)) $results[] = $msg;
+              continue 2;
+
+            case GridShift::SHIFTS_TABLE:
+              $msg = $this->copyGridShift($dstEventConfig, (int)$row->id);
+              if (!is_null($msg)) $results[] = $msg;
+              continue 2;
+          }
+
+          // TODO: Other tables should have library handling
+          $row->$eventColumn = $to;
+          $row->id = null;
+
+          $row->mtime = Helpers::mtime();
+
+          $db->insertObject($table, $row, 'id');
+        }
+
+        $results[] = "$table: " . count($rows) . ' rows processed';
       }
 
-      $results[$table] .= "$table: " . count($rows) . ' rows processed';
+      $db->transactionCommit();
+    } catch (\Throwable $e) {
+      $db->transactionRollback();
+      return 'Copy aborted: ' . $e->getMessage();
     }
 
     return implode("<br/>", $results);
@@ -203,10 +216,16 @@ class EventcopyModel extends FormModel
 
     $packageInfo = new PackageInfo($srcId);
     $packageInfo->id = 0;
-    $packageInfo->eventAlias = $dst->eventInfo->alias;
+    $packageInfo->eventAlias = $dst->alias;
 
-    // Some packages are all weekend and don't have specific start/end
-    if (!is_null($packageInfo->start)) {
+    $noDateTranslation = [
+      PackageInfoTypes::main,
+      PackageInfoTypes::sponsorship
+    ];
+
+    // Main packages are all weekend and don't have specific recorded start/end
+    // These are set in EventBooking's database upon deployment
+    if (!in_array($packageInfo->packageInfoType, $noDateTranslation)) {
       try {
         $packageInfo->start = $this->translateDate(
           $src->eventInfo->start_date,
@@ -258,26 +277,23 @@ class EventcopyModel extends FormModel
     return null;
   }
 
-  private function translateDate(Date $srcBase, Date $srcOffset, Date $dstBase): Date|bool
+  private function translateDate(Date $srcBase, Date $srcOffset, Date $dstBase): Date
   {
-    $srcBase = Factory::getDate($srcBase);
+    $srcBase   = Factory::getDate($srcBase);
     $srcOffset = Factory::getDate($srcOffset);
-    $dstBase = Factory::getDate($dstBase);
+    $dstBase   = Factory::getDate($dstBase);
 
-    if ($srcOffset < $srcBase) {
-      throw new \Exception("Offset time cannot be before source time.");
+    if ($srcOffset->toUnix() < $srcBase->toUnix()) {
+      throw new \Exception('Offset time cannot be before source time.');
     }
 
-    $diff = $srcBase->diff($srcOffset);
+    $delta = $srcOffset->toUnix() - $srcBase->toUnix();
+    $copy  = clone $dstBase;
+    $ok    = $copy->modify("+$delta seconds");
 
-    if ($diff === false) {
-      throw new \Exception("Invalid date diff");
+    if ($ok === false) {
+      throw new \Exception('Invalid date math');
     }
-
-    $newtime = $dstBase->modify($diff->format('%d days %H hours %i minutes'));
-
-    $result = clone $newtime;
-
-    return $result;
+    return $copy;
   }
 }
