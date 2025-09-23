@@ -288,24 +288,28 @@ if (count($duplicateUserIds) > 0) {
       } else {
         $eventRow = EventBooking::loadEventRow($packageInfo->eventId);
 
-        if ($packageInfo->couponKey != '') $couponKeys[] = $packageInfo->couponKey;
-
-        if (property_exists($packageInfo, 'fee') && $packageInfo->fee != $eventRow->individual_price) {
-          $fee = "<span class=\"text-danger\">{$packageInfo->fee} != {$eventRow->individual_price}</span>";
+        if (is_null($eventRow)) {
+          $eventRow->title = "<span class=\"text-danger\">{$packageInfo->title} deployed but Event Booking event missing</span>";
+          $eventRow->published = EbPublishedState::any;
+          $fee = "N/A";
         } else {
-          $fee = $packageInfo->fee ?? 0;
+          if ($packageInfo->couponKey != '') $couponKeys[] = $packageInfo->couponKey;
+
+          if ($packageInfo->fee != $eventRow->individual_price) {
+            $fee = "<span class=\"text-danger\">{$packageInfo->fee} != {$eventRow->individual_price}</span>";
+          } else {
+            $fee = $packageInfo->fee ?? 0;
+          }
         }
+
+        if ($packageInfo->published != EbPublishedState::published) {
+          $eventRow->published = EbPublishedState::any;
+        }
+
+        $published = $eventRow->published == EbPublishedState::published ?
+          'PUBLISHED' :
+          "<span class=\"text-danger\">UNPUBLISHED</span>";
       }
-
-      if ($packageInfo->published != EbPublishedState::published) {
-        $eventRow->published = EbPublishedState::any;
-      }
-
-
-      $published = $eventRow->published == EbPublishedState::published->value ?
-        'PUBLISHED' :
-        "<span class=\"text-danger\">UNPUBLISHED</span>";
-
     ?>
       <tr>
         <td><?= $packageInfo->eventId ?></td>

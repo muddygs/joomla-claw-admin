@@ -5,6 +5,7 @@ namespace Clawcorp\Plugin\Content\Clawreg\Extension;
 // no direct access
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\EbPublishedState;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Event\Event;
 use Joomla\Event\SubscriberInterface;
@@ -116,6 +117,10 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
         return $this->errorButton('- unknown package type');
       }
 
+      if ($packageInfo->published != EbPublishedState::published || !$packageInfo->eventId) {
+        return $this->errorButton('- not published');
+      }
+
       $buttonText = $this->parseButtonText($packageInfo, $buttonText);
 
       if ($packageType == EventPackageTypes::vendormart) {
@@ -133,7 +138,9 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
     if (gettype($packageType) == 'int') {
       $row = EventBooking::loadEventRow($packageType);
 
-      if (is_null($row)) return $this->errorButton('- null package row');
+      if (is_null($row) || $row->published != EbPublishedState::published->value) {
+        return $this->errorButton('- null/unpublished package');
+      }
 
       $endDate = new Date($row->event_end_date);
     }
@@ -186,6 +193,10 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
 
       /** @var \ClawCorpLib\Lib\PackageInfo */
       foreach ($packageInfoArray as $packageInfo) {
+        if ($packageInfo->published != EbPublishedState::published || !$packageInfo->eventId) {
+          continue;
+        }
+
         $row = EventBooking::loadEventRow($packageInfo->eventId);
         $rowStart = new Date($row->event_date);
         $rowEnd = new Date($row->event_end_date);

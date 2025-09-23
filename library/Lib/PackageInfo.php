@@ -13,6 +13,7 @@ namespace ClawCorpLib\Lib;
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
+use ClawCorpLib\Helpers\EventBooking;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use Joomla\Database\DatabaseDriver;
@@ -143,6 +144,14 @@ class PackageInfo
     $this->badgeValue = $result->badgeValue;
     $this->couponOnly = $result->couponOnly;
     $this->meta = json_decode($result->meta) ?? [];
+
+    // Validate event id is valid and published
+    if ($this->eventId && $this->published == EbPublishedState::published) {
+      $row = EventBooking::loadEventRow($this->id);
+      if (is_null($row) || $row->published != EbPublishedState::published->value) {
+        $this->eventId = 0;
+      }
+    }
   }
 
   public function save(): bool
