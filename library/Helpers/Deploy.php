@@ -141,7 +141,7 @@ class Deploy
     $insert->set('enable_cancel_registration', $enable_cancel_registration);
     $insert->set('event_capacity', $event_capacity);
     $insert->set('notification_emails', $notification_emails);
-    $insert->set('created_by', $created_by);
+    if ($created_by > 0) $insert->set('created_by', $created_by);
 
     $eventId = $insert->insert();
 
