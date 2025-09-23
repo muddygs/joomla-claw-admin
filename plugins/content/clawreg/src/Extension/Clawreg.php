@@ -65,7 +65,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
 
   private function errorButton(string $msg = ''): string
   {
-    return "[ error $msg]";
+    return "[ error $msg ]";
   }
 
   private function expiredButton(): string
@@ -77,7 +77,6 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
   {
     if (count($params) < 3) return $this->errorButton('- Missing parameters');
     $params = array_map('trim', $params);
-    #$params = array_map('strtolower', $params);
 
     // 0 - Meta-Location
     // TODO: update when database table is ready
@@ -118,7 +117,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
       }
 
       if ($packageInfo->published != EbPublishedState::published || !$packageInfo->eventId) {
-        return $this->errorButton('- not published');
+        return $this->errorButton("- not published ($packageInfo->title:$packageInfo->eventAlias:$packageInfo->eventId)");
       }
 
       $buttonText = $this->parseButtonText($packageInfo, $buttonText);
