@@ -147,7 +147,7 @@ class PackageInfo
 
     // Validate event id is valid and published
     if ($this->eventId && $this->published == EbPublishedState::published) {
-      $row = EventBooking::loadEventRow($this->id);
+      $row = EventBooking::loadEventRow($this->eventId);
       if (is_null($row) || $row->published != EbPublishedState::published->value) {
         $this->eventId = 0;
       }
