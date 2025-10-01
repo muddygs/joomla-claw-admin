@@ -86,7 +86,7 @@ class PresenterModel extends AdminModel
 
     $presenter->arrival = $data['arrival'] ?? [];
     $presenter->event = $data['event'] ?? $currentEventAlias;
-    $presenter->published = SkillPublishedState::tryFrom($data['published']) ?? SkillPublishedState::new;
+    $presenter->published = SkillPublishedState::tryFrom($data['published']) ?? SkillPublishedState::unpublished;
     $presenter->name = $data['name'];
     $presenter->legal_name = $data['legal_name'];
     $presenter->social_media = $data['social_media'];
