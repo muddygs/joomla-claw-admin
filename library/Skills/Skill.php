@@ -53,7 +53,7 @@ final class Skill
   public string $type;
 
   public function __construct(
-    public int $id,
+    public int $id = 0,
   ) {
     $this->db = Factory::getContainer()->get('DatabaseDriver');
 
@@ -91,27 +91,37 @@ final class Skill
       throw new \InvalidArgumentException("Invalid Presenter ID: $this->id");
     }
 
-    $this->day = str_starts_with($this->db->getNullDate(), $o->day) ? null : new Date($o->day);
+    $this->fromSqlObject($o);
+  }
+
+  public function fromSqlObject(object $o)
+  {
+    if ((int)$o->presenter_id < 1) {
+      throw new \Exception("Presenter ID not defined");
+    }
+
+    $this->id = $o->id ?? 0;
+    $this->day = is_null($o->day) || str_starts_with($this->db->getNullDate(), $o->day) ? null : new Date($o->day);
     $this->mtime = new Date($o->mtime);
     $this->submission_date = new Date($o->submission_date);
-    $this->ownership = SkillOwnership::tryFrom($o->ownership) ?? SkillOwnership::admin;
-    $this->published = SkillPublishedState::tryFrom($o->published) ?? SkillPublishedState::unpublished;
-    $this->other_presenter_ids = json_decode($o->other_presenter_ids ?? []) ?? [];
-    $this->av = $o->av;
-    $this->length_info = $o->length_info;
-    $this->location = $o->location ?? 0;
+    $this->ownership = SkillOwnership::tryFrom($o->ownership) ?? SkillOwnership::user;
+    $this->published = SkillPublishedState::tryFrom($o->published) ?? SkillPublishedState::new;
+    $this->other_presenter_ids = json_decode($o->other_presenter_ids ?? '') ?? [];
+    $this->av = $o->av ?? 0;
+    $this->length_info = $o->length_info ?? 60;
+    $this->location = $o->location ?? Locations::BLANK_LOCATION;
     $this->presenter_id = $o->presenter_id;
     $this->archive_state = $o->archive_state ?? '';
     $this->audience = $o->audience ?? '';
     $this->category = $o->category ?? '';
     $this->comments = $o->comments ?? '';
-    $this->copresenter_info = $o->copresenter_info;
-    $this->description = $o->description;
-    $this->equipment_info = $o->equipment_info;
+    $this->copresenter_info = $o->copresenter_info ?? '';
+    $this->description = $o->description ?? '';
+    $this->equipment_info = $o->equipment_info ?? '';
     $this->event = $o->event;
     $this->requirements_info = $o->requirements_info;
     $this->time_slot = $o->time_slot ?? '';
-    $this->title = $o->title;
+    $this->title = $o->title ?? '';
     $this->track = $o->track ?? '';
     $this->type = $o->type ?? '';
   }
@@ -252,5 +262,33 @@ HTML;
     }
 
     return $this->id;
+  }
+
+  /** serialize/deserialize **/
+
+  public function __serialize(): array
+  {
+    // Probably don't need this, but versioning is a good pattern
+    $result = [
+      '__v' => 1,
+    ];
+
+    $sqlArray = (array)$this->toSqlObject();
+
+    // Handle specific serialization cases for enums and days
+
+    $result = array_merge($result, $sqlArray);
+
+    return $result;
+  }
+
+  public function __unserialize(array $data): void
+  {
+    // Initialize db
+    $this->db = Factory::getContainer()->get('DatabaseDriver');
+
+    $v = $data['__v'] ?? 1;
+
+    $this->fromSqlObject((object)$data);
   }
 }
