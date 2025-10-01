@@ -11,6 +11,10 @@
 namespace ClawCorpLib\Helpers;
 
 use Joomla\Database\DatabaseDriver;
+use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Lib\Aliases;
+use ClawCorpLib\Skills\Skills;
+use ClawCorpLib\Enums\SkillPublishedState;
 
 class Rsform
 {
@@ -66,5 +70,25 @@ class Rsform
     $result = $this->db->loadObjectList('FieldName');
 
     return $result;
+  }
+
+  public static function rsformJson()
+  {
+    $eventInfo = new EventInfo(Aliases::current(true));
+    $classes = Skills::get($eventInfo, SkillPublishedState::published, ['title']);
+
+    $results = [];
+
+    foreach ($classes->keys() as $key) {
+      $results[] = (object)[
+        'id' => $classes[$key]->id,
+        'stime' => explode(':', $classes[$key]->time_slot)[0],
+        'title' => htmlentities($classes[$key]->title),
+        'gid' => $key,
+        'day' => $classes[$key]->day->format('w')
+      ];
+    }
+
+    return json_encode($results);
   }
 }
