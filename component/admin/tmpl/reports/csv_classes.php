@@ -11,7 +11,7 @@
 // No direct access to this file
 \defined('_JEXEC') or die('Restricted Access');
 
-use ClawCorpLib\Helpers\SkillsExport;
+use ClawCorpLib\Exporters\SkillsExport;
 use ClawCorpLib\Lib\Aliases;
 use Joomla\CMS\HTML\HTMLHelper;
 
