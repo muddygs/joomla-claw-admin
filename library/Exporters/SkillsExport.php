@@ -192,7 +192,9 @@ class SkillsExport
             $row[] = implode(', ', $p->arrival);
             break;
           default:
-            $row[] = $p->$col;
+            if (property_exists($p, $col)) {
+              $row[] = $p->$col;
+            }
             break;
         }
       }
@@ -310,7 +312,6 @@ class SkillsExport
       'id' => 'Unique ID',
       'length_info' => 'Requested Length',
       'location' => 'Location',
-      'mtime' => '',
       'multitrack' => 'Track',
       'other_presenter_ids' => 'Other Presenter IDs',
       'ownership' => 'Ownership',
@@ -324,7 +325,6 @@ class SkillsExport
       'title' => 'Title',
       'track' => 'Special Track',
       'type' => 'Class Type',
-      'yappday' => 'Date',
     ];
 
     $headers = array_map(function ($x) use ($remapping) {
@@ -472,7 +472,9 @@ class SkillsExport
             break;
 
           default:
-            $row[] = is_array($c->$col) ? implode(', ', $c->$col) : $c->$col;
+            if (property_exists($c, $col)) {
+              $row[] = is_array($c->$col) ? implode(', ', $c->$col) : $c->$col;
+            }
             break;
         }
       }
