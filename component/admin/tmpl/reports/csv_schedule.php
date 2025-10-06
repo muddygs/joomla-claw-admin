@@ -11,7 +11,7 @@
 // No direct access to this file
 \defined('_JEXEC') or die('Restricted Access');
 
-use ClawCorpLib\Helpers\ScheduleExport;
+use ClawCorpLib\Exporters\ScheduleExport;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\HTML\HTMLHelper;
