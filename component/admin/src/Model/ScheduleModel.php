@@ -84,6 +84,7 @@ class ScheduleModel extends AdminModel
     unset($data['end']);
 
     // Process accessiblemedia field
+    // Remove Joomla meta data - store only the path and filename
     if (!is_null($data['poster']) && !empty($data['poster']['imagefile'])) {
       $data['poster'] = explode("#", $data['poster']['imagefile'])[0];
       $orig = JPATH_ROOT . DIRECTORY_SEPARATOR . $data['poster'];
