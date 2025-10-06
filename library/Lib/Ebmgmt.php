@@ -116,8 +116,10 @@ class Ebmgmt
     if ($row != null) return 0;
 
     // Highly unlikely to happen as it's set in the constructor, but...
-    if (!$this->defaults->created_by)
+    if (!$this->defaults->created_by) {
+      var_dump($this->defaults);
       throw new \Exception("Cannot insert with unset ownership");
+    }
 
     $this->db->insertObject('#__eb_events', $this->defaults, 'id');
 
