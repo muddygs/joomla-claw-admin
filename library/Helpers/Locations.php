@@ -11,6 +11,7 @@
 namespace ClawCorpLib\Helpers;
 
 use Joomla\CMS\Factory;
+use ClawCorpLib\Enums\EbPublishedState;
 
 class Locations
 {
@@ -24,12 +25,13 @@ class Locations
     if (array_key_exists($eventAlias, Locations::$cache)) return Locations::$cache[$eventAlias];
 
     $db = Factory::getContainer()->get('DatabaseDriver');
+    $published = EbPublishedState::published->value;
 
     $query = $db->getQuery(true);
 
     $query->select($db->qn(['id', 'value']))
       ->from($db->qn(self::TABLE_NAME))
-      ->where($db->qn('published') . '=1')
+      ->where($db->qn('published') . '= :published')->bind(':published', $published) // only published items loaded
       ->where($db->qn('event') . '=' . $db->q($eventAlias))
       ->order($db->qn('value'));
 
