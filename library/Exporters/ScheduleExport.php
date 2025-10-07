@@ -52,7 +52,7 @@ class ScheduleExport
     $remapping = [
       'id' => 'Unique ID',
       'track' => 'Track',
-      'date' => 'Day',
+      'date' => 'Date',
       'datetime_start' => 'Start Time',
       'datetime_end' => 'End Time',
       'event_title' => 'Title',
