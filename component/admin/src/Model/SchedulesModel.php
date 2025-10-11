@@ -12,6 +12,8 @@ namespace ClawCorp\Component\Claw\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use ClawCorpLib\Enums\EbPublishedState;
+use ClawCorpLib\Helpers\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\ListModel;
 
@@ -76,19 +78,47 @@ class SchedulesModel extends ListModel
    */
   protected function populateState($ordering = 'a.day', $direction = 'ASC')
   {
+    /** @var \Joomla\CMS\Application\AdministratorApplication */
     $app = Factory::getApplication();
+    $context = $this->name;
 
-    // List state information
-    $value = $app->input->get('limit', $app->get('list_limit', 0), 'uint');
-    $this->setState('list.limit', $value);
+    // Pagination
+    $limit = $app->getUserStateFromRequest("$context.list.limit", 'limit', (int) $app->get('list_limit'), 'uint');
+    $limit = $limit < 0 ? $app->get('list_limit') : $limit;
+    $start = $app->input->getUint('limitstart', 0);
+    $start = $start < 0 ? 0 : $start;
 
-    $value = $app->input->get('limitstart', 0, 'uint');
-    $this->setState('list.start', $value);
+    $filters = (array) $app->getUserStateFromRequest("$context.filters", 'filter', [], 'array');
+    $search    = trim((string)($filters['search'] ?? ''));
 
-    $search = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
-    $this->setState('filter.search', $search);
+    // Try from user input, then verify it's valid, finally set
+    $published = isset($filters['published']) && $filters['published'] !== '' ? (int)$filters['published'] : EbPublishedState::published->value;
+    $published = EbPublishedState::tryFrom($published) ?? EbPublishedState::published;
+    $published = $published->value;
 
-    // List state information.
+    // should be one of sun, mon, tue...
+    $day = trim((string)($filters['day'] ?? null));
+    if (!in_array(strtolower($day), Helpers::days)) $day = null;
+
+    $event = trim((string)($filters['event'] ?? Aliases::current()));
+
+    $fingerprint = md5(serialize([$search, $published, $day, $event]));
+
+    // If filters changed, reset to first page
+    $prev = $app->getUserState("$context._prev.filters.hash", '');
+    if ($fingerprint !== $prev) {
+      $start = 0;
+      $app->setUserState("$context._prev.filters.hash", $fingerprint);
+    }
+
+    // Store state for model/query and pagination
+    $this->setState('list.limit',  $limit);
+    $this->setState('list.start',  $start);
+    $this->setState('filter.search',    $search);
+    $this->setState('filter.published', $published);
+    $this->setState('filter.day',       $day);
+    $this->setState('filter.event',     $event);
+
     parent::populateState($ordering, $direction);
   }
 
@@ -110,6 +140,9 @@ class SchedulesModel extends ListModel
     // Compile the store id.
     $id .= ':' . serialize($this->getState('filter.name'));
     $id .= ':' . $this->getState('filter.search');
+    $id .= ':' . $this->getState('filter.published');
+    $id .= ':' . $this->getState('filter.day');
+    $id .= $this->getState('filter.event', Aliases::current());
     $id .= ':' . $this->getState('filter.state');
 
     return parent::getStoreId($id);
@@ -186,6 +219,7 @@ class SchedulesModel extends ListModel
     $day = $this->getState('filter.day');
     $event = $this->getState('filter.event', Aliases::current());
 
+
     if ($day != null) {
       date_default_timezone_set('etc/UTC');
       $dayInt = date('w', strtotime($day));
@@ -221,11 +255,10 @@ class SchedulesModel extends ListModel
       $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
     }
 
-
     $limit = $this->getState('list.limit', 0);
     $start = $this->getState('list.start', 0);
 
-    if ($limit > 0) {
+    if ($limit >= 0 && $start >= 0) {
       $query->setLimit($limit, $start);
     }
 
