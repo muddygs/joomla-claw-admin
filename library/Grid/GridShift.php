@@ -225,7 +225,7 @@ class GridShift
 
   public static function saveGridTimeArray(array $formData, string $key)
   {
-    $keys = Helpers::getDays();
+    $keys = Helpers::days;
 
     if ($formData['id'] < 1) {
       throw new \InvalidArgumentException("Shift must be save prior to parsing times");

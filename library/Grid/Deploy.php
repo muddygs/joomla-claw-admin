@@ -48,7 +48,7 @@ class Deploy
   ) {
     $this->db = Factory::getContainer()->get('DatabaseDriver');
     $this->shifts = new GridShiftArray();
-    $this->keys = Helpers::getDays();
+    $this->keys = Helpers::days;
     $this->baseUnixTime = $this->eventInfo->start_date->toUnix();
     $this->aliasPrefix = $this->eventInfo->shiftPrefix;
     $this->cut_off_date = $this->eventInfo->start_date->toSql();

@@ -54,7 +54,7 @@ class ScheduleModel extends AdminModel
       return false;
     }
 
-    if (array_key_exists('day', $data) && in_array($data['day'], Helpers::getDays())) {
+    if (array_key_exists('day', $data) && in_array($data['day'], Helpers::days)) {
       $day = $eventInfo->modify($data['day'] ?? '');
       if ($day === false) {
         $app->enqueueMessage('Unknown day selected. Unable to convert to event date.', \Joomla\CMS\Application\CMSApplicationInterface::MSG_ERROR);

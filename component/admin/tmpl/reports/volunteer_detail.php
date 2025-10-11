@@ -15,7 +15,7 @@ use ClawCorpLib\Helpers\Helpers;
 
 \ClawCorpLib\Helpers\Bootstrap::rawHeader([], ['/media/com_claw/css/print_letter.css']);
 
-$days = Helpers::getDays();
+$days = Helpers::days;
 
 ?>
 <h1 class="text-center">Volunteer Detail Report</h1>
@@ -62,14 +62,14 @@ foreach ($this->items['shifts'] as $this->sid => $shift) {
 ?>
   <?php
   foreach ($grid as $k => $row) {
-    foreach ( $row AS $day => $this->shift_info ) {
+    foreach ($row as $day => $this->shift_info) {
       // Skip empty shifts and other meta data
       if (is_null($this->shift_info) || !in_array($day, $days)) continue;
 
-      ?>
-        <h1><?= $this->shift_info->title ?></h1>
-        <h2><?= $this->items['coordinators'][$this->sid]['name'] ?> (<?= $this->items['coordinators'][$this->sid]['email'] ?>)</h2>
-      <?php
+  ?>
+      <h1><?= $this->shift_info->title ?></h1>
+      <h2><?= $this->items['coordinators'][$this->sid]['name'] ?> (<?= $this->items['coordinators'][$this->sid]['email'] ?>)</h2>
+<?php
       echo $this->loadTemplate('registrants');
     }
   }

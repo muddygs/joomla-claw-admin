@@ -88,7 +88,7 @@ class ClawDaysListField extends ListField
    */
   public function setup(\SimpleXMLElement $element, $value, $group = null)
   {
-    $this->days = Helpers::getDays();
+    $this->days = Helpers::days;
 
     $result = parent::setup($element, $value, $group);
 

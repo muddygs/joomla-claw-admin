@@ -66,7 +66,7 @@ foreach ($items['shifts'] as $sid => $events) {
 
     if (!array_key_exists($k, $grid)) {
       $grid[$k] = (object)[];
-      foreach (Helpers::getDays() as $day) {
+      foreach (Helpers::days as $day) {
         $grid[$k]->$day = null;
       }
     }
@@ -124,7 +124,7 @@ foreach ($items['shifts'] as $sid => $events) {
           <td><?= $stime ?></td>
           <td><?= $etime ?></td>
           <?php
-          foreach (Helpers::getDays() as $dayKey) {
+          foreach (Helpers::days as $dayKey) {
             $day = $row->$dayKey;
             if (null == $day || $day->event_capacity < 1) {
               echo '<td></td>';

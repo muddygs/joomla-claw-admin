@@ -60,7 +60,7 @@ class GridTime
 
   public static function getKeys()
   {
-    return Helpers::getDays();
+    return Helpers::days;
   }
 
   private function haveSameKeys(array $array1, array $array2): bool
@@ -131,7 +131,7 @@ class GridTime
   public function setNeed(string|int $dow, int $need)
   {
     if ($dow instanceof int) {
-      $dow = Helpers::getDays()[$dow];
+      $dow = Helpers::days[$dow];
     }
 
     $this->needed[$dow] = $need;
@@ -172,7 +172,7 @@ class GridTime
   public function setEventId(string|int $dow, int $need)
   {
     if ($dow instanceof int) {
-      $dow = Helpers::getDays()[$dow];
+      $dow = Helpers::days[$dow];
     }
 
     $this->eventIds[$dow] = $need;
