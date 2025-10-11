@@ -12,7 +12,6 @@ namespace ClawCorpLib\Helpers;
 
 use ClawCorpLib\Enums\ConfigFieldNames;
 use ClawCorpLib\Lib\Aliases;
-use ClawCorpLib\Lib\EventInfo;
 use DateTime;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
@@ -35,35 +34,27 @@ use RuntimeException;
  */
 class Helpers
 {
+  // Ordering is intentional for event coverage
+  public const days = ['tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'mon'];
 
   #region Date/Time functions
   /**
-   * Quicky that produces a mostly correct SQL time
-   * TODO: set time zone
+   * Get now datetime in sql format
    * @return string
    */
   public static function mtime(): string
   {
-    $date = new Date('now');
-    return $date->toSQL(true);
+    date_default_timezone_set('etc/UTC');
+    return (new Date())->toSql();
   }
 
-  /** 
-   * Returns event days from tue to mon
-   * @return array  */
+  /**
+   * TODO: Remove after updated skills merged
+   */
   public static function getDays(): array
   {
-    return [
-      'tue',
-      'wed',
-      'thu',
-      'fri',
-      'sat',
-      'sun',
-      'mon',
-    ];
+    return self::days;
   }
-
 
   /**
    * Returns hh:mm formatted string as seconds
@@ -453,8 +444,18 @@ class Helpers
       $cleanedString
     );
 
+    // Remove Bootstrap-style button or pill markup, keep inner text
+    $cleanedString = preg_replace(
+      '/<(a|button)\b[^>]*(btn|badge|nav-link)[^>]*>(.*?)<\/\1>/is',
+      ' $3 ',
+      $cleanedString
+    );
+
     // Strip remaining HTML tags
     $cleanedString = strip_tags($cleanedString);
+
+    // Collapse multiple spaces down to one
+    $cleanedString = preg_replace('/\s{2,}/', ' ', $cleanedString);
 
     return $cleanedString;
   }
