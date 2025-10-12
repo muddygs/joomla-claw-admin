@@ -83,9 +83,9 @@ class RefundsModel extends FormModel
   {
     $invoice = $json->get('jform[invoice]', '', 'string');
 
-    $uid = Registrant::getUserIdFromInvoice($invoice, true);
-
-    if (0 == $uid) {
+    try {
+      $uid = (Registrant::getEbRegistrantFromInvoice($invoice, true))->user_id;
+    } catch (\Exception) {
       echo 'Not found';
       return;
     }
@@ -98,7 +98,8 @@ class RefundsModel extends FormModel
       'Z_REFUND_TRANSACTION',
     ];
 
-    $registrant = new Registrant('refunds', $uid);
+    $eventConfig = new EventConfig('refunds', []);
+    $registrant = new Registrant($eventConfig, $uid);
     $registrant->loadCurrentEvents();
     $registrant->mergeFieldValues($statusFields);
 
@@ -399,9 +400,10 @@ class RefundsModel extends FormModel
 
       // Lookup event alias
       $alias = ClawEvents::eventIdtoAlias($event_id);
+      $eventConfig = new EventConfig($alias, []);
 
       if ($alias !== false) {
-        $registrant = new Registrant($alias, $uid, [$event_id]);
+        $registrant = new Registrant($eventConfig, $uid, [$event_id]);
         $registrant->loadCurrentEvents();
 
         /** @var \ClawCorpLib\Lib\RegistrantRecord */
@@ -595,7 +597,8 @@ class RefundsModel extends FormModel
     $date = date('Y-m-d');
     $amount = number_format($refundAmount, 2, '.', '');
 
-    $registrant = new registrant('refunds', $uid);
+    $eventConfig = new EventConfig('refunds', []);
+    $registrant = new Registrant($eventConfig, $uid);
     $registrant->loadCurrentEvents();
 
     $mergeValues = [
