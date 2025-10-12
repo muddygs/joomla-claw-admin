@@ -33,7 +33,8 @@ class HtmlView extends BaseHtmlView
    */
   public function display($tpl = null)
   {
-    $this->state = $this->get('State');
+    $this->model = $this->getModel();
+    $this->state = $this->model->getState();
     $tpl = null;
 
     /** @var \Joomla\CMS\Application\SiteApplication */
