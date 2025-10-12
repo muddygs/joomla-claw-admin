@@ -56,6 +56,10 @@ class RawView extends BaseHtmlView
         break;
       case 'spa':
         $this->items = $this->model->getSpaSchedule();
+        break;
+      case 'preflight':
+        // Self-contained, no items
+        break;
       default:
         break;
     }
