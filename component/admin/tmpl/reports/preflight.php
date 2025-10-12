@@ -4,7 +4,7 @@
  * @package     ClawCorp
  * @subpackage  com_claw
  *
- * @copyright   (C) 2023 C.L.A.W. Corp. All Rights Reserved.
+ * @copyright   (C) 2025 C.L.A.W. Corp. All Rights Reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -27,10 +27,17 @@ use Joomla\Database\DatabaseDriver;
 
 \ClawCorpLib\Helpers\Bootstrap::rawHeader([], ['/media/com_claw/css/print_letter.css']);
 
-$eventAlias = Aliases::current(true);
-$clawEvents = new EventConfig($eventAlias);
-$packageInfos = $clawEvents->packageInfos;
-$eventInfo = $clawEvents->eventInfo;
+$input = Factory::getApplication()->getInput();
+$reportEvent = $input->getArray([
+  'jform' => [
+    'report_event' => 'string',
+  ]
+]);
+
+$eventAlias = $reportEvent['jform']['report_event'] ?: Aliases::current(true);
+$eventConfig = new EventConfig($eventAlias);
+$packageInfos = $eventConfig->packageInfos;
+$eventInfo = $eventConfig->eventInfo;
 
 $mealPhrases = ['beef', 'chicken', 'vege', 'vegan', 'sea bass', 'fish', 'ravioli'];
 $shirtSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'None'];
@@ -119,7 +126,7 @@ foreach ($packageInfos as $packageInfo) {
           continue;
         }
 
-        $registrant = new Registrant($eventAlias, $row->user_id);
+        $registrant = new Registrant($eventConfig, $row->user_id);
 
         try {
           $registrant->loadCurrentEvents();
@@ -285,6 +292,8 @@ if (count($duplicateUserIds) > 0) {
       if ($packageInfo->eventId == 0) {
         $eventRow->title = "<span class=\"text-danger\">{$packageInfo->title} Not deployed</span>";
         $eventRow->published = EbPublishedState::any;
+        $published = '<span class="text-danger">UNPUBLISHED</span>';
+        $fee = 'N/A';
       } else {
         $eventRow = EventBooking::loadEventRow($packageInfo->eventId);
 
@@ -308,7 +317,7 @@ if (count($duplicateUserIds) > 0) {
 
         $published = $eventRow->published == EbPublishedState::published ?
           'PUBLISHED' :
-          "<span class=\"text-danger\">UNPUBLISHED</span>";
+          '<span class="text-danger">UNPUBLISHED</span>';
       }
     ?>
       <tr>
