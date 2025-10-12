@@ -43,7 +43,11 @@ $ts = '?ts=' . time();
     <a class="btn btn-danger btn-lg" href="javascript:window.close();">CLOSE</a>
   </div>
   <?php foreach ($this->registrationCodes as $registrationCode):
-    $c = new Checkin($registrationCode);
+    try {
+      $c = new Checkin($registrationCode);
+    } catch (\Exception) {
+      continue;
+    }
 
     if (!$c->isValid) continue;
 
@@ -118,7 +122,11 @@ $ts = '?ts=' . time();
   if ($this->primacy == false) {
     for (end($this->registrationCodes); key($this->registrationCodes) !== null; prev($this->registrationCodes)) {
       $code = current($this->registrationCodes);
-      $c = new Checkin($code);
+      try {
+        $c = new Checkin($code);
+      } catch (\Exception) {
+        continue;
+      }
 
       $r = $c->r;
 
