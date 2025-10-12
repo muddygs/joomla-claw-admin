@@ -59,6 +59,7 @@ $shifts = Route::_('index.php?option=com_claw&view=shifts');
     'utensils' => ['Meals', '<button class="btn btn-danger" value="meals" name="layout">Launch</button>'],
     'paint-brush' => ['Artshow', '<button class="btn btn-danger" value="csv_artshow" name="layout">Launch</button>'],
     'spa' => ['Spa', '<button class="btn btn-danger" value="spa" name="layout">Launch</button>'],
+    'plane-departure' => ['Preflight', '<button class="btn btn-info" value="preflight" name="layout">Preflight</button>'],
   ];
 
   ?>
@@ -115,7 +116,6 @@ $shifts = Route::_('index.php?option=com_claw&view=shifts');
   $content = [
     'ticket-alt' => ['Coupon Generator', '<a href="/administrator/index.php?option=com_claw&view=coupongenerator&layout=edit" role="button" class="btn btn-danger">Launch</a>'],
     'user-tag'   => ['Refunds', '<a href="/administrator/index.php?option=com_claw&view=refunds&layout=edit" role="button" class="btn btn-danger">Launch</a>'],
-    'plane-departure' => ['Preflight', '<a href="/administrator/index.php?option=com_claw&view=reports&layout=preflight&format=raw" role="button" class="btn btn-info" target="_blank">Launch</a>'],
   ];
 
   Bootstrap::writeGrid($content, $tags, false);
