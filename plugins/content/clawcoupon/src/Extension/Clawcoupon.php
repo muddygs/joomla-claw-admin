@@ -87,9 +87,7 @@ class Clawcoupon extends CMSPlugin implements SubscriberInterface
 
   private function loadCoupon()
   {
-    $eventAlias = Aliases::current(true);
-
-    $this->eventConfig = new EventConfig($this->alias);
+    $this->eventConfig = new EventConfig($this->alias, []);
     $this->uid = $this->getApplication()->getIdentity()->id;
 
     if ($this->eventConfig->eventInfo->onsiteActive) {
@@ -105,7 +103,7 @@ class Clawcoupon extends CMSPlugin implements SubscriberInterface
         $this->getApplication()->redirect($url);
       }
 
-      $registrant = new Registrant($eventAlias, $this->uid);
+      $registrant = new Registrant($this->eventConfig, $this->uid);
       $registrant->loadCurrentEvents();
       $this->mainEvent = $registrant->getMainEvent();
       $this->autoCoupon = $this->getUserCoupon();
