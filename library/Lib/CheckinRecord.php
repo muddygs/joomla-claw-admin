@@ -59,18 +59,20 @@ class CheckinRecord
   ) {
     // Keeping separate since we need to separate these out for badge printing
 
-    $this->meals = [];
+    $mealCategories = [
+      $eventConfig->eventInfo->eb_cat_dinners,
+      $eventConfig->eventInfo->eb_cat_brunches,
+      $eventConfig->eventInfo->eb_cat_buffets,
+    ];
+
+    $this->meals = array_fill_keys($mealCategories, []);
 
     /** @var \ClawCorpLib\Lib\PackageInfo  */
     foreach ($eventConfig->packageInfos as $packageInfo) {
       if ($packageInfo->published != EbPublishedState::published || $packageInfo->eventId == 0)
         continue;
 
-      if (in_array($packageInfo->category, [
-        $eventConfig->eventInfo->eb_cat_dinners,
-        $eventConfig->eventInfo->eb_cat_brunches,
-        $eventConfig->eventInfo->eb_cat_buffets,
-      ])) {
+      if (in_array($packageInfo->category, $mealCategories)) {
         $this->meals[$packageInfo->category][$packageInfo->eventId] = '';
       }
     }
