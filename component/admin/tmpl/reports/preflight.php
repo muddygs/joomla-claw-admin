@@ -315,7 +315,7 @@ if (count($duplicateUserIds) > 0) {
           $eventRow->published = EbPublishedState::any;
         }
 
-        $published = $eventRow->published == EbPublishedState::published ?
+        $published = $eventRow->published == EbPublishedState::published->value ?
           'PUBLISHED' :
           '<span class="text-danger">UNPUBLISHED</span>';
       }
