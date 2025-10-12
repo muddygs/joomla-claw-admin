@@ -120,11 +120,16 @@ class RollcallController extends BaseController
 
     $result = false;
 
-    if ($uid = Registrant::getUserIdFromInvoice($regid)) {
-      /** @var \ClawCorp\Component\Claw\Site\Model\RollcallModel */
-      $siteModel = $this->getModel('Rollcall');
-      $result = $siteModel->volunteerAddShift(uid: $uid, eventid: $eventid);
+    try {
+      $uid = (Registrant::getEbRegistrantFromInvoice($regid))->user_id;
+    } catch (\Exception) {
+      echo "Error during shift add";
+      return;
     }
+
+    /** @var \ClawCorp\Component\Claw\Site\Model\RollcallModel */
+    $siteModel = $this->getModel('Rollcall');
+    $result = $siteModel->volunteerAddShift(uid: $uid, eventid: $eventid);
 
     if (!$result) {
       echo "Error during shift add";
