@@ -79,7 +79,7 @@ HTML;
     $onsiteActive = $eventConfig->eventInfo->onsiteActive;
     $mainEventIds = $eventConfig->getMainEventIds();
 
-    $registrantData = new registrant($clawEventAlias, $app->getIdentity()->id);
+    $registrantData = new registrant($eventConfig, $app->getIdentity()->id);
     $registrantData->loadCurrentEvents(EbRecordIndexType::eventid);
     $records = $registrantData->records();
 

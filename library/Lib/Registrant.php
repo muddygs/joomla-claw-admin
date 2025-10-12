@@ -18,6 +18,7 @@ use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Lib\EventConfig;
+use InvalidArgumentException;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\User\UserFactoryInterface;
 
@@ -28,11 +29,10 @@ class Registrant
 
   var $badgeId = '';
 
-  public EventConfig $eventConfig;
   public int $count = 0;
 
   public function __construct(
-    private string $clawEventAlias,
+    public EventConfig $eventConfig,
     private int $uid,
     private array $eventIdFilter = [],
     private bool $enablePastEvents = false
@@ -41,7 +41,7 @@ class Registrant
       throw (new \UnexpectedValueException('User ID cannot be zero when retrieving registrant record'));
     }
 
-    $this->eventConfig = new EventConfig($clawEventAlias, []);
+    $this->eventConfig = $eventConfig;
     $this->badgeId = $this->eventConfig->eventInfo->prefix . '-' . str_pad($uid, 5, '0', STR_PAD_LEFT);
   }
 
@@ -98,7 +98,8 @@ class Registrant
       if ($now > $eventInfo->end_date) continue;
       if (EventTypes::refunds == $eventInfo->eventType) continue;
 
-      $r = new Registrant($eventInfo->alias, $uid);
+      $eventConfig = new EventConfig($eventInfo->alias, []);
+      $r = new Registrant($eventConfig, $uid);
       /** @var \ClawCorpLib\Lib\RegistrantRecord */
       $main = $r->getMainEvent();
       if (!is_null($main)) $result[$main->event->eventId] = $main;
@@ -226,9 +227,6 @@ class Registrant
     $db->setQuery($q);
     $records = $db->loadObjectList($index->value);
 
-    // Refunds can only retrieve main events
-    $mainOnly = ('refunds' == $this->clawEventAlias);
-
     foreach ($records as $index => $record) {
       /** @var \ClawCorpLib\Lib\PackageInfo */
       $event = $this->eventConfig->getPackageInfoByProperty('eventId', $record->eventId);
@@ -238,7 +236,7 @@ class Registrant
         $record->eventPackageType = $event->eventPackageType;
       }
 
-      $this->_records[$index] = new RegistrantRecord($this->clawEventAlias, $record);
+      $this->_records[$index] = new RegistrantRecord($this->eventConfig->alias, $record);
     }
 
     $this->count = count($this->_records);
@@ -364,10 +362,12 @@ class Registrant
    * EB-generated registration_code)
    * @param string $regid Invoice # or Registration Code or UID (main part of invoice #)
    * @param bool $any Default false, if true, does not need to be published
-   * @return int User ID (or 0 on not found)
+   * @return object Records id, event_id, and user_id
+   * @throws InvalidArgumentException Record not found
    */
-  public static function getUserIdFromInvoice(string $regid, bool $any = false): int
+  public static function getEbRegistrantFromInvoice(string $regid, bool $any = false): object
   {
+    /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
 
     $uidCandidate = registrant::invoiceToUid($regid);
@@ -381,7 +381,7 @@ class Registrant
     $invoiceWhereOr .= 'BINARY `registration_code` = ' . $db->q($regid);
 
     $q = $db->getQuery(true);
-    $q->select('user_id')
+    $q->select(['id', 'event_id', 'user_id'])
       ->from('#__eb_registrants')
       ->where('(' . $invoiceWhereOr . ')');
 
@@ -390,17 +390,20 @@ class Registrant
     }
 
     $db->setQuery($q);
-    $uid = $db->loadResult() ?? 0;
+    $row = $db->loadObject();
 
-    if ($uid) {
-      $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
-      $user = $userFactory->loadUserById($uid);
-      if (is_null($user) || $user->id == 0 || $user->block != 0) {
-        $uid = 0;
-      }
+    if (is_null($row)) {
+      throw new \InvalidArgumentException('Invalid Registration Code: ' . $regid);
     }
 
-    return $uid;
+    // Validate user
+    $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
+    $user = $userFactory->loadUserById($row->user_id);
+    if (is_null($user) || $user->id == 0 || $user->block != 0) {
+      throw new \Exception('User not valid or not authorized to access this record.');
+    }
+
+    return $row;
   }
 
   /**
@@ -429,7 +432,7 @@ class Registrant
    */
   public function addRecord(int $key, object $record): void
   {
-    $this->_records[$key] = new RegistrantRecord($this->clawEventAlias, $record);
+    $this->_records[$key] = new RegistrantRecord($this->eventConfig->alias, $record);
   }
 
   public function checkOverlaps(array $categoryIds): array

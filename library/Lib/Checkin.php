@@ -26,7 +26,6 @@ class Checkin
   public ?CheckinRecord $r;
   private $uid = 0;
   public bool $isValid = false;
-  public static string $alias = '';
 
   private static array $comboMealsCache = [];
   private static ?EventConfig $eventConfig = null;
@@ -35,16 +34,23 @@ class Checkin
     public string $registration_code,
     public bool $errorReporting = true
   ) {
-    if (self::$alias == '') self::$alias = Aliases::current(true);
-
-    if (!$this->uid = Registrant::getUserIdFromInvoice($this->registration_code)) {
+    try {
+      $reg = Registrant::getEbRegistrantFromInvoice($this->registration_code);
+    } catch (\Exception) {
       throw new \InvalidArgumentException('Invalid Registration Code: ' . $this->registration_code);
     }
 
+    $this->uid = $reg->user_id;
     $this->r = null;
 
     if (self::$eventConfig == null) {
-      self::$eventConfig = new EventConfig(self::$alias, [], true);
+      $alias = ClawEvents::eventIdtoAlias($reg->event_id);
+
+      if ($alias === false) {
+        throw new \InvalidArgumentException('Invalid Registration Code: ' . $this->registration_code);
+      }
+
+      self::$eventConfig = new EventConfig($alias, [], true);
     }
 
     // Combo meals events
@@ -64,6 +70,34 @@ class Checkin
   public function getUid()
   {
     return $this->uid;
+  }
+
+  private function RegistrationCodeToEventConfig(): EventConfig
+  {
+    try {
+      $raw = Registrant::getEbRegistrantFromInvoice($this->registration_code);
+    } catch (\Exception) {
+    }
+    $db = Factory::getContainer()->get('DatabaseDriver');
+
+    $uidCandidate = registrant::invoiceToUid($regid);
+
+    $invoiceWhereOr = '';
+    if (is_numeric($uidCandidate) && $uidCandidate > 0) {
+      $uidCandidate = trim($uidCandidate);
+      $l = $db->q('%-' . str_pad($uidCandidate, 5, '0', STR_PAD_LEFT) . '-%');
+      $invoiceWhereOr .= 'invoice_number LIKE ' . $l . ' OR ';
+    }
+    $invoiceWhereOr .= 'BINARY `registration_code` = ' . $db->q($regid);
+
+    $q = $db->getQuery(true);
+    $q->select('event_id')
+      ->from('#__eb_registrants')
+      ->where('published = ' . EbPublishedState::published->value)
+      ->where('(' . $invoiceWhereOr . ')');
+
+    $db->setQuery($q);
+    $uid = $db->loadResult() ?? 0;
   }
 
   /**
@@ -91,7 +125,7 @@ class Checkin
       'Z_TICKET_SCANNED',
     ];
 
-    $registrant = new Registrant(self::$alias, $this->uid);
+    $registrant = new Registrant(self::$eventConfig, $this->uid);
 
     $registrant->loadCurrentEvents();
 
@@ -302,7 +336,7 @@ class Checkin
 
   public function doCheckin()
   {
-    $registrant = new Registrant(self::$alias, $this->r->uid);
+    $registrant = new Registrant(self::$eventConfig, $this->r->uid);
     $mainEvent = $registrant->getMainEvent();
 
     $registrant->updateFieldValues($mainEvent->registrant->id, ['Z_BADGE_ISSUED' => 1]);
@@ -310,7 +344,7 @@ class Checkin
 
   public function doMarkPrinted()
   {
-    $registrant = new Registrant(self::$alias, $this->r->uid);
+    $registrant = new Registrant(self::$eventConfig, $this->r->uid);
     /** @var \ClawCorpLib\Lib\RegistrantRecord */
     $mainEvent = $registrant->getMainEvent();
 
@@ -319,7 +353,7 @@ class Checkin
 
   public function issueMealTicket(int $mealEventId, int $ticketEventId)
   {
-    $registrant = new Registrant(self::$alias, $this->r->uid, [$ticketEventId]);
+    $registrant = new Registrant(self::$eventConfig, $this->r->uid, [$ticketEventId]);
     $registrant->loadCurrentEvents();
     $registrant->mergeFieldValues(['Z_TICKET_SCANNED']);
 

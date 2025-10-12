@@ -44,15 +44,16 @@ class Registrants
     $userIds = array_unique($db->loadColumn());
 
     $clawEventAlias = ClawEvents::eventIdtoAlias($eventId);
+    $eventConfig = new EventConfig($clawEventAlias, []);
 
     if ($clawEventAlias === false) {
       die("Event from Event ID cannot be determined");
     }
 
     foreach ($userIds as $uid) {
-      if ( $uid == 0 ) continue;
+      if ($uid == 0) continue;
 
-      $r = new Registrant($clawEventAlias, $uid, [$eventId], true);
+      $r = new Registrant($eventConfig, $uid, [$eventId], true);
       $r->loadCurrentEvents();
 
       if (count($r->records()) > 0) $results[] = $r;
@@ -82,6 +83,7 @@ class Registrants
   public static function byHistory(string $eventAlias, int $days_back): array
   {
     $results = [];
+    $eventConfig = new EventConfig($eventAlias, []);
 
     $db = Factory::getContainer()->get('DatabaseDriver');
 
@@ -100,7 +102,7 @@ class Registrants
     $mergeFields = ['Z_REFUND_TRANSACTION', 'Z_REFUND_DATE', 'Z_REFUND_AMOUNT'];
 
     foreach ($rows as $row) {
-      $r = new registrant($eventAlias, $row->user_id, [$row->event_id], true);
+      $r = new Registrant($eventConfig, $row->user_id, [$row->event_id], true);
       $r->loadCurrentEvents();
 
       if ($r->count > 0) {
@@ -112,4 +114,3 @@ class Registrants
     return $results;
   }
 }
-

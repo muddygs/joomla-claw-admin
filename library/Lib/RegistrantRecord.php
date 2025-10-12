@@ -69,9 +69,9 @@ class RegistrantRecord
 
   function __construct(string $clawEventAlias, object $r)
   {
-    $this->event = new registrantRecordEvent();
-    $this->category = new registrantRecordCategory();
-    $this->registrant = new registrantRecordRegistrant();
+    $this->event = new RegistrantRecordEvent();
+    $this->category = new RegistrantRecordCategory();
+    $this->registrant = new RegistrantRecordRegistrant();
     $this->fieldValue = (object)[];
 
     $this->event->clawEventAlias = $clawEventAlias;
