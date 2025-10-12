@@ -25,9 +25,8 @@ enum EventTypes: int
       EventTypes::vc => 'Virtual Claw',
       EventTypes::refunds => 'Refunds',
       EventTypes::single => 'Single',
+      default => 'None'
     };
-
-    return 'None';
   }
 
   public static function toOptions(): array
