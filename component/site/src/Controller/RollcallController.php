@@ -121,7 +121,7 @@ class RollcallController extends BaseController
     $result = false;
 
     try {
-      $uid = (Registrant::getEbRegistrantFromInvoice($regid))->user_id;
+      $uid = Registrant::GetUidFromInvoice($regid);
     } catch (\Exception) {
       echo "Error during shift add";
       return;

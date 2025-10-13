@@ -358,14 +358,13 @@ class Registrant
   }
 
   /**
-   * Returns the user id (or 0 if not found) for an invoice # (alternately, the
-   * EB-generated registration_code)
+   * Returns the user id for an invoice # or EB-generated registration_code
    * @param string $regid Invoice # or Registration Code or UID (main part of invoice #)
    * @param bool $any Default false, if true, does not need to be published
-   * @return object Records id, event_id, and user_id
+   * @return int User ID
    * @throws InvalidArgumentException Record not found
    */
-  public static function getEbRegistrantFromInvoice(string $regid, bool $any = false): object
+  public static function GetUidFromInvoice(string $regid, bool $any = false): int
   {
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
@@ -381,7 +380,7 @@ class Registrant
     $invoiceWhereOr .= 'BINARY `registration_code` = ' . $db->q($regid);
 
     $q = $db->getQuery(true);
-    $q->select(['id', 'event_id', 'user_id'])
+    $q->select('user_id')
       ->from('#__eb_registrants')
       ->where('(' . $invoiceWhereOr . ')');
 
@@ -390,7 +389,7 @@ class Registrant
     }
 
     $db->setQuery($q);
-    $row = $db->loadObject();
+    $row = $db->loadResult();
 
     if (is_null($row)) {
       throw new \InvalidArgumentException('Invalid Registration Code: ' . $regid);
@@ -398,7 +397,7 @@ class Registrant
 
     // Validate user
     $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
-    $user = $userFactory->loadUserById($row->user_id);
+    $user = $userFactory->loadUserById($row);
     if (is_null($user) || $user->id == 0 || $user->block != 0) {
       throw new \Exception('User not valid or not authorized to access this record.');
     }

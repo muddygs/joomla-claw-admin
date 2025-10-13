@@ -15,6 +15,7 @@ defined('_JEXEC') or die;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Ebregistrant;
 use ClawCorpLib\Lib\Registrant;
+use ClawCorpLib\Lib\EventConfig;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
 /**
@@ -22,25 +23,33 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
  */
 class RollcallModel extends BaseDatabaseModel
 {
+  private EventConfig $eventConfig;
+
+  public function __construct()
+  {
+    $this->eventConfig = new EventConfig(Aliases::current(true));
+  }
+
   public function volunteerSearch(string $regid): array
   {
     $customFields = ['BADGE', 'Z_BADGE_ISSUED', 'Z_SHIFT_CHECKIN', 'Z_SHIFT_CHECKOUT'];
-
-    $uid = Registrant::getUserIdFromInvoice($regid);
 
     $result = [
       'valid' => false,
       'message' => 'User Not Found',
       'name' => '',
-      'uid' => $uid,
+      'uid' => 0,
       'shifts' => []
     ];
 
-    if ($uid == 0) {
+    try {
+      $result['uid'] = Registrant::GetUidFromInvoice($regid);
+    } catch (\Exception) {
+      $result['message'] = 'Invalid registration ID.';
       return $result;
     }
 
-    $registrant = new Registrant(Aliases::current(true), $uid);
+    $registrant = new Registrant($this->eventConfig, $result['uid']);
     $registrant->loadCurrentEvents();
     $registrant->mergeFieldValues($customFields);
 
@@ -99,7 +108,7 @@ class RollcallModel extends BaseDatabaseModel
       return false;
     }
 
-    $registrant = new registrant(Aliases::current(true), $record->user_id, [$record->event_id]);
+    $registrant = new Registrant($this->eventConfig, $record->user_id, [$record->event_id]);
     $registrant->loadCurrentEvents();
 
     $records = $registrant->records();
@@ -139,7 +148,7 @@ class RollcallModel extends BaseDatabaseModel
   {
     $registration = new Ebregistrant($eventid, $uid);
 
-    $registrant = new Registrant(Aliases::current(true), $uid);
+    $registrant = new Registrant($this->eventConfig, $uid);
     $registrant->loadCurrentEvents();
 
     /** @var \ClawCorpLib\Lib\RegistrantRecord */

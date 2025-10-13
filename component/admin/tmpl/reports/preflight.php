@@ -156,7 +156,7 @@ foreach ($packageInfos as $packageInfo) {
         $baseInvoice = implode('-', [$invoice[0], $invoice[1]]);
 
         try {
-          $checkin = new Checkin($baseInvoice, false);
+          $checkin = new Checkin($baseInvoice, false, $eventConfig);
         } catch (\Exception $e) {
           $output->errors = '<span class="text-danger">' . $e->getMessage() . '</span>';
           dataRow($output);

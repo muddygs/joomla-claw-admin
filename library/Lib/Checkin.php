@@ -32,23 +32,23 @@ class Checkin
 
   public function __construct(
     public string $registration_code,
-    public bool $errorReporting = true
+    public bool $errorReporting = true,
+    public ?EventConfig $requestedEventConfig = null,
   ) {
     try {
-      $reg = Registrant::getEbRegistrantFromInvoice($this->registration_code);
+      $this->uid = Registrant::GetUidFromInvoice($this->registration_code);
     } catch (\Exception) {
       throw new \InvalidArgumentException('Invalid Registration Code: ' . $this->registration_code);
     }
 
-    $this->uid = $reg->user_id;
     $this->r = null;
 
-    if (self::$eventConfig == null) {
-      $alias = ClawEvents::eventIdtoAlias($reg->event_id);
+    if (!is_null($requestedEventConfig)) {
+      self::$eventConfig = $requestedEventConfig;
+    }
 
-      if ($alias === false) {
-        throw new \InvalidArgumentException('Invalid Registration Code: ' . $this->registration_code);
-      }
+    if (self::$eventConfig == null) {
+      $alias = Aliases::current(true);
 
       self::$eventConfig = new EventConfig($alias, [], true);
     }
@@ -70,34 +70,6 @@ class Checkin
   public function getUid()
   {
     return $this->uid;
-  }
-
-  private function RegistrationCodeToEventConfig(): EventConfig
-  {
-    try {
-      $raw = Registrant::getEbRegistrantFromInvoice($this->registration_code);
-    } catch (\Exception) {
-    }
-    $db = Factory::getContainer()->get('DatabaseDriver');
-
-    $uidCandidate = registrant::invoiceToUid($regid);
-
-    $invoiceWhereOr = '';
-    if (is_numeric($uidCandidate) && $uidCandidate > 0) {
-      $uidCandidate = trim($uidCandidate);
-      $l = $db->q('%-' . str_pad($uidCandidate, 5, '0', STR_PAD_LEFT) . '-%');
-      $invoiceWhereOr .= 'invoice_number LIKE ' . $l . ' OR ';
-    }
-    $invoiceWhereOr .= 'BINARY `registration_code` = ' . $db->q($regid);
-
-    $q = $db->getQuery(true);
-    $q->select('event_id')
-      ->from('#__eb_registrants')
-      ->where('published = ' . EbPublishedState::published->value)
-      ->where('(' . $invoiceWhereOr . ')');
-
-    $db->setQuery($q);
-    $uid = $db->loadResult() ?? 0;
   }
 
   /**

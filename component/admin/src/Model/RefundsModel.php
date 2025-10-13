@@ -84,7 +84,7 @@ class RefundsModel extends FormModel
     $invoice = $json->get('jform[invoice]', '', 'string');
 
     try {
-      $uid = (Registrant::getEbRegistrantFromInvoice($invoice, true))->user_id;
+      $uid = Registrant::GetUidFromInvoice($invoice, true);
     } catch (\Exception) {
       echo 'Not found';
       return;
