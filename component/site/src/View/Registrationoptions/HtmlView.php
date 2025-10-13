@@ -144,7 +144,7 @@ class HtmlView extends BaseHtmlView
     $this->resetSession();
 
 
-    $registrant = new Registrant($this->eventAlias, $this->identity->id);
+    $registrant = new Registrant($this->eventConfig, $this->identity->id);
     $this->mainEvent = $registrant->getMainEvent();
 
     if (!$this->isValidTargetPackage()) {
