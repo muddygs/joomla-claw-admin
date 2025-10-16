@@ -43,6 +43,8 @@ $currentType = null;
 
 /** @var \ClawCorpLib\Lib\Sponsor $sponsorItem */
 foreach ($sponsorsByType as $type => $sponsorItems) {
+  if (!count($sponsorItems)) continue;
+
   /** @var \ClawCorpLib\Enum\SponsorshipType $type */
   $class = match ($type) {
     SponsorshipType::Legacy_Master->value => 'legacymaster',
@@ -51,7 +53,7 @@ foreach ($sponsorsByType as $type => $sponsorItems) {
     default => 'sus'
   };
 
-  $heading = $sponsorItems[0]->type->toString() . ' Sponsor';
+  $heading = $sponsorItems[0]->type->toString();
 
 ?>
   <h1 style="text-align:center;" class="m-3"><?= $heading ?></h1>
