@@ -39,13 +39,14 @@ enum SponsorshipType: int
 
   public static function valuesOrdered(): array
   {
-    $result = [];
-    $result[] = SponsorshipType::Legacy_Master->value;
-    $result[] = SponsorshipType::Master->value;
-    $result[] = SponsorshipType::Legacy_Sustaining->value;
-    $result[] = SponsorshipType::Sustaining->value;
-    $result[] = SponsorshipType::Sponsor->value;
-    $result[] = SponsorshipType::Media->value;
+    $result = [
+      SponsorshipType::Legacy_Master->value,
+      SponsorshipType::Master->value,
+      SponsorshipType::Legacy_Sustaining->value,
+      SponsorshipType::Sustaining->value,
+      SponsorshipType::Sponsor->value,
+      SponsorshipType::Media->value,
+    ];
     return $result;
   }
 
