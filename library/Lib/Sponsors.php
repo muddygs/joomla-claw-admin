@@ -25,6 +25,10 @@ class Sponsors
     $this->getSponsors();
   }
 
+  /**
+   * Returns an array of sponsors
+   * @param bool $published Default: true
+   */
   public static function get(bool $published = true): SponsorArray
   {
     return (new Sponsors($published))->sponsors;
