@@ -10,6 +10,7 @@
 
 namespace ClawCorp\Module\Sponsors\Site\Helper;
 
+use ClawCorpLib\Enums\SponsorshipType;
 use ClawCorpLib\Lib\Sponsors;
 use Joomla\Database\DatabaseAwareInterface;
 use Joomla\Database\DatabaseAwareTrait;
@@ -25,10 +26,12 @@ class SponsorsHelper implements DatabaseAwareInterface
 
   public function loadSponsors(): array
   {
-    $sponsors = (new Sponsors(published: true))->sponsors;
+    $sponsors = Sponsors::get();
 
-    // Bin by type
+    // Bin by type and leave no sponsor category type id empty
     $sponsorsByType = [];
+
+    $sponsorsByType = array_fill_keys(SponsorshipType::valuesOrdered(), []);
 
     /** @var \ClawCorpLib\Lib\Sponsor */
     foreach ($sponsors as $sponsorItem) {
