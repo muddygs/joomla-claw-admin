@@ -101,6 +101,7 @@ class Ebmgmt
     }
 
     $this->db->updateObject('#__eb_events', $this->defaults, 'id');
+    $this->updateRoutingTables();
   }
 
   public function insert(): int
@@ -113,7 +114,11 @@ class Ebmgmt
     $this->db->setQuery($query);
     $row = $this->db->loadResult();
 
-    if ($row != null) return 0;
+    if ($row != null) {
+      $this->defaults->id = $row;
+      $this->updateRoutingTables();
+      return 0;
+    }
 
     // Highly unlikely to happen as it's set in the constructor, but...
     if (!$this->defaults->created_by) {
@@ -143,8 +148,9 @@ class Ebmgmt
       $this->db->insertObject('#__eb_event_categories', $eventCategory, 'id');
     }
 
-    $this->updateMapping();
-    $this->updateEbCategoryRouting();
+    # Make sure eb routing table is updated and
+    # Make sure claw lookup table is updated
+    $this->updateRoutingTables();
 
     return $this->defaults->id;
   }
@@ -163,22 +169,34 @@ class Ebmgmt
     return is_null($this->db->loadResult()) ? false : true;
   }
 
-  private function updateMapping(): void
+  /** 
+   * Event mapping allows for getting the event alias quickly by event id
+   */
+  private function insertEventMapping(): void
   {
     $query = $this->db->getQuery(true);
 
     // Does this entry already exist?
-    $query->select('eventid')
+    $query->select('*')
       ->from('#__claw_eventid_mapping')
       ->where('eventid = :eventid')
       ->bind(':eventid', $this->defaults->id);
     $this->db->setQuery($query);
-    $result = $this->db->loadResult();
+    $result = $this->db->loadObject();
 
-    if ($result != null) return;
+    if ($result != null) {
+      if ($result->alias == $this->eventInfo->alias)
+        return;
 
-    $query = $this->db->getQuery(true);
-    $query
+      // Alias is incorrect, we wipe all information on this event id
+      $query = $this->db->getQuery(true)
+        ->delete('#__claw_eventid_mapping')
+        ->where('eventid = :eventid')
+        ->bind(':eventid', $this->defaults->id);
+    }
+
+
+    $query = $this->db->getQuery(true)
       ->insert($this->db->quoteName('#__claw_eventid_mapping'))
       ->columns($this->db->quoteName(['eventid', 'alias']))
       ->values(implode(',', (array)$this->db->quote([$this->defaults->id, $this->eventInfo->alias])));
@@ -186,14 +204,23 @@ class Ebmgmt
     $this->db->execute();
   }
 
+
+  #region eb_urls
+
   // This code is based on components/com_eventbooking/router.php:478
   // But, I think there's a bug in their code that isn't handling routing of
   // category paths when they don't exist in the database, so let's make sure
   // they exist
-  // TODO: will this also be needed for event-level routing? so far, not needed
-  private function updateEbCategoryRouting(): void
+  private function updateRoutingTables(): void
   {
-    $queryString = "view=category&id={$this->defaults->main_category_id}";
+    $this->insertEbCategoryRouting();
+    $this->insertEbEventRouting();
+    $this->insertEventMapping();
+  }
+
+  private function insertEbCategoryRouting(): void
+  {
+    $queryString = "view=category&layout=table&id={$this->defaults->main_category_id}";
     $categoryPathArray = $this->getEbCategoryPath();
 
     $segments    = array_map('Joomla\CMS\Application\ApplicationHelper::stringURLSafe', $categoryPathArray);
@@ -216,6 +243,35 @@ class Ebmgmt
       $this->db->execute();
     }
   }
+
+  private function insertEbEventRouting(): void
+  {
+    $queryString = "view=event&id=0&catid={$this->defaults->main_category_id}";
+    $categoryPathArray = $this->getEbCategoryPath();
+    $categoryPathArray[] = $this->defaults->id . '-' . $this->defaults->alias;
+    $record_id = $this->defaults->id;
+
+    $segments    = array_map('Joomla\CMS\Application\ApplicationHelper::stringURLSafe', $categoryPathArray);
+    $route       = implode('/', $segments);
+    $key         = md5($route);
+
+    $dbQuery = $this->db->getQuery(true)
+      ->select('id')
+      ->from('#__eb_urls')
+      ->where('md5_key = ' . $this->db->quote($key));
+    $this->db->setQuery($dbQuery);
+    $urlId = (int) $this->db->loadResult();
+
+    if (!$urlId) {
+      $dbQuery->clear()
+        ->insert('#__eb_urls')
+        ->columns($this->db->quoteName(['md5_key', 'query', 'route', 'view', 'record_id']))
+        ->values(implode(',', $this->db->quote([$key, $queryString, $route, 'event', $record_id])));
+      $this->db->setQuery($dbQuery);
+      $this->db->execute();
+    }
+  }
+
 
   // Honestly, this mess came from the gipities...it has been tested as mostly functional
   // I wasn't aware of WITH in the newer MariaDB, so we can learn from an LLM once in a while
@@ -248,6 +304,9 @@ SQL;
     return $results;
   }
 
+  #endregion
+
+
 
   /**
    * Sets a database column value, defaults to quoting value
@@ -260,12 +319,22 @@ SQL;
       throw new \Exception('Unknown column name: ' . $key);
     }
 
-    if (gettype($this->defaults->$key) != gettype($value)) {
+    // Normalize dates to SQL strings
+    if ($value instanceof \Joomla\CMS\Date\Date) {
+      $value = $value->toSql();
+    } elseif ($value instanceof \DateTimeInterface) {
+      // If you might get native DateTime/Immutable too
+      $value = (new \Joomla\CMS\Date\Date($value))->toSql();
+      // or: $value = $value->format('Y-m-d H:i:s');
+    }
+
+    if (gettype($this->defaults->$key) !== gettype($value)) {
       throw new \Exception('Type mismatch setting column name: ' . $key);
     }
 
     $this->defaults->$key = $value;
   }
+
 
   public function addAdditionalCategoryId(int $categoryId)
   {
