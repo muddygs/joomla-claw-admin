@@ -18,7 +18,6 @@ use Joomla\Database\DatabaseDriver;
 use ClawCorpLib\Lib\Ebmgmt;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Enums\EbPublishedState;
-use ClawCorpLib\Helpers\EventBooking;
 use Joomla\CMS\Factory;
 
 \defined('JPATH_PLATFORM') or die;
@@ -68,7 +67,7 @@ class Deploy
 
     /** @var \ClawCorpLib\Grid\GridShift */
     foreach ($this->shifts as $shift) {
-      if (!array_key_exists($shift->category, $shiftCategoryIds)) {
+      if (!in_array($shift->category, $shiftCategoryIds)) {
         throw new \Exception('Invalid category id for ' . $shift->title . '. Did you forget to add to the event info config?');
       }
 
