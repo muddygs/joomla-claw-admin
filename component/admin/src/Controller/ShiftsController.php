@@ -32,10 +32,10 @@ class ShiftsController extends AdminController
 
   public function __construct(
     $config = [],
-    MVCFactoryInterface $factory = null,
+    ?MVCFactoryInterface $factory = null,
     ?CMSApplication $app = null,
     ?Input $input = null,
-    FormFactoryInterface $formFactory = null
+    ?FormFactoryInterface $formFactory = null
   ) {
     parent::__construct($config, $factory, $app, $input, $formFactory);
 
@@ -63,6 +63,7 @@ class ShiftsController extends AdminController
 
     $grid = new Deploy($eventInfo, true); // true sets repair mode
     $grid->createEvents();
+    self::displayLogs($grid->log);
   }
 
   private function displayLogs(&$logs)
