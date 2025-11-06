@@ -13,12 +13,13 @@ namespace ClawCorp\Component\Claw\Administrator\Controller;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Helpers\Deploy;
+use ClawCorpLib\Deploy\DeploySponsorships;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfos;
 use ClawCorpLib\Traits\Controller;
 use Joomla\CMS\MVC\Controller\AdminController;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Form\FormFactoryInterface;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Input\Input;
 
@@ -33,11 +34,12 @@ class SponsorshipsController extends AdminController
 
   public function __construct(
     $config = [],
-    MVCFactoryInterface $factory = null,
+    ?MVCFactoryInterface $factory = null,
     ?CMSApplication $app = null,
     ?Input $input = null,
+    ?FormFactoryInterface $formFactory = null
   ) {
-    parent::__construct($config, $factory, $app, $input);
+    parent::__construct($config, $factory, $app, $input, $formFactory);
 
     $this->controllerSetup();
   }
@@ -58,7 +60,7 @@ class SponsorshipsController extends AdminController
       return false;
     }
 
-    $deploy = new Deploy($event, Deploy::SPONSORSHIPS);
+    $deploy = new DeploySponsorships($event);
     $log = $deploy->deploy();
     echo $log;
   }

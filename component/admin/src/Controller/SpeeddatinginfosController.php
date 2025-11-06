@@ -13,7 +13,7 @@ namespace ClawCorp\Component\Claw\Administrator\Controller;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Helpers\Deploy;
+use ClawCorpLib\Deploy\DeploySpeedDating;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfos;
 use Joomla\CMS\MVC\Controller\AdminController;
@@ -35,10 +35,10 @@ class SpeeddatinginfosController extends AdminController
 
   public function __construct(
     $config = [],
-    MVCFactoryInterface $factory = null,
+    ?MVCFactoryInterface $factory = null,
     ?CMSApplication $app = null,
     ?Input $input = null,
-    FormFactoryInterface $formFactory = null
+    ?FormFactoryInterface $formFactory = null
   ) {
     parent::__construct($config, $factory, $app, $input, $formFactory);
 
@@ -60,7 +60,7 @@ class SpeeddatinginfosController extends AdminController
       return false;
     }
 
-    $deploy = new Deploy($event, Deploy::SPEEDDATING);
+    $deploy = new DeploySpeedDating($event);
     $results = $deploy->deploy();
     echo $results;
   }

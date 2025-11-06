@@ -10,11 +10,10 @@
 
 namespace ClawCorpLib\Lib;
 
-use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\EventTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
-use ClawCorpLib\Iterators\PackageInfoArray;
+use ClawCorpLib\Lib\PackageInfos;
 use Joomla\CMS\Factory;
 use Joomla\Database\Exception\UnsupportedAdapterException;
 use Joomla\Database\Exception\QueryTypeAlreadyDefinedException;
@@ -23,7 +22,7 @@ use RuntimeException;
 class EventConfig
 {
   public EventInfo $eventInfo;
-  public PackageInfoArray $packageInfos;
+  private PackageInfos $packageInfos;
 
   // Cache of config values
   private static array $_titles = [];
@@ -48,11 +47,18 @@ class EventConfig
   public function __construct(
     public string $alias,
     public array $filter = self::DEFAULT_FILTERS,
-    public bool $publishedOnly = false
+    public bool $publishedOnly = false,
+    public bool $useDeployedTable = false,
   ) {
     //var_dump($alias);
     //dd(debug_backtrace());
-    $cacheKey = md5($alias . implode(',', array_map(fn($e) => $e->value, $filter)));
+    $parts = [
+      $alias,
+      implode(',', array_map(fn($e) => $e instanceof PackageInfoTypes ? $e->value : (string)$e, $filter)),
+      (int)$publishedOnly,
+      (int)$useDeployedTable,
+    ];
+    $cacheKey = md5(implode('|', $parts));
 
     if (!isset(self::$_EventInfoCache)) {
       self::$_EventInfoCache = new EventInfos(withUnpublished: !$this->publishedOnly);
@@ -68,8 +74,6 @@ class EventConfig
       throw (new \RuntimeException("Invalid event alias: $this->alias"));
     }
 
-    $this->packageInfos = new PackageInfoArray();
-
     // For refunds, we need access to all active EventConfigs and their PackageInfos
     if ($this->eventInfo->eventType == EventTypes::refunds) {
       $this->filter = [
@@ -77,50 +81,28 @@ class EventConfig
         PackageInfoTypes::daypass,
       ];
 
-      $this->loadPackageInfos(self::$_EventInfoCache->keys());
+      $this->packageInfos = new PackageInfos(self::$_EventInfoCache->keys(), $filter, $publishedOnly, $useDeployedTable);
     } else {
       if (!array_key_exists($cacheKey, self::$_PackageInfosCache)) {
-        $this->loadPackageInfos([$this->eventInfo->alias]);
-        self::$_PackageInfosCache[$cacheKey] = $this->packageInfos;
+        self::$_PackageInfosCache[$cacheKey] = new PackageInfos([$this->eventInfo->alias], $filter, $publishedOnly, $useDeployedTable);
       }
 
       $this->packageInfos = self::$_PackageInfosCache[$cacheKey];
     }
   }
 
-  private function loadPackageInfos(array $aliases = [])
+  /**
+   * To remain compatible with older code, magiks the packageInfo;
+   */
+  public function __get(string $name): mixed
   {
-    /** @var \Joomla\Database\DatabaseDriver */
-    $db = Factory::getContainer()->get('DatabaseDriver');
-    $aliases = implode(',', (array)($db->q($aliases)));
-
-    $query = $db->getQuery(true);
-
-    $query->select('id')
-      ->from('#__claw_packages')
-      ->where('eventAlias IN (' . $aliases . ')');
-
-    if (!empty($this->filter)) {
-      $packageInfoTypesFilter = implode(',', array_map(fn($e) => $e->value, $this->filter));
-      $query->where('packageInfoType IN (' . $packageInfoTypesFilter . ')');
+    if ($name === 'packageInfos') {
+      return $this->packageInfos->packageInfoArray;
     }
-
-    if ($this->publishedOnly) {
-      $query->where('published = ' . EbPublishedState::published->value);
-    }
-
-    $query->order('start ASC')->order('end ASC');
-
-    $db->setQuery($query);
-
-    $rows = $db->loadColumn();
-
-    if (is_null($rows)) return;
-
-    foreach ($rows as $row) {
-      $this->packageInfos[$row] = new PackageInfo($row);
-    }
+    trigger_error('Undefined property: ' . static::class . '::$' . $name, E_USER_NOTICE);
+    return null;
   }
+
 
   /**
    * Returns the PackageInfo for a given event package type; the target event must be a main event
@@ -133,9 +115,12 @@ class EventConfig
     $result = null;
     $found = 0;
     /** @var \ClawCorpLib\Lib\PackageInfo */
-    foreach ($this->packageInfos as $e) {
-      if ($e->eventPackageType == $packageType && ($e->packageInfoType == PackageInfoTypes::main || $e->packageInfoType == PackageInfoTypes::daypass)) {
-        $result = $e;
+    foreach ($this->packageInfos->packageInfoArray as $packageInfo) {
+      if (
+        $packageInfo->eventPackageType == $packageType &&
+        ($packageInfo->packageInfoType == PackageInfoTypes::main || $packageInfo->packageInfoType == PackageInfoTypes::daypass)
+      ) {
+        $result = $packageInfo;
         $found++;
       }
     }
@@ -161,32 +146,15 @@ class EventConfig
     $result = null;
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
-    foreach ($this->packageInfos as $e) {
-      if ($e->eventPackageType == $packageType) {
+    foreach ($this->packageInfos->packageInfoArray as $packageInfo) {
+      if ($packageInfo->eventPackageType == $packageType) {
         if (!is_null($result)) {
+          var_dump(self::$_EventInfoCache);
+          exit;
           throw (new \Exception("More than one package of type {$packageType->name}"));
         }
 
-        $result = $e;
-      }
-    }
-
-    return $result;
-  }
-
-  /**
-   * Returns the PackageInfo object for a given EventPackageTypes enum
-   * @param EventPackageTypes $packageType Event alias in Event Booking
-   * @return PackageInfoArray PackageInfo (or null if not found)
-   */
-  public function getPackageInfos(EventPackageTypes $packageType): PackageInfoArray
-  {
-    $result = new PackageInfoArray();
-
-    /** @var \ClawCorpLib\Lib\PackageInfo */
-    foreach ($this->packageInfos as $packageInfo) {
-      if ($packageInfo->eventPackageType == $packageType) {
-        $result->set($packageInfo->eventId, $packageInfo);
+        $result = $packageInfo;
       }
     }
 
@@ -205,7 +173,7 @@ class EventConfig
     }
 
     $result = [];
-    foreach ($this->packageInfos as $packageInfo) {
+    foreach ($this->packageInfos->packageInfoArray as $packageInfo) {
       /** @var \ClawCorpLib\Lib\PackageInfo $packageInfo */
       if (($packageInfo->packageInfoType == PackageInfoTypes::main || $packageInfo->packageInfoType == PackageInfoTypes::daypass) &&
         $packageInfo->published &&
@@ -247,7 +215,7 @@ class EventConfig
 
     $result = [];
     /** @var \ClawCorpLib\Lib\PackageInfo */
-    foreach ($this->packageInfos as $e) {
+    foreach ($this->packageInfos->packageInfoArray as $e) {
       if (in_array($e->packageInfoType, $packageInfoTypes)) {
         if ($e->eventId) $result[] = $e->eventId;
       }
@@ -281,7 +249,7 @@ class EventConfig
     $found = 0;
 
     /** @var \ClawCorpLib\Lib\PackageInfo */
-    foreach ($this->packageInfos as $packageInfo) {
+    foreach ($this->packageInfos->packageInfoArray as $packageInfo) {
       if (!property_exists($packageInfo, $property)) die(__FILE__ . ': Unknown key requested: ' . $property);
 
       if ($mainOnly && !($packageInfo->packageInfoType == PackageInfoTypes::main || $packageInfo->packageInfoType == PackageInfoTypes::daypass)) continue;
@@ -296,7 +264,7 @@ class EventConfig
     if ($found > 1) {
       var_dump($property);
       var_dump($value);
-      var_dump($this->packageInfos);
+      var_dump($this->packageInfos->packageInfoArray);
       var_dump($result);
       die('Duplicate results found. Did you load multiple events?');
     }

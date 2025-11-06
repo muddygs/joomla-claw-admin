@@ -8,14 +8,13 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace ClawCorpLib\Helpers;
+namespace ClawCorpLib\Deploy;
 
 use ClawCorpLib\Enums\EventPackageTypes;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventSponsorshipTypes;
 use ClawCorpLib\Lib\ClawEvents;
-use ClawCorpLib\Lib\Ebmgmt;
 use ClawCorpLib\Lib\EventConfig;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Lib\PackageInfo;
@@ -91,74 +90,14 @@ class Deploy
     }
   }
 
-  private function Insert(
-    int $mainCategoryId,
-    string $itemAlias,
-    string $title,
-    string $description,
-    int $article_id,
-    ?Date $cancel_before_date,
-    ?Date $cut_off_date,
-    Date $event_date,
-    Date $event_end_date,
-    ?Date $publish_down,
-    float $individual_price,
-    Date $registration_start_date,
-    int $registration_access,
-    string $price_text = '',
-    string $user_email_body = '',
-    string $payment_methods = '2',
-    int $enable_cancel_registration = 1,
-    int $event_capacity = 0,
-    string $notification_emails = '',
-    int $created_by = 0,
+  private function SyncEvent(
+    EbSyncItem $item,
   ): int {
-    $insert = new ebMgmt(
-      eventInfo: $this->eventInfo,
-      mainCategoryId: $mainCategoryId,
-      itemAlias: $itemAlias,
-      title: $title,
-      description: $description
-    );
+    $sync = new EbSync($this->eventInfo, $item);
 
-    $nullDate = $this->db->getNullDate();
+    $result = $sync->upsert($item);
 
-    $insert->set('registration_start_date', $this->useLocalTimeAsUtcSql($registration_start_date, true));
-
-    $insert->set('article_id', $article_id);
-    $insert->set('cancel_before_date', $cancel_before_date ? $this->useLocalTimeAsUtcSql($cancel_before_date) : $nullDate);
-    $insert->set('cut_off_date', $cut_off_date ? $this->useLocalTimeAsUtcSql($cut_off_date) : $nullDate);
-    $insert->set('event_date', $this->useLocalTimeAsUtcSql($event_date));
-    $insert->set('event_end_date', $this->useLocalTimeAsUtcSql($event_end_date));
-    $insert->set('publish_down', $publish_down ? $this->useLocalTimeAsUtcSql($publish_down) : $nullDate);
-
-    $insert->set('individual_price', $individual_price);
-    $insert->set('price_text', $price_text);
-    $insert->set('payment_methods', $payment_methods); // Credit Card
-    $insert->set('registration_access', $registration_access);
-    $insert->set('user_email_body', $user_email_body);
-    $insert->set('user_email_body_offline', $user_email_body);
-    $insert->set('enable_cancel_registration', $enable_cancel_registration);
-    $insert->set('event_capacity', $event_capacity);
-    $insert->set('notification_emails', $notification_emails);
-    if ($created_by > 0) $insert->set('created_by', $created_by);
-
-    $eventId = $insert->insert();
-
-    return $eventId;
-  }
-
-  private function useLocalTimeAsUtcSql(Date $date, bool $topOfHour = false): string
-  {
-    $d = clone $date;
-
-    if ($topOfHour) {
-      $timestamp = $d->getTimestamp();
-      $timestamp -= $timestamp % 3600;
-      $d->setTimezone(new \DateTimeZone($this->eventInfo->timezone))->setTimestamp($timestamp);
-    }
-
-    return $d->toSql(true);
+    return $result->id;
   }
 
   public function SpeedDating(): string
@@ -191,21 +130,24 @@ class Deploy
         $title = $this->eventInfo->prefix . ' ' . $packageInfo->title . ' (' . $role . ')';
         $alias = strtolower(preg_replace('/[^\S]+/', '_', implode('-', [$this->eventInfo->prefix, 'sd', $packageInfo->title, $role])));
 
-        $eventId = $this->Insert(
-          mainCategoryId: $packageInfo->category,
-          itemAlias: $alias,
-          title: $title,
-          description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
-          article_id: $this->eventInfo->termsArticleId,
-          cancel_before_date: $cancel_before_date,
-          cut_off_date: $cutoff,
-          event_date: $start,
-          event_end_date: $end,
-          publish_down: $end,
-          individual_price: 0,
-          registration_start_date: $this->registration_start_date,
-          registration_access: $this->registered_acl,
-          event_capacity: $event_capacity,
+        $eventId = $this->SyncEvent(
+          new EbSyncItem(
+            id: 0,
+            mainCategoryId: $packageInfo->category,
+            itemAlias: $alias,
+            title: $title,
+            description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
+            article_id: $this->eventInfo->termsArticleId,
+            cancel_before_date: $cancel_before_date,
+            cut_off_date: $cutoff,
+            event_date: $start,
+            event_end_date: $end,
+            publish_down: $end,
+            individual_price: 0,
+            registration_start_date: $this->registration_start_date,
+            registration_access: $this->registered_acl,
+            event_capacity: $event_capacity,
+          )
         );
 
         if ($eventId == 0) {
@@ -308,23 +250,26 @@ class Deploy
           )
         );
 
-        $eventId = $this->Insert(
-          article_id: $eventInfo->termsArticleId,
-          cancel_before_date: $cancel_before_date,
-          cut_off_date: $cutoff,
-          description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
-          event_capacity: 1,
-          event_date: $start,
-          event_end_date: $end,
-          individual_price: $packageInfo->fee,
-          itemAlias: $alias,
-          mainCategoryId: $packageInfo->category,
-          notification_emails: is_null($defaultEmail) ? $userEmails[$metaRow->userid] : implode(',', [$defaultEmail, $userEmails[$metaRow->userid]]),
-          publish_down: $end,
-          registration_access: $this->registered_acl,
-          registration_start_date: $this->registration_start_date,
-          title: $eventInfo->prefix . ' ' . $packageInfo->title . '(' . $publicNames[$metaRow->userid] . ')',
-          created_by: $userId, // Set to the therapist uid for reporting access
+        $eventId = $this->SyncEvent(
+          new EbSyncItem(
+            id: 0,
+            article_id: $eventInfo->termsArticleId,
+            cancel_before_date: $cancel_before_date,
+            cut_off_date: $cutoff,
+            description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
+            event_capacity: 1,
+            event_date: $start,
+            event_end_date: $end,
+            individual_price: $packageInfo->fee,
+            itemAlias: $alias,
+            mainCategoryId: $packageInfo->category,
+            notification_emails: is_null($defaultEmail) ? $userEmails[$metaRow->userid] : implode(',', [$defaultEmail, $userEmails[$metaRow->userid]]),
+            publish_down: $end,
+            registration_access: $this->registered_acl,
+            registration_start_date: $this->registration_start_date,
+            title: $eventInfo->prefix . ' ' . $packageInfo->title . '(' . $publicNames[$metaRow->userid] . ')',
+            created_by: $userId, // Set to the therapist uid for reporting access
+          )
         );
 
         if ($eventId == 0) {
@@ -488,22 +433,25 @@ class Deploy
           break;
       }
 
-      $eventId = $this->Insert(
-        mainCategoryId: $packageInfo->category,
-        itemAlias: $packageInfo->alias,
-        title: $this->eventInfo->prefix . ' ' . $packageInfo->title,
-        description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
-        article_id: $this->eventInfo->termsArticleId,
-        cancel_before_date: $cancel_before_date,
-        cut_off_date: $cutoff,
-        event_date: $start,
-        event_end_date: $end,
-        publish_down: $publish_down,
-        individual_price: $packageInfo->fee,
-        price_text: $price_text,
-        registration_start_date: $reg_start_date,
-        registration_access: $accessGroup,
-        enable_cancel_registration: $enable_cancel_registration
+      $eventId = $this->SyncEvent(
+        new EbSyncItem(
+          id: 0,
+          mainCategoryId: $packageInfo->category,
+          itemAlias: $packageInfo->alias,
+          title: $this->eventInfo->prefix . ' ' . $packageInfo->title,
+          description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
+          article_id: $this->eventInfo->termsArticleId,
+          cancel_before_date: $cancel_before_date,
+          cut_off_date: $cutoff,
+          event_date: $start,
+          event_end_date: $end,
+          publish_down: $publish_down,
+          individual_price: $packageInfo->fee,
+          price_text: $price_text,
+          registration_start_date: $reg_start_date,
+          registration_access: $accessGroup,
+          enable_cancel_registration: $enable_cancel_registration
+        )
       );
 
       if ($eventId == 0) {
@@ -635,22 +583,25 @@ class Deploy
           break;
       }
 
-      $eventId = $this->Insert(
-        mainCategoryId: $packageInfo->category,
-        itemAlias: $packageInfo->alias,
-        title: $this->eventInfo->prefix . ' ' . $packageInfo->title,
-        description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
-        article_id: $this->eventInfo->termsArticleId,
-        cancel_before_date: $cancel_before_date,
-        cut_off_date: $cutoff,
-        event_date: $startDate,
-        event_end_date: $end,
-        publish_down: $publish_down,
-        individual_price: $packageInfo->fee,
-        registration_start_date: $this->registration_start_date,
-        registration_access: $this->registered_acl,
-        user_email_body: $user_email_body,
-        payment_methods: '2,5' // Credit Card, Invoice
+      $eventId = $this->SyncEvent(
+        new EbSyncItem(
+          id: 0,
+          mainCategoryId: $packageInfo->category,
+          itemAlias: $packageInfo->alias,
+          title: $this->eventInfo->prefix . ' ' . $packageInfo->title,
+          description: $packageInfo->description ? $packageInfo->description : $packageInfo->title,
+          article_id: $this->eventInfo->termsArticleId,
+          cancel_before_date: $cancel_before_date,
+          cut_off_date: $cutoff,
+          event_date: $startDate,
+          event_end_date: $end,
+          publish_down: $publish_down,
+          individual_price: $packageInfo->fee,
+          registration_start_date: $this->registration_start_date,
+          registration_access: $this->registered_acl,
+          user_email_body: $user_email_body,
+          payment_methods: '2,5' // Credit Card, Invoice
+        )
       );
 
       if ($eventId == 0) {

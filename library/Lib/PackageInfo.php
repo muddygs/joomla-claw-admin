@@ -17,6 +17,7 @@ use ClawCorpLib\Helpers\EventBooking;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Date\Date;
 use Joomla\Database\DatabaseDriver;
+use ClawCorpLib\Traits\PackageDeploy;
 
 /**
  * Wrapper for #__claw_packages row
@@ -26,7 +27,10 @@ use Joomla\Database\DatabaseDriver;
  */
 class PackageInfo
 {
-  const TABLE_NAME = "#__claw_packages";
+  use PackageDeploy;
+
+  const TABLE_NAME = '#__claw_packages';
+  const TABLE_NAME_DEPLOYED = '#__claw_packages_deployed_state';
 
   public EbPublishedState $published = EbPublishedState::published;
   public string $title = '';
@@ -52,13 +56,13 @@ class PackageInfo
   public string $badgeValue = '';
   public bool $couponOnly = false;
   public array|object $meta = []; // JSON
-  public bool $badgeOverride = false;
   public ?Date $mtime = null;
 
   private DatabaseDriver $db;
 
   public function __construct(
-    public int $id
+    public int $id,
+    public bool $deployed = false,
   ) {
     if ($this->id == 0) {
       throw new \Exception("PackageInfo::__construct() called with no package ID");
@@ -106,10 +110,11 @@ class PackageInfo
   private function fromSqlRow()
   {
     $nullDate = $this->db->getNullDate();
+    $tableName = $this->deployed ? self::TABLE_NAME_DEPLOYED : self::TABLE_NAME;
 
     $query = $this->db->getQuery(true);
     $query->select('*')
-      ->from(self::TABLE_NAME)
+      ->from($tableName)
       ->where('id = :id')
       ->bind(':id', $this->id);
     $this->db->setQuery($query);
@@ -154,20 +159,85 @@ class PackageInfo
     }
   }
 
-  public function save(): bool
+  public function md5hash(): string
   {
-    $this->mtime = new Date('now', 'UTC');
+    // Guarantee handling and ordering on meta, since it could be array or object
+    $meta = $this->meta ?? new \stdClass;
+    $metaArr = is_object($meta) ? get_object_vars($meta) : (array)$meta;
+    ksort($metaArr);
+
+    $payload = [
+      'published'        => $this->published->value,
+      'title'            => $this->title,
+      'description'      => $this->description,
+      'eventAlias'       => $this->eventAlias,
+      'eventPackageType' => $this->eventPackageType->value,
+      'packageInfoType'  => $this->packageInfoType->value,
+      'acl_id'           => $this->acl_id,
+      'couponKey'        => $this->couponKey,
+      'couponValue'      => $this->couponValue,
+      'fee'              => $this->fee,
+      'eventId'          => $this->eventId,
+      'category'         => $this->category,
+      'minShifts'        => $this->minShifts,
+      'requiresCoupon'   => $this->requiresCoupon,
+      'couponAccessGroups' => $this->couponAccessGroups,
+      'authNetProfile'   => $this->authNetProfile,
+      'start'            => $this->start?->toSql(),
+      'end'              => $this->end?->toSql(),
+      'isVolunteer'      => $this->isVolunteer,
+      'bundleDiscount'   => $this->bundleDiscount,
+      'badgeValue'       => $this->badgeValue,
+      'couponOnly'       => $this->couponOnly,
+      'meta'             => json_encode($metaArr, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION),
+    ];
+
+    ksort($payload);
+
+    return md5(json_encode(
+      $payload,
+      JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION
+    ));
+  }
+
+  public function save(bool $setMTime = true): bool
+  {
+    if ($this->deployed) {
+      throw new \Exception('Save not permitted on deployed table');
+    }
+
+    if ($setMTime) $this->mtime = new Date('now', 'UTC');
 
     $data = $this->toSqlObject();
     $result = false;
 
-    if ($this->id == 0) {
+    if ($data->id == 0) {
       $result = $this->db->insertObject(self::TABLE_NAME, $data);
       if ($result) $this->id = $this->db->insertid();
     } else {
       $result = $this->db->updateObject(self::TABLE_NAME, $data, 'id');
     }
 
+    if ($result) {
+      $this->SyncToDeployed();
+    }
+
     return $result;
+  }
+
+  public function SyncToDeployed()
+  {
+    $data = $this->toSqlObject();
+    $this->syncToDeployedTable($data, self::TABLE_NAME_DEPLOYED);
+  }
+
+  public function DeleteDeployedPackage(int $packageId)
+  {
+    $query = $this->db->getQuery(true)
+      ->delete(self::TABLE_NAME_DEPLOYED)
+      ->where("id = :id")
+      ->bind(':id', $packageId);
+    $this->db->setQuery($query);
+    $this->db->execute();
   }
 }

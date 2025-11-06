@@ -12,7 +12,7 @@ namespace ClawCorp\Component\Claw\Administrator\Controller;
 
 defined('_JEXEC') or die;
 
-use ClawCorpLib\Helpers\Deploy;
+use ClawCorpLib\Deploy\DeployPackages;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\EventInfos;
 use ClawCorpLib\Traits\Controller;
@@ -33,10 +33,10 @@ class PackageinfosController extends AdminController
 
   public function __construct(
     $config = [],
-    MVCFactoryInterface $factory = null,
+    ?MVCFactoryInterface $factory = null,
     ?CMSApplication $app = null,
     ?Input $input = null,
-    FormFactoryInterface $formFactory = null
+    ?FormFactoryInterface $formFactory = null
   ) {
     parent::__construct($config, $factory, $app, $input, $formFactory);
 
@@ -59,7 +59,7 @@ class PackageinfosController extends AdminController
       return false;
     }
 
-    $deploy = new Deploy($event, Deploy::PACKAGEINFO);
+    $deploy = new DeployPackages($event);
     $log = $deploy->deploy();
     echo $log;
   }

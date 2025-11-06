@@ -38,10 +38,10 @@ class Ebmgmt
     $this->db = Factory::getContainer()->get('DatabaseDriver');
 
     $this->setDefaults();
-    $this->setParameters();
+    $this->initializeParameters();
   }
 
-  private function setParameters()
+  private function initializeParameters()
   {
     $this->set('alias', $this->itemAlias);
     $this->set('description', $this->description);
@@ -84,9 +84,17 @@ class Ebmgmt
       throw (new \Exception("Unable to find EB Event ID: $id"));
     }
 
-    $this->defaults = clone $result;
+    foreach (array_keys((array)$this->defaults) as $key) {
+      $this->defaults->$key = match (gettype($this->defaults->$key)) {
+        'integer' => (int)$result->$key,
+        //'float' => (float)$result->$key,
+        'double' => (float)$result->$key,
+        default => $result->$key
+      };
+    }
+
     $oldOrdering = $this->defaults->ordering;
-    $this->setParameters();
+    $this->initializeParameters();
     $this->defaults->ordering = $oldOrdering;
   }
 
@@ -122,7 +130,6 @@ class Ebmgmt
 
     // Highly unlikely to happen as it's set in the constructor, but...
     if (!$this->defaults->created_by) {
-      var_dump($this->defaults);
       throw new \Exception("Cannot insert with unset ownership");
     }
 
@@ -323,13 +330,11 @@ SQL;
     if ($value instanceof \Joomla\CMS\Date\Date) {
       $value = $value->toSql();
     } elseif ($value instanceof \DateTimeInterface) {
-      // If you might get native DateTime/Immutable too
       $value = (new \Joomla\CMS\Date\Date($value))->toSql();
-      // or: $value = $value->format('Y-m-d H:i:s');
     }
 
     if (gettype($this->defaults->$key) !== gettype($value)) {
-      throw new \Exception('Type mismatch setting column name: ' . $key);
+      throw new \Exception("Type mismatch setting column name ($key as $value): " . gettype($this->defaults->$key) . ' != ' . gettype($value));
     }
 
     $this->defaults->$key = $value;
@@ -411,8 +416,8 @@ SQL;
       'discount_amounts' => '',
       'discount_groups' => '',
       'discount_type' => 1,
-      'discount' => '0.00',
-      'early_bird_discount_amount' => '0.00',
+      'discount' => 0.00,
+      'early_bird_discount_amount' => 0.00,
       'early_bird_discount_date' => '0000-00-00 00:00:00',
       'early_bird_discount_type' => 1,
       'enable_auto_reminder' => null,
