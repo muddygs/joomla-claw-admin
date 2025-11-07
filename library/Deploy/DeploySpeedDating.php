@@ -10,11 +10,15 @@
 
 namespace ClawCorpLib\Deploy;
 
+use ClawCorpLib\EbInterface\EbEventTable;
+use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\PackageInfoTypes;
 use ClawCorpLib\Lib\PackageInfos;
 
 class DeploySpeedDating extends AbstractDeploy
 {
+  private array $metaUnpublishEventIds = [];
+
   protected function loadPackageInfos(): void
   {
     $filter = [
@@ -33,6 +37,53 @@ class DeploySpeedDating extends AbstractDeploy
       false,
       true
     );
+  }
+
+  protected function beforeDeploy(): bool
+  {
+    if (!parent::beforeDeploy()) return false;
+
+    // For all the livePackageInfo changes, need to find delete meta events
+    // meta is an array of objects
+    /** @var \ClawCorpLib\Lib\PackageInfo $packageInfo */
+    foreach ($this->livePackageInfos->packageInfoArray as $packageInfo) {
+      if (isset($this->deployedPackageInfos->packageInfoArray[$packageInfo->id])) {
+        $deployedEventIds = array_column((array)$this->deployedPackageInfos->packageInfoArray[$packageInfo->id]->meta, 'eventId');
+        $liveEventIds = array_column((array)$packageInfo->meta, 'eventId');
+      } else {
+        continue;
+      }
+
+      $deletedEventIds = array_diff($deployedEventIds, $liveEventIds);
+      $deletedEventIds = array_filter($deletedEventIds, fn($v) => (int)$v != 0);
+
+      if (count($deletedEventIds))
+        $this->metaUnpublishEventIds = array_merge($this->metaUnpublishEventIds, $deletedEventIds);
+    }
+
+    // Now, process fully-deleted packages
+    /** @var \ClawCorpLib\Lib\PackageInfo $packageInfo */
+    foreach ($this->deletedPackageInfoArray as $packageInfo) {
+      $deletedEventIds = array_column($packageInfo->meta, 'eventId');
+      if (count($deletedEventIds))
+        $this->metaUnpublishEventIds = array_merge($this->metaUnpublishEventIds, $deletedEventIds);
+    }
+
+    return true;
+  }
+
+  protected function afterDeploy(): bool
+  {
+    if (!parent::afterDeploy()) return false;
+
+    foreach ($this->metaUnpublishEventIds as $eventId) {
+      $eventTable = EbEventTable::load($eventId);
+      $eventTable->published = EbPublishedState::any->value;
+      $eventTable->update();
+      $this->Log("Unpublished EventBooking ID: $eventId");
+    }
+
+    return true;
   }
 
   protected function inDeploy(): bool
@@ -59,9 +110,11 @@ class DeploySpeedDating extends AbstractDeploy
         $eventId = $metaRow->eventId;
 
         if (is_null($this->aliases[$packageInfo->id . $role])) {
-          var_dump($this->aliases);
-          dd([$packageInfo, $metaKey, $metaRow]);
+          $this->Log("Unexpected alias in speeddating (package id $packageInfo->id):", "text-danger");
+          $this->Log(print_r($this->aliases, true));
+          return false;
         }
+
         $packageInfo->alias = $this->aliases[$packageInfo->id . $role];
 
         $start = $packageInfo->start;
@@ -92,6 +145,10 @@ class DeploySpeedDating extends AbstractDeploy
             event_capacity: $event_capacity,
           )
         );
+
+        if ($packageInfo->id == 405) {
+          var_dump([$response, $metaKey]);
+        }
 
         $count += $this->HandleResponseMeta($response, $packageInfo, $metaKey);
       }
