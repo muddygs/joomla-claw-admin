@@ -16,14 +16,16 @@ use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\User\UserFactoryInterface;
+use ClawCorpLib\EbInterface\EbEventTable;
+use ClawCorpLib\EbInterface\EbRouting;
+
 
 \defined('_JEXEC') or die;
 
 class Ebmgmt
 {
   public $ebEventColumns = [];
-  private $defaults;
-  private $additionalCategoryIds = [];
+  private EbEventTable $eventTable;
   /** @var \Joomla\Database\DatabaseDriver */
   private $db;
 
@@ -37,18 +39,20 @@ class Ebmgmt
   ) {
     $this->db = Factory::getContainer()->get('DatabaseDriver');
 
-    $this->setDefaults();
-    $this->initializeParameters();
+    $this->initializeEventTable();
+    $this->populateDefaults();
   }
 
-  private function initializeParameters()
+  private function populateDefaults()
   {
-    $this->set('alias', $this->itemAlias);
-    $this->set('description', $this->description);
-    $this->set('short_description', $this->description);
-    $this->set('main_category_id', $this->mainCategoryId);
-    $this->set('ordering', $this->getOrdering());
-    $this->set('title', $this->title);
+    $oldOrdering = $this->eventTable->ordering;
+
+    $this->eventTable->alias = $this->itemAlias;
+    $this->eventTable->description = $this->description;
+    $this->eventTable->short_description = $this->description;
+    $this->eventTable->main_category_id = $this->mainCategoryId;
+    $this->eventTable->ordering = $this->getOrdering();
+    $this->eventTable->title = $this->title;
 
     if ($this->created_by > 0) {
       $user = Factory::getContainer()->get(UserFactoryInterface::class)->loadUserById($this->created_by);
@@ -69,295 +73,51 @@ class Ebmgmt
       }
     }
 
-    $this->set('created_by', $this->created_by);
+    $this->eventTable->created_by = $this->created_by;
+    if ($oldOrdering) $this->eventTable->ordering = $oldOrdering;
   }
 
   public function load(int $id)
   {
-    $query = $this->db->getQuery(true);
-    $query->select('*')->from('#__eb_events')->where('id = :id')->bind(':id', $id);
-    $this->db->setQuery($query);
+    $this->eventTable = EbEventTable::load($id);
 
-    $result = $this->db->loadObject();
-
-    if (is_null($result)) {
-      throw (new \Exception("Unable to find EB Event ID: $id"));
-    }
-
-    foreach (array_keys((array)$this->defaults) as $key) {
-      $this->defaults->$key = match (gettype($this->defaults->$key)) {
-        'integer' => (int)$result->$key,
-        //'float' => (float)$result->$key,
-        'double' => (float)$result->$key,
-        default => $result->$key
-      };
-    }
-
-    $oldOrdering = $this->defaults->ordering;
-    $this->initializeParameters();
-    $this->defaults->ordering = $oldOrdering;
+    $oldOrdering = $this->eventTable->ordering;
+    $this->populateDefaults();
+    $this->eventTable->ordering = $oldOrdering;
   }
 
   public function update()
   {
-    if ($this->defaults->id == 0) {
-      throw (new \Exception("Cannot update EB Event id 0"));
-    }
-
-    if (!$this->recordExists()) {
-      throw (new \Exception("Cannot update non-existent EB Event record."));
-    }
-
-    $this->db->updateObject('#__eb_events', $this->defaults, 'id');
-    $this->updateRoutingTables();
+    $this->eventTable->update();
+    EbRouting::updateRoutingTables($this->eventTable, $this->eventInfo);
   }
 
   public function insert(): int
   {
-    $query = $this->db->getQuery(true);
-    $query->select('id')
-      ->from('#__eb_events')
-      ->where('alias = :alias')
-      ->bind(':alias', $this->defaults->alias);
-    $this->db->setQuery($query);
-    $row = $this->db->loadResult();
+    $eventId = $this->eventTable->insert();
+    EbRouting::updateRoutingTables($this->eventTable, $this->eventInfo);
 
-    if ($row != null) {
-      $this->defaults->id = $row;
-      $this->updateRoutingTables();
-      return 0;
-    }
-
-    // Highly unlikely to happen as it's set in the constructor, but...
-    if (!$this->defaults->created_by) {
-      throw new \Exception("Cannot insert with unset ownership");
-    }
-
-    $this->db->insertObject('#__eb_events', $this->defaults, 'id');
-
-    $eventCategory = (object)[
-      'id' => 0,
-      'event_id' => $this->defaults->id,
-      'category_id' => $this->defaults->main_category_id,
-      'main_category' => 1
-    ];
-
-    $this->db->insertObject('#__eb_event_categories', $eventCategory, 'id');
-
-    foreach ($this->additionalCategoryIds as $categoryId) {
-      $eventCategory = (object)[
-        'id' => 0,
-        'event_id' => $this->defaults->id,
-        'category_id' => $categoryId,
-        'main_category' => 0
-      ];
-
-      $this->db->insertObject('#__eb_event_categories', $eventCategory, 'id');
-    }
-
-    # Make sure eb routing table is updated and
-    # Make sure claw lookup table is updated
-    $this->updateRoutingTables();
-
-    return $this->defaults->id;
+    return $eventId;
   }
-
-  private function recordExists(): bool
-  {
-    $query = $this->db->getQuery(true);
-
-    // Does this entry already exist?
-    $query->select('id')
-      ->from('#__eb_events')
-      ->where('id = :id')
-      ->bind(':id', $this->defaults->id);
-    $this->db->setQuery($query);
-
-    return is_null($this->db->loadResult()) ? false : true;
-  }
-
-  /** 
-   * Event mapping allows for getting the event alias quickly by event id
-   */
-  private function insertEventMapping(): void
-  {
-    $query = $this->db->getQuery(true);
-
-    // Does this entry already exist?
-    $query->select('*')
-      ->from('#__claw_eventid_mapping')
-      ->where('eventid = :eventid')
-      ->bind(':eventid', $this->defaults->id);
-    $this->db->setQuery($query);
-    $result = $this->db->loadObject();
-
-    if ($result != null) {
-      if ($result->alias == $this->eventInfo->alias)
-        return;
-
-      // Alias is incorrect, we wipe all information on this event id
-      $query = $this->db->getQuery(true)
-        ->delete('#__claw_eventid_mapping')
-        ->where('eventid = :eventid')
-        ->bind(':eventid', $this->defaults->id);
-    }
-
-
-    $query = $this->db->getQuery(true)
-      ->insert($this->db->quoteName('#__claw_eventid_mapping'))
-      ->columns($this->db->quoteName(['eventid', 'alias']))
-      ->values(implode(',', (array)$this->db->quote([$this->defaults->id, $this->eventInfo->alias])));
-    $this->db->setQuery($query);
-    $this->db->execute();
-  }
-
-
-  #region eb_urls
-
-  // This code is based on components/com_eventbooking/router.php:478
-  // But, I think there's a bug in their code that isn't handling routing of
-  // category paths when they don't exist in the database, so let's make sure
-  // they exist
-  private function updateRoutingTables(): void
-  {
-    $this->insertEbCategoryRouting();
-    $this->insertEbEventRouting();
-    $this->insertEventMapping();
-  }
-
-  private function insertEbCategoryRouting(): void
-  {
-    $queryString = "view=category&layout=table&id={$this->defaults->main_category_id}";
-    $categoryPathArray = $this->getEbCategoryPath();
-
-    $segments    = array_map('Joomla\CMS\Application\ApplicationHelper::stringURLSafe', $categoryPathArray);
-    $route       = implode('/', $segments);
-    $key         = md5($route);
-
-    $dbQuery = $this->db->getQuery(true)
-      ->select('id')
-      ->from('#__eb_urls')
-      ->where('md5_key = ' . $this->db->quote($key));
-    $this->db->setQuery($dbQuery);
-    $urlId = (int) $this->db->loadResult();
-
-    if (!$urlId) {
-      $dbQuery->clear()
-        ->insert('#__eb_urls')
-        ->columns($this->db->quoteName(['md5_key', 'query', 'route', 'view', 'record_id']))
-        ->values(implode(',', $this->db->quote([$key, $queryString, $route, 'category', (int) $this->defaults->main_category_id])));
-      $this->db->setQuery($dbQuery);
-      $this->db->execute();
-    }
-  }
-
-  private function insertEbEventRouting(): void
-  {
-    $queryString = "view=event&id=0&catid={$this->defaults->main_category_id}";
-    $categoryPathArray = $this->getEbCategoryPath();
-    $categoryPathArray[] = $this->defaults->id . '-' . $this->defaults->alias;
-    $record_id = $this->defaults->id;
-
-    $segments    = array_map('Joomla\CMS\Application\ApplicationHelper::stringURLSafe', $categoryPathArray);
-    $route       = implode('/', $segments);
-    $key         = md5($route);
-
-    $dbQuery = $this->db->getQuery(true)
-      ->select('id')
-      ->from('#__eb_urls')
-      ->where('md5_key = ' . $this->db->quote($key));
-    $this->db->setQuery($dbQuery);
-    $urlId = (int) $this->db->loadResult();
-
-    if (!$urlId) {
-      $dbQuery->clear()
-        ->insert('#__eb_urls')
-        ->columns($this->db->quoteName(['md5_key', 'query', 'route', 'view', 'record_id']))
-        ->values(implode(',', $this->db->quote([$key, $queryString, $route, 'event', $record_id])));
-      $this->db->setQuery($dbQuery);
-      $this->db->execute();
-    }
-  }
-
-
-  // Honestly, this mess came from the gipities...it has been tested as mostly functional
-  // I wasn't aware of WITH in the newer MariaDB, so we can learn from an LLM once in a while
-  // Nice to be able to find the chain of hierarchy at the db level instead of using
-  // a loop
-  private function getEbCategoryPath()
-  {
-    $sql = <<<SQL
-WITH RECURSIVE ancestor_chain AS (
-  SELECT c.id, c.parent, c.alias, 0 AS depth, CAST(c.id AS CHAR(512)) AS path_guard
-  FROM s1fi8_eb_categories c
-  WHERE c.id = {$this->defaults->main_category_id}
-  UNION ALL
-  SELECT p.id, p.parent, p.alias, ac.depth + 1, CONCAT(ac.path_guard, ',', p.id)
-  FROM s1fi8_eb_categories p
-  JOIN ancestor_chain ac ON p.id = ac.parent
-  WHERE p.id <> ac.id
-    AND FIND_IN_SET(p.id, ac.path_guard) = 0
-    AND ac.depth < 64
-)
-SELECT id, parent, alias, depth
-FROM ancestor_chain
-ORDER BY depth DESC
-SQL;
-
-    $this->db->setQuery($sql);
-
-    $results = $this->db->loadAssocList();
-    $results = array_column($results, 'alias');
-    return $results;
-  }
-
-  #endregion
-
-
 
   /**
-   * Sets a database column value, defaults to quoting value
+   * Sets a database column value, defaults to quoting value (passthrough to EbEventTable)
    * @param string $key Column name
    * @param mixed $value Value to set
    */
   public function set(string $key, mixed $value): void
   {
-    if (!property_exists($this->defaults, $key)) {
-      throw new \Exception('Unknown column name: ' . $key);
-    }
-
-    // Normalize dates to SQL strings
-    if ($value instanceof \Joomla\CMS\Date\Date) {
-      $value = $value->toSql();
-    } elseif ($value instanceof \DateTimeInterface) {
-      $value = (new \Joomla\CMS\Date\Date($value))->toSql();
-    }
-
-    if (gettype($this->defaults->$key) !== gettype($value)) {
-      throw new \Exception("Type mismatch setting column name ($key as $value): " . gettype($this->defaults->$key) . ' != ' . gettype($value));
-    }
-
-    $this->defaults->$key = $value;
-  }
-
-
-  public function addAdditionalCategoryId(int $categoryId)
-  {
-    $this->additionalCategoryIds[] = $categoryId;
+    $this->eventTable->$key = $value;
   }
 
   /**
-   * Gets a database column value
+   * Gets a database column value (passthrough to EbEventTable)
    * @param $key Column name
    * @return mixed Column Value
    */
   public function get(string $key): mixed
   {
-    if (!property_exists($this->defaults, $key)) {
-      die('Unknown column name: ' . $key);
-    }
-
-    return $this->defaults->$key;
+    return $this->eventTable->$key;
   }
 
   private function getOrdering(): int
@@ -372,180 +132,15 @@ SQL;
    * is not met. This is to protect against future updates to the events schema. Call
    * set() to provide values prior to insert().
    */
-  private function setDefaults(): void
+  private function initializeEventTable(): void
   {
-    $this->ebEventColumns = array_keys($this->db->getTableColumns('#__eb_events'));
-
     // Load from global config, defaults to clean Joomla group install
     $componentParams = ComponentHelper::getParams('com_claw');
     // These params are actually ACL ids, not group ids
     $gid_public = $componentParams->get('packaginfo_public_group', 1);
     $gid_registered = $componentParams->get('packaginfo_registered_group', 14);
 
-    $this->defaults = (object)[
-      'access' => $gid_public,
-      'activate_certificate_feature' => 0,
-      'activate_tickets_pdf' => 0,
-      'activate_waiting_list' => 0,
-      'admin_email_body' => '',
-      'alias' => '',
-      'api_login' => '',
-      'article_id' => 0,
-      'attachment' => '',
-      'cancel_before_date' => '0000-00-00 00:00:00',
-      'category_id' => 0,
-      'certificate_bg_height' => 0,
-      'certificate_bg_image' => null,
-      'certificate_bg_left' => 0,
-      'certificate_bg_top' => 0,
-      'certificate_bg_width' => 0,
-      'certificate_layout' => null,
-      'collect_member_information' => '',
-      'created_by' => 0,
-      'created_date' => '0000-00-00 00:00:00',
-      'created_language' => '*',
-      'currency_code' => '',
-      'currency_symbol' => '',
-      'custom_field_ids' => null,
-      'custom_fields' => null,
-      'cut_off_date' => '0000-00-00 00:00:00',
-      'deposit_amount' => '0.00',
-      'deposit_type' => 0,
-      'deposit_until_date' => '0000-00-00 00:00:00',
-      'description' => '',
-      'discount_amounts' => '',
-      'discount_groups' => '',
-      'discount_type' => 1,
-      'discount' => 0.00,
-      'early_bird_discount_amount' => 0.00,
-      'early_bird_discount_date' => '0000-00-00 00:00:00',
-      'early_bird_discount_type' => 1,
-      'enable_auto_reminder' => null,
-      'enable_cancel_registration' => 1,
-      'enable_coupon' => 0,
-      'enable_sms_reminder' => 0,
-      'enable_terms_and_conditions' => 2,
-      'event_capacity' => 0,
-      'event_date' => '0000-00-00 00:00:00',
-      'event_end_date' => '0000-00-00 00:00:00',
-      'event_detail_url' => '',
-      'event_password' => '',
-      'event_type' => 0,
-      'featured' => 0,
-      'first_reminder_frequency' => 'd',
-      'fixed_daylight_saving_time' => 0,
-      'fixed_group_price' => '0.00',
-      'free_event_registration_status' => 1,
-      'from_email' => '',
-      'from_name' => '',
-      'group_member_email_body' => '',
-      'has_multiple_ticket_types' => 0,
-      'hidden' => 0,
-      'hits' => 0,
-      'id' => 0,
-      'image' => '',
-      'image_alt' => '',
-      'individual_price' => 0.00,
-      'invoice_format' => '',
-      'is_additional_date' => 0,
-      'language' => '*',
-      'late_fee_amount' => 0.00,
-      'late_fee_date' => '0000-00-00 00:00:00',
-      'late_fee_type' => 1,
-      'location_id' => 0,
-      'main_category_id' => 0,
-      'max_end_date' => '0000-00-00 00:00:00',
-      'max_group_number' => 0,
-      'members_discount_apply_for' => 0,
-      'meta_description' => '',
-      'meta_keywords' => '',
-      'min_group_number' => 0,
-      'monthdays' => '',
-      'notification_emails' => '',
-      'offline_payment_registration_complete_url' => '',
-      'ordering' => 0,
-      'page_heading' => '',
-      'page_title' => '',
-      'params' => null,
-      'parent_id' => 0,
-      'payment_methods' => '',
-      'paypal_email' => '',
-      'prevent_duplicate_registration' => '',
-      'price_text' => '',
-      'private_booking_count' => 0,
-      'publish_down' => '0000-00-00 00:00:00',
-      'publish_up' => '0000-00-00 00:00:00',
-      'published' => 1,
-      'recurring_end_date' => '0000-00-00 00:00:00',
-      'recurring_frequency' => null,
-      'recurring_occurrencies' => 0,
-      'recurring_type' => null,
-      'registrant_edit_close_date' => '0000-00-00 00:00:00',
-      'registrants_emailed' => 0,
-      'registration_access' => $gid_registered,
-      'registration_approved_email_body' => '',
-      'registration_complete_url' => '',
-      'registration_form_message_group' => '',
-      'registration_form_message' => '',
-      'registration_handle_url' => '',
-      'registration_start_date' => '0000-00-00 00:00:00',
-      'registration_type' => 1,
-      'remind_before_x_days' => null,
-      'reminder_email_body' => '',
-      'reminder_email_subject' => '',
-      'reply_to_email' => '',
-      'second_reminder_email_body' => '',
-      'second_reminder_email_subject' => '',
-      'second_reminder_frequency' => 'd',
-      'send_emails' => -1,
-      'send_first_reminder' => 0,
-      'send_second_reminder' => 0,
-      'send_third_reminder' => 0,
-      'short_description' => '',
-      'tax_rate' => 0.0,
-      'thanks_message_offline' => '',
-      'thanks_message' => '',
-      'third_reminder_email_body' => '',
-      'third_reminder_email_subject' => '',
-      'third_reminder_frequency' => 'd',
-      'thumb' => '',
-      'ticket_bg_height' => 0,
-      'ticket_bg_image' => null,
-      'ticket_bg_left' => 0,
-      'ticket_bg_top' => 0,
-      'ticket_bg_width' => 0,
-      'ticket_layout' => null,
-      'ticket_prefix' => null,
-      'ticket_start_number' => 1,
-      'title' => '',
-      'transaction_key' => '',
-      'user_email_body_offline' => '',
-      'user_email_body' => '',
-      'user_email_subject' => '',
-      'waiting_list_capacity' => 0,
-      'weekdays' => null,
-    ];
-
-    // Check defaults and database columns match keys
-    $defaultKeys = array_keys((array)$this->defaults);
-    sort($defaultKeys);
-    sort($this->ebEventColumns);
-
-    if ($defaultKeys != $this->ebEventColumns) {
-?>
-      <table>
-        <tr>
-          <td style="vertical-align:top;">
-            <pre><?php print_r($defaultKeys) ?></pre>
-          </td>
-          <td style="vertical-align:top;">
-            <pre><?php print_r($this->ebEventColumns) ?></pre>
-          </td>
-        </tr>
-      </table>
-<?php
-      die('Database schema out of sync with default event column values.');
-    }
+    $this->eventTable = new EbEventTable($gid_public, $gid_registered);
   }
 
   public static function rebuildEventIdMapping()
