@@ -14,6 +14,8 @@
 
   <files>
     <folder>Checkin</folder>
+    <folder>Deploy</folder>
+    <folder>EbInterface</folder>
     <folder>Enums</folder>
     <folder>Exporters</folder>
     <folder>External</folder>
