@@ -89,8 +89,6 @@ final class DeployPackages extends AbstractDeploy
         continue;
       }
 
-      $this->Log("inDeploy: $packageInfo->id");
-
       $start = $packageInfo->start;
       $end = $packageInfo->end;
       $cutoff = $endDate;
