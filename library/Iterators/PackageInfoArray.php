@@ -14,13 +14,18 @@ namespace ClawCorpLib\Iterators;
 
 use ClawCorpLib\Lib\PackageInfo;
 
-class PackageInfoArray implements \IteratorAggregate, \ArrayAccess
+class PackageInfoArray implements \IteratorAggregate, \ArrayAccess, \Countable
 {
   private $packageInfos = [];
 
   public function __construct(PackageInfo ...$packageInfo)
   {
     $this->packageInfos = $packageInfo;
+  }
+
+  public function count(): int
+  {
+    return count($this->packageInfos);
   }
 
   public function get(int $index): ?PackageInfo
@@ -64,5 +69,11 @@ class PackageInfoArray implements \IteratorAggregate, \ArrayAccess
   public function getIterator(): \Traversable
   {
     yield from $this->packageInfos;
+  }
+
+  // Custom to mimic array_keys()
+  public function keys(): array
+  {
+    return array_keys($this->packageInfos);
   }
 }
