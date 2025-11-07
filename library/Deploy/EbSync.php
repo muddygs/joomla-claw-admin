@@ -64,13 +64,15 @@ final class EbSync
     }
 
     // Determine if changes exist
+    $forceSync = false;
     if ($this->item->id == 0) {
       $this->item->id = (int) $existing->id;
+      $forceSync = true;
     }
 
     $changes = $this->diff($existing);
 
-    if (empty($changes)) {
+    if (empty($changes) && !$forceSync) {
       return new EbSyncResponse(
         id: $this->item->id,
         action: 'noop'
