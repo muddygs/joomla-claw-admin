@@ -16,12 +16,15 @@ use Joomla\CMS\User\UserHelper;
 
 \defined('_JEXEC') or die;
 
+//
+// TODO: this should get the same treatment as EbEventTable
+//
+
 class Ebregistrant
 {
   public $ebRegistrantsColumns = [];
   private $defaults;
-  /** @var \Joomla\Database\DatabaseDriver */
-  private $db;
+  private \Joomla\Database\DatabaseDriver $db;
 
   function __construct(
     public int $eventId,
