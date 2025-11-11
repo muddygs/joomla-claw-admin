@@ -16,9 +16,13 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\User\UserFactoryInterface;
 use ClawCorpLib\Lib\PackageInfos;
+use ClawCorpLib\EbInterface\EbEventTable;
+use ClawCorpLib\Enums\EbPublishedState;
 
 final class DeploySpa extends AbstractDeploy
 {
+  private array $metaUnpublishEventIds = [];
+
   protected function loadPackageInfos(): void
   {
     $filter = [
@@ -38,6 +42,54 @@ final class DeploySpa extends AbstractDeploy
       true
     );
   }
+
+  protected function beforeDeploy(): bool
+  {
+    if (!parent::beforeDeploy()) return false;
+
+    // For all the livePackageInfo changes, need to find delete meta events
+    // meta is an array of objects
+    /** @var \ClawCorpLib\Lib\PackageInfo $packageInfo */
+    foreach ($this->livePackageInfos->packageInfoArray as $packageInfo) {
+      if (isset($this->deployedPackageInfos->packageInfoArray[$packageInfo->id])) {
+        $deployedEventIds = array_column((array)$this->deployedPackageInfos->packageInfoArray[$packageInfo->id]->meta, 'eventId');
+        $liveEventIds = array_column((array)$packageInfo->meta, 'eventId');
+      } else {
+        continue;
+      }
+
+      $deletedEventIds = array_diff($deployedEventIds, $liveEventIds);
+      $deletedEventIds = array_filter($deletedEventIds, fn($v) => (int)$v != 0);
+
+      if (count($deletedEventIds))
+        $this->metaUnpublishEventIds = array_merge($this->metaUnpublishEventIds, $deletedEventIds);
+    }
+
+    // Now, process fully-deleted packages
+    /** @var \ClawCorpLib\Lib\PackageInfo $packageInfo */
+    foreach ($this->deletedPackageInfoArray as $packageInfo) {
+      $deletedEventIds = array_column($packageInfo->meta, 'eventId');
+      if (count($deletedEventIds))
+        $this->metaUnpublishEventIds = array_merge($this->metaUnpublishEventIds, $deletedEventIds);
+    }
+
+    return true;
+  }
+
+  protected function afterDeploy(): bool
+  {
+    if (!parent::afterDeploy()) return false;
+
+    foreach ($this->metaUnpublishEventIds as $eventId) {
+      $eventTable = EbEventTable::load($eventId);
+      $eventTable->published = EbPublishedState::any->value;
+      $eventTable->update();
+      $this->Log("Unpublished EventBooking ID: $eventId");
+    }
+
+    return true;
+  }
+
 
   protected function inDeploy(): bool
   {
@@ -139,6 +191,7 @@ final class DeploySpa extends AbstractDeploy
             registration_start_date: $this->registration_start_date,
             title: $title,
             created_by: $userId, // Set to the therapist uid for reporting access
+            location_id: $this->eventInfo->ebLocationId,
           )
         );
 
