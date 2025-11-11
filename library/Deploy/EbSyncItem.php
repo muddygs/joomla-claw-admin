@@ -43,6 +43,13 @@ final class EbSyncItem
     public int $event_capacity = 0,
     public string $notification_emails = '',
     public int $created_by = 0,
+    public int $location_id = 0,
+    public string $first_reminder_frequency = 'd',
+    public string $second_reminder_frequency = 'd',
+    public string $third_reminder_frequency = 'd',
+    public int $send_first_reminder = 0,
+    public int $send_second_reminder = 0,
+    public int $send_third_reminder = 0,
   ) {}
 
   /* public static function fromSql(object $obj): self */
@@ -113,6 +120,13 @@ final class EbSyncItem
       'event_capacity' => $this->event_capacity,
       'notification_emails' => $this->notification_emails,
       'created_by' => $this->created_by,
+      'location_id' => $this->location_id,
+      'first_reminder_frequency' => $this->first_reminder_frequency,
+      'second_reminder_frequency' => $this->second_reminder_frequency,
+      'third_reminder_frequency' => $this->third_reminder_frequency,
+      'send_first_reminder' => $this->send_first_reminder,
+      'send_second_reminder' => $this->send_second_reminder,
+      'send_third_reminder' => $this->send_third_reminder,
     ];
   }
 
@@ -141,6 +155,13 @@ final class EbSyncItem
       'event_capacity' => $this->event_capacity,
       'notification_emails' => $this->notification_emails,
       'created_by' => $this->created_by,
+      'location_id' => $this->location_id,
+      'first_reminder_frequency' => $this->first_reminder_frequency,
+      'second_reminder_frequency' => $this->second_reminder_frequency,
+      'third_reminder_frequency' => $this->third_reminder_frequency,
+      'send_first_reminder' => $this->send_first_reminder,
+      'send_second_reminder' => $this->send_second_reminder,
+      'send_third_reminder' => $this->send_third_reminder,
     ];
   }
 
