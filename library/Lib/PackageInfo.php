@@ -30,7 +30,6 @@ class PackageInfo
   use PackageDeploy;
 
   const TABLE_NAME = '#__claw_packages';
-  const TABLE_NAME_DEPLOYED = '#__claw_packages_deployed_state';
 
   public EbPublishedState $published = EbPublishedState::published;
   public string $title = '';
@@ -73,6 +72,11 @@ class PackageInfo
     $this->fromSqlRow();
   }
 
+  protected function getDb(): DatabaseDriver
+  {
+    return $this->db;
+  }
+
   private function toSqlObject()
   {
     $result = new \stdClass();
@@ -110,7 +114,7 @@ class PackageInfo
   private function fromSqlRow()
   {
     $nullDate = $this->db->getNullDate();
-    $tableName = $this->deployed ? self::TABLE_NAME_DEPLOYED : self::TABLE_NAME;
+    $tableName = $this->deployed ? self::getDeployedTableName(self::TABLE_NAME) : self::TABLE_NAME;
 
     $query = $this->db->getQuery(true);
     $query->select('*')
@@ -228,13 +232,13 @@ class PackageInfo
   public function SyncToDeployed()
   {
     $data = $this->toSqlObject();
-    $this->syncToDeployedTable($data, self::TABLE_NAME_DEPLOYED);
+    $this->syncToDeployedTable($data, self::TABLE_NAME);
   }
 
   public function DeleteDeployedPackage(int $packageId)
   {
     $query = $this->db->getQuery(true)
-      ->delete(self::TABLE_NAME_DEPLOYED)
+      ->delete(self::getDeployedTableName(self::TABLE_NAME))
       ->where("id = :id")
       ->bind(':id', $packageId);
     $this->db->setQuery($query);
