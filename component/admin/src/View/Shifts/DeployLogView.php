@@ -31,11 +31,13 @@ class DeployLogView extends BaseHtmlView
     endif;
 
     ?>
-    <table class="table table-bordered">
-      <thead class="table-dark">
-        <?php
-        echo '<th>' . implode('</th> <th>', $headings) . '</th>';
-        ?>
+    <table class="table">
+      <thead>
+        <tr>
+          <?php
+          echo '<th scope="col">' . implode('</th> <th scope="col">', $headings) . '</th>';
+          ?>
+        </tr>
       </thead>
       <tbody>
         <?php
