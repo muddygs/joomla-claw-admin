@@ -10,6 +10,7 @@
 
 namespace ClawCorpLib\Deploy;
 
+use ClawCorpLib\EbInterface\EbEventTable;
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Helpers\Config;
 use ClawCorpLib\Iterators\PackageInfoArray;
@@ -18,8 +19,8 @@ use ClawCorpLib\Lib\PackageInfos;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseDriver;
-use ClawCorpLib\Lib\Ebmgmt;
 use ClawCorpLib\Lib\EventInfo;
+use ClawCorpLib\Helpers\Log;
 
 abstract class AbstractDeploy
 {
@@ -33,7 +34,7 @@ abstract class AbstractDeploy
   protected ?PackageInfos $deployedPackageInfos;
   protected PackageInfoArray $deletedPackageInfoArray;
   protected bool $deployedNotInitialized = false;
-  private array $log = [];
+  private Log $log;
 
   public function __construct(
     public string $eventAlias,
@@ -53,6 +54,7 @@ abstract class AbstractDeploy
     date_default_timezone_set('Etc/UTC');
 
     $this->deletedPackageInfoArray = new PackageInfoArray();
+    $this->log = new Log();
   }
 
   /**
@@ -126,8 +128,7 @@ abstract class AbstractDeploy
 
     /** @var \ClawCorpLib\Lib\PackageInfo $packageInfo */
     foreach ($this->deletedPackageInfoArray as $packageId => $packageInfo) {
-      $this->unpublishEventBooking($packageInfo);
-      $this->Log("Unpublished: $packageId -> {$packageInfo->eventId}");
+      $this->Log(EbEventTable::updatePublishedState($packageInfo->eventId, EbPublishedState::any));
       $this->deployedPackageInfos->packageInfoArray[$packageId]->DeleteDeployedPackage($packageId);
     }
 
@@ -163,7 +164,7 @@ abstract class AbstractDeploy
       throw $e;
     }
 
-    return $this->FormatLog();
+    return $this->log->FormatLog();
   }
 
   protected function SyncEvent(
@@ -238,28 +239,6 @@ abstract class AbstractDeploy
     return $count;
   }
 
-  protected function unpublishEventBooking(PackageInfo $packageInfo)
-  {
-    if ($packageInfo->eventId == 0) return;
-
-    $update = new Ebmgmt(
-      eventInfo: $this->eventInfo,
-      mainCategoryId: $packageInfo->category,
-      itemAlias: $packageInfo->alias,
-      title: $packageInfo->title,
-      description: $packageInfo->description,
-    );
-
-    try {
-      $update->load($packageInfo->eventId);
-      $update->set('published', EbPublishedState::any->value);
-      $update->update();
-      $this->Log("Unpublished event id $packageInfo->eventId");
-    } catch (\Exception) {
-      $this->Log("Failed to unpublished event id $packageInfo->eventId");
-    }
-  }
-
   /**
    * Sets internal variables for public and registered groups 
    * @return void  */
@@ -273,15 +252,8 @@ abstract class AbstractDeploy
     }
   }
 
-  // TODO: format as some sort of table that makes sense, probably collect more than msg
-  public function Log(string $msg, string $class = "")
+  public function Log(string $msg, string $class = '')
   {
-    if ($class) $msg = '<span class="' . $class . '">' . $msg . '</span>';
-    $this->log[] = $msg;
-  }
-
-  public function FormatLog(): string
-  {
-    return '<p>' . implode('</p><p>', $this->log) . '</p>';
+    $this->log->Log($msg, $class);
   }
 }
