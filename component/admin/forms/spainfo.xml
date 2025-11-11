@@ -65,7 +65,7 @@
     type="subform"
     label="Select Personnel:"
     multiple="true"
-    min="1"
+    min="0"
     max="5"
     required="true"
     formsource="/administrator/components/com_claw/forms/spainfo_meta.xml"
