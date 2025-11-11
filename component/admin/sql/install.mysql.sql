@@ -245,15 +245,6 @@ CREATE TABLE IF NOT EXISTS `#__claw_packages` (
     KEY `fb_eventalias_INDEX` (`eventAlias`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
-CREATE TABLE `#__claw_packages_deployed_state` LIKE `#__claw_packages`;
-
-ALTER TABLE `#__claw_packages_deployed_state`
-  ADD COLUMN `is_active`     BOOLEAN NOT NULL DEFAULT true AFTER `mtime`,
-  ADD COLUMN `snapshot_hash` CHAR(64) NOT NULL DEFAULT '' AFTER `is_active`,
-  ADD COLUMN `snapshot_json` JSON NOT NULL DEFAULT (JSON_ARRAY()) AFTER `snapshot_hash`,
-  ADD COLUMN `deployed_at`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP() AFTER `snapshot_json`,
-  ADD COLUMN `deployed_by`   INT NOT NULL DEFAULT 0 AFTER `deployed_at`;
-
 CREATE TABLE IF NOT EXISTS `#__claw_category_mapping` (
     `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `eventId` int(10) UNSIGNED NOT NULL,
