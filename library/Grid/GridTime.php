@@ -19,8 +19,11 @@ use Joomla\Database\DatabaseDriver;
 
 class GridTime
 {
+  use \ClawCorpLib\Traits\PackageDeploy;
+
   private array $keys;
   private DatabaseDriver $db;
+  private string $timesTable;
 
   // Volunteers Needed/EventIds needed by DOW (tue->mon)
   private array $needed = [];
@@ -32,9 +35,11 @@ class GridTime
     public float $length = 0,
     public ?Date $time = null,
     public int $weight = 1,
+    public bool $useDeployedTable = false,
   ) {
     $this->keys = self::getKeys();
     $this->db = Factory::getContainer()->get('DatabaseDriver');
+    $this->timesTable = $this->useDeployedTable ? self::getDeployedTableName(GridShift::SHIFTS_TIMES_TABLE) : GridShift::SHIFTS_TIMES_TABLE;
 
     if ($this->id) {
       self::fromSqlRow();
@@ -46,16 +51,21 @@ class GridTime
 
     # TODO: verify sid is valid
     if ($this->sid < 1) {
-      throw (new \exception('Shift record id must be 1 or greater.'));
+      throw (new \Exception('Shift record id must be 1 or greater.'));
     }
 
     if ($this->length < 0.0) {
-      throw (new \exception('Shift length must be zero or a positive value.'));
+      throw (new \Exception('Shift length must be zero or a positive value.'));
     }
 
     if (fmod($this->length * 4, 1) !== 0.0) {
-      throw (new \exception('Shift length must be in 1/4 hour increments.'));
+      throw (new \Exception('Shift length must be in 1/4 hour increments.'));
     }
+  }
+
+  protected function getDb(): DatabaseDriver
+  {
+    return $this->db;
   }
 
   public static function getKeys()
@@ -89,9 +99,9 @@ class GridTime
 
   private function fromSqlRow()
   {
-    $query = $this->db->getQuery(true);
+    $query = $this->db->createQuery();
     $query->select('*')
-      ->from(GridShift::SHIFTS_TIMES_TABLE)
+      ->from($this->timesTable)
       ->where('id = :id')
       ->bind(':id', $this->id);
     $this->db->setQuery($query);
@@ -169,13 +179,13 @@ class GridTime
     $this->needed = $tmp_needed;
   }
 
-  public function setEventId(string|int $dow, int $need)
+  public function setEventId(string|int $dow, int $eventId)
   {
     if ($dow instanceof int) {
       $dow = Helpers::days[$dow];
     }
 
-    $this->eventIds[$dow] = $need;
+    $this->eventIds[$dow] = $eventId;
   }
 
   public function getEventIds(): array
@@ -207,14 +217,16 @@ class GridTime
     $this->eventIds = $tmp_eventids;
   }
 
-  public static function byEventId(int $eventId): ?GridTime
+  public static function byEventId(int $eventId, bool $useDeployedTable = false): ?GridTime
   {
+    $timesTable = $useDeployedTable ? self::getDeployedTableName(GridShift::SHIFTS_TIMES_TABLE) : GridShift::SHIFTS_TIMES_TABLE;
+
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
-    $query = $db->getQuery(true);
+    $query = $db->createQuery();
 
     $query->select('id')
-      ->from(GridShift::SHIFTS_TIMES_TABLE)
+      ->from($timesTable)
       ->where('JSON_SEARCH(`event_ids`, \'one\', ' . $db->q($eventId) . ') IS NOT NULL');
     $db->setQuery($query);
     $gridTimeId = $db->loadResult();
@@ -226,9 +238,14 @@ class GridTime
     return null;
   }
 
-  public function save(): int
+  public function save(bool $setMtime = true): int
   {
+    if ($this->useDeployedTable)
+      throw new \Exception("save() not permitted when using deployed table");
+
     $data = self::toSqlObject();
+    if ($setMtime) $data->mtime = new Date('now', 'UTC');
+
     if ($this->id) {
       $result = $this->db->updateObject(GridShift::SHIFTS_TIMES_TABLE, $data, 'id');
       if (!$result) {
@@ -242,6 +259,14 @@ class GridTime
       $this->id = $data->id;
     }
 
+    $this->SyncToDeployed();
+
     return $this->id;
+  }
+
+  public function SyncToDeployed()
+  {
+    $data = $this->toSqlObject();
+    $this->syncToDeployedTable($data, GridShift::SHIFTS_TIMES_TABLE);
   }
 }

@@ -13,15 +13,17 @@ namespace ClawCorpLib\Grid;
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Helpers\Helpers;
 use ClawCorpLib\Iterators\GridTimeArray;
-use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseDriver;
+use ClawCorpLib\Traits\PackageDeploy;
 
 \defined('JPATH_PLATFORM') or die;
 
 class GridShift
 {
+  use PackageDeploy;
+
   const SHIFTS_TABLE = '#__claw_shifts';
   const SHIFTS_TIMES_TABLE = '#__claw_shift_times';
 
@@ -40,6 +42,7 @@ class GridShift
 
   public function __construct(
     public int $id = 0,
+    public bool $useDeployedTable = false,
   ) {
     if ($id < 0) {
       throw new \InvalidArgumentException('GridShift ID cannot be negative');
@@ -47,6 +50,11 @@ class GridShift
 
     $this->db = Factory::getContainer()->get('DatabaseDriver');
     if ($this->id) $this->fromSqlRow();
+  }
+
+  protected function getDb(): DatabaseDriver
+  {
+    return $this->db;
   }
 
   private function toSqlObject(): object
@@ -69,9 +77,12 @@ class GridShift
 
   private function fromSqlRow()
   {
-    $query = $this->db->getQuery(true);
+    $shiftsTable = $this->useDeployedTable ? self::getDeployedTableName(self::SHIFTS_TABLE) : self::SHIFTS_TABLE;
+    $timesTable = $this->useDeployedTable ? self::getDeployedTableName(self::SHIFTS_TIMES_TABLE) : self::SHIFTS_TIMES_TABLE;
+
+    $query = $this->db->createQuery();
     $query->select('*')
-      ->from(self::SHIFTS_TABLE)
+      ->from($shiftsTable)
       ->where('id = :id')
       ->bind(':id', $this->id);
     $this->db->setQuery($query);
@@ -80,6 +91,7 @@ class GridShift
       throw new \InvalidArgumentException('Shift ID does not exist');
     }
 
+    $this->event = $result->event;
     $this->title = $result->title;
     $this->description = $result->description;
     $this->category = $result->category;
@@ -89,9 +101,9 @@ class GridShift
     $this->published = EbPublishedState::tryFrom($result->published) ?? EbPublishedState::any;
     $this->mtime = new Date($result->mtime);
 
-    $query = $this->db->getQuery(true);
+    $query = $this->db->createQuery();
     $query->select('id')
-      ->from(self::SHIFTS_TIMES_TABLE)
+      ->from($timesTable)
       ->where('sid = :sid')
       ->bind(':sid', $this->id)
       ->order(['time', 'length', 'weight']);
@@ -105,6 +117,7 @@ class GridShift
       $gridTime = new GridTime(
         id: $id,
         sid: $this->id,
+        useDeployedTable: $this->useDeployedTable,
       );
 
       $this->times[$id] = $gridTime;
@@ -236,8 +249,7 @@ class GridShift
     }
 
     $sid = $formData['id'];
-    $eventInfo = new EventInfo($formData['event']);
-    $gridShift = new GridShift($sid, $eventInfo);
+    $gridShift = new GridShift($sid);
     $currentTimeIds = array_flip($gridShift->times->keys());
 
     $gridTimeArray = new GridTimeArray();
@@ -274,7 +286,7 @@ class GridShift
   {
     #TODO: validate existing events aren't being used
 
-    $query = $this->db->getQuery(true);
+    $query = $this->db->createQuery();
     $query->delete(self::SHIFTS_TIMES_TABLE)
       ->where('id = :id')
       ->bind(':id', $sid);
@@ -283,9 +295,13 @@ class GridShift
     return $this->db->execute();
   }
 
-  public function save(): int
+  public function save(bool $setMtime = true): int
   {
-    $this->mtime = new Date('now', 'UTC');
+    if ($this->useDeployedTable) {
+      throw new \Exception("save() not permitted when deployed table selected");
+    }
+
+    if ($setMtime) $this->mtime = new Date('now', 'UTC');
     $data = $this->toSqlObject();
 
     $this->db->transactionStart();
@@ -304,10 +320,12 @@ class GridShift
         $this->id = $data->id;
       }
 
+      $this->SyncToDeployed();
+
       /** @var \ClawCorpLib\Grid\GridTime */
       foreach ($this->times as $time) {
         $time->sid = $this->id;
-        $time->save();
+        $time->save($setMtime);
       }
     } catch (\Throwable $e) {
       $this->db->transactionRollback();
@@ -317,5 +335,11 @@ class GridShift
     $this->db->transactionCommit();
 
     return $this->id;
+  }
+
+  public function SyncToDeployed()
+  {
+    $data = $this->toSqlObject();
+    $this->syncToDeployedTable($data, self::SHIFTS_TABLE);
   }
 }

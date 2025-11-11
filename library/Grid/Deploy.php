@@ -13,87 +13,197 @@ namespace ClawCorpLib\Grid;
 // This class enforces data format for received form data
 
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Iterators\GridShiftArray;
 use Joomla\Database\DatabaseDriver;
-use ClawCorpLib\Lib\Ebmgmt;
 use ClawCorpLib\Lib\EventInfo;
 use ClawCorpLib\Enums\EbPublishedState;
 use Joomla\CMS\Factory;
+use ClawCorpLib\Deploy\EbSyncItem;
+use ClawCorpLib\Deploy\EbSync;
+use ClawCorpLib\EbInterface\EbEventTable;
+use Joomla\CMS\Date\Date;
+use ClawCorpLib\Helpers\Config;
+use ClawCorpLib\Traits\PackageDeploy;
 
 \defined('JPATH_PLATFORM') or die;
 
 class Deploy
 {
-  private GridShiftArray $shifts;
+  use PackageDeploy;
+
+  private GridShifts $liveShifts;
+  private GridShifts $deployedShifts;
   private DatabaseDriver $db;
 
   private int $baseUnixTime;
   private string $aliasPrefix;
-  private string $cut_off_date;
+  private Date $cut_off_date;
+  private Date $registration_start_date;
   private array $keys;
   private int $location;
-  public array $log = [];
+  private int $registered_acl = 0;
+  private array $log = [];
+
+  private array $unpublishedEventIds = [];
 
   /**
    * Wrapper class for deploying Shifts and their Grids
    *
    * @param EventInfo $EventInfo
-   * @param bool $repair Set to true to repair values in deployed events (@see
-\ClawCorp\Component\Claw\Administrator\Controller\ShiftsController)
    */
   public function __construct(
     private EventInfo $eventInfo,
-    private bool $repair = false
   ) {
     $this->db = Factory::getContainer()->get('DatabaseDriver');
-    $this->shifts = new GridShiftArray();
+    date_default_timezone_set($this->eventInfo->timezone);
+
+    $this->liveShifts = new GridShifts($this->eventInfo);
+
+    $this->ensureDeployedTable(GridShift::SHIFTS_TABLE);
+    $this->deployedShifts = new GridShifts($this->eventInfo, true);
+
     $this->keys = Helpers::days;
     $this->baseUnixTime = $this->eventInfo->start_date->toUnix();
     $this->aliasPrefix = $this->eventInfo->shiftPrefix;
-    $this->cut_off_date = $this->eventInfo->start_date->toSql();
+    $this->cut_off_date = $this->eventInfo->start_date;
     $this->location = $this->eventInfo->ebLocationId;
+    $this->registration_start_date = Factory::getDate('now', $this->eventInfo->timezone);
+    $this->registered_acl = Config::getGlobalConfig('packageinfo_registered_acl', 0);
+  }
+
+  protected function getDb(): DatabaseDriver
+  {
+    return $this->db;
   }
 
   /**
    * Method to execute shift deployment to Event Booking
+   * Outer loop is shifts, inner loop is times
    */
-  public function createEvents()
+  public function createEvents(): array //logs
   {
-    date_default_timezone_set($this->eventInfo->timezone);
+    $this->db->transactionStart();
 
-    self::populateShifts();
+    $liveKeys = $this->liveShifts->shifts->keys();
+    $deployedKeys = $this->deployedShifts->shifts->keys();
+
+    $commonKeys = array_unique(array_merge($liveKeys, $deployedKeys), SORT_NUMERIC);
+    $deletedKeys = array_diff($deployedKeys, $liveKeys);
 
     $shiftCategoryIds = [...$this->eventInfo->eb_cat_shifts, ...$this->eventInfo->eb_cat_supershifts];
 
-    /** @var \ClawCorpLib\Grid\GridShift */
-    foreach ($this->shifts as $shift) {
-      if (!in_array($shift->category, $shiftCategoryIds)) {
-        throw new \Exception('Invalid category id for ' . $shift->title . '. Did you forget to add to the event info config?');
+    try {
+      foreach ($commonKeys as $shiftId) {
+        $liveShift = $this->liveShifts->shifts[$shiftId];
+        $deployedShift = in_array($shiftId, $this->deployedShifts->shifts->keys()) ? $this->deployedShifts->shifts[$shiftId] : null;
+
+        if (!in_array($liveShift->category, $shiftCategoryIds)) {
+          throw new \Exception('Invalid category id for ' . $liveShift->title . '. Did you forget to add to the event info config?');
+        }
+
+        // TODO: add a hashing function to further minimize processing requirements
+
+        // Add to the unpublish list and sync
+        if (
+          !is_null($deployedShift) &&
+          $liveShift->published != EbPublishedState::published &&
+          $deployedShift->published == EbPublishedState::published
+        ) {
+          // Unpublish deployed gridtimes associated with this shift and sync
+          /** @var \ClawCorpLib\Grid\GridTime */
+          foreach ($deployedShift->getTimes() as $deployedTime) {
+            $eventIds = $deployedTime->getEventIds();
+            $this->unpublishedEventIds = array_merge($this->unpublishedEventIds, $eventIds);
+          }
+        }
+
+        $liveShift->save(false);
       }
 
-      if ($shift->published != EbPublishedState::published) continue;
-
       /** @var \ClawCorpLib\Grid\GridTime */
-      foreach ($shift->getTimes() as $gridTime) {
-        $needed = $gridTime->getNeeds();
-        $eventIds = $gridTime->getEventIds();
-
+      foreach ($liveShift->getTimes() as $gridTime) {
         foreach ($this->keys as $key) {
-          if ((!$this->repair && $eventIds[$key] != 0) || $needed[$key] < 1) {
-            continue;
-          }
+          $log = self::upsertEvent($liveShift, $gridTime, $key, $liveShift->published);
+          if (!is_null($log)) $this->log[] = $log;
+        }
+      }
+    } catch (\Exception $e) {
+      $this->log[] = [$e->getMessage(), '', '', '', '', ''];
+      $this->db->transactionRollback();
+      return $this->log;
+    }
 
-          $this->log[] = self::createEvent($shift, $gridTime, $key);
+    $this->db->transactionCommit();
+
+    // Cleanup deleted shifts
+    // TODO: logging here?
+    foreach ($deletedKeys as $id) {
+      $this->DeleteDeployedShift($this->deployedShifts->shifts[$id]);
+    }
+
+    $unpub = array_unique($this->unpublishedEventIds);
+    $unpub = array_filter($unpub, function ($v) {
+      $v != 0;
+    });
+
+    foreach ($unpub as $eventId) {
+      $log = EbEventTable::updatePublishedState($eventId, EbPublishedState::any);
+      $this->log[] = [$log, '', '', '', '', ''];
+    }
+
+    return $this->log;
+  }
+
+  private function SyncEvent(
+    EbSyncItem $item,
+  ): \ClawCorpLib\Deploy\EbSyncResponse {
+    $sync = new EbSync($this->eventInfo, $item);
+    return $sync->upsert($item);
+  }
+
+  private function DeleteDeployedShift(GridShift $shiftToDelete)
+  {
+    $deployedTimes = [];
+
+    /** @var \ClawCorpLib\Grid\GridTime */
+    foreach ($shiftToDelete->getTimes() as $time) {
+      $eventIds = $time->getEventIds();
+      $deployedTimes[] = $time->id;
+
+      foreach ($eventIds as $id) {
+        try {
+          EbEventTable::updatePublishedState($id, EbPublishedState::any);
+        } catch (\Exception) {
+          # ignore unpublish errors
         }
       }
     }
+
+    $query = $this->db->createQuery()
+      ->delete(self::getDeployedTableName(GridShift::SHIFTS_TABLE))
+      ->where("id = :id")
+      ->bind(':id', $shiftId);
+    $this->db->setQuery($query)->execute();
+
+    $table = self::getDeployedTableName(GridShift::SHIFTS_TIMES_TABLE);
+    // make safe
+    $ids = array_map('intval', $deployedTimes);
+    $list = implode(',', $ids);
+    $sql = "DELETE FROM $table WHERE id IN ($list)";
+    $this->db->setQuery($sql)->execute();
   }
 
-  private function createEvent(GridShift $shift, GridTime $gridTime, string $key): array
+  private function upsertEvent(GridShift $shift, GridTime $gridTime, string $key, EbPublishedState $published): ?array
   {
     $title = ucwords($shift->title);
     $need = $gridTime->getNeeds()[$key];
-    $eventid = $gridTime->getEventIds()[$key];
+    $eventId = $gridTime->getEventIds()[$key];
+
+    if ($need == 0 && $eventId == 0) {
+      return null;
+    }
+
+    // No needs? Make sure it's unpublished
+    if ($need == 0) $published = EbPublishedState::any;
 
     $btime = $this->baseUnixTime + (array_search($key, $this->keys) + 1) * 86400; // seconds in a day
     $offset = Helpers::timeToSeconds($gridTime->time->format('H:i'));
@@ -105,10 +215,10 @@ class Deploy
     $stime = $btime + $offset;
     $etime = $stime + $gridTime->length * 60 * 60;
 
-    $s = date('Y-m-d H:i:s', $stime);
+    $s = new Date($stime); // Joomla handles numerics as unixtime
     $stitle = date('D h:iA', $stime);
 
-    $e = date('Y-m-d H:i:s', $etime);
+    $e = new Date($etime);
     $etitle = date('D h:iA', $etime);
 
     $alias = self::createAlias(
@@ -120,82 +230,65 @@ class Deploy
       $key
     );
 
-    $weight = $gridTime->weight > 1 ? " [x{$gridTime->weight}]" : '';
+    $weight = "[x{$gridTime->weight}]";
 
     $title = implode(' ', [$this->eventInfo->prefix, $title . $weight, "($stitle-$etitle)"]);
-    //$stars = self::getWeightPrefix($gridTime->weight);
 
     $description = implode('<br/>', [$shift->description, $shift->requirements]);
 
-    $insert = new Ebmgmt(
-      eventInfo: $this->eventInfo,
-      mainCategoryId: $shift->category,
-      itemAlias: $alias,
-      title: $title,
-      description: $description
+    $response = $this->SyncEvent(
+      new EbSyncItem(
+        eventInfo: $this->eventInfo,
+        id: $eventId,
+        published: $published->value,
+        main_category_id: $shift->category,
+        alias: $alias,
+        title: $title,
+        description: $description,
+        article_id: $this->eventInfo->termsArticleId,
+        cancel_before_date: $s,
+        cut_off_date: $this->cut_off_date,
+        event_date: $s,
+        event_end_date: $e,
+        publish_down: $e,
+        individual_price: 0,
+        registration_start_date: $this->registration_start_date,
+        registration_access: $this->registered_acl,
+        event_capacity: $need,
+        enable_cancel_registration: 0,
+        location_id: $this->location,
+        third_reminder_frequency: 'h', // defaults are 'd'
+        send_first_reminder: 14,
+        send_second_reminder: 7,
+        send_third_reminder: 2,
+      )
     );
 
-    if ($this->repair) {
-      $insert->load($eventid);
-    }
+    if ($response->action == 'noop') {
+      if ($eventId) {
+        $gridTime->setEventId($key, $eventId);
+        $gridTime->save(false);
+      } else {
+        $gridTime->SyncToDeployed(); // normally called at end of save()
+      }
 
-    $insert->set('location_id', $this->location);
-    $insert->set('event_date', $s);
-    $insert->set('event_end_date', $e);
-    $insert->set('event_capacity', $need);
-    $insert->set('cut_off_date', $this->cut_off_date);
-    $insert->set('enable_cancel_registration', 0);
+      if ($published != EbPublishedState::published)
+        $this->unpublishedEventIds[] = $eventId;
 
-    if ($shift->enableNotifications) {
-      $this->configureNotifications($insert, $s);
-    }
-
-    if ($this->repair && $eventid != 0) {
-      $insert->update('id', $eventid);
+      return null;
+    } elseif ($response->action == 'update') {
+      var_dump($response->changes);
+      $gridTime->setEventId($key, $response->id);
+      $gridTime->save();
     } else {
-      $eventid = $insert->insert();
-      $gridTime->setEventId($key, $eventid);
+      $gridTime->setEventId($key, $response->id);
       $gridTime->save();
     }
 
-    return [$eventid, $title, $stitle, $etitle, $need, $gridTime->weight];
-  }
+    if ($published != EbPublishedState::published)
+      $this->unpublishedEventIds[] = $eventId;
 
-  private function configureNotifications(Ebmgmt $insert)
-  {
-    // Timetables for notification
-    //
-    // Two weeks before overall event
-    // One week before overall event
-    // Two hours before shift
-
-    $insert->set("send_first_reminder", 14);
-    $insert->set("first_reminder_frequency", 'd');
-    $insert->set("send_second_reminder", 7);
-    $insert->set("second_reminder_frequency", 'd');
-    $insert->set("send_third_reminder", 2);
-    $insert->set("third_reminder_frequency", 'h');
-  }
-
-  private function populateShifts(): void
-  {
-    $eventAlias = $this->eventInfo->alias;
-
-    $query = $this->db->getQuery(true);
-    $query->select('id')
-      ->from(GridShift::SHIFTS_TABLE)
-      ->where('event = :event')
-      ->where('published = 1')
-      ->bind(':event', $eventAlias)
-      ->order('id');
-    $this->db->setQuery($query);
-
-    $gridIds = $this->db->loadColumn();
-
-    foreach ($gridIds as $gid) {
-      $gridShift = new GridShift($gid);
-      $this->shifts[$gid] = $gridShift;
-    }
+    return [$response->id . " ($response->action)", $title, $stitle, $etitle, $need, $gridTime->weight];
   }
 
   /**
@@ -264,26 +357,5 @@ class Deploy
       'weight' => $weight,
       'key' => $key,
     ];
-  }
-
-  /**
-   * Return an HTML entity of inverse circle number (1-10) to indicate weight
-   * in event title
-   */
-  private function getWeightPrefix(int $weight): string
-  {
-    return match ($weight) {
-      1 => '&#10102;',
-      2 => '&#10103;',
-      3 => '&#10104;',
-      4 => '&#10105;',
-      5 => '&#10106;',
-      6 => '&#10107;',
-      7 => '&#10108;',
-      8 => '&#10109;',
-      9 => '&#10110;',
-      10 => '&#10111;',
-      default => 'X',
-    };
   }
 }
