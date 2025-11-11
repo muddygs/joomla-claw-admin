@@ -4,6 +4,7 @@ namespace ClawCorpLib\EbInterface;
 
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseDriver;
+use ClawCorpLib\Enums\EbPublishedState;
 
 \defined('_JEXEC') or die;
 
@@ -27,7 +28,7 @@ final class EbEventTable implements \IteratorAggregate
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
 
-    $query = $db->getQuery(true);
+    $query = $db->createQuery();
     $query->select('*')->from('#__eb_events')->where('id = :id')->bind(':id', $eventId);
     $db->setQuery($query);
 
@@ -77,12 +78,7 @@ final class EbEventTable implements \IteratorAggregate
     }
   }
 
-  public static function from(array|object $data, int $gidPublic = 0, int $gidRegistered = 0): self
-  {
-    return new self($data, $gidPublic, $gidRegistered);
-  }
-
-  // I want to keep object-like access, like the old code, so magic method...
+  // Keep object-like access, like the old code, so magic method...
   // Arrow-access to fields: $evt->title, $evt->event_date, etc.
   public function __get(string $name): mixed
   {
@@ -111,7 +107,8 @@ final class EbEventTable implements \IteratorAggregate
       $value = (new \Joomla\CMS\Date\Date($value))->toSql();
     }
 
-    if (gettype($this->row->$name) !== gettype($value)) {
+
+    if (gettype($this->row->$name) !== gettype($value) && $name != 'params') {
       throw new \Exception("Type mismatch setting column name ($name as $value): " . gettype($this->row->$name) . ' != ' . gettype($value));
     }
 
@@ -184,7 +181,7 @@ final class EbEventTable implements \IteratorAggregate
 
   public function insert(): int
   {
-    $query = $this->db->getQuery(true);
+    $query = $this->db->createQuery();
     $query->select('id')
       ->from('#__eb_events')
       ->where('alias = :alias')
@@ -229,10 +226,32 @@ final class EbEventTable implements \IteratorAggregate
     return $this->row->id;
   }
 
+  public static function updatePublishedState(int $eventId, EbPublishedState $state): string
+  {
+    if ($eventId == 0) return "Ignoring state change on 0";
+
+    try {
+      $row = EbEventTable::load($eventId);
+    } catch (\Exception) {
+      return "Failed to load event id $eventId to unpublish";
+    }
+
+    $log = "Unpublished event id $eventId";
+    $row->published = $state->value;
+
+    try {
+      $row->update();
+    } catch (\Exception $e) {
+      $log = "Failed to unpublished event id $eventId {$e->getMessage()}";
+    }
+
+    return $log;
+  }
+
 
   private function recordExists(): bool
   {
-    $query = $this->db->getQuery(true);
+    $query = $this->db->createQuery();
 
     // Does this entry already exist?
     $query->select('id')
@@ -285,7 +304,7 @@ final class EbEventTable implements \IteratorAggregate
       'early_bird_discount_amount' => 0.00,
       'early_bird_discount_date' => self::ZERO_DATETIME,
       'early_bird_discount_type' => 1,
-      'enable_auto_reminder' => null,
+      'enable_auto_reminder' => 0,
       'enable_cancel_registration' => 1,
       'enable_coupon' => 0,
       'enable_sms_reminder' => 0,
@@ -355,7 +374,7 @@ final class EbEventTable implements \IteratorAggregate
       'registration_handle_url' => '',
       'registration_start_date' => self::ZERO_DATETIME,
       'registration_type' => 1,
-      'remind_before_x_days' => null,
+      'remind_before_x_days' => 0,
       'reminder_email_body' => '',
       'reminder_email_subject' => '',
       'reply_to_email' => '',
