@@ -10,30 +10,73 @@
 
 namespace ClawCorpLib\Traits;
 
+use Joomla\Database\DatabaseDriver;
+
 trait PackageDeploy
 {
-  function syncToDeployedTable(object $data, string $dstTable, string $key = 'id')
+  abstract protected function getDb(): DatabaseDriver;
+
+  public function syncToDeployedTable(object $data, string $baseTable, string $key = 'id'): void
   {
-    if (!property_exists($data, $key) || !is_int($data->$key) || $data->$key == 0) {
-      throw new \Exception("Cannot sync record without valid $key id");
+    if (!property_exists($data, $key) || !is_int($data->$key) || $data->$key === 0) {
+      throw new \InvalidArgumentException("Cannot sync record without valid $key id");
     }
 
-    $this->db->transactionStart();
+    $db = $this->getDb();
+    $dstTable = $this->ensureDeployedTable($baseTable);
 
+    $db->transactionStart();
     try {
-      // insertObject allows explicit primary key values
-      $this->db->insertObject($dstTable, $data, $key);
-      $this->db->transactionCommit();
+      $db->insertObject($dstTable, $data, $key);
+      $db->transactionCommit();
     } catch (\RuntimeException $e) {
-      // 1062 = duplicate key
-      if ($e->getCode() == 1062) {
-        //$this->db->clearErrors();
-        $this->db->updateObject($dstTable, $data, $key);
-        $this->db->transactionCommit();
+      if ($e->getCode() === 1062) {                 // duplicate key
+        $db->transactionRollback();
+        $db->transactionStart();
+        $db->updateObject($dstTable, $data, $key);
+        $db->transactionCommit();
       } else {
-        $this->db->transactionRollback();
+        $db->transactionRollback();
         throw $e;
       }
     }
+  }
+
+  // Use this for consistency
+  protected static function getDeployedTableName(string $baseTableName): string
+  {
+    return $baseTableName . '_deployed';
+  }
+
+  // baseTable should be like '#__packages'
+  protected function ensureDeployedTable(string $baseTable): string
+  {
+    $db = $this->getDb();
+
+    $dstTable  = $this->getDeployedTableName($baseTable);
+
+    // does the deployed table already exist?
+    // Assuming MariaDB: SHOW TABLES LIKE 'name'
+    $exists = (bool) $db->setQuery(
+      'SHOW TABLES LIKE ' . $db->quote($dstTable)
+    )->loadResult();
+
+    if (!$exists) {
+      try {
+        $sql = sprintf(
+          'CREATE TABLE %s LIKE %s',
+          $db->quoteName($dstTable),
+          $db->quoteName($baseTable)
+        );
+        $db->setQuery($sql)->execute();
+      } catch (\RuntimeException $e) {
+        // Ignore "table exists" -- somehow we succeeded -- otherwise, rethrow
+        if ((int) $e->getCode() !== 1050) {
+          throw $e;
+        }
+      }
+    }
+
+    return $dstTable;
   }
 }
