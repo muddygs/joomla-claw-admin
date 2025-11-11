@@ -188,6 +188,7 @@ final class DeployPackages extends AbstractDeploy
           price_text: $price_text,
           registration_start_date: $reg_start_date,
           registration_access: $accessGroup,
+          location_id: $this->eventInfo->ebLocationId,
           enable_cancel_registration: $enable_cancel_registration
         )
       );

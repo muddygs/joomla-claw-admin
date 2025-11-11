@@ -87,6 +87,7 @@ final class DeployEquipmentRental extends AbstractDeploy
           price_text: $price_text,
           registration_start_date: $this->registration_start_date,
           registration_access: $accessGroup,
+          location_id: $this->eventInfo->ebLocationId,
         )
       );
 

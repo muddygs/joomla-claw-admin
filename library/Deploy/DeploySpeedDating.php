@@ -143,12 +143,9 @@ class DeploySpeedDating extends AbstractDeploy
             registration_start_date: $this->registration_start_date,
             registration_access: $this->registered_acl,
             event_capacity: $event_capacity,
+            location_id: $this->eventInfo->ebLocationId,
           )
         );
-
-        if ($packageInfo->id == 405) {
-          var_dump([$response, $metaKey]);
-        }
 
         $count += $this->HandleResponseMeta($response, $packageInfo, $metaKey);
       }

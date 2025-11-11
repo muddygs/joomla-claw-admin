@@ -137,6 +137,7 @@ final class DeploySponsorships extends AbstractDeploy
           registration_start_date: $this->registration_start_date,
           registration_access: $this->registered_acl,
           user_email_body: $user_email_body,
+          location_id: $this->eventInfo->ebLocationId,
           payment_methods: '2,5' // Credit Card, Invoice
         )
       );
