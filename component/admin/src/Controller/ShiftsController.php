@@ -51,19 +51,8 @@ class ShiftsController extends AdminController
 
     $grid = new Deploy($eventInfo);
     $grid->createEvents();
-    self::displayLogs($grid->log);
-  }
-
-  public function repair()
-  {
-    $filter = $this->app->getInput()->get('filter', '', 'string');
-
-    $eventAlias = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
-    $eventInfo = new EventInfo($eventAlias);
-
-    $grid = new Deploy($eventInfo, true); // true sets repair mode
-    $grid->createEvents();
-    self::displayLogs($grid->log);
+    $logs = $grid->createEvents();
+    self::displayLogs($logs);
   }
 
   private function displayLogs(&$logs)
@@ -75,15 +64,4 @@ class ShiftsController extends AdminController
 
     $view->display();
   }
-
-  // TODO: Implement this method
-  // public function reset()
-  // {
-  // 	$filter = $this->app->getInput()->get('filter', '', 'string');
-
-  // 	$event = array_key_exists('event', $filter) ? $filter['event'] : Aliases::current();
-
-  // 	$grid = new Grids($event);
-  // 	$grid->resetEvents();
-  // }
 }

@@ -143,19 +143,6 @@ class HtmlView extends BaseHtmlView
         ->icon('fas fa-calendar')
         ->buttonClass('btn')
         ->listCheck(false);
-
-      $toolbar->basicButton('repair', 'Repair Events', 'shifts.repair')
-        ->icon('fas fa-tools')
-        ->buttonClass('btn')
-        ->listCheck(false);
-
-      // TODO: This is not implemented, but I might want to in the future
-      // $toolbar->confirmButton('reset','Reset Events','shifts.reset')
-      // ->icon('fas fa-exclamation-triangle')
-      // ->buttonClass('btn')
-      // ->listCheck(false)
-      // ->message('Are you sure you want to reset all events?');
-
     }
 
     ToolbarHelper::divider();
