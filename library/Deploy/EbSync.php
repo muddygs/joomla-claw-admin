@@ -158,7 +158,7 @@ final class EbSync
     foreach (array_keys(get_object_vars($this->item)) as $name) {
       if ($name == 'created_by') continue;
       if (!property_exists($existing, $name)) {
-        throw new \InvalidArgumentException("Mismatch between EbSyncItem and #__eb_events columns");
+        throw new \InvalidArgumentException("Mismatch between EbSyncItem named $name and #__eb_events columns");
       }
 
       $dbValue = $existing->$name;
