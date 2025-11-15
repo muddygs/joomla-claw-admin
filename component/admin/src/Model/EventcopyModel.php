@@ -233,7 +233,8 @@ class EventcopyModel extends FormModel
           $dst->eventInfo->start_date
         );
       } catch (\Exception $e) {
-        return $e->getMessage() . ": PackageInfo@$srcId";
+        $dump = print_r($packageInfo, true);
+        return $e->getMessage() . ": PackageInfo@$srcId<br/>$dump";
       }
 
       try {
@@ -248,8 +249,20 @@ class EventcopyModel extends FormModel
     }
 
     $packageInfo->eventId = 0;
-    $packageInfo->alias = 'Assigned when deployed';
-    $packageInfo->meta = [];
+    $packageInfo->alias = '';
+
+    if ($packageInfo->packageInfoType == PackageInfoTypes::speeddating) {
+      if (is_object($packageInfo->meta)) {
+        foreach (array_keys((array)$packageInfo->meta) as $key) {
+          $packageInfo->meta->$key->eventId = 0;
+        }
+      } else {
+        $packageInfo->meta = [];
+      }
+    } else {
+      $packageInfo->meta = [];
+    }
+
     $packageInfo->save();
 
     return null;
@@ -277,8 +290,12 @@ class EventcopyModel extends FormModel
     return null;
   }
 
-  private function translateDate(Date $srcBase, Date $srcOffset, Date $dstBase): Date
+  private function translateDate(Date $srcBase, ?Date $srcOffset, Date $dstBase): Date
   {
+    if (is_null($srcOffset)) {
+      return clone $srcBase;
+    }
+
     $srcBase   = Factory::getDate($srcBase);
     $srcOffset = Factory::getDate($srcOffset);
     $dstBase   = Factory::getDate($dstBase);
