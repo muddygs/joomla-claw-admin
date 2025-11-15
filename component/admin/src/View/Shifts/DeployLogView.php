@@ -27,10 +27,32 @@ class DeployLogView extends BaseHtmlView
 ?>
       <h2>No events deployed</h2>
     <?php
-      return;
+    else:
+    ?>
+      <h2>Shift Changes</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <?php
+            echo '<th scope="col">' . implode('</th> <th scope="col">', $headings) . '</th>';
+            ?>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          foreach ($this->logs as $row):
+            echo '<tr><td>' . implode('</td><td>', $row) . '</td></tr>';
+          endforeach;
+          ?>
+        </tbody>
+      </table>
+    <?php
     endif;
 
+    $headings = ['Event ID', 'Title', 'State', 'Registrants', 'Recommendation'];
     ?>
+
+    <h2>Orphaned Shift Events</h2>
     <table class="table">
       <thead>
         <tr>
@@ -41,8 +63,14 @@ class DeployLogView extends BaseHtmlView
       </thead>
       <tbody>
         <?php
-        foreach ($this->logs as $row):
-          echo '<tr><td>' . implode('</td><td>', $row) . '</td></tr>';
+        foreach ($this->orphans as $row):
+          $output = [];
+          $output[] = $row->id;
+          $output[] = $row->title;
+          $output[] = $row->published ? '<span class="text-danger">Published</span>' : '<span class="text-warning">Unpublished</span>';
+          $output[] = $row->memberCount;
+          $output[] = $row->memberCount ? '<span class="text-danger">Move registrants to valid shifts</span>' : '<span class="text-warning">Manually delete event</span>';
+          echo '<tr><td>' . implode('</td><td>', $output) . '</td></tr>';
         endforeach;
         ?>
       </tbody>
