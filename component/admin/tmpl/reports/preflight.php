@@ -16,6 +16,7 @@
 
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\PackageInfoTypes;
+use ClawCorpLib\Grid\Deploy;
 use ClawCorpLib\Helpers\EventBooking;
 use ClawCorpLib\Lib\Aliases;
 use ClawCorpLib\Lib\Checkin;
@@ -46,11 +47,7 @@ $db = Factory::getContainer()->get('DatabaseDriver');
 
 // start script timer
 $start = microtime(true);
-
-
-
 // echo "<pre>Stage 1: Mem usage is: ", memory_get_usage(), "\n</pre>";
-
 
 ?>
 <h1 class="text-center"><?= $eventInfo->description ?> Pre-Flight Registration Check</h1>
@@ -68,6 +65,7 @@ foreach ($packageInfos as $packageInfo) {
   $mainEventIds[] = $packageInfo->eventId;
 
   if ($packageInfo->eventId == 0) {
+    echo "Pre-flight Error:";
     dd($packageInfo);
   }
 
@@ -343,6 +341,42 @@ if (count($duplicateCouponKeys) > 0) {
 } else {
   echo "<h2 class=\"text-success\">No duplicate coupon keys found</h2>\n";
 }
+
+// Orphaned shift events
+$shiftDeploy = new Deploy($eventInfo);
+$orphanedEvents = $shiftDeploy->FindOrphanedShiftEvents();
+
+?>
+<h1>Orphaned Volunteer Shifts</h1>
+<?php if (count($orphanedEvents)): ?>
+  <table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+      <tr>
+        <td>Event ID</td>
+        <td>Title</td>
+        <td>State</td>
+        <td>Recommendation</td>
+      </tr>
+    </thead>
+    <tbody>
+      <?php
+
+      foreach ($orphanedEvents as $row) {
+        $output = [];
+        $output[] = $row->id;
+        $output[] = $row->title;
+        $output[] = $row->published ? '<span class="text-danger">Published</span>' : '<span class="text-warning">Unpublished</span>';
+        $output[] = $row->memberCount ? '<span class="text-danger">Move registrants to valid shifts</span>' : '<span class="text-warning">Manually delete event</span>';
+
+        dataRow($output);
+      }
+      ?>
+    </tbody>
+  </table>
+<?php else: ?>
+  <h2 class="text-success">None found</h2>
+<?php endif;
+
 
 // script run time
 $end = microtime(true);
