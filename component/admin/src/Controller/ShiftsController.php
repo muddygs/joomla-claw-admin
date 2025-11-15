@@ -52,15 +52,17 @@ class ShiftsController extends AdminController
     $grid = new Deploy($eventInfo);
     $grid->createEvents();
     $logs = $grid->createEvents();
-    self::displayLogs($logs);
+    $orphans = $grid->FindOrphanedShiftEvents();
+    self::displayLogs($logs, $orphans);
   }
 
-  private function displayLogs(&$logs)
+  private function displayLogs(&$logs, &$orphans)
   {
     /** @var \ClawCorp\Component\Claw\Administrator\View\Shifts\DeployLog */
     $view = $this->getView('Shifts', 'DeployLog');
     $view->setModel($this->model, true);
     $view->logs = $logs;
+    $view->orphans = $orphans;
 
     $view->display();
   }
