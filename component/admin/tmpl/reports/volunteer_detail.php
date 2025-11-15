@@ -66,8 +66,9 @@ foreach ($this->items['shifts'] as $this->sid => $shift) {
       // Skip empty shifts and other meta data
       if (is_null($this->shift_info) || !in_array($day, $days)) continue;
 
+      $unpublishedClass = $this->shift_info->published ? '' : 'text-danger';
   ?>
-      <h1><?= $this->shift_info->title ?></h1>
+      <h1 class="<?= $unpublishedClass ?>"><?= $this->shift_info->title ?> (<?= $k ?> / <?= $this->shift_info->id ?>) </h1>
       <h2><?= $this->items['coordinators'][$this->sid]['name'] ?> (<?= $this->items['coordinators'][$this->sid]['email'] ?>)</h2>
 <?php
       echo $this->loadTemplate('registrants');
