@@ -52,49 +52,6 @@ final class EbSyncItem
     public int $send_third_reminder = 0,
   ) {}
 
-  /* public static function fromSql(object $obj): self */
-  /* { */
-  /*   $db = Factory::getContainer()->get('DatabaseDriver'); */
-  /*   $nullDate = $db->getNullDate(); */
-  /**/
-  /*   $get = static function (object $o, string $prop): mixed { */
-  /*     if (!property_exists($o, $prop)) { */
-  /*       throw new \Exception("Property/column mismatch for $prop"); */
-  /*     } */
-  /*     return $o->{$prop}; */
-  /*   }; */
-  /**/
-  /*   $asDt = static function (mixed $v): ?Date { */
-  /*     if ($v === null) return null; */
-  /*     if (is_string($v)) return $v == '0000-00-00 00:00:00' ? null : new Date($v); */
-  /*     throw new \InvalidArgumentException('Invalid date value; expected Date|string|null'); */
-  /*   }; */
-  /**/
-  /*   return new self( */
-  /*     id: (int) $get($obj, 'id'), */
-  /*     main_category_id: (int) $get($obj, 'main_category_id'), */
-  /*     alias: (string) $get($obj, 'alias'), */
-  /*     title: (string) $get($obj, 'title'), */
-  /*     description: (string) $get($obj, 'description'), */
-  /*     article_id: (int) $get($obj, 'article_id'), */
-  /*     cancel_before_date: $asDt($get($obj, 'cancel_before_date')), */
-  /*     cut_off_date: $asDt($get($obj, 'cut_off_date')), */
-  /*     event_date: $asDt($get($obj, 'event_date')) ?? throw new \InvalidArgumentException('event_date is required'), */
-  /*     event_end_date: $asDt($get($obj, 'event_end_date')) ?? throw new \InvalidArgumentException('event_end_date is required'), */
-  /*     publish_down: $asDt($get($obj, 'publish_down'), $nullDate), */
-  /*     individual_price: (float) $get($obj, 'individual_price'), */
-  /*     registration_start_date: $asDt($get($obj, 'registration_start_date')) ?? throw new \InvalidArgumentException('registration_start_date is required'), */
-  /*     registration_access: (int) $get($obj, 'registration_access'), */
-  /*     price_text: (string) $get($obj, 'price_text'), */
-  /*     user_email_body: (string) $get($obj, 'user_email_body'), */
-  /*     payment_methods: (string) $get($obj, 'payment_methods'), */
-  /*     enable_cancel_registration: (int) $get($obj, 'enable_cancel_registration'), */
-  /*     event_capacity: (int) $get($obj, 'event_capacity'), */
-  /*     notification_emails: (string) $get($obj, 'notification_emails'), */
-  /*     created_by: (int) $get($obj, 'created_by'), */
-  /*   ); */
-  /* } */
-  /**/
   public function toObject(): object
   {
     return (object) [
@@ -146,7 +103,7 @@ final class EbSyncItem
       'event_end_date' => $this->dateRequired($this->event_end_date),
       'publish_down' => $this->dateOrNull($this->publish_down),
       'individual_price' => $this->individual_price,
-      'registration_start_date' => $this->dateRequired($this->registration_start_date, true),
+      'registration_start_date' => $this->dateRequired($this->registration_start_date),
       'registration_access' => $this->registration_access,
       'price_text' => $this->price_text,
       'user_email_body' => $this->user_email_body,
@@ -198,7 +155,6 @@ final class EbSyncItem
     if ($startOfDay) {
       // Snap to 00:00:00 in the event’s timezone, DST-safe.
       $local = new Date($date->format('Y-m-d 00:00:00'), $tz);
-      //var_dump([$startOfDay, $local->toSql()]);
       return $local->toSql();
     }
 
@@ -206,7 +162,6 @@ final class EbSyncItem
     $local = new Date($date->format('Y-m-d H:i:s'), $tz);
 
     // toSql(true) emits UTC
-    //var_dump([$startOfDay, $local->toSql()]);
     return $local->toSql(true);
   }
 
