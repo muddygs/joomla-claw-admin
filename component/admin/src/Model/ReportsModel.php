@@ -239,25 +239,24 @@ class ReportsModel extends BaseDatabaseModel
 
     if (sizeof($shiftCategoryIds) == 0) return [];
 
-    $e = implode(',', $shiftCategoryIds);
     $aliasPrefix = $this->eventConfig->eventInfo->shiftPrefix;
 
     $option = [];
 
-    $query = $db->getQuery(true);
-    $query->select($db->qn([
-      'id',
-      'title',
-      'alias',
-      'event_capacity',
-      'event_date',
-      'event_end_date',
-      'main_category_id',
-      'published'
-    ]))
+    $query = $db->createQuery()
+      ->select($db->qn([
+        'id',
+        'title',
+        'alias',
+        'event_capacity',
+        'event_date',
+        'event_end_date',
+        'main_category_id',
+        'published'
+      ]))
       ->select('( SELECT count(*) FROM #__eb_registrants r WHERE r.event_id = e.id AND r.published = 1 ) AS memberCount')
       ->from($db->qn('#__eb_events', 'e'))
-      ->where($db->qn('main_category_id') . ' IN (' . $e . ')')
+      ->whereIn($db->qn('main_category_id'), $shiftCategoryIds)
       ->where($db->qn('alias') . " LIKE '{$aliasPrefix}%'")
       ->order($db->qn('title'));
 
@@ -285,10 +284,11 @@ class ReportsModel extends BaseDatabaseModel
 
   private function findListCustomField(int $categoryId): ?object
   {
+    /** @var \Joomla\Database\DatabaseDriver */
     $db = $this->getDatabase();
 
-    $query = $db->getQuery(true);
-    $query->select(['f.id', 'f.name'])
+    $query = $db->createQuery()
+      ->select(['f.id', 'f.name'])
       ->from($db->quoteName('#__eb_fields', 'f'))
       ->join('INNER', $db->quoteName('#__eb_field_categories', 'fc'), 'fc.category_id = ' . $db->quote($categoryId))
       ->where('f.id = fc.field_id')
