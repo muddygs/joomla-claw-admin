@@ -24,11 +24,17 @@ return new class() implements InstallerScriptInterface {
     $manifest   = $adapter->getManifest();
     $newVersion = (string) ($manifest->version ?? '');
 
-    // On update/uninstall, this is the existing row in #__extensions
-    $oldVersion = null;
+    if ($adapter->extension) {
+      // $adapter->extension is a Table\Extension row (#__extensions)
+      $manifestCacheJson = $adapter->extension->manifest_cache ?? '';
 
-    if ($adapter->currentExtensionId && $adapter->extension) {
-      $oldVersion = (string) $adapter->extension->version;
+      if ($manifestCacheJson !== '') {
+        $manifestCache = json_decode($manifestCacheJson, true);
+
+        if (is_array($manifestCache) && isset($manifestCache['version'])) {
+          $oldVersion = (string) $manifestCache['version'];
+        }
+      }
     }
 
     echo "Update from $oldVersion to $newVersion";
