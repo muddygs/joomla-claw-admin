@@ -143,14 +143,20 @@ class Ebmgmt
     $this->eventTable = new EbEventTable($gid_public, $gid_registered);
   }
 
+  /**
+   * Iterates through all rows in #__eb_events and determines the claw event alias
+   * based on the start/end dates. These are then cached in #__claw_eventid_mapping
+   */
   public static function rebuildEventIdMapping()
   {
     /** @var \Joomla\Database\DatabaseDriver */
     $db = Factory::getContainer()->get('DatabaseDriver');
+    $nullDate = $db->getNullDate();
 
     $aliases = EventConfig::getActiveEventAliases();
     $dates = [];
 
+    // Collect aliases against prepared dates
     foreach ($aliases as $alias) {
       $info = new EventInfo($alias);
 
@@ -165,9 +171,9 @@ class Ebmgmt
     // Load all event rows
     $query = $db->getQuery(true);
     $query->select(['id', 'event_date', 'event_end_date'])
-      ->from('#__eb_events')
-      ->where('published = 1')
-      ->order('id');
+      ->from($db->qn('#__eb_events'))
+      ->where($db->qn('event_date') . ' != ' . $db->q($nullDate))
+      ->order($db->qn('id'));
     $db->setQuery($query);
     $ebEvents = $db->loadObjectList('id');
 
@@ -176,28 +182,41 @@ class Ebmgmt
 
       $db->truncateTable('#__claw_eventid_mapping');
 
-      foreach ($ebEvents as $e) {
-        if ($e->event_date == '0000-00-00 00:00:00') continue;
+      // Build a single INSERT with multiple VALUES rows
+      $insert = $db->getQuery(true)
+        ->insert($db->quoteName('#__claw_eventid_mapping'))
+        ->columns($db->quoteName(['eventid', 'alias']));
+
+      $hasValues = false;
+
+      foreach ($ebEvents as $event) {
+        $matchedAlias = null;
 
         foreach ($dates as $alias => $date) {
-          if ($e->event_date >= $date->start && $e->event_date <= $date->end) {
-            $query = $db->getQuery(true);
-            $query
-              ->insert($db->quoteName('#__claw_eventid_mapping'))
-              ->columns($db->quoteName(['eventid', 'alias']))
-              ->values(implode(',', (array)$db->quote([$e->id, $alias])));
-            $db->setQuery($query);
-            $db->execute();
-
+          if ($event->event_date >= $date->start && $event->event_date <= $date->end) {
+            $matchedAlias = $alias;
             break;
           }
         }
+
+        if ($matchedAlias === null) {
+          continue;
+        }
+
+        // Queue VALUES for later insert
+        $insert->values(implode(',', $db->quote([$event->id, $matchedAlias])));
+        $hasValues = true;
+      }
+
+      if ($hasValues) {
+        $db->setQuery($insert);
+        $db->execute();
       }
 
       $db->transactionCommit();
-    } catch (\Exception $e) {
+    } catch (\Exception $ex) {
       $db->transactionRollback();
-      throw $e;
+      throw $ex;
     }
   }
 }
