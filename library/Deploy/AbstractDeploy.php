@@ -191,7 +191,6 @@ abstract class AbstractDeploy
     $count = 0;
 
     if ($response->action == 'noop') {
-      $this->Log("No changes: $packageInfo->title");
       if ($packageInfo->eventId) {
         $packageInfo->save(false);
       } else {
@@ -218,7 +217,6 @@ abstract class AbstractDeploy
     $count = 0;
 
     if ($response->action == 'noop') {
-      $this->Log("No changes: $packageInfo->title");
       if ($packageInfo->eventId) {
         $packageInfo->save(false);
       } else {
