@@ -231,7 +231,7 @@ final class DeployPackages extends AbstractDeploy
     }
   }
 
-  public function VolunteerDiscountBundles(): string
+  public function VolunteerDiscountBundles()
   {
     $count = 0;
 
@@ -281,7 +281,6 @@ final class DeployPackages extends AbstractDeploy
     }
 
     $this->Log("Updated $count discount bundles.");
-    return $this->FormatLog();
   }
 
   /**
