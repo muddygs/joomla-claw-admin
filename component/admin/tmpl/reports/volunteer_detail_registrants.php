@@ -14,7 +14,7 @@ use ClawCorpLib\Lib\Registrants;
 
 $registrants = Registrants::byEventId($this->shift_info->id);
 
-foreach ( $registrants AS $r ) {
+foreach ($registrants as $r) {
   $r->mergeFieldValues(['Z_SHIFT_CHECKIN', 'Z_SHIFT_CHECKOUT']);
 }
 
