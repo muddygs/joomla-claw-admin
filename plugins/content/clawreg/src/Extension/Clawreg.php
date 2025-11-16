@@ -33,11 +33,11 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
       return;
     }
 
-    [$context, $article, $params, $page] = array_values($event->getArguments());
+    list($context, $article, $params, $page) = array_values($event->getArguments());
     #if ($context !== "com_content.article") return;
 
     // no plugin marker in article, we're done
-    if (!str_contains($article->text, "{clawreg")) return;
+    if (!str_contains($article->text, "{clawreg ")) return;
 
     // $matches[0] is full pattern match, $matches[1] is the position
     $regex         = "/{clawreg\s+([\w\s,\"\#\(\)]+)}/i";
@@ -78,6 +78,8 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
     if (count($params) < 3) return $this->errorButton('- Missing parameters');
     $params = array_map('trim', $params);
 
+    // {clawreg <location>,<packageType|packageId>,<display text>[,<display option>]}
+
     // 0 - Meta-Location
     // TODO: update when database table is ready
 
@@ -86,63 +88,98 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
       return $this->errorButton('- Bad location');
     }
 
-    $packageType = $this->parsePackageType($params[1]);
-    $buttonText = $params[2];
-    $displayOption = sizeof($params) > 3 ? $this->parseDisplayOption($params[3]) : '';
+    // 1 - packageType or packageId
+    $packageId = intval($params[1]);
+    $packageType = null;
+    if (!$packageId) {
+      $packageType = $this->parsePackageType($params[1]);
+    }
 
-    // 2 - either missing or "any" only
-    if (null === $packageType || null === $displayOption) {
+    if (null === $packageType && 0 == $packageId) {
       return $this->errorButton('- bad display option');
     }
 
+    // 2
+    $buttonText = $params[2];
+
+    // 3 - either missing or "any" only - ignored if using direct packageId
+    $displayOption = sizeof($params) > 3 ? $this->parseDisplayOption($params[3]) : '';
+
     // Seems valid, let's try to find an active event for it
-    $eventAlias = Aliases::currentByLocation($metaLocation);
-    $eventConfig = new EventConfig(alias: $eventAlias, filter: [], publishedOnly: true);
+    try {
+      $eventAlias = Aliases::currentByLocation($metaLocation);
+      $eventConfig = new EventConfig(alias: $eventAlias, filter: [], publishedOnly: true);
+    } catch (\Exception) {
+      return $this->errorButton('- Unknown event alias or config');
+    }
 
     if (gettype($packageType) == 'object') {
-      if (in_array($packageType, [
-        EventPackageTypes::pass,
-        EventPackageTypes::day_pass_fri,
-        EventPackageTypes::day_pass_sat,
-        EventPackageTypes::day_pass_sun,
-        EventPackageTypes::pass_other
-      ])) {
-        return $this->passes($eventConfig, $packageType, $displayOption, $buttonText);
-      }
-
-      $packageInfo = $eventConfig->getPackageInfo($packageType);
-
-      if (is_null($packageInfo)) {
-        return $this->errorButton('- unknown package type');
-      }
-
-      if ($packageInfo->published != EbPublishedState::published || !$packageInfo->eventId) {
-        return $this->errorButton("- not published ($packageInfo->title:$packageInfo->eventAlias:$packageInfo->eventId)");
-      }
-
-      $buttonText = $this->parseButtonText($packageInfo, $buttonText);
-
-      if ($packageType == EventPackageTypes::vendormart) {
-        $link = EventBooking::buildDirectLink($packageInfo->eventId);
-      } else {
-        $link = EventBooking::buildRegistrationLink($eventAlias, $packageType);
-      }
-
-      $link = '<a href="' . $link . '" role="button" class="btn btn-lg btn-large btn-danger">' . $buttonText . '</a>';
-      $row = EventBooking::loadEventRow($packageInfo->eventId);
-      $endDate = new Date($row->event_end_date);
+      return $this->DisplayViaPackageInfo($eventConfig, $packageType, $displayOption, $buttonText);
     }
 
     // Direct link to specific event id
-    if (gettype($packageType) == 'int') {
-      $row = EventBooking::loadEventRow($packageType);
-
-      if (is_null($row) || $row->published != EbPublishedState::published->value) {
-        return $this->errorButton('- null/unpublished package');
-      }
-
-      $endDate = new Date($row->event_end_date);
+    if ($packageId) {
+      return $this->DisplayViaPackageId($eventConfig, $packageId, $buttonText);
     }
+
+    return $this->errorButton('- failed all validation');
+  }
+
+  private function DisplayViaPackageId(EventConfig $eventConfig, int $packageId, string $buttonText): string
+  {
+    /** @var \ClawCorpLib\Iterators\PackageInfoArray */
+    $packageInfoArray = $eventConfig->packageInfos;
+
+    if (!isset($packageInfoArray[$packageId]))
+      return $this->errorButton('- Unknown package id');
+
+    $packageInfo = $packageInfoArray[$packageId];
+
+    if ($packageInfo->published != EbPublishedState::published) {
+      return $this->errorButton('- null/unpublished package');
+    }
+
+    $endDate = $packageInfo->end;
+    $now = new Date();
+    $link = EventBooking::buildDirectLink($packageInfo->eventId);
+    $link = '<a href="' . $link . '" role="button" class="btn btn-lg btn-large btn-danger">' . $buttonText . '</a>';
+
+    return $endDate == null || $now > $endDate ? $this->expiredButton() : $link;
+  }
+
+  private function DisplayViaPackageInfo(EventConfig $eventConfig, EventPackageTypes $packageType, string $displayOption, string $buttonText): string
+  {
+    if (in_array($packageType, [
+      EventPackageTypes::pass,
+      EventPackageTypes::day_pass_fri,
+      EventPackageTypes::day_pass_sat,
+      EventPackageTypes::day_pass_sun,
+      EventPackageTypes::pass_other
+    ])) {
+      return $this->passes($eventConfig, $packageType, $displayOption, $buttonText);
+    }
+
+    $packageInfo = $eventConfig->getPackageInfo($packageType);
+
+    if (is_null($packageInfo)) {
+      return $this->errorButton('- unknown package type');
+    }
+
+    if ($packageInfo->published != EbPublishedState::published || !$packageInfo->eventId) {
+      return $this->errorButton("- not published ($packageInfo->title:$packageInfo->eventAlias:$packageInfo->eventId)");
+    }
+
+    $buttonText = $this->parseButtonText($packageInfo, $buttonText);
+
+    if ($packageType == EventPackageTypes::vendormart) {
+      $link = EventBooking::buildDirectLink($packageInfo->eventId);
+    } else {
+      $link = EventBooking::buildRegistrationLink($eventConfig->alias, $packageType);
+    }
+
+    $link = '<a href="' . $link . '" role="button" class="btn btn-lg btn-large btn-danger">' . $buttonText . '</a>';
+    $row = EventBooking::loadEventRow($packageInfo->eventId);
+    $endDate = new Date($row->event_end_date);
 
     $now = new Date();
 
@@ -171,7 +208,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
     }
 
     if ($show) {
-      $packageInfoArray = $eventConfig->getPackageInfos($packageType);
+      $packageInfoArray = $eventConfig->getPackageInfos->byPackageType($packageType);
       $html = $this->processButtonGroup($packageInfoArray, $buttonText, $displayOption);
       return $html;
     } else {
@@ -222,22 +259,21 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
   {
     $metaLocation = match (strtolower($param)) {
       'cleveland' => 1,
+      'columbus' => 1,
       'losangeles' => 2,
+      'la' => 2,
       default => 0
     };
 
     return $metaLocation;
   }
 
-  // a fully-numeric packageType means we're going to lookup the package by database id
-  // otherwise, we treat as EventPackageType 
-  private function parsePackageType(string $param): EventPackageTypes|int|null
+  // try to get EventPackageType
+  // @param string name of the package type
+  // @return EventPackageTypes|null
+  private function parsePackageType(string $param): EventPackageTypes|null
   {
-    if (preg_match('/^[1-9]\d*$/', $param)) {
-      $packageType = EventPackageTypes::tryFrom((int)$param);
-    } else {
-      $packageType = EventPackageTypes::fromName(strtolower($param));
-    }
+    $packageType = EventPackageTypes::fromName(strtolower($param));
 
     return $packageType;
   }

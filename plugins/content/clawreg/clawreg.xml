@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension method="upgrade" type="plugin" group="content">
     <name>CLAW Registration Button</name>
-    <version>25.1.0</version>
+    <version>25.1.1</version>
     <description>Provides a CLAW Registration Button</description>
     <author>CLAW Corp.</author>
-    <creationDate>2025-08-20</creationDate>
+    <creationDate>2025-10-25</creationDate>
     <copyright>(C)2025 CLAW Corp.</copyright>
     <license>GNU General Public License version 2 or later</license>
     <namespace path="src">Clawcorp\Plugin\Content\Clawreg</namespace>
