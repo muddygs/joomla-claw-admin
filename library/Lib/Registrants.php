@@ -44,7 +44,12 @@ class Registrants
     $userIds = array_unique($db->loadColumn());
 
     $clawEventAlias = ClawEvents::eventIdtoAlias($eventId);
-    $eventConfig = new EventConfig($clawEventAlias, []);
+
+    try {
+      $eventConfig = new EventConfig($clawEventAlias, []);
+    } catch (\Exception) {
+      dd(['byEventId failed to find', $eventId]);
+    }
 
     if ($clawEventAlias === false) {
       die("Event from Event ID cannot be determined");
