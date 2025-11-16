@@ -34,7 +34,6 @@ class Deploy
   private GridShifts $deployedShifts;
   private DatabaseDriver $db;
 
-  private int $baseUnixTime;
   private string $aliasPrefix;
   private Date $cut_off_date;
   private Date $registration_start_date;
@@ -54,7 +53,6 @@ class Deploy
     private EventInfo $eventInfo,
   ) {
     $this->db = Factory::getContainer()->get('DatabaseDriver');
-    date_default_timezone_set($this->eventInfo->timezone);
 
     $this->liveShifts = new GridShifts($this->eventInfo);
 
@@ -62,11 +60,11 @@ class Deploy
     $this->deployedShifts = new GridShifts($this->eventInfo, true);
 
     $this->keys = Helpers::days;
-    $this->baseUnixTime = $this->eventInfo->start_date->toUnix();
     $this->aliasPrefix = $this->eventInfo->shiftPrefix;
     $this->cut_off_date = $this->eventInfo->start_date;
     $this->location = $this->eventInfo->ebLocationId;
     $this->registration_start_date = Factory::getDate('now', $this->eventInfo->timezone);
+
     $this->registered_acl = Config::getGlobalConfig('packageinfo_registered_acl', 0);
   }
 
@@ -91,14 +89,18 @@ class Deploy
 
     $shiftCategoryIds = [...$this->eventInfo->eb_cat_shifts, ...$this->eventInfo->eb_cat_supershifts];
 
+    /** @var \ClawCorpLib\Grid\GridShift */
+    foreach ($this->liveShifts->shifts as $liveShift) {
+      if (!in_array($liveShift->category, $shiftCategoryIds)) {
+        dd($liveShift);
+        throw new \Exception('Invalid category id for ' . $liveShift->title . '. Did you forget to add to the event info config?');
+      }
+    }
+
     try {
       foreach ($commonKeys as $shiftId) {
         $liveShift = $this->liveShifts->shifts[$shiftId];
         $deployedShift = in_array($shiftId, $this->deployedShifts->shifts->keys()) ? $this->deployedShifts->shifts[$shiftId] : null;
-
-        if (!in_array($liveShift->category, $shiftCategoryIds)) {
-          throw new \Exception('Invalid category id for ' . $liveShift->title . '. Did you forget to add to the event info config?');
-        }
 
         // TODO: add a hashing function to further minimize processing requirements
 
@@ -116,14 +118,17 @@ class Deploy
           }
         }
 
+        // make sure deployed for this shift is synced
         $liveShift->save(false);
       }
 
-      /** @var \ClawCorpLib\Grid\GridTime */
-      foreach ($liveShift->getTimes() as $gridTime) {
-        foreach ($this->keys as $key) {
-          $log = self::upsertEvent($liveShift, $gridTime, $key, $liveShift->published);
-          if (!is_null($log)) $this->log[] = $log;
+      foreach ($this->liveShifts->shifts as $liveShift) {
+        /** @var \ClawCorpLib\Grid\GridTime */
+        foreach ($liveShift->getTimes() as $gridTime) {
+          foreach ($this->keys as $key) {
+            $log = self::upsertEvent($liveShift, $gridTime, $key, $liveShift->published);
+            if (!is_null($log)) $this->log[] = $log;
+          }
         }
       }
     } catch (\Exception $e) {
@@ -151,6 +156,62 @@ class Deploy
     }
 
     return $this->log;
+  }
+
+  public function FindOrphanedShiftEvents(): array
+  {
+    $shiftCategoryIds = [...$this->eventInfo->eb_cat_shifts, ...$this->eventInfo->eb_cat_supershifts];
+    if (sizeof($shiftCategoryIds) == 0) return [];
+
+    // (1) collect all the eventIds for deployed shift events
+
+    $this->deployedShifts = new GridShifts($this->eventInfo, true); // refresh cache
+    $deployedEventIds = [];
+
+    /** @var \ClawCorpLib\Grid\GridShift $shift */
+    foreach ($this->deployedShifts->shifts as $shift) {
+      if ($shift->published != EbPublishedState::published) continue;
+
+      /** @var \ClawCorpLib\Grid\GridTime $gridTime */
+      foreach ($shift->getTimes() as $gridTime) {
+        $eIds = array_values(
+          array_intersect_key($gridTime->getEventIds(), array_filter($gridTime->getNeeds(), fn($v) => $v > 0))
+        );
+
+        $deployedEventIds = [...$deployedEventIds, ...$eIds];
+      }
+    }
+
+    // (2) Pull out all shift events (based on alias) from EventBooking
+
+    $aliasPrefix = $this->eventInfo->shiftPrefix;
+
+    $query = $this->db->createQuery()
+      ->select($this->db->qn([
+        'id',
+        'title',
+        'alias',
+        'event_capacity',
+        'event_date',
+        'event_end_date',
+        'main_category_id',
+        'published'
+      ]))
+      ->select('( SELECT count(*) FROM #__eb_registrants r WHERE r.event_id = e.id AND r.published = 1 ) AS memberCount')
+      ->from($this->db->qn('#__eb_events', 'e'))
+      ->whereIn($this->db->qn('main_category_id'), $shiftCategoryIds)
+      ->where($this->db->qn('alias') . " LIKE '{$aliasPrefix}%'")
+      ->order($this->db->qn('id'));
+
+    $this->db->setQuery($query);
+    $rows = $this->db->loadObjectList('id');
+
+    // (3) and finally...filter
+
+    $orphanEventIds = array_diff(array_keys($rows), $deployedEventIds);
+
+    $orphanEbEventRows = array_intersect_key($rows, array_flip($orphanEventIds));
+    return $orphanEbEventRows;
   }
 
   private function SyncEvent(
@@ -205,21 +266,22 @@ class Deploy
     // No needs? Make sure it's unpublished
     if ($need == 0) $published = EbPublishedState::any;
 
-    $btime = $this->baseUnixTime + (array_search($key, $this->keys) + 1) * 86400; // seconds in a day
-    $offset = Helpers::timeToSeconds($gridTime->time->format('H:i'));
+    $days = array_search($key, $this->keys) + 1;
+    $stime = $this->eventInfo->modify("+$days day");
 
-    if ($offset === false) {
-      throw new \Exception('Unable to convert ' . $gridTime->time . ' to a time');
-    }
+    // Apply start time
+    $stime->setTime(
+      (int)$gridTime->time->format('H'),
+      (int)$gridTime->time->format('i'),
+      0
+    );
 
-    $stime = $btime + $offset;
-    $etime = $stime + $gridTime->length * 60 * 60;
+    $lengthMinutes = (int)($gridTime->length * 60);
+    $etime = clone $stime;
+    $etime->add(new \DateInterval("PT{$lengthMinutes}M"));
 
-    $s = new Date($stime); // Joomla handles numerics as unixtime
-    $stitle = date('D h:iA', $stime);
-
-    $e = new Date($etime);
-    $etitle = date('D h:iA', $etime);
+    $stitle = $stime->format('D h:iA');
+    $etitle = $etime->format('D h:iA');
 
     $alias = self::createAlias(
       $this->aliasPrefix,
@@ -246,11 +308,11 @@ class Deploy
         title: $title,
         description: $description,
         article_id: $this->eventInfo->termsArticleId,
-        cancel_before_date: $s,
+        cancel_before_date: $stime,
         cut_off_date: $this->cut_off_date,
-        event_date: $s,
-        event_end_date: $e,
-        publish_down: $e,
+        event_date: $stime,
+        event_end_date: $etime,
+        publish_down: $etime,
         individual_price: 0,
         registration_start_date: $this->registration_start_date,
         registration_access: $this->registered_acl,
@@ -277,7 +339,6 @@ class Deploy
 
       return null;
     } elseif ($response->action == 'update') {
-      var_dump($response->changes);
       $gridTime->setEventId($key, $response->id);
       $gridTime->save();
     } else {
