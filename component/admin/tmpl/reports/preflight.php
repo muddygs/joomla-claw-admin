@@ -355,6 +355,7 @@ $orphanedEvents = $shiftDeploy->FindOrphanedShiftEvents();
         <td>Event ID</td>
         <td>Title</td>
         <td>State</td>
+        <td>Registrants</td>
         <td>Recommendation</td>
       </tr>
     </thead>
@@ -366,6 +367,7 @@ $orphanedEvents = $shiftDeploy->FindOrphanedShiftEvents();
         $output[] = $row->id;
         $output[] = $row->title;
         $output[] = $row->published ? '<span class="text-danger">Published</span>' : '<span class="text-warning">Unpublished</span>';
+        $output[] = $row->memberCount;
         $output[] = $row->memberCount ? '<span class="text-danger">Move registrants to valid shifts</span>' : '<span class="text-warning">Manually delete event</span>';
 
         dataRow($output);
