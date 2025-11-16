@@ -18,7 +18,6 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Form\Form;
 
 use ClawCorpLib\Helpers\Helpers;
-use ClawCorpLib\Lib\EventInfo;
 use Joomla\CMS\Factory;
 
 /**
@@ -37,11 +36,11 @@ class ShiftModel extends AdminModel
   {
     $data['mtime'] = Helpers::mtime();
 
-    if (!GridShift::validateGrid($data, 'grid')) {
-      $app = Factory::getApplication();
-      $app->enqueueMessage('Changes to grid conflict with current deployment', 'error');
-      return false;
-    }
+    //if (!GridShift::validateGrid($data, 'grid')) {
+    //$app = Factory::getApplication();
+    //$app->enqueueMessage('Changes to grid conflict with current deployment', 'error');
+    //return false;
+    //}
 
 
     $result = parent::save($data);
@@ -94,8 +93,7 @@ class ShiftModel extends AdminModel
     }
 
     if (is_object($data) && !is_null($data->id) && $data->id > 0) {
-      $eventInfo = new EventInfo($data->event, true);
-      $gridShift = new GridShift($data->id, $eventInfo);
+      $gridShift = new GridShift($data->id);
       $data->grid = $gridShift->timesToFormArray();
     }
 
