@@ -43,7 +43,7 @@ return new class() implements InstallerScriptInterface {
     $this->oldVersion = $oldVersion;
 
     // this is a middle-ground for test/deploy. 
-    if (version_compare($this->oldVersion, '25.0.8', '<=')) {
+    if (version_compare($this->oldVersion, '26.0.8', '<=')) {
       // Make sure event_capacity is in #__claw_packages
       /** @var \Joomla\Database\DatabaseDriver */
       $db = \Joomla\CMS\Factory::getContainer()->get('DatabaseDriver');
