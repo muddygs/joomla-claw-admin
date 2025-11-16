@@ -100,6 +100,7 @@ $view = 'packageinfo';
     <?php echo HTMLHelper::_('uitab.endTab'); ?>
     <?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'misc', 'Misc'); ?>
 
+    <?= $this->form->renderField('event_capacity'); ?>
     <?= $this->form->renderField('meta'); ?>
     <?= $this->form->renderField('authNetProfile'); ?>
 

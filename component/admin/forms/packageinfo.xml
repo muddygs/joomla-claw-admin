@@ -267,7 +267,17 @@
     <option value="0">JNO</option>
   </field>
 
-  <!-- This field needs to sync with Deploy.php::Packages() to verify meta is defined -->
+  <field
+    name="event_capacity"
+    type="text"
+    label="Event Capacity"
+    description="Setting to '0' means no limit"
+    required="true"
+    filter="uint"
+    default="0"
+  />
+
+  <!-- This field needs to sync with DeployPackages.php's metaPackages to verify meta is defined -->
   <field
     name="meta"
     type="list"

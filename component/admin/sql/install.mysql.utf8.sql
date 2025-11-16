@@ -223,6 +223,7 @@ CREATE TABLE IF NOT EXISTS `#__claw_packages` (
     `alias` VARCHAR(255) NOT NULL DEFAULT '',
     `eventPackageType` SMALLINT(5) NOT NULL DEFAULT 0,
     `packageInfoType` TINYINT(4) NOT NULL DEFAULT 0,
+    `event_capacity` INT NOT NULL DEFAULT '0',
     `group_id` INT(11) NOT NULL DEFAULT 0,
     `couponKey` VARCHAR(10) NOT NULL DEFAULT '',
     `couponValue` FLOAT NOT NULL DEFAULT 0.0,
