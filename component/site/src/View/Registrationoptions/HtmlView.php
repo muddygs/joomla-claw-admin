@@ -221,7 +221,7 @@ class HtmlView extends BaseHtmlView
       }
     }
 
-    // Check is cross-event items are in the cart
+    // Check if cross-event items are in the cart
     $aliases = [];
     foreach ($items as $item) {
       $alias = ClawEvents::eventIdtoAlias($item);
