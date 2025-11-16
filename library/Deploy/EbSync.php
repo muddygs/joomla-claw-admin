@@ -159,7 +159,8 @@ final class EbSync
       if ($name == 'created_by') continue;
       if (
         $name == 'registration_start_date' &&
-        $existing->registration_start_date < $asSql->registration_start_date
+        $existing->registration_start_date < $asSql->registration_start_date &&
+        $existing->registration_start_date != $this->db->getNullDate()
       ) continue;
       if (!property_exists($existing, $name)) {
         throw new \InvalidArgumentException("Mismatch between EbSyncItem named $name and #__eb_events columns");
