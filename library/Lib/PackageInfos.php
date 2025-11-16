@@ -11,13 +11,18 @@
 namespace ClawCorpLib\Lib;
 
 use Joomla\CMS\Factory;
+use Joomla\Database\DatabaseDriver;
 use ClawCorpLib\Iterators\PackageInfoArray;
 use ClawCorpLib\Enums\EbPublishedState;
 use ClawCorpLib\Enums\EventPackageTypes;
+use ClawCorpLib\Traits\PackageDeploy;
 
 final class PackageInfos
 {
+  use PackageDeploy;
+
   public PackageInfoArray $packageInfoArray;
+  private DatabaseDriver $db;
 
   public function __construct(
     public readonly array $eventAliases,
@@ -35,20 +40,25 @@ final class PackageInfos
       }
     }
 
+    $this->db = Factory::getContainer()->get('DatabaseDriver');
     $this->loadPackageInfos();
+  }
+
+  protected function getDb(): DatabaseDriver
+  {
+    return $this->db;
   }
 
   private function loadPackageInfos()
   {
     $this->packageInfoArray = new PackageInfoArray();
 
-    $tableName = $this->useDeployedTable ? PackageInfo::TABLE_NAME_DEPLOYED : PackageInfo::TABLE_NAME;
+    $tableName = $this->useDeployedTable ? $this->ensureDeployedTable(PackageInfo::TABLE_NAME) : PackageInfo::TABLE_NAME;
 
     /** @var \Joomla\Database\DatabaseDriver */
-    $db = Factory::getContainer()->get('DatabaseDriver');
-    $aliases = implode(',', (array)($db->q($this->eventAliases)));
+    $aliases = implode(',', (array)($this->db->q($this->eventAliases)));
 
-    $query = $db->getQuery(true);
+    $query = $this->db->getQuery(true);
 
     $query->select('id')
       ->from($tableName)
@@ -65,9 +75,9 @@ final class PackageInfos
 
     $query->order('start ASC')->order('end ASC');
 
-    $db->setQuery($query);
+    $this->db->setQuery($query);
 
-    $rows = $db->loadColumn();
+    $rows = $this->db->loadColumn();
 
     if (is_null($rows)) return;
 
