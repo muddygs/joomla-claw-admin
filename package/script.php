@@ -52,7 +52,8 @@ return new class() implements InstallerScriptInterface {
       $tables = $db->getTableList();
       var_dump($tables);
 
-      if (in_array('#__claw_packages_deploy', $tables)) {
+      $realName = $db->replacePrefix('#__claw_packages_deploy');
+      if (in_array($realName, $tables)) {
         $columns = $db->getTableColumns('#__claw_packages_deploy', false);
         var_dump($columns);
 
@@ -61,7 +62,9 @@ return new class() implements InstallerScriptInterface {
           $db->execute();
         }
       }
-      if (in_array('#__claw_packages', $tables)) {
+
+      $realName = $db->replacePrefix('#__claw_packages');
+      if (in_array($realName, $tables)) {
         $columns = $db->getTableColumns('#__claw_packages', false);
         var_dump($columns);
 
