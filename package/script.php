@@ -50,27 +50,26 @@ return new class() implements InstallerScriptInterface {
       /** @var \Joomla\Database\DatabaseDriver */
       $db = \Joomla\CMS\Factory::getContainer()->get('DatabaseDriver');
       $tables = $db->getTableList();
-      var_dump($tables);
 
-      $realName = $db->replacePrefix('#__claw_packages_deploy');
+      $realName = $db->replacePrefix('#__claw_packages_deployed');
       if (in_array($realName, $tables)) {
-        $columns = $db->getTableColumns('#__claw_packages_deploy', false);
-        var_dump($columns);
+        $columns = $db->getTableColumns('#__claw_packages_deployed', false);
 
         if (!isset($columns['event_capacity'])) {
-          $db->setQuery("ALTER TABLE `#__claw_packages_deploy` ADD `event_capacity` INT NOT NULL DEFAULT '0' AFTER `packageInfoType`;");
+          $db->setQuery("ALTER TABLE `#__claw_packages_deployed` ADD `event_capacity` INT NOT NULL DEFAULT '0' AFTER `packageInfoType`;");
           $db->execute();
+          echo "$realName updated";
         }
       }
 
       $realName = $db->replacePrefix('#__claw_packages');
       if (in_array($realName, $tables)) {
         $columns = $db->getTableColumns('#__claw_packages', false);
-        var_dump($columns);
 
         if (!isset($columns['event_capacity'])) {
           $db->setQuery("ALTER TABLE `#__claw_packages` ADD `event_capacity` INT NOT NULL DEFAULT '0' AFTER `packageInfoType`;");
           $db->execute();
+          echo "$realName updated";
         }
       }
     }
