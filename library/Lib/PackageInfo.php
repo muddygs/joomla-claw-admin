@@ -38,6 +38,7 @@ class PackageInfo
   public string $alias = '';
   public EventPackageTypes $eventPackageType = EventPackageTypes::none;
   public PackageInfoTypes $packageInfoType = PackageInfoTypes::none;
+  public int $eventCapacity;
   public int $acl_id = 0;
   public string $couponKey = '';
   public float $couponValue = 0.0;
@@ -89,6 +90,7 @@ class PackageInfo
     $result->alias = $this->alias;
     $result->eventPackageType = $this->eventPackageType->value;
     $result->packageInfoType = $this->packageInfoType->value;
+    $result->event_capacity = $this->eventCapacity;
     $result->group_id = $this->acl_id;
     $result->couponKey = $this->couponKey;
     $result->couponValue = $this->couponValue;
@@ -136,6 +138,7 @@ class PackageInfo
     $this->alias = $result->alias;
     $this->eventPackageType = EventPackageTypes::FindValue($result->eventPackageType);
     $this->packageInfoType = PackageInfoTypes::FindValue($result->packageInfoType);
+    $this->eventCapacity = $result->event_capacity;
     $this->acl_id = $result->group_id; // TODO: update db schema
     $this->couponKey = $result->couponKey;
     $this->couponValue = $result->couponValue;
@@ -177,6 +180,7 @@ class PackageInfo
       'eventAlias'       => $this->eventAlias,
       'eventPackageType' => $this->eventPackageType->value,
       'packageInfoType'  => $this->packageInfoType->value,
+      'event_capacity'   => $this->eventCapacity,
       'acl_id'           => $this->acl_id,
       'couponKey'        => $this->couponKey,
       'couponValue'      => $this->couponValue,

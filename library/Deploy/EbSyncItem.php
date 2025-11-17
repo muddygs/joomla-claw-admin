@@ -164,18 +164,4 @@ final class EbSyncItem
     // toSql(true) emits UTC
     return $local->toSql(true);
   }
-
-  /*   private function useLocalTimeAsUtcSql(Date $date, bool $startOfDay = false): string */
-  /*   { */
-  /*     $d = clone $date; */
-  /**/
-  /*     if ($startOfDay) { */
-  /*       $timestamp = $d->getTimestamp(); */
-  /*       $timestamp -= $timestamp % 3600; */
-  /*       $d->setTimezone(new \DateTimeZone($this->eventInfo->timezone))->setTimestamp($timestamp); */
-  /*     } */
-  /**/
-  /*     return $d->toSql(true); */
-  /*   } */
-  /* } */
 }
