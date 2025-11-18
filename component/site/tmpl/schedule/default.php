@@ -3,13 +3,10 @@
 \defined('_JEXEC') or die;
 
 use ClawCorpLib\Helpers\Bootstrap;
-
-//date_default_timezone_set(Aliases::timezone);
-
+use Joomla\CMS\HTML\HTMLHelper;
 
 $tabs = [];
 $tabData = [];
-
 
 foreach ($this->events as $date => $events) {
   if (count($events)) {
@@ -23,7 +20,7 @@ foreach ($this->events as $date => $events) {
     $this->loadTemplate('items'); // handles output buffering
     $html .= $this->_output; // result of output buffering
 
-    $tabData[] = $html;
+    $tabData[] = HTMLHelper::_('content.prepare', $html);
   }
 }
 
