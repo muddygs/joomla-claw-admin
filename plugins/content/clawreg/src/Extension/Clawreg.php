@@ -51,7 +51,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
       // 0: location
       // 1: EventPackageType enum case | packageId
       // 2: displayed text with limited substitutions available
-      // 3: display option (null, any, onsite_active) 
+      // 3: display option (null, any, onsite) 
       $matcheslist = explode(',', $match[1]);
 
       $output = $this->paramsToButton($matcheslist);
@@ -70,7 +70,9 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
 
   private function expiredButton(): string
   {
-    return '<a href="javascript:void(0)" role="button" class="btn btn-lg btn-info">Registration Closed</a>';
+    // TODO: for now, return nothing
+    return '';
+    //return '<a href="javascript:void(0)" role="button" class="btn btn-lg btn-info">Registration Closed</a>';
   }
 
   private function paramsToButton($params): string
@@ -139,7 +141,12 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
       return $this->errorButton('- null/unpublished package');
     }
 
+    $buttonText = $this->parseButtonText($packageInfo, $buttonText);
+
+    // Translate UTC to into event-local time
     $endDate = $packageInfo->end;
+    if (!is_null($endDate)) $endDate = new Date($packageInfo->end->format('Y-m-d H:i:s'), $eventConfig->eventInfo->timezone);
+
     $now = new Date();
     $link = EventBooking::buildDirectLink($packageInfo->eventId);
     $link = '<a href="' . $link . '" role="button" class="btn btn-lg btn-large btn-danger">' . $buttonText . '</a>';
@@ -188,32 +195,39 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
 
   private function passes(EventConfig $eventConfig, EventPackageTypes $packageType, string $displayOption, string $buttonText): string
   {
-    $show = false;
+    $show = $displayOption == 'any' ? true : false;
 
-    switch ($packageType) {
-      case EventPackageTypes::pass:
-        if ($eventConfig->eventInfo->passesActive) $show = true;
-        break;
+    if (!$show) {
+      switch ($packageType) {
+        case EventPackageTypes::pass:
+          if ($eventConfig->eventInfo->passesActive) $show = true;
+          break;
 
-      case EventPackageTypes::pass_other:
-        if ($eventConfig->eventInfo->passesOtherActive) $show = true;
-        break;
-      case EventPackageTypes::day_pass_fri:
-      case EventPackageTypes::day_pass_sat:
-      case EventPackageTypes::day_pass_sun:
-        if ($eventConfig->eventInfo->dayPassesActive) $show = true;
-        break;
-      default:
-        break;
+        case EventPackageTypes::pass_other:
+          if ($eventConfig->eventInfo->passesOtherActive) $show = true;
+          break;
+        case EventPackageTypes::day_pass_fri:
+        case EventPackageTypes::day_pass_sat:
+        case EventPackageTypes::day_pass_sun:
+          if ($eventConfig->eventInfo->dayPassesActive) $show = true;
+          break;
+        default:
+          break;
+      }
     }
 
-    if ($show) {
-      $packageInfoArray = $eventConfig->getPackageInfos->byPackageType($packageType);
-      $html = $this->processButtonGroup($packageInfoArray, $buttonText, $displayOption);
-      return $html;
-    } else {
-      return '';
+    if (!$show) return '';
+
+    $packageInfoArray = new PackageInfoArray();
+    /** @var \ClawCorpLib\Lib\PackageInfo */
+    foreach ($eventConfig->packageInfos as $packageId => $packageInfo) {
+      if ($packageInfo->eventPackageType == $packageType) {
+        $packageInfoArray[$packageId] = clone $packageInfo;
+      }
     }
+
+    $html = $this->processButtonGroup($packageInfoArray, $buttonText, $displayOption);
+    return $html;
   }
 
   private function processButtonGroup(PackageInfoArray $packageInfoArray, string $buttonText, ?string $displayOption): string
