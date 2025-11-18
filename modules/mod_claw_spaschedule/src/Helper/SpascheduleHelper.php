@@ -106,11 +106,11 @@ class SpascheduleHelper implements DatabaseAwareInterface
         }
       }
 
-      if (count((array)$packageInfo->meta) == 0) {
-        unset($eventConfig->packageInfos[$pKey]);
+      if (count((array)($packageInfo->meta)) == 0) {
+        ($eventConfig->packageInfos)->offsetUnset($pKey);
       }
 
-      if (!is_null($eventConfig->packageInfos[$pKey])) {
+      if ($eventConfig->packageInfos->offsetExists($pKey)) {
         $day = $eventConfig->packageInfos[$pKey]->start->format('D');
         if (!array_key_exists($day, $days)) {
           $days[$day] = 0;
