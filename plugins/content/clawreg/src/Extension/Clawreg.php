@@ -40,7 +40,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
     if (!str_contains($article->text, "{clawreg ")) return;
 
     // $matches[0] is full pattern match, $matches[1] is the position
-    $regex         = "/{clawreg\s+([\w\s,\"\#\(\)]+)}/i";
+    $regex         = "/{clawreg\s+(.*?)}/i";
     preg_match_all($regex, $article->text, $matches, PREG_SET_ORDER);
 
     // No matches, we're done
@@ -149,7 +149,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
 
     $now = new Date();
     $link = EventBooking::buildDirectLink($packageInfo->eventId);
-    $link = '<a href="' . $link . '" role="button" class="btn btn-lg btn-large btn-danger">' . $buttonText . '</a>';
+    $link = '<a href="' . $link . '" role="button" class="w-100 btn btn-lg btn-large btn-danger">' . $buttonText . '</a>';
 
     return $endDate == null || $now > $endDate ? $this->expiredButton() : $link;
   }
@@ -184,7 +184,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
       $link = EventBooking::buildRegistrationLink($eventConfig->alias, $packageType);
     }
 
-    $link = '<a href="' . $link . '" role="button" class="btn btn-lg btn-large btn-danger">' . $buttonText . '</a>';
+    $link = '<a href="' . $link . '" role="button" class="w-100 btn btn-lg btn-large btn-danger">' . $buttonText . '</a>';
     $row = EventBooking::loadEventRow($packageInfo->eventId);
     $endDate = new Date($row->event_end_date);
 
