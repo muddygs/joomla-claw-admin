@@ -44,7 +44,7 @@ return new class() implements InstallerScriptInterface {
 
     // this is a middle-ground for test/deploy. 
     if (version_compare($this->oldVersion, '26.0.8', '<=')) {
-      echo "Validating #__claw_packages";
+      echo "<br/>Validating #__claw_packages";
 
       // Make sure event_capacity is in #__claw_packages
       /** @var \Joomla\Database\DatabaseDriver */
@@ -58,7 +58,7 @@ return new class() implements InstallerScriptInterface {
         if (!isset($columns['event_capacity'])) {
           $db->setQuery("ALTER TABLE `#__claw_packages_deployed` ADD `event_capacity` INT NOT NULL DEFAULT '0' AFTER `packageInfoType`;");
           $db->execute();
-          echo "$realName updated";
+          echo "<br/>$realName updated";
         }
       }
 
@@ -69,7 +69,7 @@ return new class() implements InstallerScriptInterface {
         if (!isset($columns['event_capacity'])) {
           $db->setQuery("ALTER TABLE `#__claw_packages` ADD `event_capacity` INT NOT NULL DEFAULT '0' AFTER `packageInfoType`;");
           $db->execute();
-          echo "$realName updated";
+          echo "<br/>$realName updated";
         }
       }
     }
