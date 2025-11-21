@@ -77,14 +77,24 @@ foreach ($this->items as $item):
   if (count($item->sponsors)) {
     foreach ($item->sponsors as $sponsorId) {
       /** @var \ClawCorpLib\Lib\Sponsor */
+      if (!array_key_exists($sponsorId, $this->sponsors[$sponsorId])) continue;
       $sponsorItem = $this->sponsors[$sponsorId];
-      if (is_null($sponsorItem)) continue;
 
 ?>
-      <div class="text-center" style="font-size: smaller; color:var(--claw-warning)"><?= $sponsorItem->type->toString() ?>&nbsp;Sponsor</div>
-  <?php
-
-      echo HTMLHelper::_('image', $sponsorItem->logo_small, $sponsorItem->name, ['class' => 'd-block mx-auto']);
+      <div class="text-center" style="font-size: smaller; color:var(--claw-warning)"><?= $sponsorItem->type->toString() ?></div>
+      <?php
+      if ($sponsorItem->link) {
+      ?>
+        <a href="<?= $sponsorItem->link ?>" target="_blank">
+        <?php
+      }
+      $i = HTMLHelper::_('image', $sponsorItem->logo_small, $sponsorItem->name, ['class' => 'd-block mx-auto']);
+      echo is_null($i) ? $sponsorItem->name : $i;
+    }
+    if ($sponsorItem->link) {
+        ?>
+        </a>
+    <?php
     }
   } else {
     echo '&nbsp;';
@@ -92,30 +102,30 @@ foreach ($this->items as $item):
 
   $sponsor_logos = ob_get_clean();
 
-  ?>
-  <div class="row row-striped g-0 <?= $featuredClass ?>">
-    <div class="col-9 col-lg-10 g-0 row">
-      <div class="col-lg-2 pt-lg-2 pb-lg-2 mt-2 mb-2 tight"><?= $stime ?>&ndash;<?= $etime ?></div>
-      <?php
-      if (!empty($poster)):
-        $this->poster = $poster;
-      ?>
-        <div class="col-lg-8 pt-lg-2 pb-lg-2 mt-2 mb-2">
-          <div class="row">
-            <div class="col-lg-8"><?= $eventHtml ?></div>
-            <div class="col-lg-4 align-middle text-lg-end"><?= $this->loadTemplate('poster') ?></div>
+    ?>
+    <div class="row row-striped g-0 <?= $featuredClass ?>">
+      <div class="col-9 col-lg-10 g-0 row">
+        <div class="col-lg-2 pt-lg-2 pb-lg-2 mt-2 mb-2 tight"><?= $stime ?>&ndash;<?= $etime ?></div>
+        <?php
+        if (!empty($poster)):
+          $this->poster = $poster;
+        ?>
+          <div class="col-lg-8 pt-lg-2 pb-lg-2 mt-2 mb-2">
+            <div class="row">
+              <div class="col-lg-8"><?= $eventHtml ?></div>
+              <div class="col-lg-4 align-middle text-lg-end"><?= $this->loadTemplate('poster') ?></div>
+            </div>
           </div>
-        </div>
-      <?php
-      else:
-      ?>
-        <div class="col-lg-8 pt-lg-2 pb-lg-2 mt-2 mb-2"><?= $eventHtml ?></div>
-      <?php
-      endif;
-      ?>
-      <div class="col-lg-2 pt-lg-2 pb-lg-2 mt-2 mt-lg-1 mb-2 mb-lg-1 <?= $locationView ?>"><?= $location ?></div>
+        <?php
+        else:
+        ?>
+          <div class="col-lg-8 pt-lg-2 pb-lg-2 mt-2 mb-2"><?= $eventHtml ?></div>
+        <?php
+        endif;
+        ?>
+        <div class="col-lg-2 pt-lg-2 pb-lg-2 mt-2 mt-lg-1 mb-2 mb-lg-1 <?= $locationView ?>"><?= $location ?></div>
+      </div>
+      <div class="col-3 col-lg-2 order-last pt-lg-2 pb-lg-2 mt-2 mb-2 g-0"><?= $sponsor_logos ?></div>
     </div>
-    <div class="col-3 col-lg-2 order-last pt-lg-2 pb-lg-2 mt-2 mb-2 g-0"><?= $sponsor_logos ?></div>
-  </div>
-<?php
+  <?php
 endforeach;
