@@ -77,7 +77,7 @@ foreach ($this->items as $item):
   if (count($item->sponsors)) {
     foreach ($item->sponsors as $sponsorId) {
       /** @var \ClawCorpLib\Lib\Sponsor */
-      if (!array_key_exists($sponsorId, $this->sponsors[$sponsorId])) continue;
+      if (!$this->sponsors->offsetExists($sponsorId)) continue;
       $sponsorItem = $this->sponsors[$sponsorId];
 
 ?>
