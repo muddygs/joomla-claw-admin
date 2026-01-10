@@ -236,6 +236,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
     $dayStart = new Date('today midnight');
     $dayEnd = new Date('tomorrow 2am');
     $now = new Date();
+    if (is_null($displayOption)) $displayOption = '';
 
 ?>
     <div class="d-grid gap-2">
@@ -256,7 +257,7 @@ class Clawreg extends CMSPlugin implements SubscriberInterface
           continue;
         }
 
-        if ((is_null($displayOption) && $rowStart >= $dayStart && $rowEnd <= $dayEnd) || ($displayOption == 'any' && $now <= $rowEnd)) {
+        if ((!$displayOption && $rowStart >= $dayStart && $rowEnd <= $dayEnd) || ($displayOption == 'any' && $now <= $rowEnd)) {
           $link = EventBooking::buildDirectLink($packageInfo->eventId);
           $title = $this->parseButtonText($packageInfo, $buttonText);
           echo '<a href="' . $link . '" role="button" class="btn btn-lg btn-danger">' . $title . '</a>';
