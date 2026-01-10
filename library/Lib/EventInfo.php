@@ -79,7 +79,8 @@ class EventInfo
     $this->start_date = Factory::getDate($info->start_date, $this->timezone);
     $this->end_date = Factory::getDate($info->end_date, $this->timezone);
     $this->prefix = strtoupper($info->prefix);
-    $this->cancelBy = Factory::getDate($info->cancelBy, $this->timezone);
+    //$this->cancelBy = Factory::getDate($info->cancelBy, $this->timezone);
+    $this->cancelBy = Factory::getDate($info->cancelBy);
     $this->active = boolval($info->active);
     try {
       $this->eventType = EventTypes::from($info->eventType);
