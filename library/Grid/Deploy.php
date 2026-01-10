@@ -92,8 +92,7 @@ class Deploy
     /** @var \ClawCorpLib\Grid\GridShift */
     foreach ($this->liveShifts->shifts as $liveShift) {
       if (!in_array($liveShift->category, $shiftCategoryIds)) {
-        dd($liveShift);
-        throw new \Exception('Invalid category id for ' . $liveShift->title . '. Did you forget to add to the event info config?');
+        throw new \Exception('Invalid category id ($liveShift->category) for ' . $liveShift->title . '. Did you forget to add to the event info config?');
       }
     }
 
@@ -214,10 +213,27 @@ class Deploy
     return $orphanEbEventRows;
   }
 
+  /**
+   * Find event with alias in the format of *-gridid-gridtimeid-weight
+   */
+  public function customFindByAlias(string $alias): ?object
+  {
+    $pattern = '/' . preg_quote($this->eventInfo->shiftPrefix, '/') . '-(.+)$/';
+    if (!preg_match($pattern, $alias, $matches)) return null;
+
+    $q  = $this->db->getQuery(true)
+      ->select('*')
+      ->from($this->db->quoteName('#__eb_events'))
+      ->where($this->db->quoteName('alias') . ' LIKE ' . $this->db->quote('%-' . $matches[1]));
+
+    $this->db->setQuery($q);
+    return $this->db->loadObject();
+  }
+
   private function SyncEvent(
     EbSyncItem $item,
   ): \ClawCorpLib\Deploy\EbSyncResponse {
-    $sync = new EbSync($this->eventInfo, $item);
+    $sync = new EbSync($this->eventInfo, $item, [$this, 'customFindByAlias']);
     return $sync->upsert($item);
   }
 
@@ -283,18 +299,17 @@ class Deploy
     $stitle = $stime->format('D h:iA');
     $etitle = $etime->format('D h:iA');
 
-    $alias = self::createAlias(
-      $this->aliasPrefix,
-      preg_replace('/[^A-Za-z0-9]+/', '_', $title),
+    $alias = strtolower(implode('-', [
+      $this->aliasPrefix, // defined by EventInfo
       $shift->id,
       $gridTime->id,
       $gridTime->weight,
       $key
-    );
+    ]));
 
     $weight = "[x{$gridTime->weight}]";
 
-    $title = implode(' ', [$this->eventInfo->prefix, $title . $weight, "($stitle-$etitle)"]);
+    $title = implode(' ', [$this->eventInfo->prefix, $title, $weight, "($stitle-$etitle)"]);
 
     $description = implode('<br/>', [$shift->description, $shift->requirements]);
 
@@ -350,30 +365,6 @@ class Deploy
       $this->unpublishedEventIds[] = $eventId;
 
     return [$response->id . " ($response->action)", $title, $stitle, $etitle, $need, $gridTime->weight];
-  }
-
-  /**
-   * Since Event Booking lacks custom fields, use the alias to encode
-   * information regarding the shift
-   * @param string $prefix Event prefix
-   * @param string $title Event title
-   * @param int $sid GridShift ID
-   * @param int $tid GridTime ID 
-   * @param int $weight Shift weight
-   * @param string $key GridTime key (usually day)
-   *
-   * @return string Encoded alias
-   */
-  public static function createAlias(string $prefix, string $title, int $sid, int $tid, int $weight, string $key): string
-  {
-    return strtolower(implode('-', [
-      $prefix,
-      preg_replace('/[^A-Za-z0-9]+/', '', $title),
-      $sid,
-      $tid,
-      $weight,
-      $key
-    ]));
   }
 
   /**

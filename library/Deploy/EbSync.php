@@ -29,11 +29,16 @@ final class EbSync
 {
   private DatabaseDriver $db;
 
+  /** @var callable(string): ?object */
+  private $findByAlias;
+
   public function __construct(
     private EventInfo $eventInfo,
     public EbSyncItem $item,
+    ?callable $findByAliasOverride = null,
   ) {
     $this->db = Factory::getContainer()->get('DatabaseDriver');
+    $this->findByAlias = $findByAliasOverride ?? [$this, 'findByAliasDefault'];
   }
 
   public function upsert(): EbSyncResponse
@@ -45,7 +50,7 @@ final class EbSync
       );
     }
 
-    $existing = $this->findByAlias($this->item->alias);
+    $existing = ($this->findByAlias)($this->item->alias);
 
     if (!$existing) {
       if ($this->item->published != EbPublishedState::published->value) {
@@ -87,7 +92,7 @@ final class EbSync
     );
   }
 
-  private function findByAlias(string $alias): ?object
+  private function findByAliasDefault(string $alias): ?object
   {
     $q  = $this->db->getQuery(true)
       ->select('*')
@@ -157,11 +162,13 @@ final class EbSync
 
     foreach (array_keys(get_object_vars($this->item)) as $name) {
       if ($name == 'created_by') continue;
+
       if (
         $name == 'registration_start_date' &&
         $existing->registration_start_date < $asSql->registration_start_date &&
         $existing->registration_start_date != $this->db->getNullDate()
       ) continue;
+
       if (!property_exists($existing, $name)) {
         throw new \InvalidArgumentException("Mismatch between EbSyncItem named $name and #__eb_events columns");
       }
