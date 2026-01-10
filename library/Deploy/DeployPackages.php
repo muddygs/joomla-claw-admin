@@ -55,7 +55,6 @@ final class DeployPackages extends AbstractDeploy
     ];
 
     // Base times to offset by "time" parameter for each event
-    $cancel_before_date = $this->eventInfo->cancelBy;
     $startDateWed = $this->eventInfo->modify('Wed 9AM');
     $endDate = $this->eventInfo->modify('next Monday midnight');;
 
@@ -89,6 +88,7 @@ final class DeployPackages extends AbstractDeploy
         continue;
       }
 
+      $cancel_before_date = $this->eventInfo->cancelBy;
       $start = $packageInfo->start;
       $end = $packageInfo->end;
       $cutoff = $endDate;
